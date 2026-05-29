@@ -1750,6 +1750,10 @@ const Audio5L = (() => {
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Force music on by default (clear stale localStorage)
+  if (localStorage.getItem('5L_musicOn') === 'false') {
+    localStorage.removeItem('5L_musicOn');
+  }
   Audio5L.tryAutoplay();
   Audio5L.updatePrefUI();
   initFactionArt();
@@ -4180,6 +4184,7 @@ document.querySelectorAll('.fp[data-p="1"]').forEach(fp => {
   fp.addEventListener('mouseenter', () => updateBg('bg-p1', f));
   fp.addEventListener('mouseleave', () => updateBg('bg-p1', setupP1));
   fp.addEventListener('click', () => {
+    Audio5L.startMusic();
     document.querySelectorAll('.fp[data-p="1"]').forEach(x => x.classList.remove('sel'));
     fp.classList.add('sel');
     setupP1 = f;
@@ -4202,6 +4207,7 @@ document.querySelectorAll('.fp[data-p="2"]').forEach(fp => {
   fp.addEventListener('click', () => {
     document.querySelectorAll('.fp[data-p="2"]').forEach(x => x.classList.remove('sel'));
     fp.classList.add('sel');
+    Audio5L.startMusic();
     setupP2 = f;
     updateBg('bg-p2', f);
     const sb = document.getElementById('start-btn');
@@ -4211,6 +4217,7 @@ document.querySelectorAll('.fp[data-p="2"]').forEach(fp => {
 });
 
 document.getElementById('start-btn').addEventListener('click', () => {
+  Audio5L.startMusic();
   if (!setupP1 || !setupP2) return;
   const mode = document.querySelector('input[name=mode]:checked').value;
   document.getElementById('setup').style.display = 'none';
