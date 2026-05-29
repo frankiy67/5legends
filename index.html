@@ -1825,8 +1825,6 @@ function getCardImage(cardId) {
   const key = String(cardId).toUpperCase().replace(/-/g,'').replace(/_/g,'');
   return B64_IMAGES[cardId] || B64_IMAGES[key] || B64_IMAGES[cardId.charAt(0).toUpperCase() + cardId.slice(1).toLowerCase()] || '';
 }
-  return '';
-}
 
 // Proxy IMGS compatible avec le reste du code
 const IMGS = new Proxy({}, {
