@@ -415,42 +415,87 @@ aztec:[
 ]};
 
 const GODS = {
-// 5 dieux par faction (les plus emblématiques) x1 chacun → 5 gods
 yokai:[
-  {id:'AMATERASU', n:'Amaterasu', cost:4, cap:'god_cancel_m_steal',     txt:'N\'importe quand : Annulez un monstre adverse et invoquez-le sur votre terrain.'},
-  {id:'SUSANOO',   n:'Susanoo',   cost:3, cap:'god_heal_all',            txt:'Soignez les DEF d\'origine de tous vos monstres.'},
-  {id:'TSUKUYOMI', n:'Tsukuyomi', cost:4, cap:'god_resurrect2',          txt:'Retournez jusqu\'à 2 monstres de coût ≤5 de votre défausse dans votre main.'},
-  {id:'IZANAMI',   n:'Izanami',   cost:3, cap:'god_discard_hand_monster',txt:'L\'adversaire révèle sa main. Choisissez un monstre : il le défausse.'},
-  {id:'KAGUTSUCHI', n:'Kagutsuchi',cost:3, cap:'god_dmg3_or_6',         txt:'N\'importe quand : Infligez 3 dégâts. Bonus : Infligez 6 dégâts à la place.'},
+  {id:'AMATERASU',  n:'Amaterasu',  cost:4, cap:'god_cancel_m_steal',      txt:"N'importe quand : Annulez un monstre adverse et invoquez-le sur votre terrain."},
+  {id:'EBISU',      n:'Ebisu',      cost:3, cap:'god_scrye4_draw',          txt:'Regardez les 4 premières cartes de votre deck, réorganisez-les, piochez 1.'},
+  {id:'FUJIN',      n:'Fujin',      cost:3, cap:'fd_blocker_23',            txt:'Face caché permanent : Le prochain monstre adverse attaquant un allié attaque à la place un jeton 2/3.'},
+  {id:'HACHIMAN',   n:'Hachiman',   cost:3, cap:'fd_destroy_attacker',      txt:'Face caché permanent : Quand un monstre adverse attaque, détruisez-le.'},
+  {id:'IZANAGI',    n:'Izanagi',    cost:4, cap:'god_steal_temp_perm',      txt:"Prenez le contrôle d'un monstre adverse jusqu'à la fin du tour. Option +3 gems : permanent."},
+  {id:'IZANAMI',    n:'Izanami',    cost:3, cap:'god_discard_hand_monster', txt:"L'adversaire révèle sa main. Choisissez un monstre : il le défausse."},
+  {id:'KAGUTSUCHI', n:'Kagutsuchi', cost:3, cap:'god_dmg3_or_6',           txt:"N'importe quand : Infligez 3 dégâts. Bonus : 6 dégâts."},
+  {id:'OMAIKANE',   n:'Omaikane',   cost:4, cap:'god_swap_hands',           txt:'Chacun défausse sa main et pioche le même nombre. Bonus : pioche autant que la plus grande main.'},
+  {id:'RAIJIN',     n:'Raijin',     cost:4, cap:'god_redirect_to_monster',  txt:"N'importe quand : Annulez l'attaque d'un monstre qui attaquait votre joueur. Il attaque un monstre adverse."},
+  {id:'RYUJIN',     n:'Ryujin',     cost:3, cap:'god_draft4',               txt:"Choisissez 4 cartes de votre deck. L'adversaire en choisit une pour votre main. Le reste en défausse."},
+  {id:'SARUTAHIKO', n:'Sarutahiko', cost:3, cap:'god_atk5_buff',            txt:"N'importe quand : Un monstre allié gagne +5 ATK jusqu'à la fin du tour."},
+  {id:'SUSANOO',    n:'Susanoo',    cost:3, cap:'god_heal_all',             txt:'Soignez les DEF originales de tous vos monstres.'},
+  {id:'TENJIN',     n:'Tenjin',     cost:1, cap:'god_dmg3',                 txt:'Infligez 3 dégâts à une cible.'},
+  {id:'TSUKUYOMI',  n:'Tsukuyomi',  cost:4, cap:'god_resurrect2',           txt:'Retournez jusqu\'à 2 monstres de coût ≤5 de votre défausse dans votre main.'},
 ],
 norse:[
-  {id:'THOR',      n:'Thor',      cost:5, cap:'god_sacrifice_opp_draw2', txt:'L\'adversaire sacrifie son monstre le plus fort. Vous piochez 2 cartes.'},
-  {id:'ODIN',      n:'Odin',      cost:5, cap:'god_equalize_board_hand', txt:'Équilibrez terrains et mains. Le joueur avec plus sacrifie jusqu\'à égalité.'},
-  {id:'FREYA',     n:'Freya',     cost:4, cap:'god_draw_per_faction',    txt:'N\'importe quand : Piochez 1 carte par monstre de la légende choisie sur votre terrain.'},
-  {id:'VIDAR',     n:'Vidar',     cost:4, cap:'god_blank11',             txt:'N\'importe quand : Un monstre adverse devient un jeton 1/1 sans capacité.'},
-  {id:'IDUNN',     n:'Idunn',     cost:0, cap:'god_5life_3faction',      txt:'N\'importe quand : Si 3 monstres de même légende alliés, gagnez 5 PV et piochez 1.'},
+  {id:'BALDER',     n:'Balder',     cost:3, cap:'fd_cancel_monster',        txt:'Face caché permanent : Quand un monstre adverse est invoqué, annulez-le.'},
+  {id:'BRAGI',      n:'Bragi',      cost:3, cap:'god_copy_spell',           txt:"N'importe quand : Copiez l'effet d'un sort adverse en cours de résolution."},
+  {id:'FREYA',      n:'Freya',      cost:4, cap:'god_draw_per_faction',     txt:"N'importe quand : Piochez 1 carte par monstre de la légende choisie sur votre terrain. Bonus : sur les 2 terrains."},
+  {id:'FRIGG',      n:'Frigg',      cost:3, cap:'god_cancel_ms',            txt:"N'importe quand : Annulez un monstre ou sort adverse. Bonus : Annulez aussi une capacité."},
+  {id:'HEIMDALL',   n:'Heimdall',   cost:4, cap:'god_recover_1or2',         txt:'Retournez 1 carte de défausse en main. Bonus : Choisissez monstre + sort.'},
+  {id:'HODER',      n:'Hoder',      cost:2, cap:'god_search2_cost2',        txt:'Cherchez jusqu\'à 2 monstres de coût ≤2 dans votre deck.'},
+  {id:'IDUNN',      n:'Idunn',      cost:0, cap:'god_5life_3faction',       txt:"N'importe quand : Si 3 monstres de même légende alliés, gagnez 5 PV et piochez 1."},
+  {id:'LOKI',       n:'Loki',       cost:3, cap:'god_discard2_random',      txt:"L'adversaire défausse 2 cartes au hasard."},
+  {id:'ODIN',       n:'Odin',       cost:5, cap:'god_equalize_board_hand',  txt:'Le joueur avec le plus de monstres sacrifie jusqu\'à égalité. Bonus : pareil pour la main.'},
+  {id:'THOR',       n:'Thor',       cost:5, cap:'god_sacrifice_opp_draw2',  txt:'L\'adversaire sacrifie son monstre le plus fort. Vous piochez 2 cartes.'},
+  {id:'TYR',        n:'Tyr',        cost:4, cap:'god_sacrifice_ms',         txt:"L'adversaire sacrifie un monstre. Bonus : Et sacrifie un sort en jeu."},
+  {id:'ULLR',       n:'Ullr',       cost:5, cap:'god_equip_draw_attack',    txt:'Équipez à un monstre. Chaque fois qu\'il attaque, piochez une carte.'},
+  {id:'VALI',       n:'Vali',       cost:2, cap:'god_equip_2shield',        txt:'Équipez à un monstre. 2 marqueurs : il ne peut pas être attaqué. Chaque attaque retire 1 marqueur.'},
+  {id:'VIDAR',      n:'Vidar',      cost:4, cap:'god_blank11',              txt:"N'importe quand : Un monstre adverse devient jeton 1/1 sans capacité."},
 ],
 egyptian:[
-  {id:'ISIS',      n:'Isis',      cost:3, cap:'god_cancel_ms_cap',       txt:'N\'importe quand : Annulez un monstre, une capacité ou un sort adverse.'},
-  {id:'OSIRIS',    n:'Osiris',    cost:3, cap:'god_cancel_attack_heal',   txt:'N\'importe quand : Annulez une attaque. Gagnez des PV égaux à l\'ATK du monstre.'},
-  {id:'RA',        n:'Ra',        cost:5, cap:'god_force_fight',         txt:'Forcez 1 monstre adverse à attaquer un autre monstre adverse de votre choix.'},
-  {id:'ANUBIS',    n:'Anubis',    cost:4, cap:'god_copy_bonus',          txt:'Invoquez un jeton copie d\'un monstre sur votre terrain. Bonus : au choix des terrains.'},
-  {id:'THOTH',     n:'Thoth',     cost:3, cap:'fd_copy_monster',         txt:'Permanent face caché : Quand l\'adversaire invoque un monstre, copiez-le.'},
+  {id:'AMUNRA',     n:'Amun-Ra',    cost:2, cap:'god_swap_hand_field',      txt:'Échangez un monstre de votre main avec un monstre en jeu de même légende.'},
+  {id:'ANUBIS',     n:'Anubis',     cost:4, cap:'god_copy_bonus',           txt:'Invoquez un jeton copie d\'un monstre sur votre terrain. Bonus : au choix des terrains.'},
+  {id:'BASTET',     n:'Bastet',     cost:2, cap:'god_draw2_free_if_solo',   txt:'Piochez 2 cartes. Bonus : Sort gratuit si vous ne contrôlez qu\'un seul monstre.'},
+  {id:'GEB',        n:'Geb',        cost:2, cap:'god_draw_if_ally_dies',    txt:'Ce tour, si un monstre allié est détruit, piochez une carte.'},
+  {id:'HORUS',      n:'Horus',      cost:3, cap:'god_sacrifice_search_plus1',txt:'Sacrifiez un monstre pour chercher un monstre de coût +1 et l\'invoquer gratuitement.'},
+  {id:'ISIS',       n:'Isis',       cost:3, cap:'god_cancel_ms_cap',        txt:"N'importe quand : Annulez un monstre, une capacité ou un sort adverse."},
+  {id:'KHONSU',     n:'Khonsu',     cost:4, cap:'god_draft6',               txt:"Révélez 6 cartes du deck. L'adversaire les sépare en 2 tas. Vous choisissez un tas pour la main."},
+  {id:'OSIRIS',     n:'Osiris',     cost:3, cap:'god_cancel_attack_heal',   txt:"N'importe quand : Annulez une attaque. Gagnez des PV égaux à l'ATK du monstre."},
+  {id:'PTAH',       n:'Ptah',       cost:3, cap:'fd_cancel_monster',        txt:'Face caché permanent : Le prochain monstre invoqué est annulé.'},
+  {id:'RA',         n:'Ra',         cost:5, cap:'god_force_fight',          txt:'Forcez 1 monstre adverse à attaquer un autre monstre adverse.'},
+  {id:'SEKHMET',    n:'Sekhmet',    cost:4, cap:'god_equip_discard_attack', txt:'Équipez à un monstre. Chaque fois qu\'il attaque, l\'adversaire se défausse d\'une carte.'},
+  {id:'SET',        n:'Set',        cost:5, cap:'god_tokens22_faction',     txt:'Invoquez un jeton 2/2 par monstre de la légende choisie. Bonus : sur les 2 terrains.'},
+  {id:'SOBEK',      n:'Sobek',      cost:3, cap:'god_search_monster',       txt:'Cherchez un monstre dans votre deck et mettez-le en main.'},
+  {id:'THOTH',      n:'Thoth',      cost:3, cap:'fd_copy_monster',          txt:'Face caché permanent : Quand l\'adversaire invoque un monstre, copiez-le.'},
 ],
 greek:[
-  {id:'ZEUS',      n:'Zeus',      cost:6, cap:'god_destroy_low_all',     txt:'Détruisez tous les monstres de DEF ≤5. Bonus : Détruisez tous les monstres.'},
-  {id:'POSEIDON',  n:'Poseidon',  cost:4, cap:'god_cancel_spell_draw',   txt:'N\'importe quand : Annulez un sort et piochez. Bonus : Annulez aussi un monstre.'},
-  {id:'HESTIA',    n:'Hestia',    cost:4, cap:'god_3shield_attacks',     txt:'Permanent : 3 marqueurs. Chaque attaque adverse est annulée, retire 1 marqueur.'},
-  {id:'HEPHAISTOS',n:'Héphaïstos',cost:3, cap:'god_bounce_1or2',        txt:'N\'importe quand : Renvoyez 1 monstre adverse en main. Bonus : Renvoyez-en 2.'},
-  {id:'ATHENA',    n:'Athéna',    cost:2, cap:'god_double_atk',          txt:'N\'importe quand : Doublez l\'ATK d\'un monstre allié jusqu\'à la fin du tour.'},
+  {id:'APHRODITE',  n:'Aphrodite',  cost:3, cap:'god_equip_resurrect',      txt:'Équipez à un monstre. Quand il meurt, remettez-le en jeu avec ses DEF d\'origine.'},
+  {id:'APOLLON',    n:'Apollon',    cost:3, cap:'god_draw3_discard2',       txt:"N'importe quand : Piochez 3 cartes et défaussez-en 2. Bonus : défaussez-en 1 seule."},
+  {id:'ARES',       n:'Arès',       cost:2, cap:'god_halve_atk',            txt:"N'importe quand : Divisez par 2 l'ATK d'un monstre ciblé jusqu'à la fin du tour."},
+  {id:'ARTHEMIS',   n:'Artémis',    cost:4, cap:'god_equip_bounce_attack',  txt:'Équipez à un monstre. Chaque fois qu\'il attaque, renvoyez un monstre adverse en main.'},
+  {id:'ATHENA',     n:'Athéna',     cost:2, cap:'god_double_atk',           txt:"N'importe quand : Doublez l'ATK d'un monstre allié jusqu'à la fin du tour."},
+  {id:'DEMETER',    n:'Déméter',    cost:5, cap:'god_tokens_protect',       txt:'Créez 4 jetons 0/2 Protection. Bonus : 2 jetons 2/2 Protection si seul monstre allié.'},
+  {id:'DIONYSOS',   n:'Dionysos',   cost:4, cap:'god_swap_monsters',        txt:'Échangez un monstre allié contre un monstre adverse de votre choix.'},
+  {id:'HADES',      n:'Hadès',      cost:4, cap:'god_discard_per_faction',  txt:"Choisissez une légende. L'adversaire se défausse d'1 carte par monstre de cette légende sur votre terrain."},
+  {id:'HEPHAISTOS', n:'Héphaïstos', cost:3, cap:'god_bounce_1or2',         txt:"N'importe quand : Renvoyez 1 monstre adverse en main. Bonus : Renvoyez-en 2."},
+  {id:'HERA',       n:'Héra',       cost:4, cap:'fd_draw3_no_dmg',          txt:'Face caché permanent : Si votre joueur n\'a pas subi de dégâts ce tour, piochez 3 cartes.'},
+  {id:'HERMES',     n:'Hermès',     cost:2, cap:'god_equip_hurry_all',      txt:'Équipez à un monstre. Ce tour, tous vos monstres ont Rapide.'},
+  {id:'HESTIA',     n:'Hestia',     cost:4, cap:'god_3shield_attacks',      txt:'Permanent : 3 marqueurs. Chaque attaque adverse est annulée et retire 1 marqueur.'},
+  {id:'POSEIDON',   n:'Poséidon',   cost:4, cap:'god_cancel_spell_draw',    txt:"N'importe quand : Annulez un sort et piochez. Bonus : Annulez aussi un monstre."},
+  {id:'ZEUS',       n:'Zeus',       cost:6, cap:'god_destroy_low_all',      txt:'Détruisez tous les monstres de DEF ≤5. Bonus : Détruisez tous les monstres.'},
 ],
 aztec:[
-  {id:'EHECATL',       n:'Ehecatl',      cost:5, cap:'god_destroy_ms_bonus',   txt:'N\'importe quand : Détruisez un monstre ou sort adverse. Bonus : Détruisez les 2.'},
-  {id:'HUITZILOPOCHTLI',n:'Huitzilopochtli',cost:5, cap:'god_draw4_cheaper',   txt:'N\'importe quand : Piochez 4 cartes. Coût réduit de 1 par monstre Maya en jeu.'},
-  {id:'TEZCATLIPOCA',  n:'Tezcatlipoca', cost:5, cap:'god_steal_spell_monster', txt:'N\'importe quand : Annulez un sort adverse et mettez-le dans votre main.'},
-  {id:'COYOLXAUHQUI',  n:'Coyolxauhqui',cost:3, cap:'god_all_opp_atk1',        txt:'N\'importe quand : L\'ATK de tous les monstres adverses passe à 1 jusqu\'à votre prochain tour.'},
-  {id:'MAYAHUEL',      n:'Mayahuel',     cost:1, cap:'god_5life_draw',          txt:'Gagnez 5 points de vie. Bonus : Piochez une carte.'},
-]};
+  {id:'CENTEOTL',       n:'Centeotl',       cost:3, cap:'god_death_draw_cost4',    txt:'Permanent (1×/tour) : Si un allié meurt, piochez 1 carte en payant 4 PV.'},
+  {id:'CHALCHIUHTLICUE',n:'Chalchiuhtlicue',cost:2, cap:'god_search_spell',        txt:'Cherchez un sort dans votre deck et mettez-le en main.'},
+  {id:'COATLICUE',      n:'Coatlicue',      cost:4, cap:'god_resurrect_any_grave', txt:"Invoquez un monstre depuis votre défausse. Bonus : Depuis n'importe quelle défausse."},
+  {id:'COYOLXAUHQUI',   n:'Coyolxauhqui',  cost:3, cap:'god_all_opp_atk1',        txt:"N'importe quand : L'ATK de tous les monstres adverses passe à 1 jusqu'à votre prochain tour."},
+  {id:'EHECATL',        n:'Ehecatl',        cost:5, cap:'god_destroy_ms_bonus',    txt:"N'importe quand : Détruisez un monstre ou sort adverse. Bonus : Détruisez les 2."},
+  {id:'HUITZILOPOCHTLI',n:'Huitzilopochtli',cost:5, cap:'god_draw4_cheaper',       txt:"N'importe quand : Piochez 4 cartes. Coût réduit de 1 par monstre Maya en jeu."},
+  {id:'MAYAHUEL',       n:'Mayahuel',       cost:1, cap:'god_5life_draw',           txt:'Gagnez 5 points de vie. Bonus : Piochez une carte.'},
+  {id:'MICTLANTECUHTLI',n:'Mictlantecuhtli',cost:2,cap:'god_equip_sacrifice_next', txt:"Équipez à un monstre adverse : il est sacrifié au début du prochain tour de son propriétaire."},
+  {id:'TEZCATLIPOCA',   n:'Tezcatlipoca',   cost:5, cap:'god_steal_spell_monster', txt:"N'importe quand : Annulez un sort adverse et mettez-le dans votre main. Bonus : Annulez un monstre."},
+  {id:'TLALOC',         n:'Tlaloc',         cost:5, cap:'god_dmg5_all',            txt:'Infligez 5 dégâts à tous les monstres en jeu.'},
+  {id:'TLALTECUHTLI_S', n:'Tlaltecuhtli',   cost:2, cap:'fd_cancel_spell',         txt:'Face caché permanent : Le prochain sort lancé est annulé.'},
+  {id:'TONATIUH',       n:'Tonatiuh',       cost:2, cap:'god_reveal_discard_spell', txt:"L'adversaire révèle sa main. Choisissez un sort : il le défausse. Sinon, piochez 1."},
+  {id:'XIPE_TOTEC',     n:'Xipe Totec',     cost:3, cap:'god_freeze_attacks',      txt:"Les monstres adverses ne peuvent pas attaquer lors du prochain tour adverse."},
+  {id:'XIUHTECUHTLI',   n:'Xiuhtecuhtli',   cost:5, cap:'god_redirect_attack',     txt:"Annulez l'attaque d'un monstre adverse ciblant un allié. Il attaque un autre monstre adverse."},
+]};;
+
 
 
 const SPELLS = {};  // Sorts retirés — deck 45 cartes (40 monstres + 5 dieux)
@@ -489,8 +534,8 @@ function buildDeck(faction) {
   //   Semi rare × 2  (8 cartes uniques = 16 cartes)
   //   Rare      × 1  (6 cartes uniques =  6 cartes)
   //   Total monstres = 40 cartes
-  // Dieux : 5 × 1 = 5 cartes
-  // TOTAL = 45 cartes
+  // Dieux : 14 × 1 = 14 cartes
+  // TOTAL = 54 cartes
   const rarityCopies = { common: 3, uncommon: 2, rare: 1 };
   const ms = MONSTERS[faction].flatMap(m => {
     const copies = rarityCopies[m.rarity] || 1;
@@ -1490,6 +1535,222 @@ async function playGod(c, p) {
     Audio5L.sfx.heal();
   }
 
+  // ── Gods from full xlsx (45 new) ────────────────────────────────
+  else if(cap==='god_scrye4_draw') {
+    // Ebisu: look at top 4, reorder, draw 1
+    const P4 = G.players[p];
+    const top4 = P4.deck.splice(0, 4);
+    // AI: just put best card first; Human: simplified - draw the best
+    top4.sort((a,b) => (b.cost||0)-(a.cost||0));
+    P4.hand.push(top4.shift());
+    P4.deck.unshift(...top4);
+    addLog(`${c.n} — Scrye 4, pioche 1!`,'buff');
+    Audio5L.sfx.draw();
+  }
+  else if(cap==='god_steal_temp_perm') { await pickTarget('steal', p, false); }
+  else if(cap==='god_swap_hands') {
+    const h1=[...G.players[1].hand], h2=[...G.players[2].hand];
+    const bigger = h1.length >= h2.length ? h1.length : h2.length;
+    G.players[1].hand=[...h2]; G.players[2].hand=[...h1];
+    // Draw to bigger size
+    while(G.players[p].hand.length < bigger && G.players[p].deck.length > 0) drawCard(p);
+    addLog(`${c.n} — Échange de mains!`,'event');
+  }
+  else if(cap==='god_redirect_to_monster') {
+    addLog(`${c.n} — Attaque redirigée vers un monstre adverse!`,'special');
+    // Handled during reaction window
+  }
+  else if(cap==='god_draft4') {
+    const P5 = G.players[p];
+    const drawn = P5.deck.splice(0, 4);
+    if(drawn.length > 0) {
+      // AI picks best for opponent; simplified: player keeps first
+      const kept = drawn[0];
+      P5.hand.push(kept);
+      drawn.slice(1).forEach(x => P5.graveyard.push(x));
+      addLog(`${c.n} — Draft: ${kept.n} en main!`,'event');
+    }
+  }
+  else if(cap==='god_atk5_buff') { await pickTarget('buff_atk5', p, false); }
+  else if(cap==='god_dmg3') { await pickTarget('dmg3', p, false); }
+  else if(cap==='god_copy_spell') { addLog(`${c.n} — Copie le sort adverse!`,'special'); }
+  else if(cap==='god_recover_1or2') {
+    const grave3 = G.players[p].graveyard;
+    if(grave3.length > 0) {
+      const found2 = grave3.pop();
+      G.players[p].hand.push(found2);
+      addLog(`${c.n} — ${found2.n} retourné en main!`,'event');
+    }
+  }
+  else if(cap==='god_search2_cost2') {
+    const found3 = G.players[p].deck.filter(x=>x.type==='monster'&&x.cost<=2).slice(0,2);
+    found3.forEach(x => {
+      G.players[p].deck.splice(G.players[p].deck.indexOf(x),1);
+      G.players[p].hand.push(x);
+    });
+    addLog(`${c.n} — ${found3.length} monstre(s) cherché(s)!`,'event');
+  }
+  else if(cap==='god_discard2_random') {
+    for(let i=0;i<2&&G.players[opp].hand.length>0;i++) {
+      const ri=Math.floor(Math.random()*G.players[opp].hand.length);
+      const disc2=G.players[opp].hand.splice(ri,1)[0];
+      G.players[opp].graveyard.push(disc2);
+      addLog(`${c.n} — ${disc2.n} défaussé!`,'event');
+    }
+  }
+  else if(cap==='god_sacrifice_ms') {
+    if(G.players[opp].field.length>0) {
+      const m4=G.players[opp].field.shift(); G.players[opp].graveyard.push(m4);
+      addLog(`${c.n} — ${m4.n} sacrifié!`,'event');
+    }
+  }
+  else if(cap==='god_equip_draw_attack') { await pickTarget('equip_draw_attack', p, false, c); return; }
+  else if(cap==='god_equip_2shield') { await pickTarget('equip_2shield', p, false, c); return; }
+  else if(cap==='god_swap_hand_field') {
+    const handMonsters = G.players[p].hand.filter(x=>x.type==='monster'&&x.faction===G.players[p].faction);
+    const fieldMonsters = G.players[p].field.filter(x=>x&&!x.faceDown);
+    if(handMonsters.length>0 && fieldMonsters.length>0) {
+      const hm = handMonsters[0];
+      const fm = fieldMonsters[0];
+      G.players[p].hand.splice(G.players[p].hand.indexOf(hm),1);
+      G.players[p].field.splice(G.players[p].field.indexOf(fm),1,hm);
+      G.players[p].hand.push(fm);
+      addLog(`${c.n} — ${hm.n} ↔ ${fm.n}!`,'event');
+    }
+  }
+  else if(cap==='god_draw2_free_if_solo') {
+    drawCard(p); drawCard(p);
+    addLog(`${c.n} — Piochez 2!`,'buff');
+  }
+  else if(cap==='god_draw_if_ally_dies') {
+    G.players[p]._gebActive = true;
+    addLog(`${c.n} — Si un allié meurt ce tour, piochez 1!`,'event');
+    G.players[p].graveyard.push(c); return;
+  }
+  else if(cap==='god_sacrifice_search_plus1') {
+    if(G.players[p].field.length>0) {
+      const sacrificed = G.players[p].field.shift();
+      G.players[p].graveyard.push(sacrificed);
+      const targetCost = (sacrificed.cost||0)+1;
+      const found4 = G.players[p].deck.find(x=>x.type==='monster'&&x.cost===targetCost);
+      if(found4 && G.players[p].field.length<6) {
+        G.players[p].deck.splice(G.players[p].deck.indexOf(found4),1);
+        found4.cAtk=found4.atk; found4.cDef=found4.def;
+        G.players[p].field.push(found4);
+        addLog(`${c.n} — ${sacrificed.n} sacrifié → ${found4.n} invoqué!`,'event');
+      }
+    }
+  }
+  else if(cap==='god_draft6') {
+    const top6 = G.players[p].deck.splice(0,6);
+    // Simple: player keeps first 3
+    const keep = top6.slice(0,3);
+    keep.forEach(x => G.players[p].hand.push(x));
+    top6.slice(3).forEach(x => G.players[p].graveyard.push(x));
+    addLog(`${c.n} — Draft 6: ${keep.map(x=>x.n).join(', ')} en main!`,'event');
+  }
+  else if(cap==='god_equip_discard_attack') { await pickTarget('equip_discard_attack', p, false, c); return; }
+  else if(cap==='god_tokens22_faction') {
+    const myField3 = G.players[p].field.filter(x=>x&&!x.faceDown&&x.faction===G.players[p].faction);
+    myField3.forEach(()=>{
+      if(G.players[p].field.length<6) {
+        const tok3=newCard({id:'TOKEN22',n:'Jeton 2/2',atk:2,def:2,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:G.players[p].faction});
+        tok3.cAtk=2; tok3.cDef=2; G.players[p].field.push(tok3);
+      }
+    });
+    addLog(`${c.n} — ${myField3.length} jeton(s) 2/2!`,'event');
+  }
+  else if(cap==='god_search_monster') {
+    const found5 = G.players[p].deck.find(x=>x.type==='monster');
+    if(found5) {
+      G.players[p].deck.splice(G.players[p].deck.indexOf(found5),1);
+      G.players[p].hand.push(found5);
+      addLog(`${c.n} — ${found5.n} trouvé!`,'event');
+    }
+  }
+  else if(cap==='god_equip_resurrect') { await pickTarget('equip_resurrect', p, false, c); return; }
+  else if(cap==='god_draw3_discard2') { drawCard(p); drawCard(p); drawCard(p); while(G.players[p].hand.length>7) G.players[p].graveyard.push(G.players[p].hand.pop()); addLog(`${c.n} — Pioche 3, défausse 2!`,'buff'); }
+  else if(cap==='god_halve_atk') { await pickTarget('halve_atk', p, false); }
+  else if(cap==='god_equip_bounce_attack') { await pickTarget('equip_bounce', p, false, c); return; }
+  else if(cap==='god_tokens_protect') {
+    const count2 = G.players[p].field.filter(x=>x).length === 0 ? 2 : 4;
+    const tokStats = G.players[p].field.filter(x=>x).length === 0 ? {a:2,d:2} : {a:0,d:2};
+    for(let i=0;i<count2&&G.players[p].field.length<6;i++) {
+      const tok4=newCard({id:'DEMETER_TOK',n:`${tokStats.a}/${tokStats.d} Protection`,atk:tokStats.a,def:tokStats.d,cost:0,type:'monster',cap:'protect',txt:'Protection',rarity:'common',faction:G.players[p].faction});
+      tok4.cAtk=tokStats.a; tok4.cDef=tokStats.d; G.players[p].field.push(tok4);
+    }
+    addLog(`${c.n} — ${count2} jeton(s) Protection!`,'event');
+  }
+  else if(cap==='god_swap_monsters') { await pickTarget('swap', p, false); }
+  else if(cap==='god_discard_per_faction') {
+    const myFact = G.players[p].field.filter(x=>x&&!x.faceDown&&x.faction===G.players[p].faction).length;
+    for(let i=0;i<myFact&&G.players[opp].hand.length>0;i++) {
+      const ri2=Math.floor(Math.random()*G.players[opp].hand.length);
+      const disc3=G.players[opp].hand.splice(ri2,1)[0];
+      G.players[opp].graveyard.push(disc3);
+      addLog(`${c.n} — ${disc3.n} défaussé!`,'event');
+    }
+  }
+  else if(cap==='fd_draw3_no_dmg') {
+    // Hera: face-down - handled as passive token
+    const m5=newCard({...c, faceDown:true});
+    G.players[p].field.push(m5);
+    G.players[p].summoned.add(G.players[p].field.length-1);
+    addLog(`${c.n} — Entre face caché!`,'event');
+    return;
+  }
+  else if(cap==='god_equip_hurry_all') {
+    G.players[p].field.filter(x=>x&&!x.faceDown).forEach(x=>{ if(!x.cap.includes('hurry')) x.cap+=' hurry'; });
+    addLog(`${c.n} — Tous vos monstres ont Rapide ce tour!`,'buff');
+  }
+  else if(cap==='god_death_draw_cost4') {
+    G.players[p]._centeotlActive=true;
+    addLog(`${c.n} — Permanent: mort alliée → pioche (coût 4 PV)!`,'event');
+    G.players[p].graveyard.push(c); return;
+  }
+  else if(cap==='god_search_spell') {
+    const spell2 = G.players[p].deck.find(x=>x.type==='god'&&x.cost<=3);
+    if(spell2) {
+      G.players[p].deck.splice(G.players[p].deck.indexOf(spell2),1);
+      G.players[p].hand.push(spell2);
+      addLog(`${c.n} — ${spell2.n} trouvé!`,'event');
+    }
+  }
+  else if(cap==='god_resurrect_any_grave') {
+    const allGraves=[...G.players[1].graveyard,...G.players[2].graveyard].filter(x=>x.type==='monster');
+    if(allGraves.length>0&&G.players[p].field.length<6) {
+      const best2=allGraves.reduce((a,b)=>a.cost>b.cost?a:b);
+      const fromP2=G.players[1].graveyard.includes(best2)?1:2;
+      G.players[fromP2].graveyard.splice(G.players[fromP2].graveyard.indexOf(best2),1);
+      best2.cAtk=best2.atk; best2.cDef=best2.def; best2.endureUsed=false; best2.cursed=false;
+      G.players[p].field.push(best2);
+      addLog(`${c.n} — ${best2.n} ressuscité depuis n'importe quelle défausse!`,'event');
+    }
+  }
+  else if(cap==='god_dmg5_all') {
+    [1,2].forEach(pl=>G.players[pl].field.filter(x=>x&&!x.faceDown).forEach(async x=>{
+      x.cDef=Math.max(0,x.cDef-5);
+      if(x.cDef<=0) await handleDeath(pl,x);
+    }));
+    addLog(`${c.n} — 5 dégâts à tous les monstres!`,'dmg');
+  }
+  else if(cap==='god_equip_sacrifice_next') { await pickTarget('equip_sacrifice', p, false, c); return; }
+  else if(cap==='god_reveal_discard_spell') {
+    const oppSpells=G.players[opp].hand.filter(x=>x.type==='god');
+    if(oppSpells.length>0) {
+      const disc4=oppSpells[0];
+      G.players[opp].hand.splice(G.players[opp].hand.indexOf(disc4),1);
+      G.players[opp].graveyard.push(disc4);
+      addLog(`${c.n} — ${disc4.n} défaussé!`,'event');
+    } else { drawCard(p); addLog(`${c.n} — Pas de sort, piochez 1!`,'buff'); }
+  }
+  else if(cap==='god_freeze_attacks') {
+    G.players[opp].field.filter(x=>x&&!x.faceDown).forEach(x=>{ x.sanded=true; });
+    addLog(`${c.n} — Monstres adverses immobilisés!`,'event');
+  }
+  else if(cap==='god_redirect_attack') {
+    addLog(`${c.n} — Attaque redirigée vers monstre adverse!`,'special');
+  }
   G.players[p].graveyard.push(c);
 }
 
