@@ -426,11 +426,33 @@ function newCard(template) {
 }
 
 function buildDeck(faction) {
-  const ms = MONSTERS[faction].map(m => newCard({...m, type:'monster'}));
-  const gs = GODS[faction].map(g => newCard({...g, type:'god'}));
-  const sp = [0,1,2].map(() => newCard({...SPELLS[faction]}));
-  let deck = [...ms, ...gs, ...sp];
-  return shuffle(deck).slice(0,20);
+  // Copies par rareté basée sur le coût :
+  //   Monstres  C1-C2 → ×3 (non-rare)  |  C3-C4 → ×2 (semi-rare)  |  C5+ → ×1 (rare)
+  //   Dieux     C1-C2 → ×2             |  C3+   → ×1
+  //   Sorts     toujours ×3
+  // Cible : ~40 cartes par deck
+  const monsterCopies = m => m.cost <= 2 ? 3 : m.cost <= 4 ? 2 : 1;
+  const godCopies     = g => g.cost <= 2 ? 2 : 1;
+
+  const ms = MONSTERS[faction].flatMap(m =>
+    Array.from({length: monsterCopies(m)}, () => newCard({...m, type:'monster', faction}))
+  );
+  const gs = GODS[faction].flatMap(g =>
+    Array.from({length: godCopies(g)},     () => newCard({...g, type:'god',     faction}))
+  );
+  const sp = [0,1,2].map(() => newCard({...SPELLS[faction], type:'spell', faction}));
+
+  return shuffle([...ms, ...gs, ...sp]);
+  // Pas de .slice — taille naturelle selon les raretés
+}
+
+// Debug helper (accessible depuis la console)
+function getDeckStats(faction) {
+  const deck = buildDeck(faction);
+  const byType = {monster:0, god:0, spell:0};
+  deck.forEach(c => byType[c.type]++);
+  console.log(`Deck ${faction}: ${deck.length} cartes total`, byType);
+  return deck.length;
 }
 
 function shuffle(a) {
