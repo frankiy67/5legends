@@ -839,6 +839,24 @@ async function applyExit(p, m) {
 // =====================================================
 // DEATH HANDLING
 // =====================================================
+// ── Attack lunge animation ────────────────────────────────────────
+// Physically moves the attacking card toward its target then snaps back.
+// Direction is computed from live DOM positions and stored as CSS vars.
+function animateAttack(attackerEl, targetEl) {
+  if(!attackerEl || !targetEl) return Promise.resolve();
+  const ar = attackerEl.getBoundingClientRect();
+  const tr = targetEl.getBoundingClientRect();
+  const dx = ((tr.left + tr.width/2)  - (ar.left + ar.width/2))  * 0.52;
+  const dy = ((tr.top  + tr.height/2) - (ar.top  + ar.height/2)) * 0.52;
+  attackerEl.style.setProperty('--atk-dx', dx + 'px');
+  attackerEl.style.setProperty('--atk-dy', dy + 'px');
+  attackerEl.classList.add('attacking');
+  return new Promise(r => setTimeout(() => {
+    attackerEl.classList.remove('attacking');
+    r();
+  }, 400));
+}
+
 function animateDeath(cardDiv, callback) {
   if (!cardDiv) { if(callback) callback(); return; }
   cardDiv.style.animation = 'card-death .45s ease-in forwards';
@@ -880,6 +898,13 @@ async function handleDeath(p, m) {
   }
 
   Audio5L.sfx.death();
+  // Death animation: find card in DOM and play card-death before removing
+  const _dyingEl = document.querySelector(`[data-player="${p}"][data-idx="${idx}"]`);
+  if(_dyingEl) {
+    _dyingEl.style.animation = 'card-death .38s ease-in forwards';
+    _dyingEl.style.pointerEvents = 'none';
+    await new Promise(r => setTimeout(r, 340));
+  }
   await applyExit(p, m);
   P.field.splice(idx,1);
   P.graveyard.push(m);
@@ -964,8 +989,22 @@ async function checkAllDeaths() {
 // =====================================================
 // GODS & SPELLS
 // =====================================================
+function showGodBurst(p) {
+  // Brief sparkle effect at the center of the playing player's zone
+  const bar = document.getElementById(`p${p}-bar`);
+  if(!bar) return;
+  const r = bar.getBoundingClientRect();
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;left:${r.left+r.width/2-16}px;top:${r.top-30}px;`+
+    `font-size:28px;pointer-events:none;z-index:500;animation:godBurst .65s ease-out forwards;`;
+  el.textContent = '⚡';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 700);
+}
+
 async function playGod(c, p) {
   addLog(`Player ${p} plays God: ${c.n}!`,'summon');
+  showGodBurst(p);
   const cap = c.cap||'';
   const opp = p===1?2:1;
 
@@ -1162,6 +1201,13 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   const hasHit = (atk.cap||'').includes('hit');
   const hasHeal = (atk.cap||'').includes('heal');
 
+  // ── Attack lunge: card visually lunges toward target ─────────────
+  const _atkEl = document.querySelector(`[data-player="${attackerP}"][data-idx="${attackerIdx}"]`);
+  const _tgtEl = targetIdx === 'player'
+    ? document.getElementById(`p${targetP}-orb`)
+    : document.querySelector(`[data-player="${targetP}"][data-idx="${targetIdx}"]`);
+  if(_atkEl) await animateAttack(_atkEl, _tgtEl);
+
   const performStrike = async () => {
     // Blind: random target
     let finalTargetIdx = targetIdx;
@@ -1181,9 +1227,14 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       DP.hp -= atkVal;
       flashDamage(document.getElementById(`p${targetP}-orb`));
       addLog(`${atk.n} attacks P${targetP} directly — ${atkVal} dmg (❤${DP.hp})`,'dmg');
-      // UX #4: flash HP bar on direct damage
+      // Big flash + shake on direct damage
       const hpbar = document.getElementById(`p${targetP}-hpbar`);
       if(hpbar) { hpbar.style.boxShadow='inset 0 0 20px rgba(231,76,60,0.9)'; setTimeout(()=>{hpbar.style.boxShadow='';},400); }
+      const pbarEl = document.getElementById(`p${targetP}-bar`);
+      if(pbarEl) { pbarEl.classList.add('direct-hit'); setTimeout(()=>pbarEl.classList.remove('direct-hit'),400); }
+      const orbEl = document.getElementById(`p${targetP}-orb`);
+      showFloatDmg(atkVal, orbEl, '#ff4444');
+      Audio5L.sfx.damage();
       if(hasHeal) { Audio5L.sfx.heal(); AP.hp=Math.min(25,AP.hp+atkVal); addLog(`Heal — P${attackerP} +${atkVal} HP`,'heal'); }
     } else {
       let def = DP.field[targetIdx];
