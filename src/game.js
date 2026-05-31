@@ -1655,7 +1655,11 @@ function scoreCard(c, p) {
       score += hasDead ? 7 : -5;
     }
     if(cap.includes('mutual_sacrifice')) {
-      score += (oppField.length > P.field.filter(m=>m&&!m.faceDown).length ? 6 : 1);
+      const myLive = P.field.filter(m=>m&&!m.faceDown).length;
+      // Don't sacrifice own creature when we'd lose more than we gain
+      if(myLive === 0) score = -10; // suicide, never
+      else if(myLive <= 1 && oppField.length <= 1) score = 0; // even trade on tiny board
+      else score += oppField.length > myLive ? 7 : (oppField.length === myLive ? 3 : 0);
     }
     if(cap.includes('cancel_attack')) score += 4;
 
@@ -2713,6 +2717,41 @@ function renderHand() {
     `;
     el.appendChild(div);
   });
+
+  // ── Arc layout (Hearthstone fan) ───────────────────────────────────
+  const cards = [...el.children];
+  const n = cards.length;
+  if(n > 0) {
+    const maxAngle = Math.min(30, n * 4.2);
+    cards.forEach((card, i) => {
+      const t = n === 1 ? 0 : (i / (n-1)) * 2 - 1; // -1..+1
+      const angle = t * maxAngle;
+      const yOff  = -(1 - t*t) * 6; // centre légèrement plus haut (plus accessible)
+      card.style.transform = `rotate(${angle}deg) translateY(${yOff}px)`;
+      card.style.transformOrigin = 'bottom center';
+      card.style.zIndex = String(Math.round((n+1)/2) - Math.abs(i - Math.floor((n-1)/2)));
+      if(i > 0) card.style.marginLeft = n > 5 ? '-14px' : '-8px';
+    });
+  }
+
+  // ── Opponent hand (card backs) ─────────────────────────────────────
+  const oppEl = document.getElementById('opp-hand-cards');
+  if(oppEl) {
+    const oppP = G.players[G.cp === 1 ? 2 : 1];
+    oppEl.innerHTML = '';
+    const on = oppP.hand.length;
+    const maxA2 = Math.min(22, on * 3.5);
+    oppP.hand.forEach((_, j) => {
+      const back = document.createElement('div');
+      back.className = 'hcard-back';
+      const t2 = on > 1 ? (j / (on-1)) * 2 - 1 : 0;
+      back.style.transform = `rotate(${t2 * maxA2}deg)`;
+      back.style.transformOrigin = 'bottom center';
+      if(j > 0) back.style.marginLeft = on > 5 ? '-10px' : '-6px';
+      back.innerHTML = '🂠';
+      oppEl.appendChild(back);
+    });
+  }
 }
 
 function showOppTurnBanner() {
