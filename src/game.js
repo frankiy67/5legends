@@ -1186,15 +1186,24 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       if(hpbar) { hpbar.style.boxShadow='inset 0 0 20px rgba(231,76,60,0.9)'; setTimeout(()=>{hpbar.style.boxShadow='';},400); }
       if(hasHeal) { Audio5L.sfx.heal(); AP.hp=Math.min(25,AP.hp+atkVal); addLog(`Heal — P${attackerP} +${atkVal} HP`,'heal'); }
     } else {
-      const def = DP.field[targetIdx];
+      let def = DP.field[targetIdx];
       if(!def) return;
       // Check Seth equip
       if(atk.sethEquipped) {
         def.cDef = Math.max(0,def.cDef-2);
         addLog(`Seth — ${def.n} −2 shield`,'dmg');
       }
-      // Check Arthemis face-down (before attack)
-      checkFaceDownAthena(targetP, atk, attackerP);
+      // Check Athena/Hephaistos face-down traps BEFORE damage
+      const fdResult = checkFaceDownAthena(targetP, atk, attackerP);
+      if(fdResult === 'cancel') { renderAll(); return; } // attack fully cancelled
+      if(fdResult === 'redirect') {
+        // Hephaistos: redirect to the new Protect blocker
+        const blockerIdx = G.players[targetP].field.findIndex(
+          m => m && !m.faceDown && (m.cap||'').includes('protect')
+        );
+        if(blockerIdx >= 0) { targetIdx = blockerIdx; def = DP.field[blockerIdx]; }
+        else return; // no valid target
+      }
       // Check Arthemis on YOUR side (curse target + draw)
       checkArthemisAttack(attackerP, def, targetP, targetIdx);
 
@@ -1283,33 +1292,46 @@ function checkArthemisAttack(attackerP, target, targetP, targetIdx) {
 }
 
 function checkFaceDownAthena(p, attacker, attackerP) {
-  const P=G.players[p];
-  for(let i=P.field.length-1;i>=0;i--){
-    const m=P.field[i];
-    if(!m||!m.faceDown||m.type!=='god') continue;
-    if(m.cap==='fd_destroy_attacker') {
-      m.faceDown=false;
-      const ai=G.players[attackerP].field.indexOf(attacker);
-      if(ai>=0) {
-        addLog(`${m.n} (Athena) — destroys ${attacker.n}!`,'special');
-        G.players[attackerP].field.splice(ai,1);
+  const P = G.players[p];
+  for(let i = P.field.length-1; i >= 0; i--) {
+    const m = P.field[i];
+    if(!m || !m.faceDown || m.type !== 'god') continue;
+
+    if(m.cap === 'fd_destroy_attacker') {
+      m.faceDown = false;
+      const ai = G.players[attackerP].field.indexOf(attacker);
+      if(ai >= 0) {
+        G.players[attackerP].field.splice(ai, 1);
         G.players[attackerP].graveyard.push(attacker);
-        reindexSets(G.players[attackerP],ai,true);
+        reindexSets(G.players[attackerP], ai, true);
+        Audio5L.sfx.death();
+        addLog(`⚡ ${m.n} (Athena) activates — ${attacker.n} DESTROYED! Attack cancelled.`, 'special');
       }
-      P.field.splice(i,1); P.graveyard.push(m);
-      reindexSets(P,i,true);
+      P.field.splice(i, 1); P.graveyard.push(m);
+      reindexSets(P, i, true);
+      renderAll();
+      return 'cancel';  // ← attack fully cancelled, skip damage
     }
-    if(m.cap==='fd_blocker') {
-      m.faceDown=false;
-      addLog(`${m.n} (Hephaistos) — creates 2/3 blocker!`,'special');
-      if(P.field.length<6){
-        const blocker=newCard({id:'T',n:'2/3 Blocker',atk:2,def:3,cost:0,type:'monster',cap:'protect',txt:'Protect'});
-        blocker.cAtk=2;blocker.cDef=3; P.field.push(blocker);
+
+    if(m.cap === 'fd_blocker') {
+      m.faceDown = false;
+      addLog(`🛡 ${m.n} (Hephaistos) activates — 2/3 Protect blocker created!`, 'special');
+      if(P.field.length < 6) {
+        P.field.push({
+          id:'BLK', n:'Blocker', atk:2, def:3, cost:0,
+          type:'monster', cap:'protect', txt:'Protect',
+          cAtk:2, cDef:3, faction:P.faction,
+          cursed:false, asleep:false, sanded:false,
+          bewitched:false, blinded:false, endureUsed:false, faceDown:false
+        });
       }
-      P.field.splice(i,1); P.graveyard.push(m);
-      reindexSets(P,i,true);
+      P.field.splice(i, 1); P.graveyard.push(m);
+      reindexSets(P, i, true);
+      renderAll();
+      return 'redirect'; // ← caller should retarget to the new blocker
     }
   }
+  return null;
 }
 
 // =====================================================
@@ -1487,89 +1509,259 @@ async function aiMainPhase() {
 }
 
 function scoreCard(c, p) {
-  const opp=p===1?2:1;
-  const P=G.players[p];
-  const OP=G.players[opp];
-  let score=0;
-  if(c.type==='monster'){
-    score = (c.atk||0)*1.5 + (c.def||0) + (10-c.cost)*0.5;
-    if((c.cap||'').includes('hurry')) score+=3; // can attack this turn
-    if((c.cap||'').includes('endure')) score+=2;
-    if((c.cap||'').includes('protect')) score+=1;
-    if((c.cap||'').includes('heal')) score+=2;
-    if(P.field.length>=5) score-=10; // field near full
-    // prefer low-cost when limited gems
-    if(c.cost<=P.gems) score+=1;
-  } else if(c.type==='god'){
-    score=5;
-    if(OP.field.length>0) score+=3;
-    const cap=c.cap||'';
-    if(cap.includes('destroy')||cap.includes('cancel')) score+=4;
-    if(cap.includes('osiris')||cap.includes('thor')||cap.includes('tlaloc')) score+=6;
-    if(OP.field.length===0&&cap.includes('sleep')) score-=5;
-  } else {
-    score=3;
-    if(OP.field.length>0) score+=2;
-    if(OP.hp<20) score+=5;
+  const opp    = p === 1 ? 2 : 1;
+  const P      = G.players[p];
+  const OP     = G.players[opp];
+  const myField  = P.field.filter(m => m && !m.faceDown);
+  const oppField = OP.field.filter(m => m && !m.faceDown && !m.asleep);
+  const myHP     = P.hp;
+  const oppHP    = OP.hp;
+  const board    = myField.length - oppField.length; // positive = I'm ahead
+  const losing   = myHP < oppHP - 5;
+  const winning  = myHP > oppHP + 5;
+  const urgency  = myHP <= 8 ? 1.8 : (myHP <= 15 ? 1.3 : 1.0);
+  const lethalPressure = oppHP <= 6 ? 2.0 : (oppHP <= 12 ? 1.3 : 1.0);
+  const cap      = c.cap || '';
+
+  if(c.type === 'monster') {
+    let score = c.atk * 1.6 + c.def * 0.9;
+
+    // Keywords
+    if(cap.includes('hurry'))   score += 5;               // tempo = most valuable
+    if(cap.includes('hit'))     score += c.atk * 0.9;     // double attack is huge
+    if(cap.includes('heal'))    score += (myHP < 20 ? 4 : 1.5);
+    if(cap.includes('endure'))  score += 3.5;
+    if(cap.includes('protect')) score += (oppField.length > 1 ? 3.5 : 1.5);
+
+    // Entry effects (only valuable if targets exist)
+    if(cap.includes('entry_sleep')   && oppField.length > 0) score += 6;
+    if(cap.includes('entry_curse2')  && oppField.length > 1) score += 7;
+    if(cap.includes('entry_curse2')  && oppField.length === 1) score += 4;
+    if(cap.includes('entry_dmg3'))   score += (oppField.length > 0 ? 5 : (oppHP <= 3 ? 8 : 2));
+    if(cap.includes('entry_blind')   && oppField.length > 0) score += 3;
+    if(cap.includes('entry_sandup')  && oppField.length > 0) score += 4;
+    if(cap.includes('entry_bewitch') && oppField.length > 0) score += 4;
+    if(cap.includes('entry_buff11')  && myField.length > 0)  score += myField.length * 1.8;
+    if(cap.includes('entry_buff_atk')&& myField.length > 0)  score += myField.length * 1.2;
+    if(cap.includes('entry_shield_all') && myField.length > 0) score += myField.length;
+    if(cap.includes('entry_cancel')  && oppField.length > 0) score += 5;
+    if(cap.includes('entry_draw'))   score += 2.5;
+
+    // Exit effects: more valuable when field is already contested
+    if(cap.includes('exit_destroy') && oppField.length > 0) score += 4;
+    if(cap.includes('exit_curse')   && oppField.length > 0) score += 3;
+
+    // Don't flood the field unnecessarily
+    if(P.field.length >= 5) score -= 10;
+    if(P.field.length >= 4 && board > 2 && winning) score -= 4;
+
+    // Prefer spending gems efficiently (don't hoard)
+    if(c.cost >= P.gems * 0.7) score += 1.5;
+
+    return score * urgency * lethalPressure;
   }
-  return score;
+
+  if(c.type === 'god') {
+    const fdCount = P.field.filter(m => m && m.faceDown).length;
+
+    // Face-down traps
+    if(cap.startsWith('fd_')) {
+      if(fdCount >= 2) return -1;    // don't stack traps uselessly
+      if(oppField.length === 0 && cap === 'fd_cancel_monster') return 8; // always good
+      if(cap === 'fd_destroy_attacker') return 7;
+      if(cap === 'fd_blocker')          return 6;
+      if(cap === 'fd_cancel_monster')   return 7;
+      return 5;
+    }
+
+    let score = 3;
+    const oppMaxAtk  = oppField.length > 0 ? Math.max(...oppField.map(m=>m.cAtk)) : 0;
+    const myMaxAtk   = myField.length  > 0 ? Math.max(...myField.map(m=>m.cAtk))  : 0;
+
+    if(cap.includes('destroy') || cap.includes('thor') || cap.includes('cancel')) {
+      score += oppField.length > 0 ? 4 + oppMaxAtk * 0.4 : 0;
+    }
+    if(cap.includes('minus4_all')) {
+      score += oppField.length > myField.length ? 9 : (oppField.length > 0 ? 5 : 0);
+    }
+    if(cap.includes('steal') && oppField.length > 0) {
+      score += 5 + oppMaxAtk * 0.6;
+    }
+    if(cap.includes('sleep') && oppField.length > 0)  score += 6;
+    if(cap.includes('buff3') && myField.length > 0)   score += 4 + myMaxAtk * 0.4;
+    if(cap.includes('minus3') || cap.includes('minus2')) {
+      score += oppField.length > 0 ? 5 : -3;
+    }
+    if(cap.includes('blind_draw') && oppField.length > 0) score += 4;
+    if(cap.includes('bewitch_draw') && oppField.length > 0) score += 5;
+    if(cap.includes('sandup') && oppField.length > 0)  score += 4;
+    if(cap.includes('balder') && myField.length > 1)   score += 4;
+    if(cap.includes('osiris') && P.field.length <= 2)  score += 7;
+    if(cap.includes('odin'))  score += (board < -1 ? 7 : 2);
+    if(cap.includes('create2') && P.field.length <= 3) score += 4;
+    if(cap.includes('resurrect')) {
+      const hasDead = P.graveyard.some(c => c.type === 'monster');
+      score += hasDead ? 7 : -5;
+    }
+    if(cap.includes('mutual_sacrifice')) {
+      score += (oppField.length > P.field.filter(m=>m&&!m.faceDown).length ? 6 : 1);
+    }
+    if(cap.includes('cancel_attack')) score += 4;
+
+    // General: gods with no valid targets are worthless
+    const needsTarget = ['minus','destroy','steal','sleep','buff','blank','blind','bewitch','sandup','force','thor'];
+    const hasTarget = oppField.length > 0 || myField.length > 0;
+    if(!hasTarget && needsTarget.some(k => cap.includes(k))) score = Math.max(score - 4, 0);
+
+    return score * urgency;
+  }
+
+  // Spell
+  let score = 3;
+  if(cap.includes('dmg4')) {
+    if(oppField.length > 0) score += 4;
+    if(oppHP <= 4)           score += 10; // direct lethal
+    if(oppHP <= 8)           score += 3;
+  }
+  if(cap.includes('cancel') && oppField.length > 0) score += 5;
+  if(cap.includes('draw3'))   score += P.hand.length < 3 ? 5 : 2;
+
+  return score * urgency;
 }
 
 async function aiCombatPhase() {
-  const P = G.players[2];
+  const P   = G.players[2];
+  const OP  = G.players[1];
   const opp = 1;
 
-  for (let i = 0; i < P.field.length; i++) {
-    const atk = P.field[i];
-    if (!atk || P.attacked.has(i) || atk.faceDown || atk.asleep || atk.sanded) continue;
-    const hasHurry = (atk.cap || '').includes('hurry');
-    if (P.summoned.has(i) && !hasHurry) continue;
+  // Build list of monsters that can attack this phase
+  const getAttackers = () => P.field
+    .map((m,i) => ({m,i}))
+    .filter(({m,i}) =>
+      m && !m.faceDown && !m.asleep && !m.sanded &&
+      !P.attacked.has(i) &&
+      (!P.summoned.has(i) || (m.cap||'').includes('hurry'))
+    );
 
-    // Bewitch check
-    if (atk.bewitched) {
-      const flip = Math.random() < 0.5;
-      if (!flip) {
-        addLog(`${atk.n} envoûté — rate son attaque !`, 'debuff');
+  // ── PRE-COMBAT LETHAL CHECK ──────────────────────────────────────
+  const attackers = getAttackers();
+  const oppHasProtect = OP.field.some(m => m && (m.cap||'').includes('protect') && !m.faceDown && !m.asleep);
+  const totalAtk = attackers.reduce((s,{m}) => s + (m.cAtk||0), 0);
+
+  if(!oppHasProtect && totalAtk >= OP.hp) {
+    addLog('🎯 AI détecte une victoire — tout en face !', 'special');
+    for(const {m,i} of attackers) {
+      if(!G.players[2].field[i]) continue;
+      if(m.bewitched && Math.random() < 0.5) { P.attacked.add(i); continue; }
+      addLog(`${m.n} attaque le joueur directement !`, 'dmg');
+      renderAll();
+      await waitForPlayerAck(m, 'attack');
+      if(!G.players[2].field[i]) continue;
+      await doAttack(2, i, opp, 'player');
+      renderAll();
+      await new Promise(r => setTimeout(r, 350));
+      if(checkVictoryBool()) return;
+    }
+    return;
+  }
+
+  // ── NORMAL COMBAT: strongest attackers first ────────────────────
+  // Sort: Hurry/high-atk first, then others
+  const sorted = getAttackers().sort((a,b) => {
+    const aScore = (a.m.cAtk||0) + ((a.m.cap||'').includes('hurry') ? 5 : 0);
+    const bScore = (b.m.cAtk||0) + ((b.m.cap||'').includes('hurry') ? 5 : 0);
+    return bScore - aScore;
+  });
+
+  for(const {m,i} of sorted) {
+    if(!G.players[2].field[i]) continue;
+    if(G.players[2].attacked.has(i)) continue;
+
+    if(m.bewitched) {
+      if(Math.random() < 0.5) {
+        addLog(`${m.n} envoûté — rate son attaque !`, 'debuff');
         P.attacked.add(i);
         continue;
       }
     }
 
     const target = pickAITarget(opp);
-    if (target === null) break;
+    if(target === null) break;
 
-    addLog(`${atk.n} se prépare à attaquer...`, 'combat');
+    addLog(`${m.n} se prépare à attaquer...`, 'combat');
     renderAll();
 
-    // Pause : joueur peut réagir avant que l'attaque se résolve
-    await waitForPlayerAck(atk, 'attack');
-
-    // Re-vérifier que l'attaquant existe encore
-    if (!G.players[2].field[i]) continue;
+    await waitForPlayerAck(m, 'attack');
+    if(!G.players[2].field[i]) continue;
 
     await doAttack(2, i, opp, target);
     renderAll();
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 450));
 
-    if (checkVictoryBool()) break;
+    if(checkVictoryBool()) break;
   }
 }
 
 function pickAITarget(targetP) {
-  const TP=G.players[targetP];
-  const hasProtect=TP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep);
-  if(hasProtect) {
-    const pi=TP.field.findIndex(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep);
-    return pi>=0?pi:null;
+  const TP = G.players[targetP];
+  const AP = G.players[2];
+
+  // Monsters that haven't attacked yet
+  const myAttackers = AP.field
+    .map((m,i) => ({m,i}))
+    .filter(({m,i}) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
+
+  const alive = TP.field.map((m,i)=>({m,i})).filter(x => x.m && !x.m.faceDown && !x.m.asleep);
+  const hasProtect = alive.some(x => (x.m.cap||'').includes('protect'));
+
+  // ── LETHAL CHECK: can remaining attackers kill the player? ──────
+  const totalRemainingAtk = myAttackers.reduce((s,{m}) => s + (m.cAtk||0), 0);
+  if(!hasProtect && totalRemainingAtk >= TP.hp) {
+    addLog('🎯 AI vise le coup fatal !', 'special');
+    return 'player';
   }
-  // prefer cursed, weakest def
-  const alive=TP.field.map((m,i)=>({m,i})).filter(x=>x.m&&!x.m.faceDown&&!x.m.asleep);
-  if(alive.length===0) return 'player';
-  // if can kill, do so
-  const killable=alive.filter(x=>x.m.cursed||(x.m.cDef<=G.players[2].field.reduce((mx,f)=>f?Math.max(mx,f.cAtk):mx,0)));
-  if(killable.length>0) return killable[0].i;
-  // else attack weakest shield
-  alive.sort((a,b)=>a.m.cDef-b.m.cDef);
+
+  // ── Must attack Protect first ───────────────────────────────────
+  if(hasProtect) {
+    const prot = alive.find(x => (x.m.cap||'').includes('protect'));
+    return prot ? prot.i : (alive.length ? alive[0].i : 'player');
+  }
+
+  if(alive.length === 0) return 'player';
+
+  // Get current attacker's stats
+  const cur = AP.field.find((m,i) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
+  const myAtk = cur?.cAtk || 0;
+  const myDef = cur?.cDef || 0;
+
+  // ── CLEAN KILLS: kill target without losing our monster ─────────
+  const cleanKills = alive.filter(x =>
+    x.m.cDef <= myAtk &&      // we kill it
+    x.m.cAtk < myDef          // we survive (it can't kill us back)
+  );
+  if(cleanKills.length > 0) {
+    // Kill most dangerous target first
+    cleanKills.sort((a,b) => (b.m.cAtk + b.m.cDef) - (a.m.cAtk + a.m.cDef));
+    return cleanKills[0].i;
+  }
+
+  // ── TRADE UP: kill stronger enemy even if we die ────────────────
+  if(myAtk >= 4) {  // only worth trading if our attacker is decent
+    const tradeUp = alive.filter(x =>
+      x.m.cDef <= myAtk &&
+      x.m.cAtk >= myAtk  // target is at least as strong
+    );
+    if(tradeUp.length > 0) {
+      tradeUp.sort((a,b) => b.m.cAtk - a.m.cAtk);
+      return tradeUp[0].i;
+    }
+  }
+
+  // ── CHIP DAMAGE: go face if nothing good to kill ────────────────
+  if(myAtk >= 4 && TP.hp <= 15) return 'player';
+
+  // ── LAST RESORT: weakest shield ─────────────────────────────────
+  alive.sort((a,b) => a.m.cDef - b.m.cDef);
   return alive[0].i;
 }
 
@@ -2349,14 +2541,26 @@ function renderField(p) {
     div.onclick=()=>onFieldClick(p,i);
 
     if(m.faceDown) {
+      // Sleeping monsters look DIFFERENT from intentional traps
+      const isSleeping = m.asleep;
+      const fdIcon  = isSleeping ? '😴' : '🂠';
+      const fdLabel = isSleeping ? `Zzz (${m.sleepTurns||'?'}t)` : 'Face Down';
+      const fdBg    = isSleeping
+        ? 'radial-gradient(ellipse at 50% 40%, rgba(20,40,100,0.7), var(--bg3))'
+        : 'radial-gradient(ellipse at 50% 40%, rgba(60,50,120,0.4), var(--bg3))';
+      const fdNameColor = isSleeping ? '#88aaff' : factionCol;
+      const fdName      = isSleeping ? '💤 Sleeping' : `${FE[P.faction]} Trap`;
       div.innerHTML=`
-        <div class="fc-frame">
+        <div class="fc-frame" style="${isSleeping?'box-shadow:0 0 12px rgba(100,140,255,0.4)':''}">
           <div class="fc-inner">
-            <div class="fc-art" style="background:radial-gradient(ellipse at 50% 40%, rgba(60,50,120,0.4), var(--bg3))">
-              <div class="fd-inner"><div class="fd-icon">🂠</div><div class="fd-label">Face Down</div></div>
+            <div class="fc-art" style="background:${fdBg}">
+              <div class="fd-inner">
+                <div class="fd-icon" style="font-size:${isSleeping?'28px':'20px'}">${fdIcon}</div>
+                <div class="fd-label" style="color:${isSleeping?'#88aaff':'var(--brd3)'}">${fdLabel}</div>
+              </div>
             </div>
             <div class="fc-info">
-              <div class="fc-name-band" style="color:${factionCol}">${FE[P.faction]} Hidden</div>
+              <div class="fc-name-band" style="color:${fdNameColor}">${fdName}</div>
             </div>
           </div>
         </div>
