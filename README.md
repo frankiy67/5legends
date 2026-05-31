@@ -1,101 +1,90 @@
-# 5 Legends — Tactical Card Battle
+# ⚔ 5 Legends — Simulator
 
-A browser-based tactical card game featuring 5 mythological factions: Yokai, Norse, Egyptian, Greek, and Aztec.
+Jeu de cartes stratégique 1v1 opposant 5 factions mythologiques : Yokai, Norse, Egyptian, Greek et Aztec.
 
-## Factions
+## 🎮 Jouer en ligne
 
-| Faction | Strengths | Key Mechanics |
-|---------|-----------|---------------|
-| 🦊 Yokai | Sleep, Protect | Control & disruption |
-| ⚡ Norse | Endure, Wall | Resilience & recursion |
-| 🏺 Egyptian | Hit, Actions | Tempo & aggression |
-| 🏛️ Greek | Heal, FaceDown | Traps & lifegain |
-| 🌿 Aztec | Endure, Heal | Sustain & synergies |
+👉 **[frankiy67.github.io/5legends](https://frankiy67.github.io/5legends)**
 
-## Gameplay
-
-- **2 Players** (PvP or vs AI)
-- **25 HP** each
-- **4 phases per turn**: Main 1 → Combat → Main 2 → End
-- **Gems** ramp up by 1 each turn (max 10) — spend them to play cards
-- **Play multiple cards** per turn as long as you have gems
-- **Anytime cards** (orange border) can be played on the opponent's turn
-
-## How to Play
-
-1. Open `index.html` in a browser (requires a local server for ES modules — see below)
-2. Each player selects their faction
-3. Play monsters, gods, and spells using your gem resources
-4. Attack opponent monsters or their HP directly
-5. First player to reduce opponent to 0 HP wins!
-
-## Card Types
-
-- **Monsters** — ATK/Shield stats, enter the field, attack in Combat phase
-- **Gods** — powerful one-time effects, often with ANYTIME triggers
-- **Spells** — instant effects
-
-## Key Abilities
-
-| Ability | Effect |
-|---------|--------|
-| Hurry | Can attack the turn it enters |
-| Protect | Must be destroyed before player can be attacked |
-| Endure | Survives lethal damage once, returns with 1 Shield |
-| Hit | Attacks twice per combat |
-| Heal | Damage dealt restores your HP |
-| Entry/Exit | Triggers when entering/leaving the field |
-| Face Down | Enters hidden, triggers on specific conditions |
-| Anytime | Playable during opponent's turn |
-
-## Running Locally
-
-```bash
-# Option 1: Python
-python3 -m http.server 8000
-# Then open http://localhost:8000
-
-# Option 2: Node.js
-npx serve .
-
-# Option 3: VS Code Live Server extension
-```
-
-> **Note:** `index.html` must be served over HTTP (not opened directly as a file) because it loads assets from relative paths.
-
-## Project Structure
+## 🗂 Structure du projet
 
 ```
 5legends/
-├── index.html              ← Game entry point
+├── index.html          ← HTML (280 lignes — shell pur, sans CSS/JS inline)
 ├── styles/
-│   └── main.css            ← All styles (variables, layout, cards, animations)
+│   └── main.css        ← Tout le CSS (thème sombre, layout, animations)
+├── src/
+│   └── game.js         ← Toute la logique de jeu (2700 lignes)
 ├── assets/
-│   ├── cards/              ← Card artwork (JPEG, ~35-50KB each)
-│   │   ├── yokai/
-│   │   ├── norse/
-│   │   ├── egyptian/
-│   │   ├── greek/
-│   │   └── aztec/
-│   ├── audio/
-│   │   └── bgm.ogg         ← Background music (Battle of Gods)
-│   └── ui/
-│       ├── faction/        ← Faction selection portraits
-│       ├── backgrounds/    ← Battlefield landscapes
-│       └── cards/          ← Spell card backs
+│   ├── cards/{faction}/← Artwork des cartes
+│   ├── ui/             ← Backgrounds, faction art, dos de cartes
+│   └── audio/          ← BGM
 └── docs/
     ├── GAME_RULES.md
     ├── CARD_FORMAT.md
     └── ARCHITECTURE.md
 ```
 
-## GitHub Pages
+## ⚖️ Équilibrage v4 — validé sur 22 500 simulations
 
-This project works on GitHub Pages. After pushing:
-1. Go to **Settings → Pages**
-2. Set source to **main branch**, root folder
-3. Your game will be live at `https://yourusername.github.io/5legends/`
+| Faction | Winrate | Identité |
+|---------|---------|----------|
+| 🏛 Greek | 53.6% | Tempo · Hit · Piège |
+| 🦊 Yokai | 50.8% | Sommeil · Contrôle |
+| ⚡ Norse | 48.9% | Murs · Résistance |
+| 🌿 Aztec | 48.9% | Aggro · Endurance |
+| 🏺 Egyptian | 47.8% | Swarm · Tempo |
 
-## Credits
+**Écart max : 5.8pp** (vs 60pp avant équilibrage)
 
-Built with vanilla HTML/CSS/JS. Card artwork generated with AI tools. Music: "Battle of Gods" by Cézame Trailers.
+## 🃏 Factions
+
+| | Mécanique signature | Counter | Faible contre |
+|--|--|--|--|
+| 🦊 Yokai | Sommeil — neutralise les défenses | Norse (murs) | Aztec (aggro) |
+| ⚡ Norse | Endurance + Protect | Egyptian | Yokai (sleep) |
+| 🏺 Egyptian | Hit × 2 + Tokens | Aztec | Norse (murs) |
+| 🏛 Greek | Hit·Heal + Pièges réactifs | Aztec | — |
+| 🌿 Aztec | Endure·Heal + Bewitch | Yokai | Greek |
+
+## 🔧 Lancer en local
+
+```bash
+# Cloner le repo
+git clone https://github.com/frankiy67/5legends.git
+cd 5legends
+
+# Lancer un serveur local (les modules JS nécessitent HTTP)
+python3 -m http.server 8000
+# puis ouvrir http://localhost:8000
+```
+
+> ⚠️ Le jeu ne fonctionne **pas** en ouvrant `index.html` directement (protocole `file://`) — il faut un serveur HTTP.
+
+## ✨ Principales mécaniques
+
+| Capacité | Effet |
+|--|--|
+| **Hurry** | Peut attaquer le tour de son invocation |
+| **Protect** | Doit être détruit avant d'attaquer le joueur |
+| **Endure** | Survit une fois avec 1 DEF restant |
+| **Hit** | Attaque deux fois par tour |
+| **Heal** | Les dégâts infligés soignent le joueur |
+| **Sleep** | Monstre ciblé face-down, inactif 2 tours |
+| **Curse** | Le prochain point de dégât tue le monstre |
+| **Sand Up** | Monstre ciblé ne peut pas attaquer 1 tour |
+| **Bewitch** | 50% de chance de rater l'attaque |
+
+## 📜 Changelog
+
+### v4 (équilibrage)
+- Système d'actions supprimé — les gems sont la seule ressource
+- 7 cartes "+Action" remplacées par de vraies capacités (Baku→Sommeil, Golem→Endurance, Efrit→3 dégâts, Kraken→Shield, Centaur→Protect, Draugr→Draw, Huay Chivo→Bewitch)
+- 60 monstres rééquilibrés sur simulations
+- Greek renforcé (11% → 54%) : monstres boostés + 5 dieux convertis en proactifs
+- Norse nerfé (71% → 49%) : murs Endure+Protect cassés
+- Egyptian renforcé (39% → 48%)
+
+### v3
+- Correction bug critique : `hand-area` et `side-panel` hors de la grille CSS
+- Fix `renderPhaseBar` : `updatePhaseButton` → `updatePhaseBtn`
