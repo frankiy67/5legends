@@ -401,7 +401,7 @@ aztec:[
   {id:'KAQKOJ',     n:'Kaqkoj',     atk:2,def:1,cost:2,rarity:'uncommon',cap:'reveal_play_free',        txt:'Révèle 3 cartes, adversaire choisit: vous jouez gratuitement.'},
   {id:'OCELOTL',    n:'Ocelotl',    atk:5,def:1,cost:3,rarity:'uncommon',cap:'copy_ally_def',           txt:'Entrée : Ocelotl copie la DEF dun allié.'},
   {id:'TZI',        n:'Tzi',        atk:3,def:7,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
-  {id:'CHOHIX',     n:'Chohix',     atk:8,def:3,cost:5,rarity:'uncommon',cap:'death_token22',           txt:'Toujours : jeton 2/2 par mort alliée.'},
+  {id:'CHOHIX',     n:'Chohix',     atk:8,def:3,cost:5,rarity:'uncommon',cap:'death_token22 ritual_tokens3', txt:'Toujours : jeton 2/2 par mort alliée. Rituel : 3 jetons 2/2 Rapide.'},
   {id:'NAGUAL',     n:'Nagual',     atk:3,def:8,cost:6,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
   {id:'OTOMITL',    n:'Otomitl',    atk:6,def:9,cost:7,rarity:'uncommon',cap:'passive_empty_hand_buff', txt:'Toujours : si main vide, alliés +2 ATK /+1 DEF.'},
   {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:8,def:9,cost:8,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
@@ -411,7 +411,7 @@ aztec:[
   {id:'IZCAQLLI',   n:'Izcaqlli',   atk:6,def:8,cost:5,rarity:'rare',    cap:'protect_endure',          txt:'Protection + Endurance.'},
   {id:'IZCOALT',    n:'Izcoalt',    atk:6,def:5,cost:6,rarity:'rare',    cap:'entry_destroy_catchup',   txt:'Entrée : Si vos PV ≤50, détruisez un monstre adverse.'},
   {id:'HUAY_CHIVO', n:'Huay Chivo', atk:4,def:12,cost:8,rarity:'rare',  cap:'hit',                     txt:'Double attaque.'},
-  {id:'TLALTECUHTLI',n:'Tlaltecuhtli',atk:8,def:6,cost:7,rarity:'rare', cap:'entry_token_copies_2',    txt:'Entrée : jetons 1/1 copies de 2 alliés.'},
+  {id:'TLALTECUHTLI',n:'Tlaltecuhtli',atk:8,def:6,cost:7,rarity:'rare', cap:'entry_token_copies_2 ritual_wipe5', txt:'Entrée : jetons 1/1 copies de 2 alliés. Rituel : 5 dégâts à tous les monstres adverses.'},
 ]};
 
 const GODS = {
@@ -478,6 +478,7 @@ greek:[
   {id:'HESTIA',     n:'Hestia',     cost:4, cap:'god_3shield_attacks',      txt:'Permanent : 3 marqueurs. Chaque attaque adverse est annulée et retire 1 marqueur.'},
   {id:'POSEIDON',   n:'Poséidon',   cost:4, cap:'god_cancel_spell_draw',    txt:"N'importe quand : Annulez un sort et piochez. Bonus : Annulez aussi un monstre."},
   {id:'ZEUS',       n:'Zeus',       cost:6, cap:'god_destroy_low_all',      txt:'Détruisez tous les monstres de DEF ≤5. Bonus : Détruisez tous les monstres.'},
+  {id:'ORACLE_DELPHES', n:'Oracle de Delphes', cost:2, type:'spell', cap:'oracle_3', txt:'Regardez les 3 prochaines cartes de votre deck. Réordonnez-les.'},
 ],
 aztec:[
   {id:'CENTEOTL',       n:'Centeotl',       cost:3, cap:'god_death_draw_cost4',    txt:'Permanent (1×/tour) : Si un allié meurt, piochez 1 carte en payant 4 PV.'},
@@ -541,7 +542,7 @@ function buildDeck(faction) {
     const copies = rarityCopies[m.rarity] || 1;
     return Array.from({length: copies}, () => newCard({...m, type:'monster', faction}));
   });
-  const gs = GODS[faction].map(g => newCard({...g, type:'god', faction}));
+  const gs = GODS[faction].map(g => newCard({...g, type: g.type || 'god', faction}));
   return shuffle([...ms, ...gs]).slice(0, 45);
 }
 
@@ -1950,6 +1951,89 @@ async function applySpellEffect(c, p) {
       addLog(`${c.n} — ${entry.card.n} COUNTERED!`,'special');
     } else { addLog(`${c.n} — Nothing to counter`,'special'); }
   }
+  else if(cap==='oracle_3') {
+    await showOracleModal(p);
+  }
+}
+
+// ── Oracle de Delphes — UI modal ─────────────────────────────
+async function showOracleModal(p) {
+  const P = G.players[p];
+  const cards = P.deck.slice(0, 3);
+  if(cards.length === 0) { addLog('Oracle — deck vide!','event'); return; }
+
+  // AI: do nothing (keep order)
+  if(G.mode==='pve' && p===2) {
+    addLog('Oracle — IA garde l\'ordre du deck.','event');
+    return;
+  }
+
+  addLog('Oracle — Choisissez l\'ordre des 3 prochaines cartes.','event');
+
+  return new Promise(resolve => {
+    let order = [...cards];
+
+    // Create modal dynamically
+    let modal = document.getElementById('oracle-modal');
+    if(!modal) {
+      modal = document.createElement('div');
+      modal.id = 'oracle-modal';
+      modal.className = 'oracle-modal';
+      document.body.appendChild(modal);
+    }
+
+    const render = () => {
+      modal.innerHTML = `
+        <h3 style="color:#ffd700;margin:0 0 8px">🔮 Oracle de Delphes</h3>
+        <p style="font-size:12px;color:#aaa;margin:0 0 12px">Réordonnez les 3 prochaines cartes (cliquez pour monter)</p>
+        <div id="oracle-cards" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          ${order.map((card,i) => `
+            <div class="oracle-card" data-idx="${i}" style="
+              background:rgba(255,255,255,0.07);border:1px solid rgba(200,164,74,0.4);
+              border-radius:8px;padding:8px 12px;cursor:pointer;min-width:80px;text-align:center;
+              font-size:11px;color:#fff">
+              <div style="font-size:18px">${card.type==='monster'?'🐉':card.type==='spell'?'✨':'⚡'}</div>
+              <div style="font-weight:bold;font-size:10px;margin:4px 0">${card.n}</div>
+              <div style="color:#888;font-size:9px">coût ${card.cost}</div>
+              <div style="color:#aaa;margin-top:4px">
+                ${i>0?'<span style="font-size:14px;cursor:pointer" data-up="'+i+'">⬆</span>':''}
+                ${i<order.length-1?'<span style="font-size:14px;cursor:pointer" data-down="'+i+'">⬇</span>':''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <button id="oracle-confirm" style="
+          margin-top:16px;padding:8px 20px;background:linear-gradient(135deg,#1a472a,#2d6a4f);
+          color:#ffd700;border:1px solid rgba(200,164,74,0.5);border-radius:6px;
+          font-size:13px;font-weight:bold;cursor:pointer">✅ Confirmer</button>
+      `;
+
+      modal.querySelectorAll('[data-up]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const i = parseInt(btn.dataset.up);
+          [order[i-1], order[i]] = [order[i], order[i-1]];
+          render();
+        });
+      });
+      modal.querySelectorAll('[data-down]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const i = parseInt(btn.dataset.down);
+          [order[i], order[i+1]] = [order[i+1], order[i]];
+          render();
+        });
+      });
+      document.getElementById('oracle-confirm').addEventListener('click', () => {
+        // Put ordered cards back on top of deck
+        P.deck.splice(0, order.length, ...order);
+        addLog(`Oracle — Ordre confirmé: ${order.map(c=>c.n).join(', ')}`, 'event');
+        modal.style.display = 'none';
+        resolve();
+      });
+    };
+
+    modal.style.display = 'flex';
+    render();
+  });
 }
 
 // =====================================================
@@ -3563,8 +3647,65 @@ function renderField(p) {
         <div class="fc-def">${m.cDef}</div>
       `;
     }
+    // ── Bouton RITUEL pour monstres aztèques compatibles ────────
+    if(isCurrent && (G.phase==='Main1'||G.phase==='Main2')
+       && (m.cap||'').match(/ritual_/)
+       && P.faction==='aztec'
+       && P.field.filter(x=>x&&!x.faceDown).length >= 2
+       && !G.targeting && !G.ritualPending) {
+      const ritBtn = document.createElement('button');
+      ritBtn.className = 'btn-ritual';
+      ritBtn.textContent = '🔥 RITUEL';
+      ritBtn.style.cssText = 'display:block;width:100%;margin-top:4px;';
+      ritBtn.onclick = (e) => { e.stopPropagation(); startRitual(p, i); };
+      div.appendChild(ritBtn);
+    }
+
     el.appendChild(div);
   });
+}
+
+// ── Sacrifice Rituel ──────────────────────────────────────────
+function startRitual(p, cardIdx) {
+  G.ritualPending = {p, cardIdx};
+  addLog('🔥 RITUEL — Choisissez un allié à sacrifier.','special');
+  renderAll();
+}
+
+async function executeRitual(p, cardIdx, sacrificeIdx) {
+  const P = G.players[p];
+  const ritualCard = P.field[cardIdx];
+  const sacrifice = P.field[sacrificeIdx];
+  if(!ritualCard || !sacrifice || sacrificeIdx === cardIdx) return;
+
+  addLog(`🔥 ${sacrifice.n} sacrifié pour ${ritualCard.n}!`,'special');
+  // Remove sacrifice WITHOUT triggering exit effects
+  P.field.splice(sacrificeIdx, 1);
+  P.graveyard.push(sacrifice);
+
+  const cap = ritualCard.cap||'';
+  const opp = p===1?2:1;
+
+  if(cap.includes('ritual_wipe5')) {
+    const targets = G.players[opp].field.filter(x=>x&&!x.faceDown);
+    for(const t of targets) {
+      t.cDef = Math.max(0, t.cDef-5);
+      if(t.cDef<=0) await handleDeath(opp, t);
+    }
+    addLog(`🔥 Rituel — 5 dégâts à tous les monstres adverses!`,'dmg');
+  }
+  if(cap.includes('ritual_tokens3')) {
+    for(let t=0;t<3&&P.field.length<6;t++) {
+      const tok=newCard({id:'RITUAL_TOK',n:'Jeton 2/2',atk:2,def:2,cost:0,type:'monster',
+        cap:'hurry',txt:'Jeton Rituel',rarity:'common',faction:P.faction});
+      tok.cAtk=2;tok.cDef=2; P.field.push(tok);
+    }
+    addLog(`🔥 Rituel — 3 jetons 2/2 Rapide!`,'event');
+  }
+
+  G.ritualPending = null;
+  renderAll();
+  checkVictory();
 }
 
 function renderHand() {
@@ -3699,6 +3840,14 @@ function updateButtons() {
 // ═══════════════════════════════════════════════════════════════════
 function onFieldClick(p,i) {
   if(!G) return;
+  // Ritual: picking an ally to sacrifice
+  if(G.ritualPending && p===G.ritualPending.p && i!==G.ritualPending.cardIdx) {
+    const m = G.players[p].field[i];
+    if(m && !m.faceDown) { executeRitual(p, G.ritualPending.cardIdx, i); return; }
+  }
+  if(G.ritualPending && p===G.ritualPending.p && i===G.ritualPending.cardIdx) {
+    G.ritualPending=null; addLog('Rituel annulé.','event'); renderAll(); return;
+  }
   if(G.targeting){ resolveTarget({type:'field',p,i}); return; }
   if(G.mode==='pve'&&G.cp===2) return;
   const cp=G.cp;

@@ -1566,6 +1566,39 @@ body.targeting .fcard{cursor:crosshair!important}
 /* ═══════════════════════════════════════════════════════════════════
    PASSIVE INDICATORS — HUD
 ═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   SACRIFICE RITUEL — bouton aztec
+═══════════════════════════════════════════════════════════════════ */
+.btn-ritual {
+  background: linear-gradient(135deg, #8B0000, #FF4500);
+  color: white; border: 1px solid #FF6347;
+  padding: 4px 8px; border-radius: 4px;
+  font-size: 11px; cursor: pointer; width: 100%;
+  animation: pulse-ritual 1s infinite alternate;
+  margin-top: 4px;
+}
+.btn-ritual:hover { filter: brightness(1.2); }
+@keyframes pulse-ritual {
+  from { box-shadow: 0 0 4px #FF4500; }
+  to   { box-shadow: 0 0 12px #FF4500, 0 0 4px #8B0000; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ORACLE DE DELPHES — modal
+═══════════════════════════════════════════════════════════════════ */
+.oracle-modal {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(8, 8, 28, 0.97);
+  border: 2px solid rgba(200, 164, 74, 0.6);
+  border-radius: 12px;
+  padding: 20px; z-index: 2000;
+  display: none; flex-direction: column; align-items: center; gap: 12px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(200,164,74,0.2);
+  min-width: 300px;
+}
+.oracle-card:hover { border-color: rgba(200,164,74,0.8) !important; background: rgba(255,255,255,0.12) !important; }
+
 .passive-row {
   display: flex; flex-wrap: wrap; gap: 3px; padding: 2px 6px;
 }
