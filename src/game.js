@@ -290,128 +290,128 @@ const FACTIONS = ['yokai','norse','egyptian','greek','aztec'];
 const MONSTERS = {
 yokai:[
   // NON-RARES x3
-  {id:'NINGYO',     n:'Ningyo',     atk:1,def:3,cost:1,rarity:'common',  cap:'draw_on_attack',      txt:'Chaque fois que Ningyo attaque, piochez une carte.'},
-  {id:'MUJNINA',    n:'Mujnina',    atk:3,def:2,cost:2,rarity:'common',  cap:'heal',                txt:'Vie : les dégâts soignent votre joueur.'},
-  {id:'TANUKI',     n:'Tanuki',     atk:3,def:4,cost:3,rarity:'common',  cap:'exit_search3',        txt:'Sortie : Cherchez un monstre de coût ≤3 dans votre deck.'},
-  {id:'KAPPA',      n:'Kappa',      atk:3,def:6,cost:4,rarity:'common',  cap:'passive_buff11_faction',txt:'Toujours : vos autres monstres japonais gagnent +1/+1.'},
-  {id:'KEUKEGEN',   n:'Keukegen',   atk:5,def:5,cost:5,rarity:'common',  cap:'exit_copy_token',     txt:'Sortie : Invoquez un jeton copie 2/2 du monstre adverse qui vous a détruit.'},
-  {id:'BAKU',       n:'Baku',       atk:6,def:7,cost:6,rarity:'common',  cap:'entry_sleep',         txt:'Entrée : Placez un monstre adverse face caché (Sommeil 2 tours).'},
+  {id:'NINGYO',     n:'Ningyo',     atk:1,def:3,cost:1,rarity:'common',  cap:'attack_draw',             txt:'Attaque : piochez 1 carte.'},
+  {id:'MUJNINA',    n:'Mujnina',    atk:3,def:2,cost:2,rarity:'common',  cap:'heal',                    txt:'Vie : les dégâts soignent votre joueur.'},
+  {id:'TANUKI',     n:'Tanuki',     atk:3,def:3,cost:3,rarity:'common',  cap:'exit_search_3def',        txt:'Sortie : Cherchez un monstre DEF ≤3 dans votre deck.'},
+  {id:'KAPPA',      n:'Kappa',      atk:5,def:5,cost:4,rarity:'common',  cap:'passive_yokai_buff',      txt:'Toujours : vos autres monstres Yokai gagnent +1/+1.'},
+  {id:'KEUKEGEN',   n:'Keukegen',   atk:4,def:6,cost:5,rarity:'common',  cap:'exit_copy_killer',        txt:'Sortie : Invoquez une copie du monstre qui vous a détruit.'},
+  {id:'BAKU',       n:'Baku',       atk:6,def:6,cost:6,rarity:'common',  cap:'entry_sleep',             txt:'Entrée : Placez un monstre adverse face caché (Sommeil 2 tours).'},
   // SEMI-RARES x2
-  {id:'KITSUNE',    n:'Kitsune',    atk:2,def:1,cost:1,rarity:'uncommon',cap:'hurry',               txt:'Rapide.'},
-  {id:'ONIKUMA',    n:'Onikuma',    atk:2,def:3,cost:2,rarity:'uncommon',cap:'protect',             txt:'Protection.'},
-  {id:'BAKENEKO',   n:'Bakeneko',   atk:3,def:3,cost:3,rarity:'uncommon',cap:'entry_copy_ally',     txt:'Entrée : Choisissez un allié. Bakeneko devient sa copie jusqu\'à la fin du tour.'},
-  {id:'NUE',        n:'Nue',        atk:3,def:5,cost:4,rarity:'uncommon',cap:'curse endure',        txt:'Malédiction + Endurance.'},
-  {id:'KARURA',     n:'Karura',     atk:5,def:5,cost:5,rarity:'uncommon',cap:'entry_dmg4',          txt:'Entrée : Infligez 4 dégâts à une cible.'},
-  {id:'INUGAMI',    n:'Inugami',    atk:6,def:6,cost:6,rarity:'uncommon',cap:'hit',                 txt:'Double attaque. Se détruit après 2 attaques.'},
-  {id:'ONI',        n:'Oni',        atk:7,def:6,cost:7,rarity:'uncommon',cap:'hit entry_dmg2_all',  txt:'Double attaque. Entrée : 2 dégâts à tous les monstres adverses.'},
-  {id:'RAIJU',      n:'Raiju',      atk:8,def:7,cost:8,rarity:'uncommon',cap:'solo_destroy',        txt:'Si seul monstre allié : détruit le monstre adverse le plus fort avant le combat.'},
+  {id:'KITSUNE',    n:'Kitsune',    atk:2,def:1,cost:1,rarity:'uncommon',cap:'hurry',                   txt:'Rapide.'},
+  {id:'ONIKUMA',    n:'Onikuma',    atk:2,def:4,cost:2,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
+  {id:'BAKENEKO',   n:'Bakeneko',   atk:2,def:2,cost:3,rarity:'uncommon',cap:'entry_copy_ally',         txt:'Entrée : Bakeneko copie un allié.'},
+  {id:'NUE',        n:'Nue',        atk:3,def:6,cost:4,rarity:'uncommon',cap:'curse_endure',            txt:'Malédiction + Endurance.'},
+  {id:'KARURA',     n:'Karura',     atk:6,def:5,cost:5,rarity:'uncommon',cap:'entry_dmg4',              txt:'Entrée : 4 dégâts à une cible.'},
+  {id:'INUGAMI',    n:'Inugami',    atk:3,def:9,cost:6,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
+  {id:'ONI',        n:'Oni',        atk:4,def:9,cost:7,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
+  {id:'RAIJU',      n:'Raiju',      atk:8,def:8,cost:8,rarity:'uncommon',cap:'solo_destroy',            txt:'Seul allié : détruit la cible sans combat.'},
   // RARES x1
-  {id:'TSUCHINOKO', n:'Tsuchinoko', atk:4,def:3,cost:3,rarity:'rare',    cap:'curse endure',        txt:'Malédiction + Endurance.'},
-  {id:'TSUCHIGUMO', n:'Tsuchigumo', atk:4,def:6,cost:4,rarity:'rare',    cap:'protect',             txt:'Protection.'},
-  {id:'USHI-ONI',   n:'Ushi-Oni',   atk:5,def:5,cost:5,rarity:'rare',    cap:'exit_dmg3_all_opp',   txt:'Sortie : Infligez 3 dégâts à tous les monstres adverses.'},
-  {id:'AKKOROKAMUI',n:'Akkorokamui',atk:6,def:6,cost:6,rarity:'rare',    cap:'exit_autocopy',       txt:'Sortie : Invoquez un jeton copie 6/6 d\'Akkorokamui sans capacité.'},
-  {id:'RYUU',       n:'Ryuu',       atk:7,def:7,cost:7,rarity:'rare',    cap:'heal',                txt:'Vie.'},
-  {id:'NAMAZU',     n:'Namazu',     atk:7,def:8,cost:8,rarity:'rare',    cap:'hurry',               txt:'Rapide.'},
+  {id:'TSUCHINOKO', n:'Tsuchinoko', atk:5,def:3,cost:3,rarity:'rare',    cap:'curse_endure',            txt:'Malédiction + Endurance.'},
+  {id:'TSUCHIGUMO', n:'Tsuchigumo', atk:6,def:7,cost:4,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
+  {id:'USHI-ONI',   n:'Ushi-Oni',   atk:5,def:7,cost:5,rarity:'rare',    cap:'exit_dmg3_all',           txt:'Sortie : 3 dégâts à tous les monstres adverses.'},
+  {id:'AKKOROKAMUI',n:'Akkorokamui',atk:7,def:8,cost:6,rarity:'rare',    cap:'reincarnation',           txt:'1ère mort : mélangé dans le deck avec +3/+3 permanents.'},
+  {id:'RYUU',       n:'Ryuu',       atk:7,def:9,cost:7,rarity:'rare',    cap:'heal',                    txt:'Vie.'},
+  {id:'NAMAZU',     n:'Namazu',     atk:7,def:10,cost:8,rarity:'rare',   cap:'hurry',                   txt:'Rapide.'},
 ],
 norse:[
   // NON-RARES x3
-  {id:'RATATOSK',   n:'Ratatosk',   atk:1,def:2,cost:1,rarity:'common',  cap:'entry_search_self',   txt:'Entrée : Cherchez un Ratatosk dans votre deck.'},
-  {id:'HUGINN',     n:'Huginn',     atk:2,def:2,cost:2,rarity:'common',  cap:'start_draw',          txt:'Début de chaque tour allié : Piochez une carte.'},
-  {id:'DRAUGR',     n:'Draugr',     atk:4,def:3,cost:3,rarity:'common',  cap:'endure',              txt:'Endurance.'},
-  {id:'EITRI',      n:'Eitri',      atk:4,def:5,cost:4,rarity:'common',  cap:'combat_recycle_dmg2', txt:'Combat : Replacez 2 monstres de défausse sous le deck, puis infligez 2 dégâts.'},
-  {id:'LJOSALFAR',  n:'Ljosalfar',  atk:5,def:5,cost:5,rarity:'common',  cap:'heal',                txt:'Vie.'},
-  {id:'DOKKALFAR',  n:'Dokkalfar',  atk:7,def:6,cost:6,rarity:'common',  cap:'curse',               txt:'Malédiction.'},
+  {id:'RATATOSK',   n:'Ratatosk',   atk:1,def:2,cost:1,rarity:'common',  cap:'entry_search_ratatosk',   txt:'Entrée : Cherchez un Ratatosk dans votre deck.'},
+  {id:'HUGINN',     n:'Huginn',     atk:2,def:1,cost:3,rarity:'common',  cap:'start_draw',              txt:'Début de tour : Piochez 1 carte.'},
+  {id:'DRAUGR',     n:'Draugr',     atk:4,def:2,cost:3,rarity:'common',  cap:'endure',                  txt:'Endurance.'},
+  {id:'EITRI',      n:'Eitri',      atk:4,def:5,cost:4,rarity:'common',  cap:'combat_recycle_dmg2',     txt:'Combat : replacez 2 monstres de défausse sous le deck, puis 2 dégâts.'},
+  {id:'LJOSALFAR',  n:'Ljosalfar',  atk:6,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Vie.'},
+  {id:'DOKKALFAR',  n:'Dokkalfar',  atk:6,def:7,cost:6,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
   // SEMI-RARES x2
-  {id:'EIKTHYRNIR', n:'Eikthyrnir', atk:1,def:2,cost:1,rarity:'uncommon',cap:'passive_adj_buff',    txt:'Toujours : les monstres adjacents gagnent +2 ATK / +1 DEF.'},
-  {id:'LANDVAETTIR',n:'Landvaettir',atk:3,def:2,cost:2,rarity:'uncommon',cap:'heal',                txt:'Vie.'},
-  {id:'TANNGRISNIR',n:'Tanngrisnir',atk:4,def:3,cost:3,rarity:'uncommon',cap:'endure hurry',        txt:'Endurance + Rapide.'},
-  {id:'SLEIPNIR',   n:'Sleipnir',   atk:5,def:3,cost:4,rarity:'uncommon',cap:'hurry',               txt:'Rapide.'},
-  {id:'HILDISVINI', n:'Hildisvini', atk:5,def:6,cost:5,rarity:'uncommon',cap:'hit',                 txt:'Double attaque.'},
-  {id:'JOTUNN',     n:'Jotunn',     atk:6,def:6,cost:6,rarity:'uncommon',cap:'protect',             txt:'Protection.'},
-  {id:'IDI',        n:'Idi',        atk:7,def:7,cost:7,rarity:'uncommon',cap:'exit_search_faction', txt:'Sortie : Cherchez un monstre nordique de DEF ≤3 dans votre deck.'},
-  {id:'FENRIR',     n:'Fenrir',     atk:8,def:7,cost:8,rarity:'uncommon',cap:'curse endure',        txt:'Malédiction + Endurance.'},
+  {id:'EIKTHYRNIR', n:'Eikthyrnir', atk:1,def:3,cost:1,rarity:'uncommon',cap:'passive_adj_buff21',      txt:'Toujours : adjacents gagnent +2 ATK / +1 DEF.'},
+  {id:'LANDVAETTIR',n:'Landvaettir',atk:4,def:2,cost:2,rarity:'uncommon',cap:'heal',                    txt:'Vie.'},
+  {id:'TANNGRISNIR',n:'Tanngrisnir',atk:5,def:2,cost:3,rarity:'uncommon',cap:'endure_hurry',            txt:'Endurance + Rapide.'},
+  {id:'SLEIPNIR',   n:'Sleipnir',   atk:7,def:2,cost:4,rarity:'uncommon',cap:'hurry',                   txt:'Rapide.'},
+  {id:'HILDISVINI', n:'Hildisvini', atk:3,def:8,cost:5,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
+  {id:'JOTUNN',     n:'Jotunn',     atk:6,def:6,cost:6,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
+  {id:'IDI',        n:'Idi',        atk:7,def:10,cost:7,rarity:'uncommon',cap:'exit_search_3def',       txt:'Sortie : Cherchez un monstre DEF ≤3 dans votre deck.'},
+  {id:'FENRIR',     n:'Fenrir',     atk:6,def:10,cost:8,rarity:'uncommon',cap:'curse',                  txt:'Malédiction.'},
   // RARES x1
-  {id:'NIDDHOG',    n:'Niddhog',    atk:4,def:3,cost:3,rarity:'rare',    cap:'hit',                 txt:'Double attaque.'},
-  {id:'GARM',       n:'Garm',       atk:5,def:4,cost:4,rarity:'rare',    cap:'protect',             txt:'Protection.'},
-  {id:'JORMUNGANDR',n:'Jörmungandr',atk:5,def:7,cost:5,rarity:'rare',    cap:'splash_adj',          txt:'Toujours : inflige la moitié des dégâts aux monstres adjacents à la cible.'},
-  {id:'KRAKEN',     n:'Kraken',     atk:7,def:5,cost:6,rarity:'rare',    cap:'entry_2tokens21',     txt:'Entrée : Invoquez 2 jetons Tentacule 2/1.'},
-  {id:'YMIR',       n:'Ymir',       atk:7,def:8,cost:7,rarity:'rare',    cap:'token_on_dmg',        txt:'Toujours : chaque fois que Ymir subit des dégâts, invoquez un jeton 1/1 Glace.'},
-  {id:'SURT',       n:'Surt',       atk:8,def:8,cost:8,rarity:'rare',    cap:'entry_boardwipe_noatk',txt:'Entrée : Détruisez tous les autres monstres. Ne peut pas attaquer ce tour.'},
+  {id:'NIDDHOG',    n:'Niddhog',    atk:3,def:5,cost:3,rarity:'rare',    cap:'hit',                     txt:'Double attaque.'},
+  {id:'GARM',       n:'Garm',       atk:6,def:4,cost:4,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
+  {id:'JORMUNGANDR',n:'Jörmungandr',atk:4,def:8,cost:5,rarity:'rare',   cap:'splash_adjacent',         txt:'Inflige ATK×0.5 dégâts aux monstres adjacents à la cible.'},
+  {id:'KRAKEN',     n:'Kraken',     atk:11,def:2,cost:6,rarity:'rare',   cap:'entry_tokens4',           txt:'Entrée : Invoquez 4 jetons 1/1.'},
+  {id:'YMIR',       n:'Ymir',       atk:8,def:9,cost:7,rarity:'rare',    cap:'token_per_dmg',           txt:'Toujours : jeton 1/1 par dégât reçu en combat.'},
+  {id:'SURT',       n:'Surt',       atk:8,def:10,cost:8,rarity:'rare',   cap:'entry_wipe',              txt:'Entrée : Détruit TOUT (sauf Surt). Déclenche les effets Sortie.'},
 ],
 egyptian:[
   // NON-RARES x3
-  {id:'ABTU',       n:'Abtu',       atk:2,def:1,cost:1,rarity:'common',  cap:'end_draw',            txt:'Fin de chaque tour allié : Piochez une carte.'},
-  {id:'MEDJED',     n:'Medjed',     atk:2,def:3,cost:2,rarity:'common',  cap:'start_token_capped',  txt:'Début de tour : Invoquez 1 jeton 1/1. (Maximum 3 par partie.)'},
-  {id:'MOMIE',      n:'Momie',      atk:4,def:4,cost:3,rarity:'common',  cap:'endure',              txt:'Endurance.'},
-  {id:'SHA',        n:'Sha',        atk:4,def:5,cost:4,rarity:'common',  cap:'recycle_return',      txt:'Placez 2 monstres de défausse sous le deck pour récupérer SHA en main.'},
-  {id:'APIS',       n:'Apis',       atk:5,def:6,cost:5,rarity:'common',  cap:'heal',                txt:'Vie.'},
-  {id:'BENOU',      n:'Benou',      atk:7,def:6,cost:6,rarity:'common',  cap:'hurry entry_resurrect3',txt:'Rapide. Entrée : Ressuscitez un allié de DEF ≥3 depuis la défausse.'},
+  {id:'ABTU',       n:'Abtu',       atk:2,def:1,cost:1,rarity:'common',  cap:'end_draw',                txt:'Fin de tour : Piochez 1 carte.'},
+  {id:'MEDJED',     n:'Medjed',     atk:2,def:3,cost:2,rarity:'common',  cap:'start_tokens2',           txt:'Début de tour : Invoquez 2 jetons 1/1 (max 6 sur terrain).'},
+  {id:'MOMIE',      n:'Momie',      atk:3,def:3,cost:3,rarity:'common',  cap:'endure',                  txt:'Endurance.'},
+  {id:'SHA',        n:'Sha',        atk:4,def:3,cost:4,rarity:'common',  cap:'recycle_return',          txt:'Mort : placez 2 monstres de défausse sous le deck, Sha retourne en main.'},
+  {id:'APIS',       n:'Apis',       atk:5,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Vie.'},
+  {id:'BENOU',      n:'Benou',      atk:7,def:6,cost:6,rarity:'common',  cap:'hurry_entry_revive',      txt:'Rapide. Entrée : Ressuscite un allié DEF ≥3 depuis la défausse.'},
   // SEMI-RARES x2
-  {id:'SPHINX',     n:'Sphinx',     atk:1,def:3,cost:1,rarity:'uncommon',cap:'protect',             txt:'Protection.'},
-  {id:'CRIOSPHINX', n:'Criosphinx', atk:3,def:2,cost:2,rarity:'uncommon',cap:'heal',                txt:'Vie.'},
-  {id:'HIERACOSPHINX',n:'Hieracosphinx',atk:2,def:4,cost:3,rarity:'uncommon',cap:'hit',             txt:'Double attaque.'},
-  {id:'AANI',       n:'Aani',       atk:4,def:5,cost:4,rarity:'uncommon',cap:'steal_hurry',         txt:'Prenez le contrôle d\'un monstre adverse jusqu\'à la fin du tour. Il gagne Rapide.'},
-  {id:'BABAI',      n:'Babaï',      atk:5,def:5,cost:5,rarity:'uncommon',cap:'entry_tokens_graveyard',txt:'Entrée : Invoquez des jetons copies 1/1 de jusqu\'à 2 monstres en défausse.'},
-  {id:'MANTICORE',  n:'Manticore',  atk:6,def:6,cost:6,rarity:'uncommon',cap:'hit',                 txt:'Double attaque.'},
-  {id:'GRIFFON',    n:'Griffon',    atk:8,def:6,cost:7,rarity:'uncommon',cap:'hurry exit_heal4',    txt:'Rapide. Sortie : Gagnez 4 points de vie.'},
-  {id:'SERPOPARD',  n:'Serpopard',  atk:7,def:8,cost:8,rarity:'uncommon',cap:'curse',               txt:'Malédiction.'},
+  {id:'SPHINX',     n:'Sphinx',     atk:2,def:4,cost:1,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
+  {id:'CRIOSPHINX', n:'Criosphinx', atk:4,def:1,cost:2,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
+  {id:'HIERACOSPHINX',n:'Hieracosphinx',atk:2,def:5,cost:3,rarity:'uncommon',cap:'hit',                txt:'Double attaque.'},
+  {id:'AANI',       n:'Aani',       atk:4,def:5,cost:4,rarity:'uncommon',cap:'temp_steal_hurry',        txt:'Mort : volez un monstre adverse (Rapide) jusquà fin de tour.'},
+  {id:'BABAI',      n:'Babaï',      atk:7,def:4,cost:5,rarity:'uncommon',cap:'token_copies_graveyard',  txt:'Entrée : jetons 1/1 copies de 2 monstres en défausse (sans ETB/sortie).'},
+  {id:'MANTICORE',  n:'Manticore',  atk:4,def:8,cost:6,rarity:'uncommon',cap:'hit',                    txt:'Double attaque.'},
+  {id:'GRIFFON',    n:'Griffon',    atk:8,def:7,cost:7,rarity:'uncommon',cap:'hurry_exit_heal4',        txt:'Rapide. Sortie : +4 PV.'},
+  {id:'SERPOPARD',  n:'Serpopard',  atk:4,def:12,cost:8,rarity:'uncommon',cap:'curse',                  txt:'Malédiction.'},
   // RARES x1
-  {id:'EFRIT',      n:'Efrit',      atk:3,def:5,cost:3,rarity:'rare',    cap:'end_heal_ally',       txt:'Fin de tour : Soignez totalement les DEF d\'un monstre allié ciblé.'},
-  {id:'DJINN',      n:'Djinn',      atk:5,def:5,cost:4,rarity:'rare',    cap:'combat_dmg2',         txt:'Combat : Infligez 2 dégâts à un monstre ciblé avant le combat.'},
-  {id:'URAEUS',     n:'Uraeus',     atk:6,def:5,cost:5,rarity:'rare',    cap:'curse protect',       txt:'Malédiction + Protection.'},
-  {id:'ROKH',       n:'Rokh',       atk:7,def:6,cost:6,rarity:'rare',    cap:'exit_self_sleep_return',txt:'Sortie : Rokh entre en Sommeil 2 tours (intouchable), puis revient gratuitement.'},
-  {id:'GOLEM',      n:'Golem',      atk:8,def:8,cost:7,rarity:'rare',    cap:'endure alt_attack',   txt:'Endurance. Après avoir attaqué, ne peut plus attaquer le tour suivant.'},
-  {id:'LEVIATHAN',  n:'Léviathan',  atk:9,def:8,cost:8,rarity:'rare',    cap:'entry_draw_per_ally', txt:'Entrée : Piochez 1 carte par autre monstre allié en jeu.'},
+  {id:'EFRIT',      n:'Efrit',      atk:4,def:5,cost:3,rarity:'rare',    cap:'end_heal_ally',           txt:'Fin de tour : Soignez totalement un monstre allié ciblé.'},
+  {id:'DJINN',      n:'Djinn',      atk:5,def:6,cost:4,rarity:'rare',    cap:'combat_dmg2',             txt:'Combat : 2 dégâts supplémentaires à la cible.'},
+  {id:'URAEUS',     n:'Uraeus',     atk:7,def:5,cost:5,rarity:'rare',    cap:'curse_protect',           txt:'Malédiction + Protection.'},
+  {id:'ROKH',       n:'Rokh',       atk:5,def:9,cost:6,rarity:'rare',    cap:'exit_self_sleep',         txt:'Mort : Rokh reste en jeu face caché 2 tours puis revient.'},
+  {id:'GOLEM',      n:'Golem',      atk:11,def:7,cost:7,rarity:'rare',   cap:'endure_cooldown',         txt:'Endurance. Après avoir attaqué, ne peut plus attaquer le tour suivant.'},
+  {id:'LEVIATHAN',  n:'Léviathan',  atk:9,def:10,cost:8,rarity:'rare',  cap:'entry_draw_per_ally',     txt:'Entrée : Piochez 1 carte par allié (max 3).'},
 ],
 greek:[
   // NON-RARES x3
-  {id:'SIRENES',    n:'Sirènes',    atk:1,def:2,cost:1,rarity:'common',  cap:'coinflip_defend',     txt:'Quand attaqué : l\'adversaire tire une pièce. Face = attaque annulée.'},
-  {id:'PEGASE',     n:'Pégase',     atk:2,def:3,cost:2,rarity:'common',  cap:'heal hurry',          txt:'Vie + Rapide.'},
-  {id:'HIPPOCAMPE', n:'Hippocampe', atk:4,def:3,cost:3,rarity:'common',  cap:'start_filter',        txt:'Début de tour : Défaussez 1 carte pour en piocher une.'},
-  {id:'SATYRE',     n:'Satyre',     atk:5,def:4,cost:4,rarity:'common',  cap:'curse',               txt:'Malédiction.'},
-  {id:'HARPIE',     n:'Harpie',     atk:5,def:5,cost:5,rarity:'common',  cap:'hurry exit_dmg3',     txt:'Rapide. Sortie : Infligez 3 dégâts à une cible.'},
-  {id:'CENTAURE',   n:'Centaure',   atk:7,def:6,cost:6,rarity:'common',  cap:'passive_entry_buff11',txt:'Toujours : chaque allié entrant gagne +1/+1.'},
+  {id:'SIRENES',    n:'Sirènes',    atk:2,def:1,cost:1,rarity:'common',  cap:'coinflip_defense',        txt:'Quand attaqué : pile = attaque annulée.'},
+  {id:'PEGASE',     n:'Pégase',     atk:3,def:4,cost:2,rarity:'common',  cap:'hurry_heal',              txt:'Rapide + Vie.'},
+  {id:'HIPPOCAMPE', n:'Hippocampe', atk:4,def:3,cost:3,rarity:'common',  cap:'start_filter',            txt:'Début de tour : Défaussez 1 carte pour en piocher 1.'},
+  {id:'SATYRE',     n:'Satyre',     atk:5,def:3,cost:4,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
+  {id:'HARPIE',     n:'Harpie',     atk:5,def:5,cost:5,rarity:'common',  cap:'hurry_exit_dmg3',         txt:'Rapide. Sortie : 3 dégâts à une cible.'},
+  {id:'CENTAURE',   n:'Centaure',   atk:8,def:3,cost:6,rarity:'common',  cap:'passive_entry_buff11',    txt:'Toujours : chaque allié entrant gagne +1/+1.'},
   // SEMI-RARES x2
-  {id:'CHIMERE',    n:'Chimère',    atk:2,def:1,cost:1,rarity:'uncommon',cap:'entry_copy_any',      txt:'Entrée : Chimère devient la copie d\'un monstre visible sur le terrain.'},
-  {id:'PYTHON',     n:'Python',     atk:2,def:3,cost:2,rarity:'uncommon',cap:'curse',               txt:'Malédiction.'},
-  {id:'LION_DE_NEMEE',n:'Lion de Némée',atk:3,def:4,cost:3,rarity:'uncommon',cap:'heal',           txt:'Vie.'},
-  {id:'OPHIOTAURUS',n:'Ophiotaurus',atk:5,def:4,cost:4,rarity:'uncommon',cap:'endure',             txt:'Endurance.'},
-  {id:'SCYLLA',     n:'Scylla',     atk:5,def:5,cost:5,rarity:'uncommon',cap:'entry_pioche_grec',   txt:'Entrée : Ce tour, chaque monstre grec joué de DEF ≤5 vous fait piocher 1 carte.'},
-  {id:'GORGONE',    n:'Gorgone',    atk:6,def:6,cost:6,rarity:'uncommon',cap:'endure',              txt:'Endurance.'},
-  {id:'CYCLOPE',    n:'Cyclope',    atk:7,def:7,cost:7,rarity:'uncommon',cap:'hit',                 txt:'Double attaque.'},
-  {id:'ECHIDNA',    n:'Echidna',    atk:8,def:7,cost:8,rarity:'uncommon',cap:'entry_recover_grave', txt:'Entrée : Retournez un monstre de votre défausse dans votre main.'},
+  {id:'CHIMERE',    n:'Chimère',    atk:2,def:2,cost:1,rarity:'uncommon',cap:'entry_copy_field',        txt:'Entrée : copie tout monstre visible.'},
+  {id:'PYTHON',     n:'Python',     atk:2,def:3,cost:2,rarity:'uncommon',cap:'curse',                   txt:'Malédiction.'},
+  {id:'LION_NEMEE', n:'Lion de Némée',atk:3,def:4,cost:3,rarity:'uncommon',cap:'heal',                  txt:'Vie.'},
+  {id:'OPHIOTAURUS',n:'Ophiotaurus',atk:6,def:4,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
+  {id:'SCYLLA',     n:'Scylla',     atk:4,def:7,cost:5,rarity:'uncommon',cap:'entry_draw_per_greek',    txt:'Ce tour : chaque grec joué DEF ≤5 fait piocher 1 carte.'},
+  {id:'GORGONE',    n:'Gorgone',    atk:8,def:6,cost:6,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
+  {id:'CYCLOPE',    n:'Cyclope',    atk:6,def:9,cost:7,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
+  {id:'ECHIDNA',    n:'Echidna',    atk:10,def:6,cost:8,rarity:'uncommon',cap:'entry_reclaim',          txt:'Entrée : Récupérez 1 monstre de votre défausse en main.'},
   // RARES x1
-  {id:'CERBERE',    n:'Cerbère',    atk:3,def:4,cost:3,rarity:'rare',    cap:'protect',             txt:'Protection.'},
-  {id:'MINOTAURE',  n:'Minotaure',  atk:4,def:5,cost:4,rarity:'rare',    cap:'protect hit',         txt:'Protection + Double attaque.'},
-  {id:'LADON',      n:'Ladon',      atk:6,def:5,cost:5,rarity:'rare',    cap:'copy_on_kill',        txt:'Toujours : invoquez un jeton 1/1 copie de chaque monstre adverse détruit par Ladon.'},
-  {id:'HYDRE',      n:'Hydre',      atk:4,def:6,cost:6,rarity:'rare',    cap:'entry_tokens_grec',   txt:'Entrée : Invoquez un jeton Hydre 3/3 par autre monstre grec allié en jeu.'},
-  {id:'CHARYBDE',   n:'Charybde',   atk:8,def:6,cost:7,rarity:'rare',    cap:'coinflip_atk5',       txt:'Début de tour : Tirez une pièce. Face = +5 ATK jusqu\'à la fin du tour.'},
-  {id:'TYPHON',     n:'Typhon',     atk:9,def:7,cost:8,rarity:'rare',    cap:'entry_dmg3_all',      txt:'Entrée : Infligez 3 dégâts à tous les autres monstres en jeu.'},
+  {id:'CERBERE',    n:'Cerbère',    atk:3,def:5,cost:3,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
+  {id:'MINOTAURE',  n:'Minotaure',  atk:4,def:6,cost:4,rarity:'rare',   cap:'protect_hit',             txt:'Protection + Double attaque.'},
+  {id:'LADON',      n:'Ladon',      atk:8,def:4,cost:5,rarity:'rare',    cap:'copy_on_attack',          txt:'Attaque : invoquez une copie (sans cap) du monstre attaqué.'},
+  {id:'HYDRE',      n:'Hydre',      atk:3,def:5,cost:6,rarity:'rare',    cap:'entry_token_per_greek',   txt:'Entrée : jeton Hydre 3/5 par monstre grec allié en jeu.'},
+  {id:'CHARYBDE',   n:'Charybde',   atk:11,def:5,cost:7,rarity:'rare',  cap:'start_coinflip_destroy',  txt:'Début de tour : pile = détruisez un monstre adverse.'},
+  {id:'TYPHON',     n:'Typhon',     atk:10,def:8,cost:8,rarity:'rare',  cap:'entry_dmg5_all',          txt:'Entrée : 5 dégâts à tous les autres monstres en jeu.'},
 ],
 aztec:[
   // NON-RARES x3
-  {id:'CAMAZOTZ',   n:'Camazotz',   atk:1,def:2,cost:1,rarity:'common',  cap:'curse',               txt:'Malédiction.'},
-  {id:'CHANEQUE',   n:'Chaneque',   atk:2,def:3,cost:2,rarity:'common',  cap:'heal',                txt:'Vie.'},
-  {id:'CEUYATL',    n:'Ceuyatl',    atk:4,def:3,cost:3,rarity:'common',  cap:'exit_search_atk3',    txt:'Sortie : Cherchez un monstre de ATK ≤3 dans votre deck.'},
-  {id:'CUETZPALIN', n:'Cuetzpalin', atk:4,def:5,cost:4,rarity:'common',  cap:'protect',             txt:'Protection.'},
-  {id:'TEUZAUHTOTOTL',n:'Teuzauhtototl',atk:6,def:5,cost:5,rarity:'common',cap:'scrye_dmg3_cond',   txt:'Entrée+tour : Regardez le dessus du deck. Si monstre, infligez 3 dégâts. (1×/tour)'},
-  {id:'CHULLACHAKI',n:'Chullachaki',atk:7,def:6,cost:6,rarity:'common',  cap:'hurry',               txt:'Rapide.'},
+  {id:'CAMAZOTZ',   n:'Camazotz',   atk:1,def:2,cost:1,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
+  {id:'CHANEQUE',   n:'Chaneque',   atk:2,def:3,cost:2,rarity:'common',  cap:'heal',                    txt:'Vie.'},
+  {id:'CEUYATL',    n:'Ceuyatl',    atk:4,def:3,cost:3,rarity:'common',  cap:'exit_search_3atk',        txt:'Sortie : Cherchez un monstre ATK ≤3 dans votre deck.'},
+  {id:'CUETZPALIN', n:'Cuetzpalin', atk:4,def:5,cost:4,rarity:'common',  cap:'protect',                 txt:'Protection.'},
+  {id:'TEUZAUHTOTOTL',n:'Teuzauhtototl',atk:6,def:6,cost:5,rarity:'common',cap:'oracle_dmg3',           txt:'Début de tour : regardez le dessus du deck. Sous le deck → 3 dmg à soi-même.'},
+  {id:'CHULLACHAKI',n:'Chullachaki',atk:8,def:4,cost:6,rarity:'common',  cap:'hurry',                   txt:'Rapide.'},
   // SEMI-RARES x2
-  {id:'AHUIZOTL',   n:'Ahuizotl',   atk:1,def:3,cost:1,rarity:'uncommon',cap:'curse',               txt:'Malédiction.'},
-  {id:'KAQKOJ',     n:'Kaqkoj',     atk:3,def:2,cost:2,rarity:'uncommon',cap:'challenge_free',      txt:'Révélez 3 cartes. L\'adversaire en choisit une que vous jouez gratuitement.'},
-  {id:'OCELOTL',    n:'Ocelotl',    atk:4,def:3,cost:3,rarity:'uncommon',cap:'entry_copy_def',      txt:'Entrée : Choisissez un allié. Ocelotl gagne ses points de DEF.'},
-  {id:'TZI',        n:'Tzi',        atk:4,def:5,cost:4,rarity:'uncommon',cap:'endure',              txt:'Endurance.'},
-  {id:'CHOHIX',     n:'Chohix',     atk:7,def:4,cost:5,rarity:'uncommon',cap:'token22_on_death',    txt:'Toujours : chaque fois qu\'un allié meurt, invoquez un jeton 2/2.'},
-  {id:'NAGUAL',     n:'Nagual',     atk:6,def:5,cost:6,rarity:'uncommon',cap:'hit',                 txt:'Double attaque.'},
-  {id:'OTOMITL',    n:'Otomitl',    atk:7,def:7,cost:7,rarity:'uncommon',cap:'catchup_empty_hand',  txt:'Toujours : si main vide, vos monstres gagnent +2 ATK / +1 DEF.'},
-  {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:8,def:8,cost:8,rarity:'uncommon',cap:'heal',                txt:'Vie.'},
+  {id:'AHUIZOTL',   n:'Ahuizotl',   atk:1,def:4,cost:1,rarity:'uncommon',cap:'curse',                   txt:'Malédiction.'},
+  {id:'KAQKOJ',     n:'Kaqkoj',     atk:2,def:1,cost:2,rarity:'uncommon',cap:'reveal_play_free',        txt:'Révèle 3 cartes, adversaire choisit: vous jouez gratuitement.'},
+  {id:'OCELOTL',    n:'Ocelotl',    atk:5,def:1,cost:3,rarity:'uncommon',cap:'copy_ally_def',           txt:'Entrée : Ocelotl copie la DEF dun allié.'},
+  {id:'TZI',        n:'Tzi',        atk:3,def:7,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
+  {id:'CHOHIX',     n:'Chohix',     atk:8,def:3,cost:5,rarity:'uncommon',cap:'death_token22',           txt:'Toujours : jeton 2/2 par mort alliée.'},
+  {id:'NAGUAL',     n:'Nagual',     atk:3,def:8,cost:6,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
+  {id:'OTOMITL',    n:'Otomitl',    atk:6,def:9,cost:7,rarity:'uncommon',cap:'passive_empty_hand_buff', txt:'Toujours : si main vide, alliés +2 ATK /+1 DEF.'},
+  {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:8,def:9,cost:8,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
   // RARES x1
-  {id:'QUETZAL',    n:'Quetzal',    atk:5,def:5,cost:5,rarity:'rare',    cap:'hurry global_hurry',  txt:'Rapide. Toujours : vos autres monstres ont Rapide tant que Quetzal est en jeu.'},
-  {id:'CIPACTLI',   n:'Cipactli',   atk:4,def:6,cost:4,rarity:'rare',    cap:'entry_recover_spell', txt:'Entrée : Retournez un sort de votre défausse dans votre main.'},
-  {id:'IZCAQLLI',   n:'Izcaqlli',   atk:6,def:6,cost:5,rarity:'rare',    cap:'protect endure',      txt:'Protection + Endurance.'},
-  {id:'IZCOALT',    n:'Izcoalt',    atk:7,def:5,cost:6,rarity:'rare',    cap:'entry_destroy_catchup',txt:'Entrée : Si vos PV ≤ PV adverses, détruisez un monstre adverse ciblé.'},
-  {id:'HUAY_CHIVO', n:'Huay Chivo', atk:7,def:8,cost:8,rarity:'rare',    cap:'hit',                 txt:'Double attaque.'},
-  {id:'TLALTECUHTLI',n:'Tlaltecuhtli',atk:7,def:7,cost:7,rarity:'rare',  cap:'entry_2copy_tokens',  txt:'Entrée : Choisissez 2 alliés. Invoquez des jetons copies 1/1.'},
+  {id:'QUETZAL',    n:'Quetzal',    atk:4,def:2,cost:5,rarity:'rare',    cap:'passive_all_hurry',       txt:'Toujours : tous vos monstres aztèques ont Rapide.'},
+  {id:'CIPACTLI',   n:'Cipactli',   atk:3,def:7,cost:4,rarity:'rare',    cap:'entry_reclaim_spell',     txt:'Entrée : Récupérez un sort/dieu de votre défausse en main.'},
+  {id:'IZCAQLLI',   n:'Izcaqlli',   atk:6,def:8,cost:5,rarity:'rare',    cap:'protect_endure',          txt:'Protection + Endurance.'},
+  {id:'IZCOALT',    n:'Izcoalt',    atk:6,def:5,cost:6,rarity:'rare',    cap:'entry_destroy_catchup',   txt:'Entrée : Si vos PV ≤50, détruisez un monstre adverse.'},
+  {id:'HUAY_CHIVO', n:'Huay Chivo', atk:4,def:12,cost:8,rarity:'rare',  cap:'hit',                     txt:'Double attaque.'},
+  {id:'TLALTECUHTLI',n:'Tlaltecuhtli',atk:8,def:6,cost:7,rarity:'rare', cap:'entry_token_copies_2',    txt:'Entrée : jetons 1/1 copies de 2 alliés.'},
 ]};
 
 const GODS = {
@@ -542,7 +542,7 @@ function buildDeck(faction) {
     return Array.from({length: copies}, () => newCard({...m, type:'monster', faction}));
   });
   const gs = GODS[faction].map(g => newCard({...g, type:'god', faction}));
-  return shuffle([...ms, ...gs]);
+  return shuffle([...ms, ...gs]).slice(0, 45);
 }
 
 // Debug helper (accessible depuis la console)
@@ -578,6 +578,7 @@ function initGame(f1, f2, mode) {
     lastPlayedSpell: null,
     waitingForPlayer: false,  // true quand IA pause et attend ESPACE
     reactionUsed: false,
+    ragnarok: 0,  // Counter: Norse bonus at 5
   };
   for(let p=1;p<=2;p++){
     const f = p===1?f1:f2;
@@ -690,6 +691,19 @@ function endTurn() {
 function doEndTurn() {
   const P = G.players[G.cp];
   const oppP = G.cp===1?2:1;
+
+  // ── End-of-turn caps for current player (before switching) ────
+  P.field.forEach(m => {
+    if(!m||m.faceDown) return;
+    const c = m.cap||'';
+    if(c.includes('end_draw')) { drawCard(G.cp); addLog(`${m.n} — Fin de tour: Pioche 1!`,'buff'); }
+    if(c.includes('end_heal_ally') && P.field.filter(x=>x&&!x.faceDown).length>1) {
+      const healTarget = P.field.filter(x=>x&&!x.faceDown&&x!==m).reduce((a,b)=>a.cDef<b.cDef?a:b);
+      healTarget.cDef = healTarget.def;
+      addLog(`${m.n} — Fin de tour: ${healTarget.n} soigné (${healTarget.cDef} DEF)!`,'heal');
+    }
+  });
+
   // Trim hand to 7
   while(P.hand.length > 7) {
     const disc = P.hand.pop();
@@ -744,6 +758,66 @@ function doEndTurn() {
     ann.style.animation = 'turnFlash 1.4s ease-out forwards';
     setTimeout(() => { ann.style.display='none'; }, 1400);
   }
+
+
+  // ── Start-of-turn caps for new player ─────────────────────────
+  const newP = G.players[G.cp];
+  newP.field.forEach(m => {
+    if(!m||m.faceDown) return;
+    const c = m.cap||'';
+    // start_draw (HUGINN)
+    if(c.includes('start_draw')) { drawCard(G.cp); addLog(`${m.n} — Start: Pioche 1!`,'buff'); }
+    // start_tokens2 (MEDJED): 2 tokens per turn, max 6 on field total
+    if(c.includes('start_tokens2') || c.includes('start_token_capped')) {
+      const tokenCount = newP.field.filter(x=>x&&x.id&&x.id.startsWith('TOKEN')).length;
+      const toSpawn = Math.min(2, 6 - tokenCount);
+      for(let t=0;t<toSpawn&&newP.field.length<6;t++) {
+        const tk=newCard({id:'TOKEN11',n:'Jeton 1/1',atk:1,def:1,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:newP.faction});
+        tk.cAtk=1;tk.cDef=1; newP.field.push(tk);
+      }
+      if(toSpawn>0) addLog(`${m.n} — ${toSpawn} jeton(s) 1/1!`,'event');
+    }
+    // start_filter (HIPPOCAMPE): discard 1 draw 1 (AI auto-discards worst)
+    if(c.includes('start_filter') && newP.hand.length>0) {
+      const worst = newP.hand.reduce((a,b)=>a.cost<=b.cost?a:b);
+      newP.graveyard.push(worst);
+      newP.hand.splice(newP.hand.indexOf(worst),1);
+      drawCard(G.cp);
+      addLog(`${m.n} — Filtre: défausse + pioche!`,'event');
+    }
+    // oracle_dmg3 (TEUZAUHTOTOTL): look top card, put under → 3 dmg to self
+    if(c.includes('oracle_dmg3') || c.includes('scrye_dmg3_cond')) {
+      if(!m._oracleDoneThisTurn && newP.deck.length>0) {
+        const top = newP.deck[0];
+        addLog(`${m.n} — Oracle: ${top.n} est au sommet du deck.`,'event');
+        // AI: always put it under if it's a bad card
+        if(G.mode==='pve' && G.cp===2 && top.cost<=2) {
+          newP.deck.splice(0,1); newP.deck.push(top);
+          m.cDef=Math.max(0,m.cDef-3);
+          addLog(`${m.n} — Oracle: carte mise sous le deck, -3 DEF à soi-même!`,'dmg');
+          if(m.cDef<=0) handleDeath(G.cp, m);
+        }
+        m._oracleDoneThisTurn = true;
+      }
+    }
+    // start_coinflip_destroy (CHARYBDE): flip → destroy opp monster
+    if((c.includes('start_coinflip_destroy') || c.includes('coinflip_atk5')) && !m._charybdeDoneThisTurn) {
+      m._charybdeDoneThisTurn = true;
+      const opp2 = G.cp===1?2:1;
+      const oppAlive = G.players[opp2].field.filter(x=>x&&!x.faceDown);
+      if(oppAlive.length>0) {
+        if(Math.random()<0.5) {
+          const target3 = oppAlive[Math.floor(Math.random()*oppAlive.length)];
+          handleDeath(opp2, target3);
+          addLog(`${m.n} — Charybde: PILE! ${target3.n} détruit!`,'special');
+        } else {
+          addLog(`${m.n} — Charybde: FACE. Rien.`,'event');
+        }
+      }
+    }
+  });
+  // Reset per-turn flags
+  newP.field.forEach(m => { if(m) { m._oracleDoneThisTurn=false; m._charybdeDoneThisTurn=false; } });
 
   if(G.mode==='pve' && G.cp===2) {
     setTimeout(aiTurn, 600);
@@ -858,6 +932,18 @@ async function playMonster(c, p) {
   P.field.push(m);
   const idx = P.field.length-1;
   P.summoned.add(idx);
+  // passive_entry_buff11 (CENTAURE): new ally enters with +1/+1
+  if(P.field.some((x,j)=>x&&j!==idx&&(x.cap||'').includes('passive_entry_buff11'))) {
+    m.cAtk++; m.cDef++;
+    addLog(`Centaure — ${m.n} entre avec +1/+1!`,'buff');
+  }
+  // Ragnarök: if Norse player and counter >= 5, entering monster gets +3/+3 + endure
+  if(P.faction==='norse' && (G.ragnarok||0)>=5) {
+    m.cAtk+=3; m.cDef+=3;
+    if(!(m.cap||'').includes('endure')) m.cap=(m.cap||'')+' endure'; m.endureUsed=false;
+    G.ragnarok=0;
+    addLog(`⚡ RAGNARÖK! ${m.n} entre avec +3/+3 et Endurance!`,'special');
+  }
   addLog(`Player ${p} summons ${m.n} (${m.cAtk}⚔/${m.cDef}🛡)`,'summon');
 
   // Check face-down Greek gods triggered by monster entry
@@ -870,21 +956,33 @@ async function applyEntry(p, idx, m) {
   const opp = p===1?2:1;
   const cap = m.cap||'';
 
-  if(cap.includes('entry_dmg3')) {
+  if(cap.includes('entry_dmg5_all')) {
+    // Typhon: 5 dmg to ALL other monsters in play
+    const allTargets5 = [];
+    for(let pl=1;pl<=2;pl++) G.players[pl].field.filter((x,j)=>x&&!x.faceDown&&!(pl===p&&j===idx)).forEach(x=>allTargets5.push({pl,x}));
+    for(const {pl,x} of allTargets5) { x.cDef=Math.max(0,x.cDef-5); if(x.cDef<=0) await handleDeath(pl,x); }
+    addLog(`${m.n} — 5 dégâts à tous!`,'dmg');
+  }
+  if(cap.includes('entry_dmg4') || cap.includes('entry_dmg3') && !cap.includes('entry_dmg5')) {
+    const dmgAmt = cap.includes('entry_dmg4') ? 4 : 3;
     const oppField = G.players[opp].field.filter(x=>x&&!x.faceDown);
     if(oppField.length>0) {
       const tgt = oppField.reduce((a,b)=> (a.cDef<=b.cDef?a:b));
-      tgt.cDef -= 3;
-      addLog(`${m.n} — 3 damage to ${tgt.n}`,'dmg');
+      tgt.cDef -= dmgAmt;
+      addLog(`${m.n} — ${dmgAmt} damage to ${tgt.n}`,'dmg');
       if(tgt.cDef<=0) await handleDeath(opp, tgt);
     } else {
-      G.players[opp].hp -= 3;
-      addLog(`${m.n} — 3 damage to Player ${opp}`,'dmg');
+      G.players[opp].hp -= dmgAmt;
+      addLog(`${m.n} — ${dmgAmt} damage to Player ${opp}`,'dmg');
     }
   }
   if(cap.includes('entry_sleep')) await pickTarget('sleep', p, true);
   if(cap.includes('entry_blind')) await pickTarget('blind', p, true);
-  if(cap.includes('entry_draw') && !cap.includes('exit')) { drawCard(p); addLog(`${m.n} — Draw 1`,'buff'); }
+  if(cap.includes('entry_draw_per_ally')) {
+    const allyCnt = Math.min(3, G.players[p].field.filter((x,j)=>x&&j!==idx&&!x.faceDown).length);
+    for(let d=0;d<allyCnt;d++) drawCard(p);
+    if(allyCnt>0) addLog(`${m.n} — Pioche ${allyCnt}!`,'buff');
+  } else if(cap.includes('entry_draw') && !cap.includes('exit')) { drawCard(p); addLog(`${m.n} — Draw 1`,'buff'); }
   if(cap.includes('entry_curse2')) {
     const oppField = G.players[opp].field.filter(x=>x&&!x.faceDown);
     let cnt=0;
@@ -932,34 +1030,34 @@ async function applyEntry(p, idx, m) {
       await pickTarget('copy_ally', p, true);
     }
   }
-  if(cap.includes('entry_dmg4')) {
-    await pickTarget('entry_dmg4', p, true);
+  // entry_dmg4 handled above
+  if(cap.includes('entry_search_ratatosk') || cap.includes('entry_search_self')) {
+    const deck3 = G.players[p].deck;
+    const found3 = deck3.findIndex(c=>c.id==='RATATOSK');
+    if(found3>=0) {
+      const r3 = deck3.splice(found3,1)[0];
+      G.players[p].hand.push(r3);
+      addLog(`${m.n} — Ratatosk trouvé!`,'event');
+    }
+    deck3.sort(()=>Math.random()-0.5);
   }
-  if(cap.includes('entry_search3') || cap.includes('exit_search3')) {
-    // Tanuki handled in exit
-  }
-  if(cap.includes('entry_2tokens21')) {
+  if(cap.includes('entry_tokens4')) {
     const P2 = G.players[p];
-    for(let t=0; t<2 && P2.field.length<6; t++) {
-      const tok = newCard({id:'TENTACLE',n:'Tentacule 2/1',atk:2,def:1,cost:0,type:'monster',cap:'',txt:'',rarity:'common'});
-      tok.cAtk=2; tok.cDef=1; P2.field.push(tok);
+    for(let t=0; t<4 && P2.field.length<6; t++) {
+      const tok = newCard({id:'TOKEN11',n:'Jeton 1/1',atk:1,def:1,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:G.players[p].faction});
+      tok.cAtk=1; tok.cDef=1; P2.field.push(tok);
     }
-    addLog(`${m.n} — 2 jetons Tentacule 2/1!`,'event');
+    addLog(`${m.n} — 4 jetons 1/1!`,'event');
   }
-  if(cap.includes('entry_boardwipe_noatk')) {
-    const opp2 = p===1?2:1;
+  if(cap.includes('entry_wipe')) {
+    const allToKill2 = [];
     for(let pl=1;pl<=2;pl++) {
-      if(pl===p) continue;
-      const toKill = [...G.players[pl].field.filter(x=>x&&!x.faceDown)];
-      for(const x of toKill) await handleDeath(pl,x);
+      G.players[pl].field.filter((x,j)=>x&&!(pl===p&&j===idx)&&!x.faceDown).forEach(x=>allToKill2.push({pl,x}));
     }
-    // Also kill own monsters except Surt
-    const ownToKill = G.players[p].field.filter((x,j) => x && j!==idx && !x.faceDown);
-    for(const x of ownToKill) await handleDeath(p,x);
-    m.sanded = true; // Can't attack this turn (simulated with sanded)
-    addLog(`${m.n} — Board wipe! Ne peut pas attaquer ce tour.`,'dmg');
+    for(const {pl,x} of allToKill2) await handleDeath(pl,x);
+    addLog(`${m.n} — BOARD WIPE!`,'dmg');
   }
-  if(cap.includes('entry_resurrect3') || cap.includes('hurry entry_resurrect3')) {
+  if(cap.includes('hurry_entry_revive') || cap.includes('entry_resurrect3')) {
     const grave = G.players[p].graveyard.filter(c=>c.type==='monster' && c.def>=3);
     if(grave.length>0 && G.players[p].field.length<6) {
       const res = grave[grave.length-1];
@@ -969,10 +1067,10 @@ async function applyEntry(p, idx, m) {
       addLog(`${m.n} — ${res.n} ressuscité!`,'event');
     }
   }
-  if(cap.includes('steal_hurry')) {
+  if(cap.includes('temp_steal_hurry') || cap.includes('temp_steal_hurry')||cap.includes('steal_hurry')) {
     await pickTarget('steal_hurry', p, true);
   }
-  if(cap.includes('entry_tokens_graveyard')) {
+  if(cap.includes('token_copies_graveyard') || cap.includes('token_copies_graveyard')||cap.includes('entry_tokens_graveyard')) {
     // Babaï: pick up to 2 monsters from graveyard, create 1/1 copies
     const grave = G.players[p].graveyard.filter(c=>c.type==='monster');
     const picked = grave.slice(-2);
@@ -985,9 +1083,8 @@ async function applyEntry(p, idx, m) {
     }
     if(picked.length) addLog(`${m.n} — ${picked.length} jeton(s) copie 1/1!`,'event');
   }
-  if(cap.includes('entry_recover_grave') || cap.includes('entry_recover_spell')) {
-    // Echidna / Cipactli
-    if(cap.includes('entry_recover_spell')) {
+  if(cap.includes('entry_reclaim') || cap.includes('entry_reclaim_spell') || cap.includes('entry_reclaim')||cap.includes('entry_recover_grave') || cap.includes('entry_recover_spell')) {
+    if(cap.includes('entry_reclaim_spell') || cap.includes('entry_recover_spell')) {
       const spells = G.players[p].graveyard.filter(c=>c.type==='spell'||c.type==='god');
       if(spells.length>0) {
         const sp2 = spells[spells.length-1];
@@ -1005,7 +1102,7 @@ async function applyEntry(p, idx, m) {
       }
     }
   }
-  if(cap.includes('entry_copy_any') || cap.includes('entry_copy_ally')) {
+  if(cap.includes('entry_copy_field')) {
     // Chimere: copy any visible monster
     const all = [...G.players[1].field, ...G.players[2].field].filter(x=>x&&!x.faceDown);
     if(all.length > 0) {
@@ -1014,8 +1111,7 @@ async function applyEntry(p, idx, m) {
       addLog(`${m.n} copie ${best.n}!`,'event');
     }
   }
-  if(cap.includes('entry_pioche_grec')) {
-    // Scylla: draw for each greek played this turn — flag for later
+  if(cap.includes('entry_draw_per_greek') || cap.includes('entry_draw_per_greek')||cap.includes('entry_pioche_grec')) {
     m._scyllaActive = true;
     addLog(`${m.n} — Moteur de pioche activé!`,'event');
   }
@@ -1024,7 +1120,7 @@ async function applyEntry(p, idx, m) {
       await pickTarget('destroy', p, true);
     }
   }
-  if(cap.includes('entry_2copy_tokens')) {
+  if(cap.includes('entry_token_copies_2') || cap.includes('entry_token_copies_2')||cap.includes('entry_2copy_tokens')) {
     const myField2 = G.players[p].field.filter((x,j)=>x&&j!==idx&&!x.faceDown);
     const picked2 = myField2.slice(0,2);
     for(const gm3 of picked2) {
@@ -1035,6 +1131,26 @@ async function applyEntry(p, idx, m) {
       }
     }
     if(picked2.length) addLog(`${m.n} — ${picked2.length} jeton(s) copie 1/1!`,'event');
+  }
+  if(cap.includes('copy_ally_def') || cap.includes('copy_ally_def')||cap.includes('entry_copy_def')) {
+    const allies4 = G.players[p].field.filter((x,j)=>x&&j!==idx&&!x.faceDown);
+    if(allies4.length>0) {
+      const best4 = allies4.reduce((a,b)=>a.cDef>b.cDef?a:b);
+      m.cDef = best4.cDef; m.def = best4.cDef;
+      addLog(`${m.n} — copie DEF ${best4.cDef} de ${best4.n}!`,'event');
+    }
+  }
+  if(cap.includes('reveal_play_free') || cap.includes('reveal_play_free')||cap.includes('challenge_free')) {
+    // KAQKOJ: reveal 3 cards, opponent picks one, play it free
+    const hand5 = G.players[p].hand;
+    if(hand5.length>=3) {
+      const chosen = hand5[0]; // AI: pick first; human would pick via UI
+      addLog(`${m.n} — Joue ${chosen.n} gratuitement!`,'event');
+      G.players[p].hand.splice(0,1);
+      chosen._freePlay = true;
+      if(chosen.type==='monster') await playMonster(chosen, p);
+      else if(chosen.type==='god'||chosen.type==='spell') { await applySpellEffect(chosen, p); G.players[p].graveyard.push(chosen); }
+    }
   }
 }
 
@@ -1070,15 +1186,13 @@ async function applyExit(p, m) {
   if(cap.includes('entry_draw_exit_draw')) { drawCard(p); addLog(`${m.n} Exit — Draw 1`,'buff'); }
 
   // New exit effects from xlsx
-  if(cap.includes('exit_search3') || cap.includes('exit_search_atk3') || cap.includes('exit_search_faction')) {
+  if(cap.includes('exit_search_3def')||cap.includes('exit_search_3atk')||cap.includes('exit_search3')||cap.includes('exit_search_atk3')||cap.includes('exit_search_faction')) {
     const P3 = G.players[p];
     let candidates;
-    if(cap.includes('exit_search_atk3')) {
+    if(cap.includes('exit_search_3atk')||cap.includes('exit_search_atk3')) {
       candidates = P3.deck.filter(c=>c.type==='monster' && c.atk<=3);
-    } else if(cap.includes('exit_search_faction')) {
-      candidates = P3.deck.filter(c=>c.type==='monster' && c.faction===P3.faction && c.def<=3);
     } else {
-      candidates = P3.deck.filter(c=>c.type==='monster' && c.cost<=3);
+      candidates = P3.deck.filter(c=>c.type==='monster' && c.def<=3);
     }
     if(candidates.length>0) {
       // Pick best candidate
@@ -1088,13 +1202,12 @@ async function applyExit(p, m) {
       addLog(`${m.n} Exit — ${found.n} trouvé!`,'event');
     }
   }
-  if(cap.includes('exit_copy_token')) {
-    // Keukegen: token copy of monster that killed it (stored as _killedBy)
+  if(cap.includes('exit_copy_killer') || cap.includes('exit_copy_killer')||cap.includes('exit_copy_token')) {
     if(m._killedBy && G.players[p].field.length<6) {
-      const tok = newCard({...m._killedBy, atk:2, def:2, cost:0, cap:'', txt:'(jeton copie 2/2)'});
-      tok.cAtk=2; tok.cDef=2;
+      const tok = newCard({...m._killedBy, atk:m._killedBy.atk, def:m._killedBy.def, cost:0, cap:'', txt:'(copie sans cap)'});
+      tok.cAtk=m._killedBy.atk; tok.cDef=m._killedBy.def;
       G.players[p].field.push(tok);
-      addLog(`Keukegen — Jeton copie 2/2 de ${m._killedBy.n}!`,'event');
+      addLog(`${m.n} Exit — Copie de ${m._killedBy.n}!`,'event');
     }
   }
   if(cap.includes('exit_autocopy')) {
@@ -1106,7 +1219,7 @@ async function applyExit(p, m) {
       addLog(`${m.n} Exit — Auto-copie invoquée!`,'event');
     }
   }
-  if(cap.includes('exit_dmg3_all_opp')) {
+  if(cap.includes('exit_dmg3_all') || cap.includes('exit_dmg3_all_opp')) {
     const opp3 = p===1?2:1;
     G.players[opp3].field.filter(x=>x&&!x.faceDown).forEach(async x=>{
       x.cDef = Math.max(0, x.cDef-3);
@@ -1179,6 +1292,30 @@ async function handleDeath(p, m) {
     addLog(`Balder — 2/2 token replaces ${m.n}`,'event');
     reindexSets(P,idx,false);
     return;
+  }
+
+  // death_token22 (CHOHIX): spawn 2/2 token when ally dies
+  if(m.id !== 'CHOHIX') {
+    G.players[p].field.forEach(ally => {
+      if(ally && (ally.cap||'').includes('death_token22') && G.players[p].field.length<6) {
+        const tok22 = newCard({id:'TOKEN22',n:'Jeton 2/2',atk:2,def:2,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:G.players[p].faction});
+        tok22.cAtk=2; tok22.cDef=2; G.players[p].field.push(tok22);
+        addLog(`Chohix — Jeton 2/2 invoqué!`,'event');
+      }
+    });
+  }
+  // Ragnarök counter: Norse faction death increments counter
+  if((G.players[p].faction==='norse'||G.players[p===1?2:1].faction==='norse') && m.type==='monster') {
+    G.ragnarok = (G.ragnarok||0) + 1;
+  }
+  // Reincarnation (AKKOROKAMUI): first death → reshuffle with +3/+3
+  if((m.cap||'').includes('reincarnation') && !m.reincarnated) {
+    const m2 = newCard({...m, atk:m.atk+3, def:m.def+3, cap:m.cap, reincarnated:true});
+    m2.cAtk=m2.atk; m2.cDef=m2.def;
+    G.players[p].deck.push(m2); G.players[p].deck.sort(()=>Math.random()-0.5);
+    addLog(`✨ ${m.n} — Réincarnation! Retourne dans le deck avec +3/+3.`,'event');
+    // Remove from field before exit, skip graveyard
+    P.field.splice(idx,1); reindexSets(P,idx,true); return;
   }
 
   Audio5L.sfx.death();
@@ -1827,6 +1964,46 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   const atkVal = atk.cAtk;
   const hasHit = (atk.cap||'').includes('hit');
   const hasHeal = (atk.cap||'').includes('heal');
+  // solo_destroy (RAIJU): if only ally, destroy target without combat
+  if((atk.cap||'').includes('solo_destroy') && typeof targetIdx==='number') {
+    const myLive = AP.field.filter((x,i2)=>x&&!x.faceDown&&i2!==attackerIdx);
+    if(myLive.length===0) {
+      const tgt2 = DP.field[targetIdx];
+      if(tgt2) {
+        addLog(`${atk.n} — Solo Destroy!`,'special');
+        await handleDeath(targetP, tgt2);
+        AP.attacked.add(attackerIdx);
+        renderAll(); checkVictory(); return;
+      }
+    }
+  }
+  // coinflip_defense (SIRENES): defender flips, tails = attack cancelled
+  if(typeof targetIdx==='number') {
+    const def0 = DP.field[targetIdx];
+    if(def0 && (def0.cap||'').includes('coinflip_defense')) {
+      if(Math.random()<0.5) {
+        addLog(`${def0.n} — Coin flip: ANNULÉ!`,'special');
+        AP.attacked.add(attackerIdx); renderAll(); return;
+      } else {
+        addLog(`${def0.n} — Coin flip: combat normal.`,'event');
+      }
+    }
+  }
+  // splash_adjacent (JÖRMUNGANDR): half ATK dmg to adjacent monsters
+  if((atk.cap||'').includes('splash_adjacent') && typeof targetIdx==='number') {
+    const adj = [targetIdx-1, targetIdx+1];
+    for(const ai of adj) {
+      const am = DP.field[ai];
+      if(am&&!am.faceDown) {
+        const splashDmg = Math.ceil(atk.cAtk/2);
+        am.cDef = Math.max(0, am.cDef - splashDmg);
+        addLog(`${atk.n} — Splash ${splashDmg} dmg to ${am.n}!`,'dmg');
+        if(am.cDef<=0) await handleDeath(targetP, am);
+      }
+    }
+  }
+  // token_per_dmg (YMIR): generate tokens when taking damage
+
 
   // ── Attack lunge: card visually lunges toward target ─────────────
   const _atkEl = document.querySelector(`[data-player="${attackerP}"][data-idx="${attackerIdx}"]`);
@@ -1906,6 +2083,14 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       if(retDmg > 0) showFloatDmg(retDmg, atkEl2, '#e74c3c');
 
       if(hasHeal) { Audio5L.sfx.heal(); AP.hp=Math.min(25,AP.hp+actualDmg); addLog(`Heal — P${attackerP} +${actualDmg} HP`,'heal'); }
+      // token_per_dmg (YMIR): N tokens per damage received
+      if((atk.cap||'').includes('token_per_dmg') && retDmg>0) {
+        for(let t=0;t<retDmg&&AP.field.length<6;t++) {
+          const yTok=newCard({id:'ICE_TOKEN',n:'Glace 1/1',atk:1,def:1,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:AP.faction});
+          yTok.cAtk=1; yTok.cDef=1; AP.field.push(yTok);
+        }
+        addLog(`${atk.n} — ${retDmg} jetons Glace!`,'event');
+      }
       if(atk.izanamiEquipped && targetIdx!=='player') {
         // Send target back to owner's hand
         const defIdx = DP.field.indexOf(def);
@@ -1943,6 +2128,31 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
           startAttackTargeting(atk, 1, newAtkIdx);
         });
       }
+    }
+  }
+
+
+  // ── combat_dmg2 (DJINN): extra 2 dmg to target
+  if((atk.cap||'').includes('combat_dmg2') && typeof targetIdx === 'number' && AP.field.includes(atk)) {
+    const defT = DP.field[targetIdx];
+    if(defT && defT.cDef > 0) {
+      defT.cDef = Math.max(0, defT.cDef - 2);
+      addLog(`${atk.n} — Combat +2 dégâts!`,'dmg');
+      if(defT.cDef<=0) await handleDeath(targetP, defT);
+    }
+  }
+  // ── attack_draw (NINGYO): draw 1 after combat
+  if((atk.cap||'').includes('attack_draw') && AP.field.includes(atk)) {
+    drawCard(attackerP); addLog(`${atk.n} — Draw 1!`,'buff');
+  }
+  // ── copy_on_attack (LADON): copy the attacked monster (without cap)
+  if((atk.cap||'').includes('copy_on_attack') && AP.field.includes(atk) && typeof targetIdx==='number') {
+    const copied = DP.field[targetIdx];
+    if(copied && AP.field.length<6) {
+      const cpL = newCard({...copied, cap:'', txt:'(copie Ladon)'});
+      cpL.cAtk=copied.atk; cpL.cDef=copied.def;
+      AP.field.push(cpL);
+      addLog(`${atk.n} — Copie ${copied.n}!`,'event');
     }
   }
 
@@ -2229,43 +2439,43 @@ function scoreCard(c, p) {
     if(cap.includes('exit_destroy') && oppField.length > 0) score += 4;
     if(cap.includes('exit_curse')   && oppField.length > 0) score += 3;
   // New ability caps from xlsx
-  if(cap.includes('draw_on_attack'))   score += 3;
-  if(cap.includes('passive_buff11_faction') && myField.length > 0) score += myField.length * 2;
-  if(cap.includes('exit_copy_token'))  score += 2;
+  if(cap.includes('attack_draw')||cap.includes('draw_on_attack'))   score += 3;
+  if(cap.includes('passive_yokai_buff')||cap.includes('passive_buff11_faction') && myField.length > 0) score += myField.length * 2;
+  if(cap.includes('exit_copy_killer')||cap.includes('exit_copy_token'))  score += 2;
   if(cap.includes('solo_destroy') && myField.filter(m=>m).length === 0) score += 8;
   if(cap.includes('passive_adj_buff') && myField.length > 0) score += myField.length * 1.5;
   if(cap.includes('combat_recycle_dmg2') && oppField.length > 0) score += 3;
   if(cap.includes('start_draw'))       score += 3;
   if(cap.includes('splash_adj'))       score += 4;
-  if(cap.includes('token_on_dmg'))     score += 3;
-  if(cap.includes('entry_boardwipe_noatk')) score += 8;
-  if(cap.includes('start_token_capped')) score += 4;
+  if(cap.includes('token_per_dmg')||cap.includes('token_on_dmg'))     score += 3;
+  if(cap.includes('entry_wipe')||cap.includes('entry_boardwipe_noatk')) score += 8;
+  if(cap.includes('start_tokens2')||cap.includes('start_token_capped')) score += 4;
   if(cap.includes('recycle_return'))   score += 2;
-  if(cap.includes('hurry entry_resurrect3')) score += 5;
-  if(cap.includes('steal_hurry') && oppField.length > 0) score += 7;
-  if(cap.includes('entry_tokens_graveyard')) score += 4;
+  if(cap.includes('hurry_entry_revive')||cap.includes('hurry entry_resurrect3')) score += 5;
+  if(cap.includes('temp_steal_hurry')||cap.includes('steal_hurry') && oppField.length > 0) score += 7;
+  if(cap.includes('token_copies_graveyard')||cap.includes('entry_tokens_graveyard')) score += 4;
   if(cap.includes('end_heal_ally') && myField.length > 0) score += 3;
   if(cap.includes('combat_dmg2') && oppField.length > 0) score += 4;
   if(cap.includes('exit_self_sleep_return')) score += 2;
-  if(cap.includes('alt_attack'))       score += 2;
+  if(cap.includes('endure_cooldown')||cap.includes('alt_attack'))       score += 2;
   if(cap.includes('entry_draw_per_ally') && myField.length > 0) score += myField.length * 2.5;
-  if(cap.includes('coinflip_defend'))  score += 2;
+  if(cap.includes('coinflip_defense')||cap.includes('coinflip_defend'))  score += 2;
   if(cap.includes('start_filter'))     score += 2;
   if(cap.includes('passive_entry_buff11') && myField.length > 0) score += myField.length * 2;
   if(cap.includes('entry_copy_any'))   score += 4;
-  if(cap.includes('entry_pioche_grec') && myField.length > 0) score += 3;
-  if(cap.includes('entry_recover_grave')) score += 3;
-  if(cap.includes('copy_on_kill') && oppField.length > 0) score += 5;
-  if(cap.includes('entry_tokens_grec') && myField.length > 0) score += myField.length * 3;
-  if(cap.includes('coinflip_atk5'))    score += 4;
-  if(cap.includes('scrye_dmg3_cond'))  score += 3;
-  if(cap.includes('challenge_free'))   score += 3;
-  if(cap.includes('entry_copy_def') && myField.length > 0) score += 3;
-  if(cap.includes('token22_on_death') && myField.length > 1) score += 5;
-  if(cap.includes('catchup_empty_hand') && P.hand.length === 0) score += 8;
-  if(cap.includes('global_hurry'))     score += 8;
+  if(cap.includes('entry_draw_per_greek')||cap.includes('entry_pioche_grec') && myField.length > 0) score += 3;
+  if(cap.includes('entry_reclaim')||cap.includes('entry_recover_grave')) score += 3;
+  if(cap.includes('copy_on_attack')||cap.includes('copy_on_kill') && oppField.length > 0) score += 5;
+  if((cap.includes('entry_token_per_greek')||cap.includes('entry_tokens_grec')) && myField.length > 0) score += myField.length * 3;
+  if(cap.includes('start_coinflip_destroy')||cap.includes('coinflip_atk5'))    score += 4;
+  if(cap.includes('oracle_dmg3')||cap.includes('scrye_dmg3_cond'))  score += 3;
+  if(cap.includes('reveal_play_free')||cap.includes('challenge_free'))   score += 3;
+  if((cap.includes('copy_ally_def')||cap.includes('copy_ally_def')||cap.includes('entry_copy_def')) && myField.length > 0) score += 3;
+  if(cap.includes('death_token22')||cap.includes('token22_on_death') && myField.length > 1) score += 5;
+  if(cap.includes('passive_empty_hand_buff')||cap.includes('catchup_empty_hand') && P.hand.length === 0) score += 8;
+  if(cap.includes('passive_all_hurry')||cap.includes('global_hurry'))     score += 8;
   if(cap.includes('entry_destroy_catchup') && P.hp <= OP.hp) score += 10;
-  if(cap.includes('entry_2copy_tokens') && myField.length >= 2) score += 6;
+  if(cap.includes('entry_token_copies_2')||cap.includes('entry_2copy_tokens') && myField.length >= 2) score += 6;
 
     // Don't flood the field unnecessarily
     if(P.field.length >= 5) score -= 10;
@@ -2605,7 +2815,7 @@ const ABILITY_GLOSSARY = {
   sand:        {icon:"⏳", name:"Sanded",      desc:"Cannot attack next turn"},
   sleep:       {icon:"💤", name:"Sleep",       desc:"Face down and untouchable — wakes up 2 opponent turns later"},
   curse:       {icon:"💀", name:"Cursed",      desc:"Only 1 damage is enough to destroy this monster"},
-  bewitch:     {icon:"🌀", name:"Bewitched",   desc:"Must flip a coin before attacking — tails means no attack"},
+  bewitch:     {icon:"🌀", name:"Bewitched",   desc:"Must flip a coin before attacking — tails means no attack — Garantied if target sleeps and yokai faction"},
   blind:       {icon:"👁",  name:"Blinded",    desc:"Next attack hits a random target instead of the chosen one"},
 };
 
@@ -3072,7 +3282,13 @@ async function applyTargetEffect(type, fromP, idx, card) {
 
   if(type==='sleep') { m.faceDown=true; m.asleep=true; m.sleepTurns=2; addLog(`${m.n} put to sleep!`,'debuff'); }
   else if(type==='sandup') { m.sanded=true; addLog(`${m.n} sanded — can't attack`,'debuff'); }
-  else if(type==='bewitch') { m.bewitched=true; addLog(`${m.n} bewitched — must flip coin to attack`,'debuff'); }
+  else if(type==='bewitch') {
+    m.bewitched=true;
+    if(m.asleep && (G.players[p].faction==='yokai')) {
+      addLog(`✨ COMBO Sommeil+Envoûtement — Vol garanti!`,'special');
+    }
+    addLog(`${m.n} bewitched — must flip coin to attack`,'debuff');
+  }
   else if(type==='blind') { m.blinded=true; addLog(`${m.n} blinded — next attack random`,'debuff'); }
   else if(type==='curse') { m.cursed=true; addLog(`${m.n} CURSED — 1 dmg = death!`,'debuff'); }
   else if(type==='minus3') { m.cDef=Math.max(0,m.cDef-3); addLog(`${m.n} −3 shield → ${m.cDef}`,'dmg'); if(m.cDef<=0) await handleDeath(fromP,m); }
@@ -3132,6 +3348,7 @@ const FC = {yokai:'#d04030',norse:'#8090a0',egyptian:'#3090d0',greek:'#9050c0',a
 const FE = {yokai:'🦊',norse:'⚡',egyptian:'🏺',greek:'🏛️',aztec:'🌿'};
 
 function renderAll() {
+  if(G) { [1,2].forEach(p => { if(G.players[p]) renderPassiveIndicators(p); }); }
   if(!G) return;
   renderPlayerBar(1); renderPlayerBar(2);
   renderField(1); renderField(2);
@@ -3210,6 +3427,33 @@ function renderPlayerBar(p) {
 }
 
 
+
+// ── Passive indicators in HUD ──────────────────────────────────
+function renderPassiveIndicators(p) {
+  const P = G.players[p];
+  let el = document.getElementById(`p${p}-passives`);
+  if(!el) {
+    const bar = document.getElementById(`p${p}-bar`);
+    if(!bar) return;
+    el = document.createElement('div');
+    el.id = `p${p}-passives`;
+    el.className = 'passive-row';
+    bar.appendChild(el);
+  }
+  const indicators = [];
+  P.field.forEach(m => {
+    if(!m||m.faceDown) return;
+    const c = m.cap||'';
+    if(c.includes('passive_all_hurry'))    indicators.push(`⚡ QUETZAL — Tous vos monstres ont Rapide`);
+    if(c.includes('passive_yokai_buff'))   indicators.push(`🐢 KAPPA — Yokai alliés +1/+1`);
+    if(c.includes('passive_entry_buff11')) indicators.push(`🐴 CENTAURE — Entrée +1/+1`);
+    if(c.includes('passive_adj_buff21'))   indicators.push(`🦌 EIKTHYRNIR — Adjacents +2 ATK/+1 DEF`);
+    if(c.includes('passive_empty_hand_buff') && P.hand.length===0) indicators.push(`💪 OTOMITL — Main vide: Alliés +2/+1`);
+  });
+  if((G.ragnarok||0)>0 && P.faction==='norse') indicators.push(`⚡ RAGNARÖK: ${G.ragnarok}/5`);
+  el.innerHTML = indicators.map(i=>`<span class="passive-indicator">${i}</span>`).join('');
+}
+
 function renderField(p) {
   const P=G.players[p];
   const isCurrent=p===G.cp;
@@ -3226,7 +3470,7 @@ function renderField(p) {
     const isSelAtk=G.selAtk&&G.selAtk.p===p&&G.selAtk.i===i;
     const canAtk=isCurrent&&G.phase==='Combat'
       &&!P.attacked.has(i)
-      &&(!P.summoned.has(i)||((m.cap||'').includes('hurry')))
+      &&(!P.summoned.has(i)||((m.cap||'').includes('hurry'))||P.field.some(x=>x&&(x.cap||'').includes('passive_all_hurry')))
       &&!m.asleep&&!m.sanded&&!m.faceDown;
 
     let cls='fcard';

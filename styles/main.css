@@ -1564,6 +1564,19 @@ body.targeting .fcard{cursor:crosshair!important}
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   PASSIVE INDICATORS — HUD
+═══════════════════════════════════════════════════════════════════ */
+.passive-row {
+  display: flex; flex-wrap: wrap; gap: 3px; padding: 2px 6px;
+}
+.passive-indicator {
+  font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  background: rgba(255,255,255,0.08); margin: 1px;
+  color: #ffd700; border: 1px solid rgba(255,215,0,0.3);
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    OVERLAYS CARTES — coût + stats sur l'image
 ═══════════════════════════════════════════════════════════════════ */
 .card-cost {
