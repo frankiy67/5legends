@@ -290,7 +290,7 @@ const FACTIONS = ['yokai','norse','egyptian','greek','aztec'];
 const MONSTERS = {
 yokai:[
   // NON-RARES x3
-  {id:'NINGYO',     n:'Ningyo',     atk:1,def:3,cost:1,rarity:'common',  cap:'attack_draw',             txt:'Attaque : piochez 1 carte.'},
+  {id:'NINGYO',     n:'Ningyo',     atk:1,def:2,cost:1,rarity:'common',  cap:'attack_draw',             txt:'Attaque : piochez 1 carte.'},
   {id:'MUJNINA',    n:'Mujnina',    atk:3,def:2,cost:2,rarity:'common',  cap:'heal',                    txt:'Vie : les dégâts soignent votre joueur.'},
   {id:'TANUKI',     n:'Tanuki',     atk:3,def:3,cost:3,rarity:'common',  cap:'exit_search_3def',        txt:'Sortie : Cherchez un monstre DEF ≤3 dans votre deck.'},
   {id:'KAPPA',      n:'Kappa',      atk:5,def:5,cost:4,rarity:'common',  cap:'passive_yokai_buff',      txt:'Toujours : vos autres monstres Yokai gagnent +1/+1.'},
@@ -299,7 +299,7 @@ yokai:[
   // SEMI-RARES x2
   {id:'KITSUNE',    n:'Kitsune',    atk:2,def:1,cost:1,rarity:'uncommon',cap:'hurry',                   txt:'Rapide.'},
   {id:'ONIKUMA',    n:'Onikuma',    atk:2,def:4,cost:2,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
-  {id:'BAKENEKO',   n:'Bakeneko',   atk:2,def:2,cost:3,rarity:'uncommon',cap:'entry_copy_ally',         txt:'Entrée : Bakeneko copie un allié.'},
+  {id:'BAKENEKO',   n:'Bakeneko',   atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_copy_ally',         txt:'Entrée : Bakeneko copie un allié.'},
   {id:'NUE',        n:'Nue',        atk:3,def:6,cost:4,rarity:'uncommon',cap:'curse_endure',            txt:'Malédiction + Endurance.'},
   {id:'KARURA',     n:'Karura',     atk:6,def:5,cost:5,rarity:'uncommon',cap:'entry_dmg4',              txt:'Entrée : 4 dégâts à une cible.'},
   {id:'INUGAMI',    n:'Inugami',    atk:3,def:9,cost:6,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
@@ -316,13 +316,13 @@ yokai:[
 norse:[
   // NON-RARES x3
   {id:'RATATOSK',   n:'Ratatosk',   atk:1,def:2,cost:1,rarity:'common',  cap:'entry_search_ratatosk',   txt:'Entrée : Cherchez un Ratatosk dans votre deck.'},
-  {id:'HUGINN',     n:'Huginn',     atk:2,def:1,cost:3,rarity:'common',  cap:'start_draw',              txt:'Début de tour : Piochez 1 carte.'},
+  {id:'HUGINN',     n:'Huginn',     atk:2,def:1,cost:2,rarity:'common',  cap:'start_draw',              txt:'Début de tour : Piochez 1 carte.'},
   {id:'DRAUGR',     n:'Draugr',     atk:4,def:2,cost:3,rarity:'common',  cap:'endure',                  txt:'Endurance.'},
   {id:'EITRI',      n:'Eitri',      atk:4,def:5,cost:4,rarity:'common',  cap:'combat_recycle_dmg2',     txt:'Combat : replacez 2 monstres de défausse sous le deck, puis 2 dégâts.'},
   {id:'LJOSALFAR',  n:'Ljosalfar',  atk:6,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Vie.'},
   {id:'DOKKALFAR',  n:'Dokkalfar',  atk:6,def:7,cost:6,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
   // SEMI-RARES x2
-  {id:'EIKTHYRNIR', n:'Eikthyrnir', atk:1,def:3,cost:1,rarity:'uncommon',cap:'passive_adj_buff21',      txt:'Toujours : adjacents gagnent +2 ATK / +1 DEF.'},
+  {id:'EIKTHYRNIR', n:'Eikthyrnir', atk:1,def:2,cost:1,rarity:'uncommon',cap:'passive_adj_buff21',      txt:'Toujours : adjacents gagnent +2 ATK / +1 DEF.'},
   {id:'LANDVAETTIR',n:'Landvaettir',atk:4,def:2,cost:2,rarity:'uncommon',cap:'heal',                    txt:'Vie.'},
   {id:'TANNGRISNIR',n:'Tanngrisnir',atk:5,def:2,cost:3,rarity:'uncommon',cap:'endure_hurry',            txt:'Endurance + Rapide.'},
   {id:'SLEIPNIR',   n:'Sleipnir',   atk:7,def:2,cost:4,rarity:'uncommon',cap:'hurry',                   txt:'Rapide.'},
@@ -347,7 +347,7 @@ egyptian:[
   {id:'APIS',       n:'Apis',       atk:5,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Vie.'},
   {id:'BENOU',      n:'Benou',      atk:7,def:6,cost:6,rarity:'common',  cap:'hurry_entry_revive',      txt:'Rapide. Entrée : Ressuscite un allié DEF ≥3 depuis la défausse.'},
   // SEMI-RARES x2
-  {id:'SPHINX',     n:'Sphinx',     atk:2,def:4,cost:1,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
+  {id:'SPHINX',     n:'Sphinx',     atk:2,def:4,cost:2,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
   {id:'CRIOSPHINX', n:'Criosphinx', atk:4,def:1,cost:2,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
   {id:'HIERACOSPHINX',n:'Hieracosphinx',atk:2,def:5,cost:3,rarity:'uncommon',cap:'hit',                txt:'Double attaque.'},
   {id:'AANI',       n:'Aani',       atk:4,def:5,cost:4,rarity:'uncommon',cap:'temp_steal_hurry',        txt:'Mort : volez un monstre adverse (Rapide) jusquà fin de tour.'},
@@ -372,7 +372,7 @@ greek:[
   {id:'HARPIE',     n:'Harpie',     atk:5,def:5,cost:5,rarity:'common',  cap:'hurry_exit_dmg3',         txt:'Rapide. Sortie : 3 dégâts à une cible.'},
   {id:'CENTAURE',   n:'Centaure',   atk:8,def:3,cost:6,rarity:'common',  cap:'passive_entry_buff11',    txt:'Toujours : chaque allié entrant gagne +1/+1.'},
   // SEMI-RARES x2
-  {id:'CHIMERE',    n:'Chimère',    atk:2,def:2,cost:1,rarity:'uncommon',cap:'entry_copy_field',        txt:'Entrée : copie tout monstre visible.'},
+  {id:'CHIMERE',    n:'Chimère',    atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_copy_field',        txt:'Entrée : copie tout monstre visible.'},
   {id:'PYTHON',     n:'Python',     atk:2,def:3,cost:2,rarity:'uncommon',cap:'curse',                   txt:'Malédiction.'},
   {id:'LION_NEMEE', n:'Lion de Némée',atk:3,def:4,cost:3,rarity:'uncommon',cap:'heal',                  txt:'Vie.'},
   {id:'OPHIOTAURUS',n:'Ophiotaurus',atk:6,def:4,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
@@ -397,7 +397,7 @@ aztec:[
   {id:'TEUZAUHTOTOTL',n:'Teuzauhtototl',atk:6,def:6,cost:5,rarity:'common',cap:'oracle_dmg3',           txt:'Début de tour : regardez le dessus du deck. Sous le deck → 3 dmg à soi-même.'},
   {id:'CHULLACHAKI',n:'Chullachaki',atk:8,def:4,cost:6,rarity:'common',  cap:'hurry',                   txt:'Rapide.'},
   // SEMI-RARES x2
-  {id:'AHUIZOTL',   n:'Ahuizotl',   atk:1,def:4,cost:1,rarity:'uncommon',cap:'curse',                   txt:'Malédiction.'},
+  {id:'AHUIZOTL',   n:'Ahuizotl',   atk:1,def:4,cost:2,rarity:'uncommon',cap:'curse',                   txt:'Malédiction.'},
   {id:'KAQKOJ',     n:'Kaqkoj',     atk:2,def:1,cost:2,rarity:'uncommon',cap:'reveal_play_free',        txt:'Révèle 3 cartes, adversaire choisit: vous jouez gratuitement.'},
   {id:'OCELOTL',    n:'Ocelotl',    atk:5,def:1,cost:3,rarity:'uncommon',cap:'copy_ally_def',           txt:'Entrée : Ocelotl copie la DEF dun allié.'},
   {id:'TZI',        n:'Tzi',        atk:3,def:7,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
@@ -406,7 +406,7 @@ aztec:[
   {id:'OTOMITL',    n:'Otomitl',    atk:6,def:9,cost:7,rarity:'uncommon',cap:'passive_empty_hand_buff', txt:'Toujours : si main vide, alliés +2 ATK /+1 DEF.'},
   {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:8,def:9,cost:8,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
   // RARES x1
-  {id:'QUETZAL',    n:'Quetzal',    atk:4,def:2,cost:5,rarity:'rare',    cap:'passive_all_hurry',       txt:'Toujours : tous vos monstres aztèques ont Rapide.'},
+  {id:'QUETZAL',    n:'Quetzal',    atk:4,def:2,cost:4,rarity:'rare',    cap:'passive_all_hurry',       txt:'Toujours : tous vos monstres aztèques ont Rapide.'},
   {id:'CIPACTLI',   n:'Cipactli',   atk:3,def:7,cost:4,rarity:'rare',    cap:'entry_reclaim_spell',     txt:'Entrée : Récupérez un sort/dieu de votre défausse en main.'},
   {id:'IZCAQLLI',   n:'Izcaqlli',   atk:6,def:8,cost:5,rarity:'rare',    cap:'protect_endure',          txt:'Protection + Endurance.'},
   {id:'IZCOALT',    n:'Izcoalt',    atk:6,def:5,cost:6,rarity:'rare',    cap:'entry_destroy_catchup',   txt:'Entrée : Si vos PV ≤50, détruisez un monstre adverse.'},
