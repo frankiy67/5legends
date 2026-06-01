@@ -292,7 +292,7 @@ yokai:[
   // NON-RARES x3
   {id:'NINGYO',     n:'Ningyo',     atk:1,def:2,cost:1,rarity:'common',  cap:'attack_draw',             txt:'Attaque : piochez 1 carte.'},
   {id:'MUJNINA',    n:'Mujnina',    atk:3,def:2,cost:2,rarity:'common',  cap:'heal',                    txt:'Vie : les dégâts soignent votre joueur.'},
-  {id:'TANUKI',     n:'Tanuki',     atk:3,def:3,cost:3,rarity:'common',  cap:'exit_search_3def',        txt:'Sortie : Cherchez un monstre DEF ≤3 dans votre deck.'},
+  {id:'TANUKI',     n:'Tanuki',     atk:3,def:3,cost:2,rarity:'common',  cap:'exit_search_3def',        txt:'Sortie : Cherchez un monstre DEF ≤3 dans votre deck.'},
   {id:'KAPPA',      n:'Kappa',      atk:5,def:5,cost:4,rarity:'common',  cap:'passive_yokai_buff',      txt:'Toujours : vos autres monstres Yokai gagnent +1/+1.'},
   {id:'KEUKEGEN',   n:'Keukegen',   atk:4,def:6,cost:5,rarity:'common',  cap:'exit_copy_killer',        txt:'Sortie : Invoquez une copie du monstre qui vous a détruit.'},
   {id:'BAKU',       n:'Baku',       atk:6,def:6,cost:6,rarity:'common',  cap:'entry_sleep',             txt:'Entrée : Placez un monstre adverse face caché (Sommeil 2 tours).'},
@@ -303,13 +303,13 @@ yokai:[
   {id:'NUE',        n:'Nue',        atk:3,def:6,cost:4,rarity:'uncommon',cap:'curse_endure',            txt:'Malédiction + Endurance.'},
   {id:'KARURA',     n:'Karura',     atk:6,def:5,cost:5,rarity:'uncommon',cap:'entry_dmg4',              txt:'Entrée : 4 dégâts à une cible.'},
   {id:'INUGAMI',    n:'Inugami',    atk:3,def:9,cost:6,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
-  {id:'ONI',        n:'Oni',        atk:4,def:9,cost:7,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
+  {id:'ONI',        n:'Oni',        atk:5,def:9,cost:7,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
   {id:'RAIJU',      n:'Raiju',      atk:8,def:8,cost:8,rarity:'uncommon',cap:'solo_destroy',            txt:'Seul allié : détruit la cible sans combat.'},
   // RARES x1
   {id:'TSUCHINOKO', n:'Tsuchinoko', atk:5,def:3,cost:3,rarity:'rare',    cap:'curse_endure',            txt:'Malédiction + Endurance.'},
   {id:'TSUCHIGUMO', n:'Tsuchigumo', atk:6,def:7,cost:4,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
   {id:'USHI-ONI',   n:'Ushi-Oni',   atk:5,def:7,cost:5,rarity:'rare',    cap:'exit_dmg3_all',           txt:'Sortie : 3 dégâts à tous les monstres adverses.'},
-  {id:'AKKOROKAMUI',n:'Akkorokamui',atk:7,def:8,cost:6,rarity:'rare',    cap:'reincarnation',           txt:'1ère mort : mélangé dans le deck avec +3/+3 permanents.'},
+  {id:'AKKOROKAMUI',n:'Akkorokamui',atk:8,def:8,cost:6,rarity:'rare',    cap:'reincarnation',           txt:'1ère mort : mélangé dans le deck avec +3/+3 permanents.'},
   {id:'RYUU',       n:'Ryuu',       atk:7,def:9,cost:7,rarity:'rare',    cap:'heal',                    txt:'Vie.'},
   {id:'NAMAZU',     n:'Namazu',     atk:7,def:10,cost:8,rarity:'rare',   cap:'hurry',                   txt:'Rapide.'},
 ],
@@ -345,7 +345,7 @@ egyptian:[
   {id:'MOMIE',      n:'Momie',      atk:3,def:3,cost:3,rarity:'common',  cap:'endure',                  txt:'Endurance.'},
   {id:'SHA',        n:'Sha',        atk:4,def:3,cost:4,rarity:'common',  cap:'recycle_return',          txt:'Mort : placez 2 monstres de défausse sous le deck, Sha retourne en main.'},
   {id:'APIS',       n:'Apis',       atk:5,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Vie.'},
-  {id:'BENOU',      n:'Benou',      atk:7,def:6,cost:6,rarity:'common',  cap:'hurry_entry_revive',      txt:'Rapide. Entrée : Ressuscite un allié DEF ≥3 depuis la défausse.'},
+  {id:'BENOU',      n:'Benou',      atk:7,def:6,cost:7,rarity:'common',  cap:'hurry_entry_revive',      txt:'Rapide. Entrée : Ressuscite un allié DEF ≥3 depuis la défausse.'},
   // SEMI-RARES x2
   {id:'SPHINX',     n:'Sphinx',     atk:2,def:4,cost:2,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
   {id:'CRIOSPHINX', n:'Criosphinx', atk:4,def:1,cost:2,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
@@ -360,7 +360,7 @@ egyptian:[
   {id:'DJINN',      n:'Djinn',      atk:5,def:6,cost:4,rarity:'rare',    cap:'combat_dmg2',             txt:'Combat : 2 dégâts supplémentaires à la cible.'},
   {id:'URAEUS',     n:'Uraeus',     atk:7,def:5,cost:5,rarity:'rare',    cap:'curse_protect',           txt:'Malédiction + Protection.'},
   {id:'ROKH',       n:'Rokh',       atk:5,def:9,cost:6,rarity:'rare',    cap:'exit_self_sleep',         txt:'Mort : Rokh reste en jeu face caché 2 tours puis revient.'},
-  {id:'GOLEM',      n:'Golem',      atk:11,def:7,cost:7,rarity:'rare',   cap:'endure_cooldown',         txt:'Endurance. Après avoir attaqué, ne peut plus attaquer le tour suivant.'},
+  {id:'GOLEM',      n:'Golem',      atk:11,def:7,cost:8,rarity:'rare',   cap:'endure_cooldown',         txt:'Endurance. Après avoir attaqué, ne peut plus attaquer le tour suivant.'},
   {id:'LEVIATHAN',  n:'Léviathan',  atk:9,def:10,cost:8,rarity:'rare',  cap:'entry_draw_per_ally',     txt:'Entrée : Piochez 1 carte par allié (max 3).'},
 ],
 greek:[
@@ -401,7 +401,7 @@ aztec:[
   {id:'KAQKOJ',     n:'Kaqkoj',     atk:2,def:1,cost:2,rarity:'uncommon',cap:'reveal_play_free',        txt:'Révèle 3 cartes, adversaire choisit: vous jouez gratuitement.'},
   {id:'OCELOTL',    n:'Ocelotl',    atk:5,def:1,cost:3,rarity:'uncommon',cap:'copy_ally_def',           txt:'Entrée : Ocelotl copie la DEF dun allié.'},
   {id:'TZI',        n:'Tzi',        atk:3,def:7,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
-  {id:'CHOHIX',     n:'Chohix',     atk:8,def:3,cost:5,rarity:'uncommon',cap:'death_token22 ritual_tokens3', txt:'Toujours : jeton 2/2 par mort alliée. Rituel : 3 jetons 2/2 Rapide.'},
+  {id:'CHOHIX',     n:'Chohix',     atk:8,def:5,cost:5,rarity:'uncommon',cap:'death_token22 ritual_tokens3', txt:'Toujours : jeton 2/2 par mort alliée. Rituel : 3 jetons 2/2 Rapide.'},
   {id:'NAGUAL',     n:'Nagual',     atk:3,def:8,cost:6,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
   {id:'OTOMITL',    n:'Otomitl',    atk:6,def:9,cost:7,rarity:'uncommon',cap:'passive_empty_hand_buff', txt:'Toujours : si main vide, alliés +2 ATK /+1 DEF.'},
   {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:8,def:9,cost:8,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
@@ -409,7 +409,7 @@ aztec:[
   {id:'QUETZAL',    n:'Quetzal',    atk:4,def:2,cost:4,rarity:'rare',    cap:'passive_all_hurry',       txt:'Toujours : tous vos monstres aztèques ont Rapide.'},
   {id:'CIPACTLI',   n:'Cipactli',   atk:3,def:7,cost:4,rarity:'rare',    cap:'entry_reclaim_spell',     txt:'Entrée : Récupérez un sort/dieu de votre défausse en main.'},
   {id:'IZCAQLLI',   n:'Izcaqlli',   atk:6,def:8,cost:5,rarity:'rare',    cap:'protect_endure',          txt:'Protection + Endurance.'},
-  {id:'IZCOALT',    n:'Izcoalt',    atk:6,def:5,cost:6,rarity:'rare',    cap:'entry_destroy_catchup',   txt:'Entrée : Si vos PV ≤50, détruisez un monstre adverse.'},
+  {id:'IZCOALT',    n:'Izcoalt',    atk:6,def:5,cost:6,rarity:'rare',    cap:'entry_destroy_catchup',   txt:'Entrée : Si vos PV ≤60, détruisez un monstre adverse.'},
   {id:'HUAY_CHIVO', n:'Huay Chivo', atk:4,def:12,cost:8,rarity:'rare',  cap:'hit',                     txt:'Double attaque.'},
   {id:'TLALTECUHTLI',n:'Tlaltecuhtli',atk:8,def:6,cost:7,rarity:'rare', cap:'entry_token_copies_2 ritual_wipe5', txt:'Entrée : jetons 1/1 copies de 2 alliés. Rituel : 5 dégâts à tous les monstres adverses.'},
 ]};
@@ -1117,7 +1117,7 @@ async function applyEntry(p, idx, m) {
     addLog(`${m.n} — Moteur de pioche activé!`,'event');
   }
   if(cap.includes('entry_destroy_catchup')) {
-    if(G.players[p].hp <= G.players[p===1?2:1].hp) {
+    if(G.players[p].hp <= 60) {
       await pickTarget('destroy', p, true);
     }
   }
@@ -2668,6 +2668,24 @@ async function aiCombatPhase() {
       if(!G.players[2].field[i]) continue;
       if(m.bewitched && Math.random() < 0.5) { P.attacked.add(i); continue; }
       addLog(`${m.n} attaque le joueur directement !`, 'dmg');
+      renderAll();
+      await waitForPlayerAck(m, 'attack');
+      if(!G.players[2].field[i]) continue;
+      await doAttack(2, i, opp, 'player');
+      renderAll();
+      await new Promise(r => setTimeout(r, 350));
+      if(checkVictoryBool()) return;
+    }
+    return;
+  }
+
+  // ── ANTI-STALL: opponent has no monsters → all attackers go face ─
+  const oppAlive = OP.field.filter(m => m && !m.faceDown && !m.asleep && !m.sanded);
+  if(oppAlive.length === 0) {
+    for(const {m,i} of getAttackers()) {
+      if(!G.players[2].field[i]) continue;
+      if(m.bewitched && Math.random() < 0.5) { P.attacked.add(i); continue; }
+      addLog(`${m.n} attaque directement (terrain adverse vide) !`, 'dmg');
       renderAll();
       await waitForPlayerAck(m, 'attack');
       if(!G.players[2].field[i]) continue;
