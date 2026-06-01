@@ -3312,6 +3312,8 @@ function renderField(p) {
               <div class="fc-cap-text">${capShort}</div>
             </div>
           </div>
+          <div class="card-cost">◆${m.cost}</div>
+          ${m.type==='monster'?`<div class="card-stat-atk">⚔${m.cAtk}</div><div class="card-stat-def">🛡${m.cDef}</div>`:''}
         </div>
         <div class="fc-atk">${m.cAtk}</div>
         <div class="fc-def">${m.cDef}</div>
@@ -3371,7 +3373,8 @@ function renderHand() {
     div.innerHTML=`
       <div class="hc-art" style="position:relative">
         ${imgSrc?`<img src="${imgSrc}" alt="${c.n}" loading="lazy">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--brd3)">${c.type==='spell'?'✨':c.type==='god'?'⚡':FE[P.faction]}</div>`}
-        <div class="hc-cost-badge">${c.cost}</div>
+        <div class="card-cost">◆${c.cost}</div>
+        ${c.type==='monster'?`<div class="card-stat-atk">⚔${c.atk}</div><div class="card-stat-def">🛡${c.def}</div>`:''}
       </div>
       <div class="hc-name-band">${c.n}</div>
       <div class="hc-bottom">
