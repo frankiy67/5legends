@@ -271,6 +271,96 @@ body{
   border-bottom:1px solid var(--brd2);
   z-index:10;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   CYCLE CÉLESTE
+═══════════════════════════════════════════════════════════════════ */
+#cycle-banner {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 6px;
+  height: 100%;
+  flex-shrink: 0;
+}
+.cycle-phases {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cycle-phase {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all .4s ease;
+  opacity: 0.28;
+  filter: grayscale(0.7);
+  font-family: 'Cinzel', serif;
+}
+.cycle-phase.active {
+  opacity: 1;
+  filter: none;
+  background: rgba(200,164,74,0.15);
+  box-shadow: 0 0 10px rgba(200,164,74,0.5), 0 0 20px rgba(200,164,74,0.25);
+  animation: zenithGlow 2s ease-in-out infinite alternate;
+}
+.cycle-icon { font-size: 14px; }
+.cycle-phase-label {
+  font-size: 7px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--gold2);
+  display: none;
+}
+.cycle-phase.active .cycle-phase-label { display: block; }
+.cycle-zenith {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.8px;
+  color: var(--gold2);
+  text-shadow: 0 0 8px rgba(200,164,74,0.5);
+  white-space: nowrap;
+  padding-left: 8px;
+  border-left: 1px solid rgba(200,164,74,0.25);
+}
+.cycle-zenith strong { color: var(--gold3); }
+.cycle-bonus {
+  display: block;
+  font-size: 7px;
+  color: #4eff8a;
+  margin-top: 1px;
+  font-family: 'Crimson Text', serif;
+  letter-spacing: 0;
+}
+
+/* Transition d'animation quand la phase change */
+#cycle-banner.cycle-transition .cycle-phase.active {
+  animation: cycleChangeFlash 1.1s ease-out forwards, zenithGlow 2s ease-in-out 1.1s infinite alternate;
+}
+
+/* Halo doré sur les cartes au Zénith */
+.fcard.zenith-card {
+  box-shadow: 0 0 0 2px rgba(200,164,74,0.7), 0 0 18px rgba(200,164,74,0.5), 0 0 36px rgba(200,164,74,0.2) !important;
+  animation: zenithCardPulse 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes zenithGlow {
+  from { box-shadow: 0 0 8px rgba(200,164,74,0.4), 0 0 16px rgba(200,164,74,0.2); }
+  to   { box-shadow: 0 0 14px rgba(200,164,74,0.8), 0 0 28px rgba(200,164,74,0.4); }
+}
+@keyframes zenithCardPulse {
+  from { box-shadow: 0 0 0 2px rgba(200,164,74,0.6), 0 0 12px rgba(200,164,74,0.4); }
+  to   { box-shadow: 0 0 0 2px rgba(255,224,100,0.9), 0 0 24px rgba(255,224,100,0.6), 0 0 40px rgba(200,164,74,0.3); }
+}
+@keyframes cycleChangeFlash {
+  0%   { background: rgba(200,164,74,0); box-shadow: 0 0 4px rgba(200,164,74,0.3); transform: scale(1); }
+  20%  { background: rgba(200,164,74,0.35); box-shadow: 0 0 30px rgba(255,220,80,0.9); transform: scale(1.12); }
+  60%  { background: rgba(200,164,74,0.18); box-shadow: 0 0 16px rgba(200,164,74,0.6); transform: scale(1.04); }
+  100% { background: rgba(200,164,74,0.12); box-shadow: 0 0 10px rgba(200,164,74,0.5); transform: scale(1); }
+}
 #turn-label{
   font-family:'Cinzel',serif;font-size:13px;font-weight:600;
   color:var(--gold);text-shadow:0 0 8px rgba(200,164,74,0.4);

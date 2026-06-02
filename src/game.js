@@ -580,6 +580,7 @@ function initGame(f1, f2, mode) {
     waitingForPlayer: false,  // true quand IA pause et attend ESPACE
     reactionUsed: false,
     ragnarok: 0,  // Counter: Norse bonus at 5
+    cycle: 0,     // Cycle Céleste — 0=aube … 4=ténèbres
   };
   for(let p=1;p<=2;p++){
     const f = p===1?f1:f2;
@@ -636,6 +637,22 @@ function addLog(msg, cls='') {
 const PHASES = ['Main1','Combat','Main2','End'];
 const PHASE_LABELS = {Main1:'MAIN 1',Combat:'COMBAT',Main2:'MAIN 2',End:'END'};
 const PHASE_NAMES = PHASE_LABELS; // backwards compat
+
+// ── Cycle Céleste ─────────────────────────────────────────────────
+const CYCLE_PHASES = ['aube','midi','crepuscule','nuit','tenebres'];
+const ZENITH_MAP   = {aube:'egyptian',midi:'greek',crepuscule:'aztec',nuit:'yokai',tenebres:'norse'};
+const CYCLE_ICONS  = {aube:'🌅',midi:'☀️',crepuscule:'🌆',nuit:'🌙',tenebres:'🌑'};
+const CYCLE_NAMES  = {aube:'AUBE',midi:'MIDI',crepuscule:'CRÉPUSCULE',nuit:'NUIT',tenebres:'TÉNÈBRES'};
+const ZENITH_LABEL = {egyptian:'Égyptien 🏺',greek:'Grec 🏛',aztec:'Aztèque 🌞',yokai:'Yokai 🦊',norse:'Norse ⚡'};
+
+function getZenithFaction() {
+  if(!G) return null;
+  return ZENITH_MAP[CYCLE_PHASES[G.cycle % 5]];
+}
+function isZenith(m) {
+  if(!G || !m || !m.faction || m.faceDown) return false;
+  return m.faction === getZenithFaction();
+}
 
 function nextPhase() { advancePhase(); }
 
@@ -729,7 +746,12 @@ function doEndTurn() {
   const prev = G.cp;
   G.cp = G.cp===1?2:1;
   G.activeTurn = G.cp; // track whose actual turn it is
-  if(G.cp===1) G.turn++;
+  if(G.cp===1) {
+    G.turn++;
+    const prevCycle = G.cycle;
+    G.cycle = (G.cycle + 1) % 5;
+    if(G.cycle !== prevCycle) scheduleCycleAnim();
+  }
   G.phase='Main1';
   G.selAtk=null;
 
@@ -2045,7 +2067,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   const atk = AP.field[attackerIdx];
   if(!atk) return;
 
-  const atkVal = atk.cAtk;
+  const atkVal = atk.cAtk + (isZenith(atk) ? 1 : 0);
   const hasHit = (atk.cap||'').includes('hit');
   const hasHeal = (atk.cap||'').includes('heal');
   // solo_destroy (RAIJU): if only ally, destroy target without combat
@@ -2186,8 +2208,8 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
         }
       }
 
-      if(def.cDef<=0) await handleDeath(targetP, def);
-      if(atk.cDef<=0) await handleDeath(attackerP, atk);
+      if(def.cDef <= -(isZenith(def) ? 1 : 0)) await handleDeath(targetP, def);
+      if(atk.cDef <= -(isZenith(atk) ? 1 : 0)) await handleDeath(attackerP, atk);
     }
   };
 
@@ -3449,9 +3471,58 @@ async function applyTargetEffect(type, fromP, idx, card) {
 const FC = {yokai:'#d04030',norse:'#8090a0',egyptian:'#3090d0',greek:'#9050c0',aztec:'#d0b010'};
 const FE = {yokai:'🦊',norse:'⚡',egyptian:'🏺',greek:'🏛️',aztec:'🌿'};
 
+// ── Cycle Céleste — render & animation ────────────────────────────
+function renderCycleBanner() {
+  const el = document.getElementById('cycle-banner');
+  if(!el || !G) return;
+  const cur = G.cycle % 5;
+  const phaseName = CYCLE_PHASES[cur];
+  const zenFaction = ZENITH_MAP[phaseName];
+
+  const iconsHTML = CYCLE_PHASES.map((ph, idx) => {
+    const active = idx === cur;
+    return `<div class="cycle-phase${active?' active':''}" title="${CYCLE_NAMES[ph]}">
+      <span class="cycle-icon">${CYCLE_ICONS[ph]}</span>
+      <span class="cycle-phase-label">${CYCLE_NAMES[ph]}</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="cycle-phases">${iconsHTML}</div>
+    <div class="cycle-zenith">ZÉNITH : <strong>${ZENITH_LABEL[zenFaction]}</strong>
+      <span class="cycle-bonus">+1⚔ +1🛡 ce round</span>
+    </div>`;
+}
+
+let _cycleAnimPending = false;
+function scheduleCycleAnim() {
+  _cycleAnimPending = true;
+}
+
+function applyCycleAnim() {
+  if(!_cycleAnimPending) return;
+  _cycleAnimPending = false;
+  const el = document.getElementById('cycle-banner');
+  if(!el) return;
+  el.classList.remove('cycle-transition');
+  el.offsetHeight;
+  el.classList.add('cycle-transition');
+  setTimeout(() => el.classList.remove('cycle-transition'), 1200);
+  // SFX
+  if(typeof Audio5L !== 'undefined') {
+    Audio5L.sfx.mana();
+    setTimeout(() => Audio5L.sfx.draw(), 180);
+  }
+  // Log
+  const ph = CYCLE_PHASES[G.cycle % 5];
+  addLog(`🌌 Cycle Céleste — ${CYCLE_NAMES[ph]} ! Zénith : ${ZENITH_LABEL[ZENITH_MAP[ph]]}`, 'special');
+}
+
 function renderAll() {
   if(G) { [1,2].forEach(p => { if(G.players[p]) renderPassiveIndicators(p); }); }
   if(!G) return;
+  renderCycleBanner();
+  applyCycleAnim();
   renderPlayerBar(1); renderPlayerBar(2);
   renderField(1); renderField(2);
   renderHand();
@@ -3553,6 +3624,9 @@ function renderPassiveIndicators(p) {
     if(c.includes('passive_empty_hand_buff') && P.hand.length===0) indicators.push(`💪 OTOMITL — Main vide: Alliés +2/+1`);
   });
   if((G.ragnarok||0)>0 && P.faction==='norse') indicators.push(`⚡ RAGNARÖK: ${G.ragnarok}/5`);
+  // Zenith indicator
+  const zFaction = getZenithFaction();
+  if(P.faction === zFaction) indicators.push(`🌌 ZÉNITH — vos monstres +1/+1`);
   el.innerHTML = indicators.map(i=>`<span class="passive-indicator">${i}</span>`).join('');
 }
 
@@ -3580,6 +3654,7 @@ function renderField(p) {
     if(isSelAtk)   cls+=' atk-source';
     if(P.attacked.has(i)) cls+=' tapped';
     if(m.faceDown) cls+=' face-down';
+    if(isZenith(m)) cls+=' zenith-card';
     // Re-apply targeting highlights when in targeting mode
     if(G.targeting && !m.faceDown) {
       if(G.targeting.mode==='attack') {
@@ -3659,10 +3734,10 @@ function renderField(p) {
             </div>
           </div>
           <div class="card-cost">◆${m.cost}</div>
-          ${m.type==='monster'?`<div class="card-stat-atk">⚔${m.cAtk}</div><div class="card-stat-def">🛡${m.cDef}</div>`:''}
+          ${m.type==='monster'?(()=>{const z=isZenith(m);return`<div class="card-stat-atk"${z?' style="color:#4eff8a"':''}>⚔${m.cAtk+(z?1:0)}</div><div class="card-stat-def"${z?' style="color:#4eff8a"':''}>🛡${m.cDef+(z?1:0)}</div>`;})():''}
         </div>
-        <div class="fc-atk">${m.cAtk}</div>
-        <div class="fc-def">${m.cDef}</div>
+        <div class="fc-atk"${isZenith(m)?' style="color:#4eff8a"':''}>${m.cAtk+(isZenith(m)?1:0)}</div>
+        <div class="fc-def"${isZenith(m)?' style="color:#4eff8a"':''}>${m.cDef+(isZenith(m)?1:0)}</div>
       `;
     }
     // ── Bouton RITUEL pour monstres aztèques compatibles ────────
