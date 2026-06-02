@@ -9,7 +9,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1400">
 <title>5 Legends — Simulator</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Marcellus&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./styles/main.css">
 
 </head>
@@ -104,15 +106,22 @@
 ══════════════════════════════════════════ -->
 <div id="game">
   <!-- Turn bar -->
-  <div class="turn-bar" style="grid-row:1;grid-column:1;z-index:1">
-    <span id="turn-label">Turn 1</span>
-    <div id="phase-bar"></div>
+  <div class="turn-bar" style="grid-row:1;grid-column:1;z-index:20">
+    <div class="turn-bar-left">
+      <span id="turn-label">Turn 1</span>
+      <div id="phase-bar"></div>
+    </div>
     <div id="cycle-banner"></div>
+    <div class="turn-bar-right"></div>
   </div>
 
   <!-- P2 bar -->
 <div class="pbar p2" id="p2-bar" onclick="if(G&&G.targeting)resolvePlayerTarget(2)">
-  <span class="pbar-name" id="p2-name">P2</span>
+  <div class="pbar-portrait" id="p2-portrait"></div>
+  <div class="pbar-id">
+    <span class="pbar-name" id="p2-name">P2</span>
+    <span class="pbar-sub" id="p2-sub">Adversaire</span>
+  </div>
   <div class="hp-orb-wrap">
     <div class="hp-orb" id="p2-orb"><span class="hp-value" id="p2-hp">25</span></div>
     <div class="hp-track"><div class="hp-fill" id="p2-hpbar" style="width:100%"></div></div>
@@ -121,13 +130,21 @@
   <span class="pbar-deck" id="p2-deck"></span>
 </div>
 
+  <!-- Board divider (cycle medallion) -->
+  <div id="board-divider" style="grid-row:3 / span 2;grid-column:1">
+    <div id="divider-line"></div>
+    <div id="divider-medallion"><span id="divider-medallion-icon">🌅</span></div>
+  </div>
+
   <!-- P2 field -->
   <div class="bf bf2" style="grid-row:3;grid-column:1">
     <img class="bf-landscape" id="bf-landscape-2" src="" alt="">
     <div class="bf-bg-overlay"></div>
     <div class="bf-overlay-dark"></div>
-    <div class="bf-label" id="bf-label-2">⚔ Player 2 Field</div>
+    <div class="bf-cycle-tint"></div>
+    <div class="bf-label" id="bf-label-2">⚔ Terrain Adverse</div>
     <div class="opp-hand-area" id="opp-hand-cards"></div>
+    <div class="bf-slots"><span class="bf-slot"></span><span class="bf-slot"></span><span class="bf-slot"></span><span class="bf-slot"></span><span class="bf-slot"></span><span class="bf-slot"></span></div>
     <div class="field-row" id="field2"></div>
   </div>
 
@@ -136,13 +153,19 @@
     <img class="bf-landscape" id="bf-landscape-1" src="" alt="">
     <div class="bf-bg-overlay"></div>
     <div class="bf-overlay-dark"></div>
-    <div class="bf-label" id="bf-label-1">⚔ Player 1 Field</div>
+    <div class="bf-cycle-tint"></div>
+    <div class="bf-label" id="bf-label-1">⚔ Ton Terrain</div>
+    <div class="bf-slots"><span class="bf-slot"></span><span class="bf-slot"></span><span class="bf-slot"></span><span class="bf-slot"></span><span class="bf-slot"></span><span class="bf-slot"></span></div>
     <div class="field-row" id="field1"></div>
   </div>
 
   <!-- P1 bar -->
 <div class="pbar p1" id="p1-bar" onclick="if(G&&G.targeting)resolvePlayerTarget(1)">
-  <span class="pbar-name" id="p1-name">P1</span>
+  <div class="pbar-portrait" id="p1-portrait"></div>
+  <div class="pbar-id">
+    <span class="pbar-name" id="p1-name">P1</span>
+    <span class="pbar-sub" id="p1-sub">Toi</span>
+  </div>
   <div class="hp-orb-wrap">
     <div class="hp-orb" id="p1-orb"><span class="hp-value" id="p1-hp">25</span></div>
     <div class="hp-track"><div class="hp-fill" id="p1-hpbar" style="width:100%"></div></div>

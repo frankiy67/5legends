@@ -3489,9 +3489,14 @@ function renderCycleBanner() {
 
   el.innerHTML = `
     <div class="cycle-phases">${iconsHTML}</div>
-    <div class="cycle-zenith">ZÉNITH : <strong>${ZENITH_LABEL[zenFaction]}</strong>
-      <span class="cycle-bonus">+1⚔ +1🛡 ce round</span>
-    </div>`;
+    <div class="cycle-zenith">ZÉNITH · <strong>${ZENITH_LABEL[zenFaction]}</strong><span class="cycle-bonus">+1/+1</span></div>`;
+
+  // Teinte du champ de bataille selon la phase
+  const game = document.getElementById('game');
+  if(game) game.dataset.cyclePhase = phaseName;
+  // Médaillon central
+  const medIcon = document.getElementById('divider-medallion-icon');
+  if(medIcon) medIcon.textContent = CYCLE_ICONS[phaseName];
 }
 
 let _cycleAnimPending = false;
@@ -3508,6 +3513,9 @@ function applyCycleAnim() {
   el.offsetHeight;
   el.classList.add('cycle-transition');
   setTimeout(() => el.classList.remove('cycle-transition'), 1200);
+  // Flash du médaillon central
+  const med = document.getElementById('divider-medallion');
+  if(med){ med.style.animation='none'; med.offsetHeight; med.style.animation='medallionFlash 1s ease-out, medallionFloat 6s ease-in-out 1s infinite'; }
   // SFX
   if(typeof Audio5L !== 'undefined') {
     Audio5L.sfx.mana();
@@ -3574,7 +3582,13 @@ function renderPlayerBar(p) {
   const emo = { yokai:'🦊', norse:'⚡', egyptian:'🏺', greek:'🏛', aztec:'🌞' };
 
   const nameEl = document.getElementById(`p${p}-name`);
-  if (nameEl) { nameEl.textContent = `P${p} ${emo[P.faction]||''} ${(P.faction||'').toUpperCase()}`; nameEl.style.color = col[P.faction] || '#fff'; }
+  if (nameEl) { nameEl.textContent = `${(P.faction||'').toUpperCase()}`; nameEl.style.color = col[P.faction] || '#fff'; }
+
+  // Portrait écusson de faction
+  const portrait = document.getElementById(`p${p}-portrait`);
+  if (portrait) { portrait.textContent = emo[P.faction]||'⚔'; portrait.dataset.faction = P.faction||''; }
+  const bar = document.getElementById(`p${p}-bar`);
+  if (bar) bar.dataset.faction = P.faction||'';
 
   const orb = document.getElementById(`p${p}-orb`);
   if (orb) {
@@ -3596,7 +3610,9 @@ function renderPlayerBar(p) {
     gemsEl.innerHTML = html;
   }
   const deckEl = document.getElementById(`p${p}-deck`);
-  if (deckEl) deckEl.textContent = `${P.deck ? P.deck.length : 0} cards · ${P.graveyard ? P.graveyard.length : 0} dead`;
+  if (deckEl) deckEl.innerHTML =
+    `<span class="deck-pile">🂠</span><span class="deck-count">${P.deck ? P.deck.length : 0}</span>`
+    + `<span class="grave-count">${P.graveyard ? P.graveyard.length : 0}†</span>`;
 }
 
 
@@ -3637,7 +3653,7 @@ function renderField(p) {
   el.innerHTML='';
 
   if(P.field.filter(m=>m).length===0) {
-    el.innerHTML='<div class="empty-field">— Empty Field —</div>';
+    el.innerHTML='<div class="empty-field">— Terrain vide —</div>';
     return;
   }
 
@@ -3675,6 +3691,9 @@ function renderField(p) {
   delete m._newCard;
 }
     div.dataset.player=p;div.dataset.idx=i;
+    div.dataset.faction=m.faction||P.faction;
+    div.dataset.rarity=m.rarity||(m.type==='god'?'god':'common');
+    div.dataset.type=m.type||'monster';
     div.addEventListener('mouseenter',()=>showCardPreview(m,div));
     div.addEventListener('mouseleave',()=>{ if(!G||!G.targeting) hideCardPreview(); });
     div.addEventListener('contextmenu',(e)=>{ e.preventDefault(); showBigPreview(m); });
@@ -3717,6 +3736,7 @@ function renderField(p) {
       if(m.izanamiEquipped)statuses.push('<span class="st izanami">IZA</span>');
 
       const capShort=(m.cap||'').replace(/_/g,' ').split(' ').slice(0,2).join(' ')||'—';
+      const z=isZenith(m);
 
       div.innerHTML=`
         <div class="fc-frame">
@@ -3724,7 +3744,7 @@ function renderField(p) {
             <div class="fc-art">
               ${imgSrc
                 ?`<img src="${imgSrc}" alt="${m.n}" loading="lazy">`
-                :`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px">${FE[P.faction]}</div>`
+                :`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:38px">${FE[m.faction||P.faction]}</div>`
               }
             </div>
             <div class="fc-info">
@@ -3733,11 +3753,10 @@ function renderField(p) {
               <div class="fc-cap-text">${capShort}</div>
             </div>
           </div>
-          <div class="card-cost">◆${m.cost}</div>
-          ${m.type==='monster'?(()=>{const z=isZenith(m);return`<div class="card-stat-atk"${z?' style="color:#4eff8a"':''}>⚔${m.cAtk+(z?1:0)}</div><div class="card-stat-def"${z?' style="color:#4eff8a"':''}>🛡${m.cDef+(z?1:0)}</div>`;})():''}
+          ${m.cost!=null&&m.cost!==''?`<div class="fc-cost">${m.cost}</div>`:''}
+          <div class="fc-rarity"></div>
         </div>
-        <div class="fc-atk"${isZenith(m)?' style="color:#4eff8a"':''}>${m.cAtk+(isZenith(m)?1:0)}</div>
-        <div class="fc-def"${isZenith(m)?' style="color:#4eff8a"':''}>${m.cDef+(isZenith(m)?1:0)}</div>
+        ${m.type==='monster'?`<div class="fc-atk${z?' boosted':''}">${m.cAtk+(z?1:0)}</div><div class="fc-def${z?' boosted':''}">${m.cDef+(z?1:0)}</div>`:''}
       `;
     }
     // ── Bouton RITUEL pour monstres aztèques compatibles ────────
@@ -3832,6 +3851,8 @@ function renderHand() {
       +`${isAnytimeC?' anytime':''}`;
     if(G.waitingForPlayer&&isAnytimeC&&P.gems>=c.cost) hcardCls+=' reaction-ready';
     div.className=hcardCls;
+    div.dataset.faction=c.faction||P.faction;
+    div.dataset.rarity=c.rarity||(c.type==='god'?'god':c.type==='spell'?'common':'common');
     div.addEventListener('mouseenter',()=>{ showCardPreview(c,div); if(div.classList.contains('playable')) Audio5L.sfx.select(); });
     div.addEventListener('mouseleave',()=>{ if(!G||!G.targeting) hideCardPreview(); });
     div.onclick=()=>{
@@ -3846,20 +3867,22 @@ function renderHand() {
     div.addEventListener('dblclick',()=>showBigPreview(c));
     const imgSrc=IMGS[c.id]||'';
     const typeLabel=isAnytimeC?'<span class="anytime-badge">⚡ ANYTIME</span>':
-      c.type==='god'?'⚡ God':c.type==='spell'?'✨ Spell':'🐉 Monster';
+      c.type==='god'?'⚡ Dieu':c.type==='spell'?'✨ Sort':'🐉 Monstre';
 
     div.innerHTML=`
-      <div class="hc-art" style="position:relative">
-        ${imgSrc?`<img src="${imgSrc}" alt="${c.n}" loading="lazy">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--brd3)">${c.type==='spell'?'✨':c.type==='god'?'⚡':FE[P.faction]}</div>`}
-        <div class="card-cost">◆${c.cost}</div>
-        ${c.type==='monster'?`<div class="card-stat-atk">⚔${c.atk}</div><div class="card-stat-def">🛡${c.def}</div>`:''}
+      <div class="hc-frame-inner">
+        <div class="hc-art">
+          ${imgSrc?`<img src="${imgSrc}" alt="${c.n}" loading="lazy">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px;color:rgba(244,201,93,.5)">${c.type==='spell'?'✨':c.type==='god'?'⚡':FE[c.faction||P.faction]}</div>`}
+        </div>
+        <div class="hc-name-band">${c.n}</div>
+        <div class="hc-bottom">
+          <div class="hc-type-row">${typeLabel}</div>
+          <div class="hc-txt">${c.txt||''}</div>
+        </div>
       </div>
-      <div class="hc-name-band">${c.n}</div>
-      <div class="hc-bottom">
-        <div class="hc-type-row">${typeLabel}</div>
-        ${c.type==='monster'?`<div class="hc-stats"><span class="hc-atk">${c.atk}⚔</span><span class="hc-def">${c.def}🛡</span></div>`:''}
-        <div class="hc-txt">${c.txt||''}</div>
-      </div>
+      <div class="hc-cost">${c.cost}</div>
+      <div class="hc-rarity"></div>
+      ${c.type==='monster'?`<div class="hc-atk">${c.atk}</div><div class="hc-def">${c.def}</div>`:''}
     `;
     el.appendChild(div);
   });
@@ -3911,9 +3934,13 @@ function showOppTurnBanner() {
 }
 
 
+const LOG_ICONS = {turn:'⚔',event:'✨',summon:'🐉',dmg:'💥',heal:'💚',buff:'⬆',debuff:'⬇',combat:'⚔',phase:'◈',special:'🌟',warn:'⚠'};
 function renderLog() {
   document.getElementById('log').innerHTML=
-    G.log.map(l=>`<div class="log-e ${l.cls||''}">${l.msg}</div>`).join('');
+    G.log.map(l=>{
+      const ico = LOG_ICONS[l.cls]||'·';
+      return `<div class="log-e ${l.cls||''}"><span class="log-ico">${ico}</span><span>${l.msg}</span></div>`;
+    }).join('');
 }
 
 function updateButtons() {
