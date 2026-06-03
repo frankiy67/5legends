@@ -2142,10 +2142,11 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       if(hpbar) { hpbar.style.boxShadow='inset 0 0 20px rgba(231,76,60,0.9)'; setTimeout(()=>{hpbar.style.boxShadow='';},400); }
       const pbarEl = document.getElementById(`p${targetP}-bar`);
       if(pbarEl) { pbarEl.classList.add('direct-hit'); setTimeout(()=>pbarEl.classList.remove('direct-hit'),400); }
+      screenShake(atkVal >= 8);
       const orbEl = document.getElementById(`p${targetP}-orb`);
       showFloatDmg(atkVal, orbEl, '#ff4444');
       Audio5L.sfx.damage();
-      if(hasHeal) { Audio5L.sfx.heal(); AP.hp=Math.min(25,AP.hp+atkVal); addLog(`Heal — P${attackerP} +${atkVal} HP`,'heal'); }
+      if(hasHeal) { Audio5L.sfx.heal(); AP.hp=Math.min(25,AP.hp+atkVal); addLog(`Heal — P${attackerP} +${atkVal} HP`,'heal'); showFloatHeal(atkVal, document.getElementById(`p${attackerP}-orb`)); }
     } else {
       let def = DP.field[targetIdx];
       if(!def) return;
@@ -2910,6 +2911,29 @@ function showFloatDmg(amount, targetEl, color='#e74c3c') {
   el.style.top = (r.top + r.height/2 - 15) + 'px';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1200);
+}
+
+// Soin flottant +X vert (damageFloatAnim variante heal)
+function showFloatHeal(amount, targetEl) {
+  if(!targetEl) return;
+  const r = targetEl.getBoundingClientRect();
+  const el = document.createElement('div');
+  el.className = 'float-dmg float-heal';
+  el.textContent = '+' + amount;
+  el.style.left = (r.left + r.width/2 - 15) + 'px';
+  el.style.top = (r.top + r.height/2 - 15) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1200);
+}
+
+// Secousse d'écran (shakeScreenAnim) — gros coup
+function screenShake(big) {
+  const g = document.getElementById('game');
+  if(!g) return;
+  g.classList.remove('screen-shake','screen-shake-big');
+  void g.offsetHeight;
+  g.classList.add(big ? 'screen-shake-big' : 'screen-shake');
+  setTimeout(() => g.classList.remove('screen-shake','screen-shake-big'), big ? 500 : 350);
 }
 
 // UX #4: Shake animation on a field card element
@@ -3960,7 +3984,10 @@ function updateButtons() {
   // Bug #9 fix: hide End Turn and Next Phase during reaction window
   const locked=isAI||aiThinking||!ownTurn||G.inReaction;
   const btnNext=document.getElementById('btn-next'); if(btnNext) btnNext.disabled=locked;
-  const btnEnd=document.getElementById('btn-endturn'); if(btnEnd) btnEnd.disabled=locked;
+  const btnEnd=document.getElementById('btn-endturn'); if(btnEnd){ btnEnd.disabled=locked; btnEnd.classList.toggle('your-turn',!locked); }
+  // Highlight doré des emplacements jouables (ton tour, phase principale)
+  const gameEl=document.getElementById('game');
+  if(gameEl) gameEl.classList.toggle('placing', !locked && (G.phase==='Main1'||G.phase==='Main2'));
   // AI thinking overlay
   const aiOv=document.getElementById('ai-overlay');
   if(aiOv) aiOv.classList.toggle('visible', aiThinking);

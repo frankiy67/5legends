@@ -618,6 +618,21 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
 @keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}70%{opacity:1;transform:translateY(-52px) scale(1.2)}100%{opacity:0;transform:translateY(-84px) scale(.8)}}
 @keyframes godBurst{0%{opacity:1;transform:scale(.6) translateY(0)}45%{opacity:1;transform:scale(1.8) translateY(-28px)}100%{opacity:0;transform:scale(1) translateY(-55px);filter:blur(3px)}}
 @keyframes oppBanner{0%{opacity:0;transform:translate(-50%,-50%) scale(.8)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}70%{transform:translate(-50%,-50%) scale(1)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.95)}}
+/* soin flottant +X vert */
+.float-dmg.float-heal{color:#4eff8a!important;text-shadow:0 0 13px rgba(78,255,138,.85),1px 1px 3px rgba(0,0,0,.9)!important}
+/* secousse d'écran (GPU transform) */
+@keyframes screenShake{0%,100%{transform:translate(0,0)}20%{transform:translate(-4px,3px)}40%{transform:translate(4px,-3px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(3px,2px)}}
+@keyframes screenShakeBig{0%,100%{transform:translate(0,0)}15%{transform:translate(-9px,5px) rotate(-.4deg)}30%{transform:translate(9px,-5px) rotate(.4deg)}45%{transform:translate(-6px,4px)}60%{transform:translate(6px,-3px)}80%{transform:translate(-3px,2px)}}
+#game.screen-shake{animation:screenShake .35s ease-out}
+#game.screen-shake-big{animation:screenShakeBig .5s ease-out}
+/* END TURN — glow pulsant à ton tour */
+#btn-endturn.your-turn{color:var(--gold-bright);border-color:var(--gold);animation:btn-glow 2s ease-in-out infinite}
+/* emplacements jouables surlignés en or (ton terrain, ta phase) */
+#game.placing .bf1 .bf-slot{border-color:rgba(244,201,93,.4);box-shadow:inset 0 0 26px rgba(244,201,93,.16),0 0 10px rgba(244,201,93,.12);animation:slotPulse 1.9s ease-in-out infinite}
+@keyframes slotPulse{0%,100%{border-color:rgba(244,201,93,.28)}50%{border-color:rgba(244,201,93,.62)}}
+/* shield break — éclats */
+@keyframes shieldBreak{0%{opacity:1;transform:scale(.8) rotate(0)}40%{opacity:1;transform:scale(1.25) rotate(6deg);filter:brightness(2)}100%{opacity:0;transform:scale(1.5) rotate(-8deg)}}
+.shield-break{position:fixed;pointer-events:none;z-index:400;font-size:30px;animation:shieldBreak .55s ease-out forwards}
 .pbar.direct-hit{animation:pbar-hit .38s ease-out!important}
 @keyframes pbar-hit{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}35%{transform:translateX(8px)}55%{transform:translateX(-5px)}75%{transform:translateX(4px)}}
 /* annonce de tour */
