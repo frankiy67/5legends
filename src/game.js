@@ -889,7 +889,22 @@ function drawCard(p) {
 // PLAY CARD
 // =====================================================
 // Check if a card can be played anytime (not just main phase)
-const ANYTIME_CAPS_SET = new Set(["god_cancel_m","god_cancel_s_draw","god_cancel_ms","god_sleep","god_minus3_draw","god_minus2","god_blind_draw","god_buff3","god_blank11","god_steal","god_redirect","god_cancel_attack","fd_cancel_spell","fd_cancel_monster","fd_destroy_attacker","fd_blocker","fd_resurrect","fd_copy_monster","fd_minus4_all","fd_curse_draw"]);
+// FIX (C5) : ANYTIME_CAPS_SET est désormais RECONSTRUIT dynamiquement à partir
+// des cartes dont le texte contient "N'importe quand" + toutes les caps "fd_".
+// L'ancien Set codé en dur omettait ~18 dieux anytime (donc injouables en
+// réaction). Construit après la définition de GODS/MONSTERS.
+const ANYTIME_CAPS_SET = (() => {
+  const s = new Set();
+  const pools = [];
+  if (typeof GODS !== 'undefined')     for (const f in GODS)     pools.push(GODS[f]);
+  if (typeof MONSTERS !== 'undefined') for (const f in MONSTERS) pools.push(MONSTERS[f]);
+  for (const pool of pools) for (const card of pool) {
+    const cap = card.cap || '';
+    if ((card.txt || '').includes("N'importe quand")) s.add(cap);
+    if (cap.startsWith('fd_')) s.add(cap);
+  }
+  return s;
+})();
 
 function isAnytime(c) {
   return ANYTIME_CAPS_SET.has(c.cap||'') || (c.cap||'').startsWith('fd_');
