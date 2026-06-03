@@ -657,9 +657,121 @@ function initGame(f1, f2, mode) {
   }
   G.activeTurn = 1; // Player 1 starts
   addLog('⚔ Battle begins!', 'event');
-  renderAll();
   applyBattlefieldArt(f1, f2);
-  if(G.mode==='pve' && G.cp===2) setTimeout(aiTurn, 800);
+  // MULLIGAN : en sim (golden) on démarre direct (aucune consommation RNG
+  // supplémentaire → snapshot inchangé). Sinon, phase de mulligan avant le
+  // premier tour (IA automatique + invisible, humains via écran dédié).
+  if (mode === 'sim') {
+    renderAll();
+  } else {
+    startMulliganFlow();
+  }
+}
+
+// Démarre la partie pour de bon (après le mulligan éventuel).
+function beginPlay() {
+  renderAll();
+}
+
+// ── MULLIGAN ─────────────────────────────────────────────────────────────
+let _mulliganQueue = [];
+let _mulliganMarks = new Set();
+
+// Échange déterministe (règle Hearthstone) : on retire les cartes marquées de
+// la main, on pioche autant de cartes en tête du deck, PUIS on remet les
+// cartes jetées dans le deck et on remélange (impossible de repiocher tout de
+// suite une carte qu'on vient de jeter). Réutilise drawCard/shuffle existants.
+function mulliganReplace(p, indices) {
+  const P = G.players[p];
+  const idxSet = new Set((indices || []).filter(i => i >= 0 && i < P.hand.length));
+  if (idxSet.size === 0) return;
+  const setAside = [], keep = [];
+  P.hand.forEach((c, i) => (idxSet.has(i) ? setAside : keep).push(c));
+  P.hand = keep;
+  for (let k = 0; k < setAside.length; k++) drawCard(p);   // pioche en tête
+  P.deck.push(...setAside);                                // jetées remises au deck
+  P.deck = shuffle(P.deck);                                // remélange (RNG seedé)
+}
+
+// IA : jette automatiquement les cartes de coût > 4 (garde une courbe basse).
+function aiMulligan(p) {
+  const P = G.players[p];
+  const idx = [];
+  P.hand.forEach((c, i) => { if ((c.cost || 0) > 4) idx.push(i); });
+  if (idx.length) mulliganReplace(p, idx);
+}
+
+function startMulliganFlow() {
+  // Les joueurs contrôlés par l'IA mulliganent instantanément, sans écran.
+  for (let p = 1; p <= 2; p++) if (aiControls(p)) aiMulligan(p);
+  // Les humains passent par l'écran de mulligan, dans l'ordre.
+  _mulliganQueue = [];
+  for (let p = 1; p <= 2; p++) if (!aiControls(p)) _mulliganQueue.push(p);
+  showNextMulligan();
+}
+
+function showNextMulligan() {
+  if (_mulliganQueue.length === 0) { closeMulligan(); beginPlay(); return; }
+  _mulliganMarks = new Set();
+  renderMulligan(_mulliganQueue[0]);
+}
+
+function confirmMulligan() {
+  const p = _mulliganQueue.shift();
+  if (p != null) mulliganReplace(p, [..._mulliganMarks]);
+  _mulliganMarks = new Set();
+  showNextMulligan();
+}
+
+function closeMulligan() {
+  const el = document.getElementById('mulligan');
+  if (el) el.style.display = 'none';
+}
+
+function renderMulligan(p) {
+  const P = G.players[p];
+  const overlay = document.getElementById('mulligan');
+  const cont = document.getElementById('mull-cards');
+  if (!overlay || !cont) { closeMulligan(); beginPlay(); return; }
+  // Titre adapté en hot-seat (2 humains)
+  const titleEl = document.getElementById('mull-title');
+  if (titleEl) titleEl.textContent = (G.mode === 'pvp')
+    ? `JOUEUR ${p} — CHOISIS TA MAIN DE DÉPART`
+    : 'CHOISIS TA MAIN DE DÉPART';
+  cont.innerHTML = '';
+  P.hand.forEach((c, i) => {
+    const imgSrc = getCardImage(c.id || '');
+    const isAnytimeC = isAnytime(c);
+    const typeLabel = isAnytimeC ? '⚡ ANYTIME'
+      : c.type === 'god' ? '⚡ Dieu' : c.type === 'spell' ? '✨ Sort' : '🐉 Monstre';
+    const div = document.createElement('div');
+    div.className = 'mull-card' + (_mulliganMarks.has(i) ? ' marked' : '');
+    div.dataset.i = i;
+    div.dataset.faction = c.faction || P.faction;
+    div.dataset.rarity = c.rarity || (c.type === 'god' ? 'god' : 'common');
+    div.innerHTML = `
+      <div class="mull-frame">
+        <div class="mull-art">
+          ${imgSrc
+            ? `<img src="${imgSrc}" alt="${c.n}" loading="lazy">`
+            : `<div class="art-placeholder"><span class="ap-icon">${c.type === 'spell' ? '✨' : c.type === 'god' ? '⚡' : FE[c.faction || P.faction]}</span><span class="ap-name">${c.n}</span><span class="ap-soon">illustration à venir</span></div>`}
+        </div>
+        <div class="mull-band">${c.n}</div>
+        <div class="mull-info">
+          <div class="mull-type">${typeLabel}</div>
+          <div class="mull-txt">${c.txt || ''}</div>
+        </div>
+        <div class="mull-cost">${c.cost}</div>
+        ${c.type === 'monster' ? `<div class="mull-atk">${c.atk}</div><div class="mull-def">${c.def}</div>` : ''}
+      </div>
+      <div class="mull-mark">↻</div>`;
+    div.onclick = () => {
+      if (_mulliganMarks.has(i)) _mulliganMarks.delete(i); else _mulliganMarks.add(i);
+      div.classList.toggle('marked');
+    };
+    cont.appendChild(div);
+  });
+  overlay.style.display = 'flex';
 }
 
 
@@ -4368,6 +4480,8 @@ document.getElementById('start-btn').addEventListener('click', () => {
   document.getElementById('game').style.display = 'grid';
   initGame(setupP1, setupP2, mode);
 });
+
+document.getElementById('mull-confirm').addEventListener('click', confirmMulligan);
 
 document.getElementById('btn-next').addEventListener('click',nextPhase);
 document.getElementById('btn-endturn').addEventListener('click',endTurn);
