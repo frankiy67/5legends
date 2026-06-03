@@ -270,6 +270,35 @@ const B64_IMAGES = {};
     B64_IMAGES[id] = `./assets/cards/${faction}/${filename}.jpeg`;
     B64_IMAGES[id.charAt(0) + id.slice(1).toLowerCase()] = `./assets/cards/${faction}/${filename}.jpeg`;
   }
+
+  // ── Dieux/cartes ajoutés après coup (commit « 70 dieux ») : leurs IDs
+  // n'étaient jamais entrés dans FACTION_MAP → illustration cassée. On mappe
+  // explicitement vers le fichier réel (alias quand le nom diffère). ──────
+  const EXTRA = {
+    // Fichier exact présent, simplement absent de FACTION_MAP
+    APHRODITE:'greek/aphrodite', BASTET:'egyptian/bastet', BRAGI:'norse/bragi',
+    CENTEOTL:'aztec/centeotl', COATLICUE:'aztec/coatlicue', COYOLXAUHQUI:'aztec/coyolxauhqui',
+    DEMETER:'greek/demeter', EHECATL:'aztec/ehecatl', FRIGG:'norse/frigg', GEB:'egyptian/geb',
+    HACHIMAN:'yokai/hachiman', HERA:'greek/hera', HERMES:'greek/hermes', HODER:'norse/hoder',
+    IDUNN:'norse/idunn', KAGUTSUCHI:'yokai/kagutsuchi', OMAIKANE:'yokai/omaikane',
+    PTAH:'egyptian/ptah', RYUJIN:'yokai/ryujin', SARUTAHIKO:'yokai/sarutahiko',
+    SEKHMET:'egyptian/sekhmet', ULLR:'norse/ullr', VALI:'norse/vali',
+    // Monstres grecs nommés en français → fichiers en anglais
+    CENTAURE:'greek/centaur', CERBERE:'greek/cerberus', CHIMERE:'greek/chimera',
+    CYCLOPE:'greek/cyclop', GORGONE:'greek/gorgon', HYDRE:'greek/hydra',
+    MINOTAURE:'greek/minotaur', SATYRE:'greek/satyr', SIRENES:'greek/siren',
+    // Alias (nom de fichier différent du nom de carte)
+    APOLLON:'greek/apollo', DIONYSOS:'greek/dionysus', THOTH:'egyptian/toth',
+    SET:'egyptian/seth', KHONSU:'egyptian/khnum', TENJIN:'yokai/tengin',
+    XIPE_TOTEC:'aztec/xipetotec', TLALTECUHTLI_S:'aztec/tlaltecuhtli',
+    LION_NEMEE:'greek/liondenemee',
+  };
+  for (const [id, rel] of Object.entries(EXTRA)) {
+    const p = `./assets/cards/${rel}.jpeg`;
+    B64_IMAGES[id] = p;
+    B64_IMAGES[id.toUpperCase().replace(/-/g,'').replace(/_/g,'')] = p;
+    B64_IMAGES[id.charAt(0) + id.slice(1).toLowerCase()] = p;
+  }
 })();
 
 // ÉTAPE 2 : lookup function pour les images base64
@@ -3958,7 +3987,7 @@ function renderField(p) {
             <div class="fc-art">
               ${imgSrc
                 ?`<img src="${imgSrc}" alt="${m.n}" loading="lazy">`
-                :`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:38px">${FE[m.faction||P.faction]}</div>`
+                :`<div class="art-placeholder"><span class="ap-icon">${FE[m.faction||P.faction]}</span><span class="ap-name">${m.n}</span><span class="ap-soon">illustration à venir</span></div>`
               }
             </div>
             <div class="fc-info">
@@ -4086,7 +4115,7 @@ function renderHand() {
     div.innerHTML=`
       <div class="hc-frame-inner">
         <div class="hc-art">
-          ${imgSrc?`<img src="${imgSrc}" alt="${c.n}" loading="lazy">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px;color:rgba(244,201,93,.5)">${c.type==='spell'?'✨':c.type==='god'?'⚡':FE[c.faction||P.faction]}</div>`}
+          ${imgSrc?`<img src="${imgSrc}" alt="${c.n}" loading="lazy">`:`<div class="art-placeholder"><span class="ap-icon">${c.type==='spell'?'✨':c.type==='god'?'⚡':FE[c.faction||P.faction]}</span><span class="ap-name">${c.n}</span><span class="ap-soon">illustration à venir</span></div>`}
         </div>
         <div class="hc-name-band">${c.n}</div>
         <div class="hc-bottom">
