@@ -15,7 +15,10 @@ package-lock.json
 # Build artifacts
 dist/
 *.zip
+
+# Original card images (heavy — never push)
 5 legends cartes/
+5legends cartes/
 _originaux/
-5 legends cartes/
-_originaux/
+tools/golden_snapshot*.json
+tools/node_modules/
