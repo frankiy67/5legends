@@ -783,7 +783,7 @@ function doEndTurn() {
   G.selAtk=null;
 
   const NP = G.players[G.cp];
-  NP.maxGems = Math.min(6, (NP.maxGems || 0) + 1);
+  NP.maxGems = Math.min(10, (NP.maxGems || 0) + 1);
   NP.gems = NP.maxGems;
   Audio5L.sfx.mana();
   NP.attacked = new Set();
