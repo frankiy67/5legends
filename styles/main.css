@@ -527,9 +527,13 @@ body{
 .btn.primary:disabled{animation:none}
 .btn.primary:hover:not(:disabled){box-shadow:inset 0 1px 0 rgba(255,225,138,.4),0 0 30px rgba(244,201,93,.6),0 4px 12px rgba(0,0,0,.6)}
 
-/* preview latéral */
+/* preview latéral — carte détail en grand, cadre doré complet */
 .side-preview{border-bottom:1px solid var(--brd)}
-#spv-img{width:100%;height:auto;max-height:300px;object-fit:contain;display:none;border-radius:8px;background:rgba(0,0,0,.3);box-shadow:var(--shadow-card)}
+#spv-img{width:100%;height:auto;max-height:300px;object-fit:contain;display:none;border-radius:10px;
+  background:rgba(0,0,0,.3);
+  border:3px solid transparent;
+  border-image:linear-gradient(150deg,#ffe9a8,#e0b040 30%,#b8862f 55%,#4a2e08) 1;
+  box-shadow:var(--shadow-card),0 0 18px var(--fac-soft,rgba(244,201,93,.25)),inset 0 0 0 1px rgba(255,233,168,.3)}
 #spv-img.visible{display:block}
 #spv-name{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold-bright);padding:8px 12px 0}
 .cpv-tag{font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:.5px;display:inline-block}
@@ -541,8 +545,18 @@ body{
 /* log avec icônes + couleurs */
 .log-wrap{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:10px 12px}
 #log{flex:1;overflow-y:auto;font-family:'Spectral',serif;font-size:10.5px;line-height:1.65}
-.log-e{padding:2px 0 2px 2px;border-bottom:1px solid rgba(255,255,255,.03);display:flex;gap:6px;align-items:baseline}
+.log-e{padding:3px 4px 3px 7px;border-bottom:1px solid rgba(255,255,255,.03);display:flex;gap:6px;align-items:baseline;
+  border-left:2px solid transparent;border-radius:0 4px 4px 0;transition:background .15s}
+.log-e:hover{background:rgba(255,255,255,.035)}
 .log-ico{flex-shrink:0;font-size:10px;opacity:.85}
+/* accent gauche coloré par type */
+.log-e.dmg{border-left-color:#ff6b60}
+.log-e.heal{border-left-color:#4eff8a}
+.log-e.summon{border-left-color:#c77dff}
+.log-e.event,.log-e.special{border-left-color:var(--gold-bright)}
+.log-e.buff{border-left-color:#4aa3ff}
+.log-e.debuff,.log-e.warn{border-left-color:#f0a014}
+.log-e.turn{border-left-color:var(--gold)}
 .log-e.event{color:var(--gold-bright)}
 .log-e.summon{color:#c77dff}
 .log-e.dmg{color:#ff6b60}
