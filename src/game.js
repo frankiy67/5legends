@@ -1639,6 +1639,463 @@ function showGodBurst(p) {
   setTimeout(() => el.remove(), 700);
 }
 
+// ════════════════════════════════════════════════════════════════════
+// DISPATCH COMPOSABLE DES DIEUX — map cap -> handler (remplace la chaîne
+// else-if de playGod). Chaque handler = {c,p,opp,cap}. Un handler qui
+// renvoie 'noDiscard' indique que la carte ne doit pas être défaussée
+// (déjà placée/équipée/rendue à la main), reproduisant les `return;` d'origine.
+// async UNIQUEMENT si le corps contient un await (timing préservé via
+// runEffects-like conditional-await dans playGod).
+// ════════════════════════════════════════════════════════════════════
+const GOD_EFFECTS = {};
+GOD_EFFECTS["god_minus3_draw"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('minus3',p,false); drawCard(p); addLog(`Draw 1`,'buff'); };
+GOD_EFFECTS["god_cancel_m"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    // Bug #2 fix: actually cancel the monster on the stack
+    const stackM = G.stack && G.stack.find(s=>s.type==='monster');
+    if(stackM) {
+      G.stack = G.stack.filter(s=>s.type!=='monster');
+      addLog(`${c.n} — ${stackM.card.n} COUNTERED!`,'special');
+    } else if(G.lastPlayedByOpp && G.lastPlayedByOpp.type==='monster') {
+      const oppP=p===1?2:1;
+      const idx=G.players[oppP].field.indexOf(G.lastPlayedByOpp);
+      if(idx>=0){ G.players[oppP].field.splice(idx,1); G.players[oppP].graveyard.push(G.lastPlayedByOpp); addLog(`${c.n} — ${G.lastPlayedByOpp.n} CANCELLED!`,'special'); G.lastPlayedByOpp=null; }
+    } else { addLog(`${c.n} — No monster to counter`,'special'); }
+  };
+GOD_EFFECTS["god_create2"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    for(let i=0;i<2&&G.players[p].field.length<6;i++) {
+      const t=newCard({id:'T',n:'0/2 Protect',atk:0,def:2,cost:0,type:'monster',cap:'protect',txt:'Protect'});
+      t.cAtk=0;t.cDef=2; G.players[p].field.push(t);
+    }
+    addLog(`Izanagi — 2 blank 0/2 Protect tokens`,'event');
+  };
+GOD_EFFECTS["god_equip_return"] = async (ctx) => { const {c,p,opp,cap}=ctx;
+    await pickTarget('equip_return', p, false, c);
+  };
+GOD_EFFECTS["god_cancel_s_draw"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const stackS = G.stack && G.stack.find(s=>s.type==='spell');
+    if(stackS) {
+      G.stack = G.stack.filter(s=>s.type!=='spell');
+      addLog(`${c.n} — ${stackS.card.n} COUNTERED!`,'special');
+    } else if(G.lastPlayedSpell) {
+      addLog(`${c.n} — ${G.lastPlayedSpell.n} cancelled`,'special'); G.lastPlayedSpell=null;
+    } else { addLog(`${c.n} — No spell to counter`,'special'); }
+    drawCard(p);
+  };
+GOD_EFFECTS["god_susanoo"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('destroy', p, false); };
+GOD_EFFECTS["god_sleep"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('sleep', p, false); };
+GOD_EFFECTS["god_steal"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('steal', p, false); };
+GOD_EFFECTS["god_balder"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    G.players[p].balderActive=true;
+    G.players[p].field.forEach(m=>{ if(m) m.balder=true; });
+    addLog(`Balder — Your monsters create 2/2 on death!`,'buff');
+    G.players[p].graveyard.push(c); return 'noDiscard';
+  };
+GOD_EFFECTS["god_minus2"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('minus2', p, false); };
+GOD_EFFECTS["god_cancel_ms"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    if(G.stack && G.stack.length>0) {
+      const entry=G.stack[0]; G.stack=[];
+      addLog(`${c.n} — ${entry.card.n} COUNTERED!`,'special');
+    } else { addLog(`${c.n} — Nothing on stack to counter`,'special'); }
+  };
+GOD_EFFECTS["god_swap"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('swap', p, false); };
+GOD_EFFECTS["god_odin"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const my=G.players[p].field.length, op=G.players[opp].field.length;
+    if(my>op) { for(let i=0;i<my-op;i++) { const m=G.players[p].field.pop(); G.players[p].graveyard.push(m); addLog(`Odin — You sacrifice ${m.n}`); } }
+    else if(op>my) { for(let i=0;i<op-my;i++) { const m=G.players[opp].field.shift(); G.players[opp].graveyard.push(m); addLog(`Odin — Opp sacrifices ${m.n}`); } }
+    addLog(`Odin — Fields equalized!`,'event');
+  };
+GOD_EFFECTS["god_thor"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    if(G.players[opp].field.length>0) {
+      const m=G.players[opp].field.shift(); G.players[opp].graveyard.push(m);
+      addLog(`Thor — Opponent sacrifices ${m.n}!`,'event');
+    }
+  };
+GOD_EFFECTS["god_blank11"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('blank11', p, false); };
+GOD_EFFECTS["god_blind_draw"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('blind', p, false); drawCard(p); };
+GOD_EFFECTS["god_force_attack"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('force_attack', p, false); };
+GOD_EFFECTS["god_copy"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('copy', p, false); };
+GOD_EFFECTS["god_buff3"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('buff3', p, false); };
+GOD_EFFECTS["god_osiris"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const specs=[{cap:'hurry',txt:'Hurry'},{cap:'hit',txt:'Hit'},{cap:'',txt:'Normal'}];
+    specs.forEach(s=>{
+      if(G.players[p].field.length<6){
+        const t=newCard({id:'T',n:`2/2 ${s.txt}`,atk:2,def:2,cost:0,type:'monster',cap:s.cap,txt:s.txt});
+        t.cAtk=2;t.cDef=2; G.players[p].field.push(t);
+      }
+    });
+    addLog(`Osiris — 3 blank 2/2 Monsters!`,'event');
+  };
+GOD_EFFECTS["god_equip_minus2"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('equip_seth', p, false, c); return 'noDiscard'; };
+GOD_EFFECTS["god_sandup2_draw"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('sandup', p, false); await pickTarget('sandup', p, false); drawCard(p); addLog(`Toth — Draw 1`,'buff'); };
+GOD_EFFECTS["god_mutual_sacrifice"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    for(let pl=1;pl<=2;pl++) {
+      if(G.players[pl].field.length>0) {
+        const m=G.players[pl].field.shift(); G.players[pl].graveyard.push(m);
+        addLog(`${c.n} — P${pl} sacrifices ${m.n}`,'event');
+      }
+    }
+  };
+GOD_EFFECTS["god_bewitch_draw"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('bewitch', p, false); drawCard(p); };
+GOD_EFFECTS["god_minus4_all"] = async (ctx) => { const {c,p,opp,cap}=ctx;
+    [1,2].forEach(pl=>G.players[pl].field.forEach(m=>{if(m){m.cDef=Math.max(0,m.cDef-4);}}));
+    addLog(`${c.n} — −4 shield ALL!`,'dmg');
+    await checkAllDeaths();
+  };
+GOD_EFFECTS["god_resurrect"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const grave=G.players[p].graveyard.filter(x=>x.type==='monster');
+    if(grave.length>0&&G.players[p].field.length<6){
+      const m=grave[grave.length-1];
+      G.players[p].graveyard.splice(G.players[p].graveyard.lastIndexOf(m),1);
+      m.cAtk=m.atk;m.cDef=m.def;m.endureUsed=false;m.cursed=false;
+      G.players[p].field.push(m);
+      addLog(`${c.n} — ${m.n} resurrected!`,'event');
+    }
+  };
+GOD_EFFECTS["god_cancel_attack"] = (ctx) => { const {c,p,opp,cap}=ctx; addLog(`${c.n} — Attack cancelled! +HP`,'special'); G.players[p].hp=Math.min(25,G.players[p].hp+3); drawCard(p); };
+GOD_EFFECTS["god_redirect"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('redirect', p, false); };
+GOD_EFFECTS["god_destroy_ms"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('destroy', p, false); };
+GOD_EFFECTS["god_cancel_m_steal"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    // Amaterasu: cancel + steal
+    const stackM2 = G.stack && G.stack.find(s=>s.type==='monster');
+    if(stackM2) {
+      G.stack = G.stack.filter(s=>s.type!=='monster');
+      const stolen = stackM2.card;
+      if(G.players[p].field.length<6) {
+        const s2 = newCard({...stolen}); s2.cAtk=stolen.atk; s2.cDef=stolen.def;
+        G.players[p].field.push(s2);
+        addLog(`${c.n} — ${stolen.n} annulé et invoqué sur votre terrain!`,'special');
+      }
+    } else { addLog(`${c.n} — Rien à annuler`,'special'); }
+  };
+GOD_EFFECTS["god_heal_all"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    G.players[p].field.forEach(m=>{ if(m&&!m.faceDown) { m.cDef=m.def; } });
+    addLog(`${c.n} — Tous les monstres soignés!`,'heal');
+    Audio5L.sfx.heal();
+  };
+GOD_EFFECTS["god_resurrect2"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const grave2 = G.players[p].graveyard.filter(x=>x.type==='monster'&&x.cost<=5);
+    const toRes = grave2.slice(-2);
+    for(const res2 of toRes) {
+      G.players[p].graveyard.splice(G.players[p].graveyard.lastIndexOf(res2),1);
+      G.players[p].hand.push(res2);
+    }
+    addLog(`${c.n} — ${toRes.length} monstre(s) retourné(s) en main!`,'event');
+  };
+GOD_EFFECTS["god_discard_hand_monster"] = async (ctx) => { const {c,p,opp,cap}=ctx;
+    if(aiControls(p)) {
+      const oppHand = G.players[opp].hand.filter(x=>x.type==='monster');
+      if(oppHand.length>0) {
+        const disc = oppHand.reduce((a,b)=>a.cost>b.cost?a:b);
+        G.players[opp].hand.splice(G.players[opp].hand.indexOf(disc),1);
+        G.players[opp].graveyard.push(disc);
+        addLog(`${c.n} — ${disc.n} défaussé de la main adverse!`,'event');
+      }
+    } else { await pickTarget('discard_hand_monster',p,false); }
+  };
+GOD_EFFECTS["god_dmg3_or_6"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('dmg3or6',p,false); };
+GOD_EFFECTS["god_sacrifice_opp_draw2"] = async (ctx) => { const {c,p,opp,cap}=ctx;
+    if(G.players[opp].field.length>0) {
+      const biggest = G.players[opp].field.filter(x=>x&&!x.faceDown).reduce((a,b)=>a.cAtk>b.cAtk?a:b,null);
+      if(biggest) {
+        const bIdx = G.players[opp].field.indexOf(biggest);
+        await handleDeath(opp,biggest);
+        addLog(`${c.n} — ${biggest.n} sacrifié!`,'event');
+      }
+    }
+    drawCard(p); drawCard(p);
+    addLog(`${c.n} — Piochez 2!`,'buff');
+  };
+GOD_EFFECTS["god_equalize_board_hand"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const myF=G.players[p].field.length, opF=G.players[opp].field.length;
+    if(myF>opF) for(let i=0;i<myF-opF;i++) { const m3=G.players[p].field.pop(); G.players[p].graveyard.push(m3); }
+    else if(opF>myF) for(let i=0;i<opF-myF;i++) { const m3=G.players[opp].field.shift(); G.players[opp].graveyard.push(m3); }
+    addLog(`${c.n} — Terrains équilibrés!`,'event');
+  };
+GOD_EFFECTS["god_draw_per_faction"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const myCt = G.players[p].field.filter(m=>m&&m.faction===G.players[p].faction).length;
+    for(let i=0;i<myCt;i++) drawCard(p);
+    addLog(`${c.n} — Piochez ${myCt}!`,'buff');
+  };
+GOD_EFFECTS["god_5life_3faction"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const factionCounts = {};
+    G.players[p].field.filter(m=>m).forEach(m=>{ factionCounts[m.faction]=(factionCounts[m.faction]||0)+1; });
+    const has3 = Object.values(factionCounts).some(n=>n>=3);
+    if(has3) { G.players[p].hp=Math.min(25,G.players[p].hp+5); drawCard(p); addLog(`${c.n} — +5 PV + Pioche!`,'heal'); }
+    else { addLog(`${c.n} — Condition non remplie`,'special'); G.players[p].hand.push(c); G.players[p].gems+=c.cost; return 'noDiscard'; }
+  };
+GOD_EFFECTS["god_cancel_ms_cap"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('cancel_ms',p,false); };
+GOD_EFFECTS["god_cancel_attack_heal"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    // Osiris: cancel attack + heal
+    addLog(`${c.n} — Attaque annulée!`,'special');
+    // This is an anytime — handled when player uses it during reaction
+  };
+GOD_EFFECTS["god_force_fight"] = async (ctx) => { const {c,p,opp,cap}=ctx;
+    const oppField4 = G.players[opp].field.filter(x=>x&&!x.faceDown);
+    if(oppField4.length>=2) {
+      const atker = oppField4.reduce((a,b)=>a.cAtk>b.cAtk?a:b);
+      const victim = oppField4.filter(x=>x!==atker).reduce((a,b)=>a.cDef<b.cDef?a:b);
+      victim.cDef = Math.max(0,victim.cDef-atker.cAtk);
+      addLog(`${c.n} — ${atker.n}(${atker.cAtk}) forcé à attaquer ${victim.n}!`,'event');
+      if(victim.cDef<=0) await handleDeath(opp,victim);
+    }
+  };
+GOD_EFFECTS["god_copy_bonus"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('copy',p,false); };
+GOD_EFFECTS["god_destroy_low_all"] = async (ctx) => { const {c,p,opp,cap}=ctx;
+    const toDestroy = [];
+    [1,2].forEach(pl=>G.players[pl].field.forEach(m=>{ if(m&&!m.faceDown&&m.cDef<=5) toDestroy.push({pl,m}); }));
+    for(const {pl,m} of toDestroy) await handleDeath(pl,m);
+    addLog(`${c.n} — Tous les monstres DEF≤5 détruits!`,'dmg');
+  };
+GOD_EFFECTS["god_cancel_spell_draw"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('cancel_ms',p,false); drawCard(p); };
+GOD_EFFECTS["god_3shield_attacks"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    // Hestia: permanent 3-shield
+    const hestiaToken = newCard({id:'HESTIA_TOKEN',n:'Hestia (3 boucliers)',atk:0,def:0,cost:0,type:'monster',cap:'hestia_passive',txt:'Annule 3 attaques adverses',rarity:'rare'});
+    hestiaToken.cAtk=0; hestiaToken.cDef=0; hestiaToken._hestiaShields=3;
+    if(G.players[p].field.length<6) G.players[p].field.push(hestiaToken);
+    addLog(`${c.n} — 3 boucliers anti-attaque!`,'event');
+    G.players[p].graveyard.push(c); return 'noDiscard';
+  };
+GOD_EFFECTS["god_bounce_1or2"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('bounce',p,false); };
+GOD_EFFECTS["god_double_atk"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('buff_dbl_atk',p,false); };
+GOD_EFFECTS["god_destroy_ms_bonus"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('destroy',p,false); };
+GOD_EFFECTS["god_draw4_cheaper"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    for(let i=0;i<4;i++) drawCard(p);
+    addLog(`${c.n} — Piochez 4!`,'buff');
+  };
+GOD_EFFECTS["god_steal_spell_monster"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const stackAny = G.stack && G.stack[0];
+    if(stackAny) {
+      G.stack=[];
+      G.players[p].hand.push(stackAny.card);
+      addLog(`${c.n} — ${stackAny.card.n} annulé et mis en main!`,'special');
+    } else { addLog(`${c.n} — Rien sur la pile`,'special'); }
+  };
+GOD_EFFECTS["god_all_opp_atk1"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    G.players[opp].field.filter(m=>m&&!m.faceDown).forEach(m=>{ m._origAtk=m.cAtk; m.cAtk=1; m._atk1Until=G.turn+1; });
+    addLog(`${c.n} — ATK adverses → 1!`,'event');
+  };
+GOD_EFFECTS["god_5life_draw"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    G.players[p].hp=Math.min(25,G.players[p].hp+5);
+    drawCard(p);
+    addLog(`${c.n} — +5 PV + Pioche!`,'heal');
+    Audio5L.sfx.heal();
+  };
+GOD_EFFECTS["god_scrye4_draw"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    // Ebisu: look at top 4, reorder, draw 1
+    const P4 = G.players[p];
+    const top4 = P4.deck.splice(0, 4);
+    // AI: just put best card first; Human: simplified - draw the best
+    top4.sort((a,b) => (b.cost||0)-(a.cost||0));
+    P4.hand.push(top4.shift());
+    P4.deck.unshift(...top4);
+    addLog(`${c.n} — Scrye 4, pioche 1!`,'buff');
+    Audio5L.sfx.draw();
+  };
+GOD_EFFECTS["god_steal_temp_perm"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('steal', p, false); };
+GOD_EFFECTS["god_swap_hands"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const h1=[...G.players[1].hand], h2=[...G.players[2].hand];
+    const bigger = h1.length >= h2.length ? h1.length : h2.length;
+    G.players[1].hand=[...h2]; G.players[2].hand=[...h1];
+    // Draw to bigger size
+    while(G.players[p].hand.length < bigger && G.players[p].deck.length > 0) drawCard(p);
+    addLog(`${c.n} — Échange de mains!`,'event');
+  };
+GOD_EFFECTS["god_redirect_to_monster"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    addLog(`${c.n} — Attaque redirigée vers un monstre adverse!`,'special');
+    // Handled during reaction window
+  };
+GOD_EFFECTS["god_draft4"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const P5 = G.players[p];
+    const drawn = P5.deck.splice(0, 4);
+    if(drawn.length > 0) {
+      // AI picks best for opponent; simplified: player keeps first
+      const kept = drawn[0];
+      P5.hand.push(kept);
+      drawn.slice(1).forEach(x => P5.graveyard.push(x));
+      addLog(`${c.n} — Draft: ${kept.n} en main!`,'event');
+    }
+  };
+GOD_EFFECTS["god_atk5_buff"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('buff_atk5', p, false); };
+GOD_EFFECTS["god_dmg3"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('dmg3', p, false); };
+GOD_EFFECTS["god_copy_spell"] = (ctx) => { const {c,p,opp,cap}=ctx; addLog(`${c.n} — Copie le sort adverse!`,'special'); };
+GOD_EFFECTS["god_recover_1or2"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const grave3 = G.players[p].graveyard;
+    if(grave3.length > 0) {
+      const found2 = grave3.pop();
+      G.players[p].hand.push(found2);
+      addLog(`${c.n} — ${found2.n} retourné en main!`,'event');
+    }
+  };
+GOD_EFFECTS["god_search2_cost2"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const found3 = G.players[p].deck.filter(x=>x.type==='monster'&&x.cost<=2).slice(0,2);
+    found3.forEach(x => {
+      G.players[p].deck.splice(G.players[p].deck.indexOf(x),1);
+      G.players[p].hand.push(x);
+    });
+    addLog(`${c.n} — ${found3.length} monstre(s) cherché(s)!`,'event');
+  };
+GOD_EFFECTS["god_discard2_random"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    for(let i=0;i<2&&G.players[opp].hand.length>0;i++) {
+      const ri=Math.floor(rng()*G.players[opp].hand.length);
+      const disc2=G.players[opp].hand.splice(ri,1)[0];
+      G.players[opp].graveyard.push(disc2);
+      addLog(`${c.n} — ${disc2.n} défaussé!`,'event');
+    }
+  };
+GOD_EFFECTS["god_sacrifice_ms"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    if(G.players[opp].field.length>0) {
+      const m4=G.players[opp].field.shift(); G.players[opp].graveyard.push(m4);
+      addLog(`${c.n} — ${m4.n} sacrifié!`,'event');
+    }
+  };
+GOD_EFFECTS["god_equip_draw_attack"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('equip_draw_attack', p, false, c); return 'noDiscard'; };
+GOD_EFFECTS["god_equip_2shield"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('equip_2shield', p, false, c); return 'noDiscard'; };
+GOD_EFFECTS["god_swap_hand_field"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const handMonsters = G.players[p].hand.filter(x=>x.type==='monster'&&x.faction===G.players[p].faction);
+    const fieldMonsters = G.players[p].field.filter(x=>x&&!x.faceDown);
+    if(handMonsters.length>0 && fieldMonsters.length>0) {
+      const hm = handMonsters[0];
+      const fm = fieldMonsters[0];
+      G.players[p].hand.splice(G.players[p].hand.indexOf(hm),1);
+      G.players[p].field.splice(G.players[p].field.indexOf(fm),1,hm);
+      G.players[p].hand.push(fm);
+      addLog(`${c.n} — ${hm.n} ↔ ${fm.n}!`,'event');
+    }
+  };
+GOD_EFFECTS["god_draw2_free_if_solo"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    drawCard(p); drawCard(p);
+    addLog(`${c.n} — Piochez 2!`,'buff');
+  };
+GOD_EFFECTS["god_draw_if_ally_dies"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    G.players[p]._gebActive = true;
+    addLog(`${c.n} — Si un allié meurt ce tour, piochez 1!`,'event');
+    G.players[p].graveyard.push(c); return 'noDiscard';
+  };
+GOD_EFFECTS["god_sacrifice_search_plus1"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    if(G.players[p].field.length>0) {
+      const sacrificed = G.players[p].field.shift();
+      G.players[p].graveyard.push(sacrificed);
+      const targetCost = (sacrificed.cost||0)+1;
+      const found4 = G.players[p].deck.find(x=>x.type==='monster'&&x.cost===targetCost);
+      if(found4 && G.players[p].field.length<6) {
+        G.players[p].deck.splice(G.players[p].deck.indexOf(found4),1);
+        found4.cAtk=found4.atk; found4.cDef=found4.def;
+        G.players[p].field.push(found4);
+        addLog(`${c.n} — ${sacrificed.n} sacrifié → ${found4.n} invoqué!`,'event');
+      }
+    }
+  };
+GOD_EFFECTS["god_draft6"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const top6 = G.players[p].deck.splice(0,6);
+    // Simple: player keeps first 3
+    const keep = top6.slice(0,3);
+    keep.forEach(x => G.players[p].hand.push(x));
+    top6.slice(3).forEach(x => G.players[p].graveyard.push(x));
+    addLog(`${c.n} — Draft 6: ${keep.map(x=>x.n).join(', ')} en main!`,'event');
+  };
+GOD_EFFECTS["god_equip_discard_attack"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('equip_discard_attack', p, false, c); return 'noDiscard'; };
+GOD_EFFECTS["god_tokens22_faction"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const myField3 = G.players[p].field.filter(x=>x&&!x.faceDown&&x.faction===G.players[p].faction);
+    myField3.forEach(()=>{
+      if(G.players[p].field.length<6) {
+        const tok3=newCard({id:'TOKEN22',n:'Jeton 2/2',atk:2,def:2,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:G.players[p].faction});
+        tok3.cAtk=2; tok3.cDef=2; G.players[p].field.push(tok3);
+      }
+    });
+    addLog(`${c.n} — ${myField3.length} jeton(s) 2/2!`,'event');
+  };
+GOD_EFFECTS["god_search_monster"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const found5 = G.players[p].deck.find(x=>x.type==='monster');
+    if(found5) {
+      G.players[p].deck.splice(G.players[p].deck.indexOf(found5),1);
+      G.players[p].hand.push(found5);
+      addLog(`${c.n} — ${found5.n} trouvé!`,'event');
+    }
+  };
+GOD_EFFECTS["god_equip_resurrect"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('equip_resurrect', p, false, c); return 'noDiscard'; };
+GOD_EFFECTS["god_draw3_discard2"] = (ctx) => { const {c,p,opp,cap}=ctx; drawCard(p); drawCard(p); drawCard(p); while(G.players[p].hand.length>7) G.players[p].graveyard.push(G.players[p].hand.pop()); addLog(`${c.n} — Pioche 3, défausse 2!`,'buff'); };
+GOD_EFFECTS["god_halve_atk"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('halve_atk', p, false); };
+GOD_EFFECTS["god_equip_bounce_attack"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('equip_bounce', p, false, c); return 'noDiscard'; };
+GOD_EFFECTS["god_tokens_protect"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const count2 = G.players[p].field.filter(x=>x).length === 0 ? 2 : 4;
+    const tokStats = G.players[p].field.filter(x=>x).length === 0 ? {a:2,d:2} : {a:0,d:2};
+    for(let i=0;i<count2&&G.players[p].field.length<6;i++) {
+      const tok4=newCard({id:'DEMETER_TOK',n:`${tokStats.a}/${tokStats.d} Protection`,atk:tokStats.a,def:tokStats.d,cost:0,type:'monster',cap:'protect',txt:'Protection',rarity:'common',faction:G.players[p].faction});
+      tok4.cAtk=tokStats.a; tok4.cDef=tokStats.d; G.players[p].field.push(tok4);
+    }
+    addLog(`${c.n} — ${count2} jeton(s) Protection!`,'event');
+  };
+GOD_EFFECTS["god_swap_monsters"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('swap', p, false); };
+GOD_EFFECTS["god_discard_per_faction"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const myFact = G.players[p].field.filter(x=>x&&!x.faceDown&&x.faction===G.players[p].faction).length;
+    for(let i=0;i<myFact&&G.players[opp].hand.length>0;i++) {
+      const ri2=Math.floor(rng()*G.players[opp].hand.length);
+      const disc3=G.players[opp].hand.splice(ri2,1)[0];
+      G.players[opp].graveyard.push(disc3);
+      addLog(`${c.n} — ${disc3.n} défaussé!`,'event');
+    }
+  };
+GOD_EFFECTS["fd_draw3_no_dmg"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    // Hera: face-down - handled as passive token
+    const m5=newCard({...c, faceDown:true});
+    G.players[p].field.push(m5);
+    G.players[p].summoned.add(G.players[p].field.length-1);
+    addLog(`${c.n} — Entre face caché!`,'event');
+    return 'noDiscard';
+  };
+GOD_EFFECTS["god_equip_hurry_all"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    G.players[p].field.filter(x=>x&&!x.faceDown).forEach(x=>{ if(!x.cap.includes('hurry')) x.cap+=' hurry'; });
+    addLog(`${c.n} — Tous vos monstres ont Rapide ce tour!`,'buff');
+  };
+GOD_EFFECTS["god_death_draw_cost4"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    G.players[p]._centeotlActive=true;
+    addLog(`${c.n} — Permanent: mort alliée → pioche (coût 4 PV)!`,'event');
+    G.players[p].graveyard.push(c); return 'noDiscard';
+  };
+GOD_EFFECTS["god_search_spell"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const spell2 = G.players[p].deck.find(x=>x.type==='god'&&x.cost<=3);
+    if(spell2) {
+      G.players[p].deck.splice(G.players[p].deck.indexOf(spell2),1);
+      G.players[p].hand.push(spell2);
+      addLog(`${c.n} — ${spell2.n} trouvé!`,'event');
+    }
+  };
+GOD_EFFECTS["god_resurrect_any_grave"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const allGraves=[...G.players[1].graveyard,...G.players[2].graveyard].filter(x=>x.type==='monster');
+    if(allGraves.length>0&&G.players[p].field.length<6) {
+      const best2=allGraves.reduce((a,b)=>a.cost>b.cost?a:b);
+      const fromP2=G.players[1].graveyard.includes(best2)?1:2;
+      G.players[fromP2].graveyard.splice(G.players[fromP2].graveyard.indexOf(best2),1);
+      best2.cAtk=best2.atk; best2.cDef=best2.def; best2.endureUsed=false; best2.cursed=false;
+      G.players[p].field.push(best2);
+      addLog(`${c.n} — ${best2.n} ressuscité depuis n'importe quelle défausse!`,'event');
+    }
+  };
+GOD_EFFECTS["god_dmg5_all"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    [1,2].forEach(pl=>G.players[pl].field.filter(x=>x&&!x.faceDown).forEach(async x=>{
+      x.cDef=Math.max(0,x.cDef-5);
+      if(x.cDef<=0) await handleDeath(pl,x);
+    }));
+    addLog(`${c.n} — 5 dégâts à tous les monstres!`,'dmg');
+  };
+GOD_EFFECTS["god_equip_sacrifice_next"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('equip_sacrifice', p, false, c); return 'noDiscard'; };
+GOD_EFFECTS["god_reveal_discard_spell"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    const oppSpells=G.players[opp].hand.filter(x=>x.type==='god');
+    if(oppSpells.length>0) {
+      const disc4=oppSpells[0];
+      G.players[opp].hand.splice(G.players[opp].hand.indexOf(disc4),1);
+      G.players[opp].graveyard.push(disc4);
+      addLog(`${c.n} — ${disc4.n} défaussé!`,'event');
+    } else { drawCard(p); addLog(`${c.n} — Pas de sort, piochez 1!`,'buff'); }
+  };
+GOD_EFFECTS["god_freeze_attacks"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    G.players[opp].field.filter(x=>x&&!x.faceDown).forEach(x=>{ x.sanded=true; });
+    addLog(`${c.n} — Monstres adverses immobilisés!`,'event');
+  };
+GOD_EFFECTS["god_redirect_attack"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    addLog(`${c.n} — Attaque redirigée vers monstre adverse!`,'special');
+  };
+
 async function playGod(c, p) {
   addLog(`Player ${p} plays God: ${c.n}!`,'summon');
   showGodBurst(p);
@@ -1654,456 +2111,8 @@ async function playGod(c, p) {
     return;
   }
 
-  if(cap==='god_minus3_draw') { await pickTarget('minus3',p,false); drawCard(p); addLog(`Draw 1`,'buff'); }
-  else if(cap==='god_cancel_m') {
-    // Bug #2 fix: actually cancel the monster on the stack
-    const stackM = G.stack && G.stack.find(s=>s.type==='monster');
-    if(stackM) {
-      G.stack = G.stack.filter(s=>s.type!=='monster');
-      addLog(`${c.n} — ${stackM.card.n} COUNTERED!`,'special');
-    } else if(G.lastPlayedByOpp && G.lastPlayedByOpp.type==='monster') {
-      const oppP=p===1?2:1;
-      const idx=G.players[oppP].field.indexOf(G.lastPlayedByOpp);
-      if(idx>=0){ G.players[oppP].field.splice(idx,1); G.players[oppP].graveyard.push(G.lastPlayedByOpp); addLog(`${c.n} — ${G.lastPlayedByOpp.n} CANCELLED!`,'special'); G.lastPlayedByOpp=null; }
-    } else { addLog(`${c.n} — No monster to counter`,'special'); }
-  }
-  else if(cap==='god_create2') {
-    for(let i=0;i<2&&G.players[p].field.length<6;i++) {
-      const t=newCard({id:'T',n:'0/2 Protect',atk:0,def:2,cost:0,type:'monster',cap:'protect',txt:'Protect'});
-      t.cAtk=0;t.cDef=2; G.players[p].field.push(t);
-    }
-    addLog(`Izanagi — 2 blank 0/2 Protect tokens`,'event');
-  }
-  else if(cap==='god_equip_return') {
-    await pickTarget('equip_return', p, false, c);
-  }
-  else if(cap==='god_cancel_s_draw') {
-    const stackS = G.stack && G.stack.find(s=>s.type==='spell');
-    if(stackS) {
-      G.stack = G.stack.filter(s=>s.type!=='spell');
-      addLog(`${c.n} — ${stackS.card.n} COUNTERED!`,'special');
-    } else if(G.lastPlayedSpell) {
-      addLog(`${c.n} — ${G.lastPlayedSpell.n} cancelled`,'special'); G.lastPlayedSpell=null;
-    } else { addLog(`${c.n} — No spell to counter`,'special'); }
-    drawCard(p);
-  }
-  else if(cap==='god_susanoo') { await pickTarget('destroy', p, false); }
-  else if(cap==='god_sleep') { await pickTarget('sleep', p, false); }
-  else if(cap==='god_steal') { await pickTarget('steal', p, false); }
-  else if(cap==='god_balder') {
-    G.players[p].balderActive=true;
-    G.players[p].field.forEach(m=>{ if(m) m.balder=true; });
-    addLog(`Balder — Your monsters create 2/2 on death!`,'buff');
-    G.players[p].graveyard.push(c); return;
-  }
-  else if(cap==='god_minus2') { await pickTarget('minus2', p, false); }
-  else if(cap==='god_cancel_ms') {
-    if(G.stack && G.stack.length>0) {
-      const entry=G.stack[0]; G.stack=[];
-      addLog(`${c.n} — ${entry.card.n} COUNTERED!`,'special');
-    } else { addLog(`${c.n} — Nothing on stack to counter`,'special'); }
-  }
-  else if(cap==='god_swap') { await pickTarget('swap', p, false); }
-  else if(cap==='god_odin') {
-    const my=G.players[p].field.length, op=G.players[opp].field.length;
-    if(my>op) { for(let i=0;i<my-op;i++) { const m=G.players[p].field.pop(); G.players[p].graveyard.push(m); addLog(`Odin — You sacrifice ${m.n}`); } }
-    else if(op>my) { for(let i=0;i<op-my;i++) { const m=G.players[opp].field.shift(); G.players[opp].graveyard.push(m); addLog(`Odin — Opp sacrifices ${m.n}`); } }
-    addLog(`Odin — Fields equalized!`,'event');
-  }
-  else if(cap==='god_thor') {
-    if(G.players[opp].field.length>0) {
-      const m=G.players[opp].field.shift(); G.players[opp].graveyard.push(m);
-      addLog(`Thor — Opponent sacrifices ${m.n}!`,'event');
-    }
-  }
-  else if(cap==='god_blank11') { await pickTarget('blank11', p, false); }
-  else if(cap==='god_blind_draw') { await pickTarget('blind', p, false); drawCard(p); }
-  else if(cap==='god_force_attack') { await pickTarget('force_attack', p, false); }
-  else if(cap==='god_copy') { await pickTarget('copy', p, false); }
-  else if(cap==='god_buff3') { await pickTarget('buff3', p, false); }
-  else if(cap==='god_osiris') {
-    const specs=[{cap:'hurry',txt:'Hurry'},{cap:'hit',txt:'Hit'},{cap:'',txt:'Normal'}];
-    specs.forEach(s=>{
-      if(G.players[p].field.length<6){
-        const t=newCard({id:'T',n:`2/2 ${s.txt}`,atk:2,def:2,cost:0,type:'monster',cap:s.cap,txt:s.txt});
-        t.cAtk=2;t.cDef=2; G.players[p].field.push(t);
-      }
-    });
-    addLog(`Osiris — 3 blank 2/2 Monsters!`,'event');
-  }
-  else if(cap==='god_equip_minus2') { await pickTarget('equip_seth', p, false, c); return; }
-  else if(cap==='god_sandup2_draw') { await pickTarget('sandup', p, false); await pickTarget('sandup', p, false); drawCard(p); addLog(`Toth — Draw 1`,'buff'); }
-  else if(cap==='god_mutual_sacrifice') {
-    for(let pl=1;pl<=2;pl++) {
-      if(G.players[pl].field.length>0) {
-        const m=G.players[pl].field.shift(); G.players[pl].graveyard.push(m);
-        addLog(`${c.n} — P${pl} sacrifices ${m.n}`,'event');
-      }
-    }
-  }
-  else if(cap==='god_bewitch_draw') { await pickTarget('bewitch', p, false); drawCard(p); }
-  else if(cap==='god_minus4_all') {
-    [1,2].forEach(pl=>G.players[pl].field.forEach(m=>{if(m){m.cDef=Math.max(0,m.cDef-4);}}));
-    addLog(`${c.n} — −4 shield ALL!`,'dmg');
-    await checkAllDeaths();
-  }
-  else if(cap==='god_resurrect') {
-    const grave=G.players[p].graveyard.filter(x=>x.type==='monster');
-    if(grave.length>0&&G.players[p].field.length<6){
-      const m=grave[grave.length-1];
-      G.players[p].graveyard.splice(G.players[p].graveyard.lastIndexOf(m),1);
-      m.cAtk=m.atk;m.cDef=m.def;m.endureUsed=false;m.cursed=false;
-      G.players[p].field.push(m);
-      addLog(`${c.n} — ${m.n} resurrected!`,'event');
-    }
-  }
-  else if(cap==='god_cancel_attack') { addLog(`${c.n} — Attack cancelled! +HP`,'special'); G.players[p].hp=Math.min(25,G.players[p].hp+3); drawCard(p); }
-  else if(cap==='god_redirect') { await pickTarget('redirect', p, false); }
-  else if(cap==='god_destroy_ms') { await pickTarget('destroy', p, false); }
-  // New god abilities from xlsx
-  else if(cap==='god_cancel_m_steal') {
-    // Amaterasu: cancel + steal
-    const stackM2 = G.stack && G.stack.find(s=>s.type==='monster');
-    if(stackM2) {
-      G.stack = G.stack.filter(s=>s.type!=='monster');
-      const stolen = stackM2.card;
-      if(G.players[p].field.length<6) {
-        const s2 = newCard({...stolen}); s2.cAtk=stolen.atk; s2.cDef=stolen.def;
-        G.players[p].field.push(s2);
-        addLog(`${c.n} — ${stolen.n} annulé et invoqué sur votre terrain!`,'special');
-      }
-    } else { addLog(`${c.n} — Rien à annuler`,'special'); }
-  }
-  else if(cap==='god_heal_all') {
-    G.players[p].field.forEach(m=>{ if(m&&!m.faceDown) { m.cDef=m.def; } });
-    addLog(`${c.n} — Tous les monstres soignés!`,'heal');
-    Audio5L.sfx.heal();
-  }
-  else if(cap==='god_resurrect2') {
-    const grave2 = G.players[p].graveyard.filter(x=>x.type==='monster'&&x.cost<=5);
-    const toRes = grave2.slice(-2);
-    for(const res2 of toRes) {
-      G.players[p].graveyard.splice(G.players[p].graveyard.lastIndexOf(res2),1);
-      G.players[p].hand.push(res2);
-    }
-    addLog(`${c.n} — ${toRes.length} monstre(s) retourné(s) en main!`,'event');
-  }
-  else if(cap==='god_discard_hand_monster') {
-    if(aiControls(p)) {
-      const oppHand = G.players[opp].hand.filter(x=>x.type==='monster');
-      if(oppHand.length>0) {
-        const disc = oppHand.reduce((a,b)=>a.cost>b.cost?a:b);
-        G.players[opp].hand.splice(G.players[opp].hand.indexOf(disc),1);
-        G.players[opp].graveyard.push(disc);
-        addLog(`${c.n} — ${disc.n} défaussé de la main adverse!`,'event');
-      }
-    } else { await pickTarget('discard_hand_monster',p,false); }
-  }
-  else if(cap==='god_dmg3_or_6') { await pickTarget('dmg3or6',p,false); }
-  else if(cap==='god_sacrifice_opp_draw2') {
-    if(G.players[opp].field.length>0) {
-      const biggest = G.players[opp].field.filter(x=>x&&!x.faceDown).reduce((a,b)=>a.cAtk>b.cAtk?a:b,null);
-      if(biggest) {
-        const bIdx = G.players[opp].field.indexOf(biggest);
-        await handleDeath(opp,biggest);
-        addLog(`${c.n} — ${biggest.n} sacrifié!`,'event');
-      }
-    }
-    drawCard(p); drawCard(p);
-    addLog(`${c.n} — Piochez 2!`,'buff');
-  }
-  else if(cap==='god_equalize_board_hand') {
-    const myF=G.players[p].field.length, opF=G.players[opp].field.length;
-    if(myF>opF) for(let i=0;i<myF-opF;i++) { const m3=G.players[p].field.pop(); G.players[p].graveyard.push(m3); }
-    else if(opF>myF) for(let i=0;i<opF-myF;i++) { const m3=G.players[opp].field.shift(); G.players[opp].graveyard.push(m3); }
-    addLog(`${c.n} — Terrains équilibrés!`,'event');
-  }
-  else if(cap==='god_draw_per_faction') {
-    const myCt = G.players[p].field.filter(m=>m&&m.faction===G.players[p].faction).length;
-    for(let i=0;i<myCt;i++) drawCard(p);
-    addLog(`${c.n} — Piochez ${myCt}!`,'buff');
-  }
-  else if(cap==='god_5life_3faction') {
-    const factionCounts = {};
-    G.players[p].field.filter(m=>m).forEach(m=>{ factionCounts[m.faction]=(factionCounts[m.faction]||0)+1; });
-    const has3 = Object.values(factionCounts).some(n=>n>=3);
-    if(has3) { G.players[p].hp=Math.min(25,G.players[p].hp+5); drawCard(p); addLog(`${c.n} — +5 PV + Pioche!`,'heal'); }
-    else { addLog(`${c.n} — Condition non remplie`,'special'); G.players[p].hand.push(c); G.players[p].gems+=c.cost; return; }
-  }
-  else if(cap==='god_cancel_ms_cap') { await pickTarget('cancel_ms',p,false); }
-  else if(cap==='god_cancel_attack_heal') {
-    // Osiris: cancel attack + heal
-    addLog(`${c.n} — Attaque annulée!`,'special');
-    // This is an anytime — handled when player uses it during reaction
-  }
-  else if(cap==='god_force_fight') {
-    const oppField4 = G.players[opp].field.filter(x=>x&&!x.faceDown);
-    if(oppField4.length>=2) {
-      const atker = oppField4.reduce((a,b)=>a.cAtk>b.cAtk?a:b);
-      const victim = oppField4.filter(x=>x!==atker).reduce((a,b)=>a.cDef<b.cDef?a:b);
-      victim.cDef = Math.max(0,victim.cDef-atker.cAtk);
-      addLog(`${c.n} — ${atker.n}(${atker.cAtk}) forcé à attaquer ${victim.n}!`,'event');
-      if(victim.cDef<=0) await handleDeath(opp,victim);
-    }
-  }
-  else if(cap==='god_copy_bonus') { await pickTarget('copy',p,false); }
-  else if(cap==='god_destroy_low_all') {
-    const toDestroy = [];
-    [1,2].forEach(pl=>G.players[pl].field.forEach(m=>{ if(m&&!m.faceDown&&m.cDef<=5) toDestroy.push({pl,m}); }));
-    for(const {pl,m} of toDestroy) await handleDeath(pl,m);
-    addLog(`${c.n} — Tous les monstres DEF≤5 détruits!`,'dmg');
-  }
-  else if(cap==='god_cancel_spell_draw') { await pickTarget('cancel_ms',p,false); drawCard(p); }
-  else if(cap==='god_3shield_attacks') {
-    // Hestia: permanent 3-shield
-    const hestiaToken = newCard({id:'HESTIA_TOKEN',n:'Hestia (3 boucliers)',atk:0,def:0,cost:0,type:'monster',cap:'hestia_passive',txt:'Annule 3 attaques adverses',rarity:'rare'});
-    hestiaToken.cAtk=0; hestiaToken.cDef=0; hestiaToken._hestiaShields=3;
-    if(G.players[p].field.length<6) G.players[p].field.push(hestiaToken);
-    addLog(`${c.n} — 3 boucliers anti-attaque!`,'event');
-    G.players[p].graveyard.push(c); return;
-  }
-  else if(cap==='god_bounce_1or2') { await pickTarget('bounce',p,false); }
-  else if(cap==='god_double_atk') { await pickTarget('buff_dbl_atk',p,false); }
-  else if(cap==='god_destroy_ms_bonus') { await pickTarget('destroy',p,false); }
-  else if(cap==='god_draw4_cheaper') {
-    for(let i=0;i<4;i++) drawCard(p);
-    addLog(`${c.n} — Piochez 4!`,'buff');
-  }
-  else if(cap==='god_steal_spell_monster') {
-    const stackAny = G.stack && G.stack[0];
-    if(stackAny) {
-      G.stack=[];
-      G.players[p].hand.push(stackAny.card);
-      addLog(`${c.n} — ${stackAny.card.n} annulé et mis en main!`,'special');
-    } else { addLog(`${c.n} — Rien sur la pile`,'special'); }
-  }
-  else if(cap==='god_all_opp_atk1') {
-    G.players[opp].field.filter(m=>m&&!m.faceDown).forEach(m=>{ m._origAtk=m.cAtk; m.cAtk=1; m._atk1Until=G.turn+1; });
-    addLog(`${c.n} — ATK adverses → 1!`,'event');
-  }
-  else if(cap==='god_5life_draw') {
-    G.players[p].hp=Math.min(25,G.players[p].hp+5);
-    drawCard(p);
-    addLog(`${c.n} — +5 PV + Pioche!`,'heal');
-    Audio5L.sfx.heal();
-  }
-
-  // ── Gods from full xlsx (45 new) ────────────────────────────────
-  else if(cap==='god_scrye4_draw') {
-    // Ebisu: look at top 4, reorder, draw 1
-    const P4 = G.players[p];
-    const top4 = P4.deck.splice(0, 4);
-    // AI: just put best card first; Human: simplified - draw the best
-    top4.sort((a,b) => (b.cost||0)-(a.cost||0));
-    P4.hand.push(top4.shift());
-    P4.deck.unshift(...top4);
-    addLog(`${c.n} — Scrye 4, pioche 1!`,'buff');
-    Audio5L.sfx.draw();
-  }
-  else if(cap==='god_steal_temp_perm') { await pickTarget('steal', p, false); }
-  else if(cap==='god_swap_hands') {
-    const h1=[...G.players[1].hand], h2=[...G.players[2].hand];
-    const bigger = h1.length >= h2.length ? h1.length : h2.length;
-    G.players[1].hand=[...h2]; G.players[2].hand=[...h1];
-    // Draw to bigger size
-    while(G.players[p].hand.length < bigger && G.players[p].deck.length > 0) drawCard(p);
-    addLog(`${c.n} — Échange de mains!`,'event');
-  }
-  else if(cap==='god_redirect_to_monster') {
-    addLog(`${c.n} — Attaque redirigée vers un monstre adverse!`,'special');
-    // Handled during reaction window
-  }
-  else if(cap==='god_draft4') {
-    const P5 = G.players[p];
-    const drawn = P5.deck.splice(0, 4);
-    if(drawn.length > 0) {
-      // AI picks best for opponent; simplified: player keeps first
-      const kept = drawn[0];
-      P5.hand.push(kept);
-      drawn.slice(1).forEach(x => P5.graveyard.push(x));
-      addLog(`${c.n} — Draft: ${kept.n} en main!`,'event');
-    }
-  }
-  else if(cap==='god_atk5_buff') { await pickTarget('buff_atk5', p, false); }
-  else if(cap==='god_dmg3') { await pickTarget('dmg3', p, false); }
-  else if(cap==='god_copy_spell') { addLog(`${c.n} — Copie le sort adverse!`,'special'); }
-  else if(cap==='god_recover_1or2') {
-    const grave3 = G.players[p].graveyard;
-    if(grave3.length > 0) {
-      const found2 = grave3.pop();
-      G.players[p].hand.push(found2);
-      addLog(`${c.n} — ${found2.n} retourné en main!`,'event');
-    }
-  }
-  else if(cap==='god_search2_cost2') {
-    const found3 = G.players[p].deck.filter(x=>x.type==='monster'&&x.cost<=2).slice(0,2);
-    found3.forEach(x => {
-      G.players[p].deck.splice(G.players[p].deck.indexOf(x),1);
-      G.players[p].hand.push(x);
-    });
-    addLog(`${c.n} — ${found3.length} monstre(s) cherché(s)!`,'event');
-  }
-  else if(cap==='god_discard2_random') {
-    for(let i=0;i<2&&G.players[opp].hand.length>0;i++) {
-      const ri=Math.floor(rng()*G.players[opp].hand.length);
-      const disc2=G.players[opp].hand.splice(ri,1)[0];
-      G.players[opp].graveyard.push(disc2);
-      addLog(`${c.n} — ${disc2.n} défaussé!`,'event');
-    }
-  }
-  else if(cap==='god_sacrifice_ms') {
-    if(G.players[opp].field.length>0) {
-      const m4=G.players[opp].field.shift(); G.players[opp].graveyard.push(m4);
-      addLog(`${c.n} — ${m4.n} sacrifié!`,'event');
-    }
-  }
-  else if(cap==='god_equip_draw_attack') { await pickTarget('equip_draw_attack', p, false, c); return; }
-  else if(cap==='god_equip_2shield') { await pickTarget('equip_2shield', p, false, c); return; }
-  else if(cap==='god_swap_hand_field') {
-    const handMonsters = G.players[p].hand.filter(x=>x.type==='monster'&&x.faction===G.players[p].faction);
-    const fieldMonsters = G.players[p].field.filter(x=>x&&!x.faceDown);
-    if(handMonsters.length>0 && fieldMonsters.length>0) {
-      const hm = handMonsters[0];
-      const fm = fieldMonsters[0];
-      G.players[p].hand.splice(G.players[p].hand.indexOf(hm),1);
-      G.players[p].field.splice(G.players[p].field.indexOf(fm),1,hm);
-      G.players[p].hand.push(fm);
-      addLog(`${c.n} — ${hm.n} ↔ ${fm.n}!`,'event');
-    }
-  }
-  else if(cap==='god_draw2_free_if_solo') {
-    drawCard(p); drawCard(p);
-    addLog(`${c.n} — Piochez 2!`,'buff');
-  }
-  else if(cap==='god_draw_if_ally_dies') {
-    G.players[p]._gebActive = true;
-    addLog(`${c.n} — Si un allié meurt ce tour, piochez 1!`,'event');
-    G.players[p].graveyard.push(c); return;
-  }
-  else if(cap==='god_sacrifice_search_plus1') {
-    if(G.players[p].field.length>0) {
-      const sacrificed = G.players[p].field.shift();
-      G.players[p].graveyard.push(sacrificed);
-      const targetCost = (sacrificed.cost||0)+1;
-      const found4 = G.players[p].deck.find(x=>x.type==='monster'&&x.cost===targetCost);
-      if(found4 && G.players[p].field.length<6) {
-        G.players[p].deck.splice(G.players[p].deck.indexOf(found4),1);
-        found4.cAtk=found4.atk; found4.cDef=found4.def;
-        G.players[p].field.push(found4);
-        addLog(`${c.n} — ${sacrificed.n} sacrifié → ${found4.n} invoqué!`,'event');
-      }
-    }
-  }
-  else if(cap==='god_draft6') {
-    const top6 = G.players[p].deck.splice(0,6);
-    // Simple: player keeps first 3
-    const keep = top6.slice(0,3);
-    keep.forEach(x => G.players[p].hand.push(x));
-    top6.slice(3).forEach(x => G.players[p].graveyard.push(x));
-    addLog(`${c.n} — Draft 6: ${keep.map(x=>x.n).join(', ')} en main!`,'event');
-  }
-  else if(cap==='god_equip_discard_attack') { await pickTarget('equip_discard_attack', p, false, c); return; }
-  else if(cap==='god_tokens22_faction') {
-    const myField3 = G.players[p].field.filter(x=>x&&!x.faceDown&&x.faction===G.players[p].faction);
-    myField3.forEach(()=>{
-      if(G.players[p].field.length<6) {
-        const tok3=newCard({id:'TOKEN22',n:'Jeton 2/2',atk:2,def:2,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:G.players[p].faction});
-        tok3.cAtk=2; tok3.cDef=2; G.players[p].field.push(tok3);
-      }
-    });
-    addLog(`${c.n} — ${myField3.length} jeton(s) 2/2!`,'event');
-  }
-  else if(cap==='god_search_monster') {
-    const found5 = G.players[p].deck.find(x=>x.type==='monster');
-    if(found5) {
-      G.players[p].deck.splice(G.players[p].deck.indexOf(found5),1);
-      G.players[p].hand.push(found5);
-      addLog(`${c.n} — ${found5.n} trouvé!`,'event');
-    }
-  }
-  else if(cap==='god_equip_resurrect') { await pickTarget('equip_resurrect', p, false, c); return; }
-  else if(cap==='god_draw3_discard2') { drawCard(p); drawCard(p); drawCard(p); while(G.players[p].hand.length>7) G.players[p].graveyard.push(G.players[p].hand.pop()); addLog(`${c.n} — Pioche 3, défausse 2!`,'buff'); }
-  else if(cap==='god_halve_atk') { await pickTarget('halve_atk', p, false); }
-  else if(cap==='god_equip_bounce_attack') { await pickTarget('equip_bounce', p, false, c); return; }
-  else if(cap==='god_tokens_protect') {
-    const count2 = G.players[p].field.filter(x=>x).length === 0 ? 2 : 4;
-    const tokStats = G.players[p].field.filter(x=>x).length === 0 ? {a:2,d:2} : {a:0,d:2};
-    for(let i=0;i<count2&&G.players[p].field.length<6;i++) {
-      const tok4=newCard({id:'DEMETER_TOK',n:`${tokStats.a}/${tokStats.d} Protection`,atk:tokStats.a,def:tokStats.d,cost:0,type:'monster',cap:'protect',txt:'Protection',rarity:'common',faction:G.players[p].faction});
-      tok4.cAtk=tokStats.a; tok4.cDef=tokStats.d; G.players[p].field.push(tok4);
-    }
-    addLog(`${c.n} — ${count2} jeton(s) Protection!`,'event');
-  }
-  else if(cap==='god_swap_monsters') { await pickTarget('swap', p, false); }
-  else if(cap==='god_discard_per_faction') {
-    const myFact = G.players[p].field.filter(x=>x&&!x.faceDown&&x.faction===G.players[p].faction).length;
-    for(let i=0;i<myFact&&G.players[opp].hand.length>0;i++) {
-      const ri2=Math.floor(rng()*G.players[opp].hand.length);
-      const disc3=G.players[opp].hand.splice(ri2,1)[0];
-      G.players[opp].graveyard.push(disc3);
-      addLog(`${c.n} — ${disc3.n} défaussé!`,'event');
-    }
-  }
-  else if(cap==='fd_draw3_no_dmg') {
-    // Hera: face-down - handled as passive token
-    const m5=newCard({...c, faceDown:true});
-    G.players[p].field.push(m5);
-    G.players[p].summoned.add(G.players[p].field.length-1);
-    addLog(`${c.n} — Entre face caché!`,'event');
-    return;
-  }
-  else if(cap==='god_equip_hurry_all') {
-    G.players[p].field.filter(x=>x&&!x.faceDown).forEach(x=>{ if(!x.cap.includes('hurry')) x.cap+=' hurry'; });
-    addLog(`${c.n} — Tous vos monstres ont Rapide ce tour!`,'buff');
-  }
-  else if(cap==='god_death_draw_cost4') {
-    G.players[p]._centeotlActive=true;
-    addLog(`${c.n} — Permanent: mort alliée → pioche (coût 4 PV)!`,'event');
-    G.players[p].graveyard.push(c); return;
-  }
-  else if(cap==='god_search_spell') {
-    const spell2 = G.players[p].deck.find(x=>x.type==='god'&&x.cost<=3);
-    if(spell2) {
-      G.players[p].deck.splice(G.players[p].deck.indexOf(spell2),1);
-      G.players[p].hand.push(spell2);
-      addLog(`${c.n} — ${spell2.n} trouvé!`,'event');
-    }
-  }
-  else if(cap==='god_resurrect_any_grave') {
-    const allGraves=[...G.players[1].graveyard,...G.players[2].graveyard].filter(x=>x.type==='monster');
-    if(allGraves.length>0&&G.players[p].field.length<6) {
-      const best2=allGraves.reduce((a,b)=>a.cost>b.cost?a:b);
-      const fromP2=G.players[1].graveyard.includes(best2)?1:2;
-      G.players[fromP2].graveyard.splice(G.players[fromP2].graveyard.indexOf(best2),1);
-      best2.cAtk=best2.atk; best2.cDef=best2.def; best2.endureUsed=false; best2.cursed=false;
-      G.players[p].field.push(best2);
-      addLog(`${c.n} — ${best2.n} ressuscité depuis n'importe quelle défausse!`,'event');
-    }
-  }
-  else if(cap==='god_dmg5_all') {
-    [1,2].forEach(pl=>G.players[pl].field.filter(x=>x&&!x.faceDown).forEach(async x=>{
-      x.cDef=Math.max(0,x.cDef-5);
-      if(x.cDef<=0) await handleDeath(pl,x);
-    }));
-    addLog(`${c.n} — 5 dégâts à tous les monstres!`,'dmg');
-  }
-  else if(cap==='god_equip_sacrifice_next') { await pickTarget('equip_sacrifice', p, false, c); return; }
-  else if(cap==='god_reveal_discard_spell') {
-    const oppSpells=G.players[opp].hand.filter(x=>x.type==='god');
-    if(oppSpells.length>0) {
-      const disc4=oppSpells[0];
-      G.players[opp].hand.splice(G.players[opp].hand.indexOf(disc4),1);
-      G.players[opp].graveyard.push(disc4);
-      addLog(`${c.n} — ${disc4.n} défaussé!`,'event');
-    } else { drawCard(p); addLog(`${c.n} — Pas de sort, piochez 1!`,'buff'); }
-  }
-  else if(cap==='god_freeze_attacks') {
-    G.players[opp].field.filter(x=>x&&!x.faceDown).forEach(x=>{ x.sanded=true; });
-    addLog(`${c.n} — Monstres adverses immobilisés!`,'event');
-  }
-  else if(cap==='god_redirect_attack') {
-    addLog(`${c.n} — Attaque redirigée vers monstre adverse!`,'special');
-  }
+const __h = GOD_EFFECTS[cap];
+  if(__h){ const __r = __h({c,p,opp,cap}); const __res = (__r && typeof __r.then==='function') ? await __r : __r; if(__res==='noDiscard') return; }
   G.players[p].graveyard.push(c);
 }
 
