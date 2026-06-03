@@ -187,8 +187,11 @@ async function playGame(API, seed) {
   } catch (e) {
     // Un crash est un comportement DÉTERMINISTE du jeu actuel → on le capture
     // tel quel dans le golden (un refactor qui le modifie sera détecté par le diff).
+    // On NEUTRALISE les numéros de ligne/colonne : un refactor pur décale les
+    // lignes ssource sans changer le comportement. Le type/message d'erreur et
+    // les noms de fonctions de la stack restent, eux, significatifs.
     const m = (e && e.stack ? e.stack : String(e)).split('\n').slice(0, 3).join(' | ');
-    error = m;
+    error = m.replace(/:\d+:\d+/g, ':L:C');
   }
 
   let winner = null;
