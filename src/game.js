@@ -322,7 +322,7 @@ const MONSTERS = {
 yokai:[
   // NON-RARES x3
   {id:'NINGYO',     n:'Ningyo',     atk:1,def:2,cost:1,rarity:'common',  cap:'attack_draw',             txt:'Attaque : piochez 1 carte.'},
-  {id:'MUJNINA',    n:'Mujnina',    atk:3,def:2,cost:2,rarity:'common',  cap:'heal',                    txt:'Vie : les dégâts soignent votre joueur.'},
+  {id:'MUJNINA',    n:'Mujnina',    atk:3,def:2,cost:2,rarity:'common',  cap:'fervor',                    txt:"Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   {id:'TANUKI',     n:'Tanuki',     atk:3,def:3,cost:2,rarity:'common',  cap:'exit_search_3def',        txt:'Sortie : Cherchez un monstre DEF ≤3 dans votre deck.'},
   {id:'KAPPA',      n:'Kappa',      atk:5,def:5,cost:4,rarity:'common',  cap:'passive_yokai_buff',      txt:'Toujours : vos autres monstres Yokai gagnent +1/+1.'},
   {id:'KEUKEGEN',   n:'Keukegen',   atk:4,def:6,cost:5,rarity:'common',  cap:'exit_copy_killer',        txt:'Sortie : Invoquez une copie du monstre qui vous a détruit.'},
@@ -341,7 +341,7 @@ yokai:[
   {id:'TSUCHIGUMO', n:'Tsuchigumo', atk:6,def:7,cost:4,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
   {id:'USHI-ONI',   n:'Ushi-Oni',   atk:5,def:7,cost:5,rarity:'rare',    cap:'exit_dmg3_all',           txt:'Sortie : 3 dégâts à tous les monstres adverses.'},
   {id:'AKKOROKAMUI',n:'Akkorokamui',atk:8,def:8,cost:6,rarity:'rare',    cap:'reincarnation',           txt:'1ère mort : mélangé dans le deck avec +3/+3 permanents.'},
-  {id:'RYUU',       n:'Ryuu',       atk:7,def:9,cost:7,rarity:'rare',    cap:'heal',                    txt:'Vie.'},
+  {id:'RYUU',       n:'Ryuu',       atk:7,def:9,cost:7,rarity:'rare',    cap:'fervor',                    txt:"Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   {id:'NAMAZU',     n:'Namazu',     atk:7,def:10,cost:8,rarity:'rare',   cap:'hurry',                   txt:'Rapide.'},
 ],
 norse:[
@@ -350,11 +350,11 @@ norse:[
   {id:'HUGINN',     n:'Huginn',     atk:2,def:1,cost:2,rarity:'common',  cap:'start_draw',              txt:'Début de tour : Piochez 1 carte.'},
   {id:'DRAUGR',     n:'Draugr',     atk:4,def:2,cost:3,rarity:'common',  cap:'endure',                  txt:'Endurance.'},
   {id:'EITRI',      n:'Eitri',      atk:4,def:5,cost:4,rarity:'common',  cap:'combat_recycle_dmg2',     txt:'Combat : replacez 2 monstres de défausse sous le deck, puis 2 dégâts.'},
-  {id:'LJOSALFAR',  n:'Ljosalfar',  atk:6,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Vie.'},
+  {id:'LJOSALFAR',  n:'Ljosalfar',  atk:6,def:4,cost:5,rarity:'common',  cap:'fervor',                    txt:"Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   {id:'DOKKALFAR',  n:'Dokkalfar',  atk:6,def:7,cost:6,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
   // SEMI-RARES x2
   {id:'EIKTHYRNIR', n:'Eikthyrnir', atk:1,def:2,cost:1,rarity:'uncommon',cap:'passive_adj_buff21',      txt:'Toujours : adjacents gagnent +2 ATK / +1 DEF.'},
-  {id:'LANDVAETTIR',n:'Landvaettir',atk:4,def:2,cost:2,rarity:'uncommon',cap:'heal',                    txt:'Vie.'},
+  {id:'LANDVAETTIR',n:'Landvaettir',atk:4,def:2,cost:2,rarity:'uncommon',cap:'fervor',                    txt:"Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   {id:'TANNGRISNIR',n:'Tanngrisnir',atk:5,def:2,cost:3,rarity:'uncommon',cap:'endure_hurry',            txt:'Endurance + Rapide.'},
   {id:'SLEIPNIR',   n:'Sleipnir',   atk:7,def:2,cost:4,rarity:'uncommon',cap:'hurry',                   txt:'Rapide.'},
   {id:'HILDISVINI', n:'Hildisvini', atk:3,def:8,cost:5,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
@@ -375,16 +375,16 @@ egyptian:[
   {id:'MEDJED',     n:'Medjed',     atk:2,def:3,cost:2,rarity:'common',  cap:'start_tokens2',           txt:'Début de tour : Invoquez 2 jetons 1/1 (max 6 sur terrain).'},
   {id:'MOMIE',      n:'Momie',      atk:3,def:3,cost:3,rarity:'common',  cap:'endure',                  txt:'Endurance.'},
   {id:'SHA',        n:'Sha',        atk:4,def:3,cost:4,rarity:'common',  cap:'recycle_return',          txt:'Mort : placez 2 monstres de défausse sous le deck, Sha retourne en main.'},
-  {id:'APIS',       n:'Apis',       atk:5,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Vie.'},
+  {id:'APIS',       n:'Apis',       atk:5,def:4,cost:5,rarity:'common',  cap:'fervor',                    txt:"Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   {id:'BENOU',      n:'Benou',      atk:7,def:6,cost:7,rarity:'common',  cap:'hurry_entry_revive',      txt:'Rapide. Entrée : Ressuscite un allié DEF ≥3 depuis la défausse.'},
   // SEMI-RARES x2
   {id:'SPHINX',     n:'Sphinx',     atk:2,def:4,cost:2,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
-  {id:'CRIOSPHINX', n:'Criosphinx', atk:4,def:1,cost:2,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
+  {id:'CRIOSPHINX', n:'Criosphinx', atk:4,def:1,cost:2,rarity:'uncommon',cap:'fervor',                   txt:"Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   {id:'HIERACOSPHINX',n:'Hieracosphinx',atk:2,def:5,cost:3,rarity:'uncommon',cap:'hit',                txt:'Double attaque.'},
   {id:'AANI',       n:'Aani',       atk:4,def:5,cost:4,rarity:'uncommon',cap:'temp_steal_hurry',        txt:'Mort : volez un monstre adverse (Rapide) jusquà fin de tour.'},
   {id:'BABAI',      n:'Babaï',      atk:7,def:4,cost:5,rarity:'uncommon',cap:'token_copies_graveyard',  txt:'Entrée : jetons 1/1 copies de 2 monstres en défausse (sans ETB/sortie).'},
   {id:'MANTICORE',  n:'Manticore',  atk:4,def:8,cost:6,rarity:'uncommon',cap:'hit',                    txt:'Double attaque.'},
-  {id:'GRIFFON',    n:'Griffon',    atk:8,def:7,cost:7,rarity:'uncommon',cap:'hurry_exit_heal4',        txt:'Rapide. Sortie : +4 PV.'},
+  {id:'GRIFFON',    n:'Griffon',    atk:8,def:7,cost:7,rarity:'uncommon',cap:'hurry_exit_faith',        txt:"Rapide. Sortie : +1 Foi."},
   {id:'SERPOPARD',  n:'Serpopard',  atk:4,def:12,cost:8,rarity:'uncommon',cap:'curse',                  txt:'Malédiction.'},
   // RARES x1
   {id:'EFRIT',      n:'Efrit',      atk:4,def:5,cost:3,rarity:'rare',    cap:'end_heal_ally',           txt:'Fin de tour : Soignez totalement un monstre allié ciblé.'},
@@ -397,7 +397,7 @@ egyptian:[
 greek:[
   // NON-RARES x3
   {id:'SIRENES',    n:'Sirènes',    atk:2,def:1,cost:1,rarity:'common',  cap:'coinflip_defense',        txt:'Quand attaqué : pile = attaque annulée.'},
-  {id:'PEGASE',     n:'Pégase',     atk:3,def:4,cost:2,rarity:'common',  cap:'hurry_heal',              txt:'Rapide + Vie.'},
+  {id:'PEGASE',     n:'Pégase',     atk:3,def:4,cost:2,rarity:'common',  cap:'hurry_fervor',              txt:"Rapide + Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   {id:'HIPPOCAMPE', n:'Hippocampe', atk:4,def:3,cost:3,rarity:'common',  cap:'start_filter',            txt:'Début de tour : Défaussez 1 carte pour en piocher 1.'},
   {id:'SATYRE',     n:'Satyre',     atk:5,def:3,cost:4,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
   {id:'HARPIE',     n:'Harpie',     atk:5,def:5,cost:5,rarity:'common',  cap:'hurry_exit_dmg3',         txt:'Rapide. Sortie : 3 dégâts à une cible.'},
@@ -405,7 +405,7 @@ greek:[
   // SEMI-RARES x2
   {id:'CHIMERE',    n:'Chimère',    atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_copy_field',        txt:'Entrée : copie tout monstre visible.'},
   {id:'PYTHON',     n:'Python',     atk:2,def:3,cost:2,rarity:'uncommon',cap:'curse',                   txt:'Malédiction.'},
-  {id:'LION_NEMEE', n:'Lion de Némée',atk:3,def:4,cost:3,rarity:'uncommon',cap:'heal',                  txt:'Vie.'},
+  {id:'LION_NEMEE', n:'Lion de Némée',atk:3,def:4,cost:3,rarity:'uncommon',cap:'fervor',                  txt:"Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   {id:'OPHIOTAURUS',n:'Ophiotaurus',atk:6,def:4,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
   {id:'SCYLLA',     n:'Scylla',     atk:4,def:7,cost:5,rarity:'uncommon',cap:'entry_draw_per_greek',    txt:'Ce tour : chaque grec joué DEF ≤5 fait piocher 1 carte.'},
   {id:'GORGONE',    n:'Gorgone',    atk:8,def:6,cost:6,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
@@ -422,7 +422,7 @@ greek:[
 aztec:[
   // NON-RARES x3
   {id:'CAMAZOTZ',   n:'Camazotz',   atk:1,def:2,cost:1,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
-  {id:'CHANEQUE',   n:'Chaneque',   atk:2,def:3,cost:2,rarity:'common',  cap:'heal',                    txt:'Vie.'},
+  {id:'CHANEQUE',   n:'Chaneque',   atk:2,def:3,cost:2,rarity:'common',  cap:'fervor',                    txt:"Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   {id:'CEUYATL',    n:'Ceuyatl',    atk:4,def:3,cost:3,rarity:'common',  cap:'exit_search_3atk',        txt:'Sortie : Cherchez un monstre ATK ≤3 dans votre deck.'},
   {id:'CUETZPALIN', n:'Cuetzpalin', atk:4,def:5,cost:4,rarity:'common',  cap:'protect',                 txt:'Protection.'},
   {id:'TEUZAUHTOTOTL',n:'Teuzauhtototl',atk:6,def:6,cost:5,rarity:'common',cap:'oracle_dmg3',           txt:'Début de tour : regardez le dessus du deck. Sous le deck → 3 dmg à soi-même.'},
@@ -435,7 +435,7 @@ aztec:[
   {id:'CHOHIX',     n:'Chohix',     atk:8,def:5,cost:5,rarity:'uncommon',cap:'death_token22 ritual_tokens3', txt:'Toujours : jeton 2/2 par mort alliée. Rituel : 3 jetons 2/2 Rapide.'},
   {id:'NAGUAL',     n:'Nagual',     atk:3,def:8,cost:6,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
   {id:'OTOMITL',    n:'Otomitl',    atk:6,def:9,cost:7,rarity:'uncommon',cap:'passive_empty_hand_buff', txt:'Toujours : si main vide, alliés +2 ATK /+1 DEF.'},
-  {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:8,def:9,cost:8,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
+  {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:8,def:9,cost:8,rarity:'uncommon',cap:'fervor',                   txt:"Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   // RARES x1
   {id:'QUETZAL',    n:'Quetzal',    atk:4,def:2,cost:4,rarity:'rare',    cap:'passive_all_hurry',       txt:'Toujours : tous vos monstres aztèques ont Rapide.'},
   {id:'CIPACTLI',   n:'Cipactli',   atk:3,def:7,cost:4,rarity:'rare',    cap:'entry_reclaim_spell',     txt:'Entrée : Récupérez un sort/dieu de votre défausse en main.'},
@@ -469,7 +469,7 @@ norse:[
   {id:'FRIGG',      n:'Frigg',      cost:3, cap:'god_cancel_ms',            txt:"N'importe quand : Annulez un monstre ou sort adverse. Bonus : Annulez aussi une capacité."},
   {id:'HEIMDALL',   n:'Heimdall',   cost:4, cap:'god_recover_1or2',         txt:'Retournez 1 carte de défausse en main. Bonus : Choisissez monstre + sort.'},
   {id:'HODER',      n:'Hoder',      cost:2, cap:'god_search2_cost2',        txt:'Cherchez jusqu\'à 2 monstres de coût ≤2 dans votre deck.'},
-  {id:'IDUNN',      n:'Idunn',      cost:0, cap:'god_5life_3faction',       txt:"N'importe quand : Si 3 monstres de même légende alliés, gagnez 5 PV et piochez 1."},
+  {id:'IDUNN',      n:'Idunn',      cost:0, cap:'god_5life_3faction',       txt:"Si vous contrôlez 3 créatures de la même légende : +2 Foi."},
   {id:'LOKI',       n:'Loki',       cost:3, cap:'god_discard2_random',      txt:"L'adversaire défausse 2 cartes au hasard."},
   {id:'ODIN',       n:'Odin',       cost:5, cap:'god_equalize_board_hand',  txt:'Le joueur avec le plus de monstres sacrifie jusqu\'à égalité. Bonus : pareil pour la main.'},
   {id:'THOR',       n:'Thor',       cost:5, cap:'god_sacrifice_opp_draw2',  txt:'L\'adversaire sacrifie son monstre le plus fort. Vous piochez 2 cartes.'},
@@ -486,7 +486,7 @@ egyptian:[
   {id:'HORUS',      n:'Horus',      cost:3, cap:'god_sacrifice_search_plus1',txt:'Sacrifiez un monstre pour chercher un monstre de coût +1 et l\'invoquer gratuitement.'},
   {id:'ISIS',       n:'Isis',       cost:3, cap:'god_cancel_ms_cap',        txt:"N'importe quand : Annulez un monstre, une capacité ou un sort adverse."},
   {id:'KHONSU',     n:'Khonsu',     cost:4, cap:'god_draft6',               txt:"Révélez 6 cartes du deck. L'adversaire les sépare en 2 tas. Vous choisissez un tas pour la main."},
-  {id:'OSIRIS',     n:'Osiris',     cost:3, cap:'god_cancel_attack_heal',   txt:"N'importe quand : Annulez une attaque. Gagnez des PV égaux à l'ATK du monstre."},
+  {id:'OSIRIS',     n:'Osiris',     cost:3, cap:'god_cancel_attack_heal',   txt:"N'importe quand : Annulez une attaque. Gagnez +1 Foi."},
   {id:'PTAH',       n:'Ptah',       cost:3, cap:'fd_cancel_monster',        txt:'Face caché permanent : Le prochain monstre invoqué est annulé.'},
   {id:'RA',         n:'Ra',         cost:5, cap:'god_force_fight',          txt:'Forcez 1 monstre adverse à attaquer un autre monstre adverse.'},
   {id:'SEKHMET',    n:'Sekhmet',    cost:4, cap:'god_equip_discard_attack', txt:'Équipez à un monstre. Chaque fois qu\'il attaque, l\'adversaire se défausse d\'une carte.'},
@@ -518,7 +518,7 @@ aztec:[
   {id:'COYOLXAUHQUI',   n:'Coyolxauhqui',  cost:3, cap:'god_all_opp_atk1',        txt:"N'importe quand : L'ATK de tous les monstres adverses passe à 1 jusqu'à votre prochain tour."},
   {id:'EHECATL',        n:'Ehecatl',        cost:5, cap:'god_destroy_ms_bonus',    txt:"N'importe quand : Détruisez un monstre ou sort adverse. Bonus : Détruisez les 2."},
   {id:'HUITZILOPOCHTLI',n:'Huitzilopochtli',cost:5, cap:'god_draw4_cheaper',       txt:"N'importe quand : Piochez 4 cartes. Coût réduit de 1 par monstre Maya en jeu."},
-  {id:'MAYAHUEL',       n:'Mayahuel',       cost:1, cap:'god_5life_draw',           txt:'Gagnez 5 points de vie. Bonus : Piochez une carte.'},
+  {id:'MAYAHUEL',       n:'Mayahuel',       cost:1, cap:'god_5life_draw',           txt:"+1 Foi ; un de vos fidèles à genoux ne peut pas être profané jusqu'à votre prochain tour."},
   {id:'MICTLANTECUHTLI',n:'Mictlantecuhtli',cost:2,cap:'god_equip_sacrifice_next', txt:"Équipez à un monstre adverse : il est sacrifié au début du prochain tour de son propriétaire."},
   {id:'TEZCATLIPOCA',   n:'Tezcatlipoca',   cost:5, cap:'god_steal_spell_monster', txt:"N'importe quand : Annulez un sort adverse et mettez-le dans votre main. Bonus : Annulez un monstre."},
   {id:'TLALOC',         n:'Tlaloc',         cost:5, cap:'god_dmg5_all',            txt:'Infligez 5 dégâts à tous les monstres en jeu.'},
@@ -960,7 +960,8 @@ function doEndTurn() {
   NP.summoned = new Set();
   // ASCENSION (C2) : les fidèles se relèvent au début du tour de leur contrôleur
   // (leur Foi est déjà acquise ; ils peuvent de nouveau agir).
-  NP.field.forEach(m => { if(m) m.kneeling = false; });
+  // (P1) : reset du flag Ferveur (1×/tour) et de la protection Sanctuaire (Mayahuel).
+  NP.field.forEach(m => { if(m) { m.kneeling = false; m._fervor = false; m._sanctuary = false; } });
   G.actions = 1;
   // Auto-draw
   if(NP.deck.length > 0) { NP.hand.push(NP.deck.shift()); Audio5L.sfx.draw(); }
@@ -1620,6 +1621,13 @@ registerEffect('exit', cap => cap.includes('exit_heal4'), ctx => {
   G.players[p].hp = Math.min(25, G.players[p].hp + 4);
   addLog(`${m.n} Exit — +4 PV!`,'heal');
 });
+// ── ASCENSION (P1) : Griffon — à sa mort, +1 Foi (remplace le soin PV). ──
+registerEffect('exit', cap => cap.includes('exit_faith'), ctx => {
+  const { p, m } = ctx;
+  G.players[p].faith = (G.players[p].faith || 0) + 1;
+  addLog(`🔥 ${m.n} Sortie — +1 Foi (${G.players[p].faith}/${FAITH_WIN})`,'special');
+  checkVictory();
+});
 
 async function applyExit(p, m) {
   // Dispatch composable des effets de sortie (cf. moteur d'effets).
@@ -1661,6 +1669,14 @@ async function handleDeath(p, m) {
   const P = G.players[p];
   const idx = P.field.indexOf(m);
   if(idx<0) return;
+
+  // ── ASCENSION (P1) : SANCTUAIRE (Mayahuel) — un fidèle agenouillé protégé ne
+  // peut pas être profané (tué) jusqu'au prochain tour de son contrôleur. ──
+  if(m._sanctuary && m.kneeling) {
+    m.cDef = Math.max(1, m.cDef);
+    addLog(`✨ Sanctuaire — ${m.n} ne peut pas être profané !`,'special');
+    return;
+  }
 
   // Endure
   if((m.cap||'').includes('endure') && !m.endureUsed) {
@@ -1995,17 +2011,18 @@ GOD_EFFECTS["god_draw_per_faction"] = (ctx) => { const {c,p,opp,cap}=ctx;
     addLog(`${c.n} — Piochez ${myCt}!`,'buff');
   };
 GOD_EFFECTS["god_5life_3faction"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    // ASCENSION (P1) : Idunn — si 3+ créatures de la même légende alliées, +2 Foi.
     const factionCounts = {};
-    G.players[p].field.filter(m=>m).forEach(m=>{ factionCounts[m.faction]=(factionCounts[m.faction]||0)+1; });
+    G.players[p].field.filter(m=>m&&!m.faceDown).forEach(m=>{ factionCounts[m.faction]=(factionCounts[m.faction]||0)+1; });
     const has3 = Object.values(factionCounts).some(n=>n>=3);
-    if(has3) { G.players[p].hp=Math.min(25,G.players[p].hp+5); drawCard(p); addLog(`${c.n} — +5 PV + Pioche!`,'heal'); }
+    if(has3) { G.players[p].faith=(G.players[p].faith||0)+2; addLog(`🔥 ${c.n} — 3 fidèles de même légende : +2 Foi (${G.players[p].faith}/${FAITH_WIN})`,'special'); }
     else { addLog(`${c.n} — Condition non remplie`,'special'); G.players[p].hand.push(c); G.players[p].gems+=c.cost; return 'noDiscard'; }
   };
 GOD_EFFECTS["god_cancel_ms_cap"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('cancel_ms',p,false); };
 GOD_EFFECTS["god_cancel_attack_heal"] = (ctx) => { const {c,p,opp,cap}=ctx;
-    // Osiris: cancel attack + heal
-    addLog(`${c.n} — Attaque annulée!`,'special');
-    // This is an anytime — handled when player uses it during reaction
+    // ASCENSION (P1) : Osiris — annule une attaque + gagne +1 Foi (remplace le soin PV).
+    G.players[p].faith=(G.players[p].faith||0)+1;
+    addLog(`🔥 ${c.n} — Attaque annulée, +1 Foi (${G.players[p].faith}/${FAITH_WIN})`,'special');
   };
 GOD_EFFECTS["god_force_fight"] = async (ctx) => { const {c,p,opp,cap}=ctx;
     const oppField4 = G.players[opp].field.filter(x=>x&&!x.faceDown);
@@ -2053,9 +2070,12 @@ GOD_EFFECTS["god_all_opp_atk1"] = (ctx) => { const {c,p,opp,cap}=ctx;
     addLog(`${c.n} — ATK adverses → 1!`,'event');
   };
 GOD_EFFECTS["god_5life_draw"] = (ctx) => { const {c,p,opp,cap}=ctx;
-    G.players[p].hp=Math.min(25,G.players[p].hp+5);
-    drawCard(p);
-    addLog(`${c.n} — +5 PV + Pioche!`,'heal');
+    // ASCENSION (P1) : Mayahuel — +1 Foi ; un de tes fidèles à genoux ne peut pas
+    // être profané (tué) jusqu'à ton prochain tour (Sanctuaire).
+    G.players[p].faith=(G.players[p].faith||0)+1;
+    const kneeler = G.players[p].field.find(m=>m&&m.kneeling&&!m._sanctuary);
+    if(kneeler){ kneeler._sanctuary=true; addLog(`✨ ${c.n} — +1 Foi ; ${kneeler.n} sanctuarisé (improfanable)`,'special'); }
+    else addLog(`🔥 ${c.n} — +1 Foi (aucun fidèle à genoux à sanctuariser)`,'special');
     Audio5L.sfx.heal();
   };
 GOD_EFFECTS["god_scrye4_draw"] = (ctx) => { const {c,p,opp,cap}=ctx;
@@ -2515,6 +2535,14 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       // cursed defender: 1 dmg = death
       const actualDmg = def.cursed ? def.cDef : atkVal;
       def.cDef -= actualDmg;
+      // ── ASCENSION (P1) : FERVEUR — quand une créature Ferveur ATTAQUE et inflige
+      // des dégâts à une créature ennemie, +1 Foi à son contrôleur (max 1×/tour
+      // par créature). Pas sur la riposte, pas sur une attaque au visage. ──
+      if(actualDmg > 0 && (atk.cap||'').includes('fervor') && !atk._fervor) {
+        atk._fervor = true;
+        AP.faith = (AP.faith || 0) + 1;
+        addLog(`🔥 Ferveur — ${atk.n} : +1 Foi (${AP.faith}/${FAITH_WIN})`, 'special');
+      }
       const retDmg = def.cursed ? 0 : retVal;
       atk.cDef -= retDmg;
 
