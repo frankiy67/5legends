@@ -617,6 +617,13 @@ function shuffle(a) {
   return r;
 }
 
+// ── ASCENSION (C1) — infrastructure de Foi (additive, inerte tant que la Foi
+// n'augmente pas). Voir ÉTAPE C2 pour le remplissage de la jauge. ──────────
+const FAITH_WIN = 14;
+const SUPREME_GODS = {
+  yokai:'Amaterasu', norse:'Odin', egyptian:'Ra', greek:'Zeus', aztec:'Huitzilopochtli'
+};
+
 function initGame(f1, f2, mode) {
   G = {
     mode, // 'pvp' or 'pve' (p2 is AI)
@@ -655,6 +662,10 @@ function initGame(f1, f2, mode) {
       summoned: new Set(),
       golems: [],
       balderActive: false,
+      // ASCENSION (C1) : jauge de Foi (inerte en C1) + Dieu Suprême de la faction.
+      // Pièce de Foi du 2e joueur : J1=0, J2=2. Affectation silencieuse (aucun log).
+      faith: p===1 ? 0 : 2,
+      supremeGod: SUPREME_GODS[f] || 'Dieu Suprême',
     };
   }
   G.activeTurn = 1; // Player 1 starts
@@ -2680,6 +2691,21 @@ function checkVictory() {
       document.getElementById('victory').style.display='flex';
     }
   }
+  // ── ASCENSION (C1) : victoire par la Foi. INERTE en C1 (rien n'augmente la
+  // Foi → faith reste 0/2 < FAITH_WIN). Câblé pour que C2 n'ait qu'à remplir
+  // la jauge. Aucun effet sur le golden (branche jamais atteinte en sim). ──
+  for(let p=1;p<=2;p++) {
+    if((G.players[p].faith||0) >= FAITH_WIN) {
+      const P=G.players[p];
+      const w=p; // le joueur qui ascensionne gagne
+      if(G.mode!=='pve' || w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
+      const titleEl=document.getElementById('vic-title');
+      titleEl.textContent = `${P.supremeGod} ascensionne !`;
+      titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
+      document.getElementById('vic-sub').textContent=`${(P.faction||'').toUpperCase()} atteint l'Ascension (${P.faith}/${FAITH_WIN}) au tour ${G.turn}`;
+      document.getElementById('victory').style.display='flex';
+    }
+  }
 }
 
 // =====================================================
@@ -3963,6 +3989,17 @@ function renderPlayerBar(p) {
   if (deckEl) deckEl.innerHTML =
     `<span class="deck-pile">🂠</span><span class="deck-count">${P.deck ? P.deck.length : 0}</span>`
     + `<span class="grave-count">${P.graveyard ? P.graveyard.length : 0}†</span>`;
+
+  // ── ASCENSION (C1) : jauge de Foi (Dieu Suprême + X / 14), à côté des PV ──
+  const faithEl = document.getElementById(`p${p}-faith`);
+  if (faithEl) {
+    const fv = P.faith || 0;
+    faithEl.style.setProperty('--faith-pct', Math.min(100, fv / FAITH_WIN * 100));
+    faithEl.innerHTML =
+      `<span class="faith-god">${P.supremeGod || 'Dieu Suprême'}</span>`
+      + `<span class="faith-meter"><span class="faith-fill"></span></span>`
+      + `<span class="faith-val">${fv} / ${FAITH_WIN}</span>`;
+  }
 }
 
 
