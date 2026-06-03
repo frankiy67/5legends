@@ -3665,10 +3665,17 @@ function renderField(p) {
       &&(!P.summoned.has(i)||((m.cap||'').includes('hurry'))||P.field.some(x=>x&&(x.cap||'').includes('passive_all_hurry')))
       &&!m.asleep&&!m.sanded&&!m.faceDown;
 
+    // Visuel uniquement : monstre invoqué ce tour, encore en mal d'invocation
+    const summonSick = P.summoned.has(i)
+      && !((m.cap||'').includes('hurry'))
+      && !P.field.some(x=>x&&(x.cap||'').includes('passive_all_hurry'))
+      && !m.faceDown && !m.asleep && !P.attacked.has(i);
+
     let cls='fcard';
     if(canAtk)     cls+=' can-atk';
     if(isSelAtk)   cls+=' atk-source';
     if(P.attacked.has(i)) cls+=' tapped';
+    if(summonSick && !canAtk) cls+=' summon-sick';
     if(m.faceDown) cls+=' face-down';
     if(isZenith(m)) cls+=' zenith-card';
     // Re-apply targeting highlights when in targeting mode
