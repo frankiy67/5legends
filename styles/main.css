@@ -708,3 +708,36 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
   .hcard{width:120px;height:154px}
   .field-row,.bf-slots{gap:11px}
 }
+@media (max-width:1280px){
+  #game{grid-template-columns:1fr 244px;grid-template-rows:36px 58px 1fr 1fr 58px 184px}
+  .fcard,.fc-frame{width:102px}
+  .fc-frame{height:128px}
+  .bf-slot{width:102px;height:128px}
+  .hcard{width:112px;height:144px}
+  .field-row,.bf-slots{gap:9px;padding-left:14px;padding-right:14px}
+  #hand-cards{padding-left:14px;padding-right:14px}
+  .ai-overlay{right:262px;bottom:198px}
+  .pbar{gap:10px;padding:0 14px}
+  .pbar-id{min-width:96px}
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   17. POLISH FINAL — micro-transitions hover, profondeur, harmonie
+   ────────────────────────────────────────────────────────────────── */
+/* micro-interactions cohérentes sur les éléments du HUD */
+.pbar-portrait,.deck-pile,.gem,.passive-indicator{transition:transform .2s ease,box-shadow .25s ease,filter .25s ease}
+.pbar-portrait:hover{transform:scale(1.07)}
+.deck-pile:hover{transform:translateY(-2px) rotate(-2deg)}
+.gem.on:hover{filter:brightness(1.2)}
+.passive-indicator:hover{transform:translateY(-1px);box-shadow:0 2px 10px rgba(244,201,93,.25)}
+/* la barre du joueur actif respire légèrement (profondeur) */
+.pbar.p1,.pbar.p2{transition:box-shadow .4s ease}
+/* le panneau latéral : séparation plus nette, lisibilité */
+.panel-title{transition:color .2s}
+.side-panel:hover .panel-title{color:rgba(244,201,93,.75)}
+/* anti-débordement global : aucune carte/élément ne casse la grille */
+#game{min-width:0}
+.field-row,.bf-slots,#hand-cards{max-width:100%}
+.fc-name-band,.hc-name-band,.fc-cap-text{max-width:100%}
+/* curseur cohérent sur tout ce qui est cliquable */
+.fp,.confirm-btn,.btn,.tgt-item,.gem,.deck-pile,#audio-fab,.pref-toggle{cursor:pointer}
