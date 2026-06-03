@@ -181,31 +181,18 @@
     <div id="hand-cards"></div>
   </div>
 
-  <!-- Side panel -->
-  <div class="side-panel" style="grid-row:1/7;grid-column:2">
-    <div class="panel-sec">
-      <div class="panel-title">Actions</div>
-      <button class="btn primary" id="btn-next">Next Phase →</button>
-      <button class="btn" id="btn-endturn">End Turn ⏭</button>
-      <button class="btn" id="btn-pass-reaction" style="display:none;border-color:rgba(243,156,18,0.5);color:#f39c12">⚡ Pass (no reaction)</button>
-    </div>
-    <!-- Side card preview -->
-    <div class="side-preview panel-sec" id="side-preview" style="display:none">
-      <img id="spv-img" src="" alt="">
-      <div style="padding:8px 12px 10px;display:flex;flex-direction:column;gap:5px">
-        <div id="spv-name" style="font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold2)"></div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <div id="spv-stats" style="font-size:13px;font-weight:700;letter-spacing:1px"></div>
-          <div id="spv-tag" class="cpv-tag" style="flex-shrink:0"></div>
-        </div>
-        <div id="spv-txt" style="font-size:10px;color:var(--text2);line-height:1.55;font-style:italic;border-left:2px solid rgba(200,164,74,0.3);padding-left:7px"></div>
-        <div id="spv-abilities" style="display:flex;flex-direction:column;gap:4px"></div>
-      </div>
-    </div>
-    <div class="log-wrap">
-      <div class="panel-title">Battle Log</div>
-      <div id="log"></div>
-    </div>
+  <!-- ── Barre d'action en overlay (style Hearthstone, bas-centre) ── -->
+  <div id="action-bar">
+    <button class="action-btn primary" id="btn-next">MAIN → COMBAT</button>
+    <button class="action-btn end" id="btn-endturn">END TURN ⏭</button>
+    <button class="action-btn react" id="btn-pass-reaction" style="display:none">⚡ Passer (aucune réaction)</button>
+  </div>
+
+  <!-- ── Journal de combat rétractable (slide depuis le bord droit) ── -->
+  <button id="log-toggle" title="Journal de combat">📜</button>
+  <div id="log-drawer">
+    <div class="log-drawer-head"><span class="panel-title">Battle Log</span><button id="log-close" title="Fermer">✕</button></div>
+    <div id="log"></div>
   </div>
 </div>
 

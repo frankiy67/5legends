@@ -3203,69 +3203,68 @@ function getAbilityBadges(card) {
 
 function showCardPreview(card, anchorEl) {
   if (!card) return;
-  // Ne pas bloquer pendant le targeting
+  const pv = document.getElementById('card-preview');
+  if (!pv) return;
   const imgSrc = getCardImage(card.id || '');
   const isMonster = card.type === 'monster';
 
-  const sp = document.getElementById('side-preview');
-  if (!sp) return;
+  const imgEl = document.getElementById('cpv-img');
+  if (imgSrc) { imgEl.src = imgSrc; imgEl.style.display = 'block'; }
+  else { imgEl.style.display = 'none'; imgEl.src = ''; }
 
-  const imgEl = document.getElementById('spv-img');
-  if (imgSrc) {
-    imgEl.src = imgSrc;
-    imgEl.style.display = 'block';
-  } else {
-    imgEl.style.display = 'none';
-    imgEl.src = '';
-  }
-
-  document.getElementById('spv-name').textContent = card.n || card.name || '';
-
-  const costBadge = document.getElementById('spv-cost-badge');
-  if (costBadge) costBadge.textContent = (card.cost != null ? card.cost : '') + ' 💎';
-
+  const atkEl = document.getElementById('cpv-atk');
+  const defEl = document.getElementById('cpv-def');
   if (isMonster) {
-    document.getElementById('spv-stats').innerHTML =
-      '<span style="color:#e74c3c">' + (card.cAtk ?? card.atk ?? 0) + '⚔</span>' +
-      '  <span style="color:#3498db">' + (card.cDef ?? card.def ?? 0) + '🛡</span>';
+    atkEl.textContent = (card.cAtk ?? card.atk ?? 0) + '⚔';
+    defEl.textContent = (card.cDef ?? card.def ?? 0) + '🛡';
+    atkEl.style.display = defEl.style.display = '';
   } else {
-    document.getElementById('spv-stats').textContent = card.type === 'god' ? '⚡ God' : '✨ Spell';
+    atkEl.textContent = ''; defEl.textContent = '';
   }
+  document.getElementById('cpv-cost-overlay').textContent = (card.cost != null ? card.cost + ' 💎' : '');
+  document.getElementById('cpv-name-overlay').textContent = card.n || card.name || '';
+  document.getElementById('cpv-name').textContent = card.n || card.name || '';
 
   const isAnytimeC = isAnytime(card);
   const tagType  = isAnytimeC ? 'anytime' : card.type === 'god' ? 'god' : card.type === 'spell' ? 'spell' : 'monster';
-  const tagLabel = isAnytimeC ? '⚡ ANYTIME' : card.type === 'god' ? '⚡ God' : card.type === 'spell' ? '✨ Spell' : '🐉 Monster';
-  const tagEl = document.getElementById('spv-tag');
+  const tagLabel = isAnytimeC ? '⚡ ANYTIME' : card.type === 'god' ? '⚡ Dieu' : card.type === 'spell' ? '✨ Sort' : '🐉 Monstre';
+  const tagEl = document.getElementById('cpv-tag');
   if (tagEl) { tagEl.className = 'cpv-tag ' + tagType; tagEl.textContent = tagLabel; }
 
-  document.getElementById('spv-txt').textContent = card.txt || card.capText || '';
+  document.getElementById('cpv-txt').textContent = card.txt || card.capText || '';
 
   const badges = getAbilityBadges(card);
-  const abEl = document.getElementById('spv-abilities');
-  if (badges.length > 0) {
-    abEl.innerHTML = badges.map(b =>
-      '<div style="display:flex;align-items:flex-start;gap:5px;padding:4px 6px;background:rgba(255,255,255,.04);border-radius:5px;border:1px solid rgba(255,255,255,.06)">' +
-        '<span style="font-size:12px;flex-shrink:0">' + b.icon + '</span>' +
-        '<div>' +
-          '<span style="font-family:Cinzel,serif;font-size:9px;font-weight:700;color:var(--gold2);display:block;margin-bottom:1px">' + b.name + '</span>' +
-          '<span style="font-size:9px;color:#aaa;line-height:1.3;display:block">' + b.desc + '</span>' +
-        '</div>' +
-      '</div>'
-    ).join('');
-    abEl.style.display = 'flex';
-    abEl.style.flexDirection = 'column';
-  } else {
-    abEl.style.display = 'none';
-    abEl.innerHTML = '';
-  }
+  const abEl = document.getElementById('cpv-abilities');
+  abEl.innerHTML = badges.map(b =>
+    '<div class="cpv-ability"><span class="cpv-abil-icon">' + b.icon + '</span><div>' +
+      '<span class="cpv-abil-name">' + b.name + '</span>' +
+      '<span class="cpv-abil-desc">' + b.desc + '</span></div></div>'
+  ).join('');
 
-  sp.style.display = 'flex';
-  sp.style.flexDirection = 'column';
+  pv.style.display = 'flex';
+  positionCardPreview(pv, anchorEl);
+}
+
+// Positionne le popup près de la carte survolée, clampé au viewport.
+function positionCardPreview(pv, anchorEl) {
+  const m = 12, vw = window.innerWidth, vh = window.innerHeight;
+  const w = pv.offsetWidth || 480, h = pv.offsetHeight || 320;
+  let x, y;
+  if (anchorEl && anchorEl.getBoundingClientRect) {
+    const r = anchorEl.getBoundingClientRect();
+    x = r.left + r.width / 2 - w / 2;
+    y = r.top - h - 12;                 // au-dessus de la carte
+    if (y < m) y = r.bottom + 12;       // sinon en dessous
+  } else { x = (vw - w) / 2; y = (vh - h) / 2; }
+  x = Math.max(m, Math.min(x, vw - w - m));
+  y = Math.max(m, Math.min(y, vh - h - m));
+  pv.style.left = x + 'px';
+  pv.style.top = y + 'px';
 }
 
 function hideCardPreview() {
-  const sp = document.getElementById('side-preview');
-  if(sp) sp.style.display = 'none';
+  const pv = document.getElementById('card-preview');
+  if(pv) pv.style.display = 'none';
 }
 
 // =====================================================
@@ -4365,6 +4364,15 @@ document.getElementById('start-btn').addEventListener('click', () => {
 
 document.getElementById('btn-next').addEventListener('click',nextPhase);
 document.getElementById('btn-endturn').addEventListener('click',endTurn);
+
+// ── Tiroir du journal de combat (rétractable) ──
+(function(){
+  const drawer=document.getElementById('log-drawer');
+  const toggle=document.getElementById('log-toggle');
+  const close=document.getElementById('log-close');
+  if(toggle&&drawer) toggle.addEventListener('click',()=>drawer.classList.toggle('open'));
+  if(close&&drawer)  close.addEventListener('click',()=>drawer.classList.remove('open'));
+})();
 
 // Victory display
 function showVictory(winner,faction,turn){
