@@ -480,6 +480,20 @@ body{
 .btn-ritual:hover{filter:brightness(1.2)}
 @keyframes pulse-ritual{from{box-shadow:0 0 4px #ff4500}to{box-shadow:0 0 14px #ff4500,0 0 4px #8b0000}}
 
+/* ── ASCENSION (C2) : bouton PRIER + créature à genoux ── */
+.btn-pray{display:block;width:100%;margin-top:4px;background:linear-gradient(135deg,#5a2080,#a04fd0);
+  color:#fff;border:1px solid #c77dff;padding:4px 8px;border-radius:5px;font-family:'Cinzel',serif;
+  font-size:9px;cursor:pointer;letter-spacing:1px;box-shadow:0 0 6px rgba(199,125,255,.5);
+  transition:filter .15s,box-shadow .2s;animation:pulse-pray 1.4s ease-in-out infinite alternate}
+.btn-pray:hover{filter:brightness(1.18);box-shadow:0 0 13px rgba(199,125,255,.85)}
+@keyframes pulse-pray{from{box-shadow:0 0 5px rgba(199,125,255,.5)}to{box-shadow:0 0 14px rgba(199,125,255,.9)}}
+/* fidèle à genoux : désaturé, anneau violet « Foi », icône 🙏 */
+.fcard.kneeling .fc-frame{filter:saturate(.6) brightness(.82)}
+.fcard.kneeling .fc-frame::before{border-color:var(--rar-god)!important;opacity:1!important;
+  box-shadow:inset 0 0 10px rgba(199,125,255,.55),0 0 6px rgba(199,125,255,.4)!important}
+.fcard.kneeling::before{content:'🙏';position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+  z-index:9;font-size:17px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.9));pointer-events:none}
+
 /* ──────────────────────────────────────────────────────────────────
    9. MAIN DU JOUEUR — éventail + preview
    ────────────────────────────────────────────────────────────────── */

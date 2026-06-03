@@ -942,6 +942,9 @@ function doEndTurn() {
   Audio5L.sfx.mana();
   NP.attacked = new Set();
   NP.summoned = new Set();
+  // ASCENSION (C2) : les fidèles se relèvent au début du tour de leur contrôleur
+  // (leur Foi est déjà acquise ; ils peuvent de nouveau agir).
+  NP.field.forEach(m => { if(m) m.kneeling = false; });
   G.actions = 1;
   // Auto-draw
   if(NP.deck.length > 0) { NP.hand.push(NP.deck.shift()); Audio5L.sfx.draw(); }
@@ -2797,6 +2800,10 @@ async function aiTurn(p=2) {
   renderAll();
   Audio5L.combatMode();
   await delay(300);
+  // ASCENSION (C2) : l'IA fait prier ses créatures non nécessaires à la défense,
+  // PUIS attaque avec le reste. Si une prière atteint l'Ascension, on s'arrête.
+  aiPrayPhase(p);
+  if(checkVictoryBool()) { checkVictory(); aiThinking=false; return; }
   await aiCombatPhase(p);
 
   // Main2 phase
@@ -3015,6 +3022,39 @@ function scoreCard(c, p) {
   return score * urgency;
 }
 
+// ── ASCENSION (C2) : phase de prière de l'IA ──────────────────────────────
+// Garde un noyau de gardiennes proportionné à la menace, prie avec le reste.
+// Heuristique simple (config validée en simulateur), à affiner en playtest.
+function aiPrayPhase(p=2) {
+  const P = G.players[p];
+  const opp = p===1?2:1;
+  const OP = G.players[opp];
+  // créatures éligibles à agir ce tour (mêmes conditions que l'attaque/prière)
+  const eligible = P.field.map((m,i)=>({m,i})).filter(({m,i}) =>
+    m && !m.faceDown && !m.asleep && !m.sanded && !m.kneeling
+    && !P.attacked.has(i)
+    && (!P.summoned.has(i) || (m.cap||'').includes('hurry')));
+  if(eligible.length === 0) return;
+  // menace = créatures adverses visibles pouvant attaquer (non agenouillées)
+  const enemyThreat = OP.field.filter(m => m && !m.faceDown && !m.asleep && !m.kneeling).length;
+  const keepN = Math.min(eligible.length, Math.ceil(enemyThreat / 2));
+  // noyau défensif : gardiennes (protect) d'abord, puis plus haute DEF
+  const defenders = [...eligible].sort((a,b) => {
+    const ap = (a.m.cap||'').includes('protect') ? 1 : 0;
+    const bp = (b.m.cap||'').includes('protect') ? 1 : 0;
+    return (bp - ap) || ((b.m.cDef||0) - (a.m.cDef||0));
+  }).slice(0, keepN);
+  const defIds = new Set(defenders.map(d => d.i));
+  let prayed = false;
+  for(const {m,i} of eligible) {
+    if(defIds.has(i)) continue;     // gardienne : garde son action pour défendre/attaquer
+    doPray(p, i);                   // prie : +1 Foi (verrou immédiat), s'agenouille
+    prayed = true;
+    if(checkVictoryBool()) break;   // Ascension atteinte
+  }
+  if(prayed) renderAll();
+}
+
 async function aiCombatPhase(p=2) {
   const P   = G.players[p];
   const opp = p===1?2:1;
@@ -3031,7 +3071,7 @@ async function aiCombatPhase(p=2) {
 
   // ── PRE-COMBAT LETHAL CHECK ──────────────────────────────────────
   const attackers = getAttackers();
-  const oppHasProtect = OP.field.some(m => m && (m.cap||'').includes('protect') && !m.faceDown && !m.asleep);
+  const oppHasProtect = OP.field.some(m => m && (m.cap||'').includes('protect') && !m.faceDown && !m.asleep && !m.kneeling);
   const totalAtk = attackers.reduce((s,{m}) => s + (m.cAtk||0), 0);
 
   if(!oppHasProtect && totalAtk >= OP.hp) {
@@ -3116,7 +3156,8 @@ function pickAITarget(targetP, attackerP=2) {
     .filter(({m,i}) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
 
   const alive = TP.field.map((m,i)=>({m,i})).filter(x => x.m && !x.m.faceDown && !x.m.asleep);
-  const hasProtect = alive.some(x => (x.m.cap||'').includes('protect'));
+  // ASCENSION (C2) : un protecteur agenouillé ne protège plus (règle 4).
+  const hasProtect = alive.some(x => (x.m.cap||'').includes('protect') && !x.m.kneeling);
 
   // ── LETHAL CHECK: can remaining attackers kill the player? ──────
   const totalRemainingAtk = myAttackers.reduce((s,{m}) => s + (m.cAtk||0), 0);
@@ -3127,7 +3168,7 @@ function pickAITarget(targetP, attackerP=2) {
 
   // ── Must attack Protect first ───────────────────────────────────
   if(hasProtect) {
-    const prot = alive.find(x => (x.m.cap||'').includes('protect'));
+    const prot = alive.find(x => (x.m.cap||'').includes('protect') && !x.m.kneeling);
     return prot ? prot.i : (alive.length ? alive[0].i : 'player');
   }
 
@@ -3243,7 +3284,8 @@ function aiPickTarget(type, p, card) {
 }
 
 function checkVictoryBool() {
-  return G.players[1].hp<=0 || G.players[2].hp<=0;
+  return G.players[1].hp<=0 || G.players[2].hp<=0
+    || (G.players[1].faith||0) >= FAITH_WIN || (G.players[2].faith||0) >= FAITH_WIN;
 }
 
 function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }
@@ -3440,7 +3482,7 @@ function startAttackTargeting(attacker, p, idx) {
 
   // Mark valid targets
   document.body.classList.add('targeting');
-  const hasProtect = OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep);
+  const hasProtect = OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep&&!m.kneeling);
   
   // Mark opponent field cards
   document.querySelectorAll(`[data-player="${opp}"]`).forEach(el => {
@@ -3923,7 +3965,7 @@ function renderAll() {
   if(G.targeting && G.targeting.mode==='attack') {
     const opp=G.targeting.opp;
     const OP=G.players[opp];
-    const hasProtect=OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep);
+    const hasProtect=OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep&&!m.kneeling);
     if(!hasProtect) {
       const bar=document.getElementById(`p${opp}-bar`);
       if(bar) bar.classList.add('targetable');
@@ -4064,6 +4106,7 @@ function renderField(p) {
     if(P.attacked.has(i)) cls+=' tapped';
     if(summonSick && !canAtk) cls+=' summon-sick';
     if(m.faceDown) cls+=' face-down';
+    if(m.kneeling) cls+=' kneeling';   // ASCENSION (C2) : fidèle à genoux
     if(isZenith(m)) cls+=' zenith-card';
     // Re-apply targeting highlights when in targeting mode
     if(G.targeting && !m.faceDown) {
@@ -4165,6 +4208,14 @@ function renderField(p) {
       ritBtn.style.cssText = 'display:block;width:100%;margin-top:4px;';
       ritBtn.onclick = (e) => { e.stopPropagation(); startRitual(p, i); };
       div.appendChild(ritBtn);
+    }
+    // ── ASCENSION (C2) : bouton PRIER (alternative à l'attaque, phase Combat) ──
+    if(isCurrent && !aiControls(p) && !G.targeting && canPray(p, i)) {
+      const prayBtn = document.createElement('button');
+      prayBtn.className = 'btn-pray';
+      prayBtn.textContent = '🙏 PRIER';
+      prayBtn.onclick = (e) => { e.stopPropagation(); prayWith(p, i); };
+      div.appendChild(prayBtn);
     }
 
     el.appendChild(div);
@@ -4359,6 +4410,42 @@ function updateButtons() {
 // ═══════════════════════════════════════════════════════════════════
 // FIELD CLICK
 // ═══════════════════════════════════════════════════════════════════
+// ── ASCENSION (C2) : PRIÈRE ────────────────────────────────────────────────
+// Une créature fait UNE action par tour : GUERRE ou PRIÈRE (exclusif). Éligible
+// à prier dans la même fenêtre que l'attaque : phase Combat, pas de mal
+// d'invocation (règle 3 : pas le tour de l'invocation), pas déjà agi, pas déjà
+// à genoux, pas inactivée.
+function canPray(p, i) {
+  if(!G || G.phase !== 'Combat') return false;
+  const P = G.players[p];
+  const m = P && P.field[i];
+  if(!m || m.faceDown || m.asleep || m.sanded || m.kneeling) return false;
+  if(P.attacked.has(i)) return false;
+  if(P.summoned.has(i) && !(m.cap||'').includes('hurry')) return false;
+  return true;
+}
+
+// Mutation pure : +1 Foi VERROUILLÉE immédiatement, la créature s'agenouille et
+// a consommé son action. (Tuer un agenouillé ne retire rien : la Foi est déjà au
+// Dieu Suprême, pas sur la créature.)
+function doPray(p, i) {
+  const P = G.players[p];
+  const m = P.field[i];
+  P.faith = (P.faith || 0) + 1;
+  m.kneeling = true;
+  P.attacked.add(i);
+  addLog(`🙏 ${m.n} prie — ${P.supremeGod} canalise +1 Foi (${P.faith}/${FAITH_WIN})`, 'special');
+}
+
+// Action déclenchée par le joueur humain (bouton 🙏).
+function prayWith(p, i) {
+  if(!canPray(p, i)) return;
+  doPray(p, i);
+  Audio5L.sfx.heal();
+  renderAll();
+  checkVictory();
+}
+
 function onFieldClick(p,i) {
   if(!G) return;
   // Ritual: picking an ally to sacrifice
@@ -4397,7 +4484,7 @@ function showAtkModal(attacker) {
   body.innerHTML='';
 
   const OP=G.players[opp];
-  const hasProtect=OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep);
+  const hasProtect=OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep&&!m.kneeling);
 
   // Direct attack option
   const divP=document.createElement('div');
