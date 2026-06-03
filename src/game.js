@@ -3595,6 +3595,8 @@ function renderPlayerBar(p) {
     orb.style.background = `radial-gradient(circle at 38% 32%, ${hpColor}dd 0%, ${hpColor}88 45%, ${hpColor}22 100%)`;
     orb.style.color = hpColor;
     orb.style.boxShadow = `0 0 0 2px rgba(255,255,255,0.06), 0 0 0 4px rgba(0,0,0,0.5), 0 0 18px ${hpGlow}, inset 0 3px 10px rgba(255,255,255,0.18), inset 0 -3px 8px rgba(0,0,0,0.5)`;
+    orb.style.setProperty('--hp', pct);          // anneau qui se vide
+    orb.classList.toggle('low-hp', P.hp < 10);   // glow rouge critique
   }
   const hpEl = document.getElementById(`p${p}-hp`);
   if (hpEl) hpEl.textContent = P.hp;

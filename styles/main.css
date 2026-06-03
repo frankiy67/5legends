@@ -213,7 +213,17 @@ body{
   box-shadow:0 0 0 2px rgba(255,255,255,.07),0 0 0 4px rgba(0,0,0,.55),0 0 20px currentColor,inset 0 3px 11px rgba(255,255,255,.2),inset 0 -3px 9px rgba(0,0,0,.55);
   transition:background .6s,box-shadow .6s;
 }
-.hp-orb::before{content:'';position:absolute;top:7px;left:10px;width:15px;height:8px;background:rgba(255,255,255,.28);border-radius:50%;transform:rotate(-25deg);pointer-events:none}
+.hp-orb::before{content:'';position:absolute;top:7px;left:10px;width:15px;height:8px;background:rgba(255,255,255,.28);border-radius:50%;transform:rotate(-25deg);pointer-events:none;z-index:2}
+/* anneau qui se vide (conic selon --hp) */
+.hp-orb::after{content:'';position:absolute;inset:-5px;border-radius:50%;z-index:-1;
+  background:conic-gradient(currentColor calc(var(--hp,100)*1%),rgba(0,0,0,.6) 0);
+  -webkit-mask:radial-gradient(circle,transparent 55%,#000 57%);mask:radial-gradient(circle,transparent 55%,#000 57%);
+  filter:drop-shadow(0 0 4px currentColor);transition:background .7s ease}
+/* glow rouge critique (<10 PV) */
+.hp-orb.low-hp{animation:lowHpPulse 1s ease-in-out infinite}
+@keyframes lowHpPulse{
+  0%,100%{box-shadow:0 0 0 2px rgba(255,255,255,.06),0 0 0 4px rgba(0,0,0,.5),0 0 16px rgba(231,76,60,.7),inset 0 3px 10px rgba(255,255,255,.18),inset 0 -3px 8px rgba(0,0,0,.5)}
+  50%{box-shadow:0 0 0 2px rgba(255,90,70,.5),0 0 0 4px rgba(0,0,0,.5),0 0 34px rgba(231,76,60,1),0 0 52px rgba(231,76,60,.55),inset 0 3px 10px rgba(255,255,255,.18),inset 0 -3px 8px rgba(0,0,0,.5)}}
 .hp-value{font-family:'Cinzel',serif;font-size:19px;font-weight:900;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,1);z-index:1}
 .hp-track{flex:1;height:7px;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
 .hp-fill{height:100%;border-radius:4px;background:#2ecc71;transition:width .7s cubic-bezier(.4,0,.2,1),background .6s;box-shadow:0 0 8px currentColor}
