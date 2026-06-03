@@ -1002,206 +1002,254 @@ async function playMonster(c, p) {
   await applyEntry(p, idx, m);
 }
 
+// ════════════════════════════════════════════════════════════════════
+// MOTEUR D'EFFETS COMPOSABLE — Action + Selector + Condition + Event.
+// Remplace les chaînes if(cap.includes(...)). Chaque effet est un
+// descripteur {cond, run} enregistré sous un Event. cond = la Condition
+// (prédicat sur la cap), run(ctx) = l'Action qui compose des Selectors
+// (cibles) et mute l'état. L'ordre du registre reproduit EXACTEMENT
+// l'ordre de l'ancienne chaîne (effets indépendants, cumulables).
+// ════════════════════════════════════════════════════════════════════
+const EFFECTS = { entry: [], exit: [], passive: [], combat: [], anytime: [], spell: [] };
+function registerEffect(event, cond, run) { EFFECTS[event].push({ cond, run }); }
+async function runEffects(event, ctx) {
+  for (const eff of EFFECTS[event]) {
+    if (eff.cond(ctx.cap, ctx)) await eff.run(ctx);
+  }
+}
+// Selectors — fabriquent des ensembles de cibles à partir du contexte.
+const Sel = {
+  oppMonsters: ctx => G.players[ctx.opp].field.filter(x => x && !x.faceDown),
+  allMonsters: () => [...G.players[1].field, ...G.players[2].field].filter(x => x && !x.faceDown),
+  ownGraveMonsters: ctx => G.players[ctx.p].graveyard.filter(c => c.type === 'monster'),
+};
+// Action utilitaire : appliquer fn à chaque allié SAUF soi (sans filtre faceDown,
+// comme les boucles de buff d'origine).
+function eachAllyExclSelf(ctx, fn) {
+  G.players[ctx.p].field.forEach((x, i) => { if (x && i !== ctx.idx) fn(x, i); });
+}
+
+// ── Registre des effets d'ENTRÉE ([Entrée] / battlecry) ────────────────
+registerEffect('entry', cap => cap.includes('entry_dmg5_all'), async ctx => {
+  const { p, opp, idx, m, cap } = ctx;
+  // Typhon: 5 dmg to ALL other monsters in play
+  const allTargets5 = [];
+  for(let pl=1;pl<=2;pl++) G.players[pl].field.filter((x,j)=>x&&!x.faceDown&&!(pl===p&&j===idx)).forEach(x=>allTargets5.push({pl,x}));
+  for(const {pl,x} of allTargets5) { x.cDef=Math.max(0,x.cDef-5); if(x.cDef<=0) await handleDeath(pl,x); }
+  addLog(`${m.n} — 5 dégâts à tous!`,'dmg');
+});
+registerEffect('entry', cap => cap.includes('entry_dmg4') || cap.includes('entry_dmg3') && !cap.includes('entry_dmg5'), async ctx => {
+  const { p, opp, idx, m, cap } = ctx;
+  const dmgAmt = cap.includes('entry_dmg4') ? 4 : 3;
+  const oppField = G.players[opp].field.filter(x=>x&&!x.faceDown);
+  if(oppField.length>0) {
+    const tgt = oppField.reduce((a,b)=> (a.cDef<=b.cDef?a:b));
+    tgt.cDef -= dmgAmt;
+    addLog(`${m.n} — ${dmgAmt} damage to ${tgt.n}`,'dmg');
+    if(tgt.cDef<=0) await handleDeath(opp, tgt);
+  } else {
+    G.players[opp].hp -= dmgAmt;
+    addLog(`${m.n} — ${dmgAmt} damage to Player ${opp}`,'dmg');
+  }
+});
+registerEffect('entry', cap => cap.includes('entry_sleep'), async ctx => { await pickTarget('sleep', ctx.p, true); });
+registerEffect('entry', cap => cap.includes('entry_blind'), async ctx => { await pickTarget('blind', ctx.p, true); });
+registerEffect('entry', cap => cap.includes('entry_draw_per_ally'), async ctx => {
+  const { p, idx, m } = ctx;
+  const allyCnt = Math.min(3, G.players[p].field.filter((x,j)=>x&&j!==idx&&!x.faceDown).length);
+  for(let d=0;d<allyCnt;d++) drawCard(p);
+  if(allyCnt>0) addLog(`${m.n} — Pioche ${allyCnt}!`,'buff');
+});
+// (else-if d'origine) : entry_draw ne déclenche QUE si entry_draw_per_ally n'a pas matché
+registerEffect('entry', cap => cap.includes('entry_draw') && !cap.includes('exit') && !cap.includes('entry_draw_per_ally'), async ctx => {
+  drawCard(ctx.p); addLog(`${ctx.m.n} — Draw 1`,'buff');
+});
+registerEffect('entry', cap => cap.includes('entry_curse2'), async ctx => {
+  const { opp } = ctx;
+  const oppField = G.players[opp].field.filter(x=>x&&!x.faceDown);
+  let cnt=0;
+  for(const x of oppField) { if(cnt<2){ x.cursed=true; cnt++; addLog(`${x.n} CURSED!`,'debuff'); } }
+});
+registerEffect('entry', cap => cap.includes('entry_sandup'), async ctx => { await pickTarget('sandup', ctx.p, true); });
+registerEffect('entry', cap => cap.includes('entry_shield_all'), async ctx => {
+  eachAllyExclSelf(ctx, x => { x.cDef++; });
+  addLog(`${ctx.m.n} — +1 shield all allies`,'buff');
+});
+registerEffect('entry', cap => cap.includes('entry_buff11'), async ctx => {
+  eachAllyExclSelf(ctx, x => { x.cAtk++; x.cDef++; });
+  addLog(`${ctx.m.n} — +1/+1 all allies`,'buff');
+});
+registerEffect('entry', cap => cap.includes('entry_buff_atk'), async ctx => {
+  eachAllyExclSelf(ctx, x => { x.cAtk++; });
+  addLog(`${ctx.m.n} — +1 ATK all allies`,'buff');
+});
+registerEffect('entry', cap => cap.includes('entry_bewitch'), async ctx => { await pickTarget('bewitch', ctx.p, true); });
+registerEffect('entry', cap => cap.includes('entry_freeplay2'), async ctx => {
+  const { p, m } = ctx;
+  const pi = G.players[p].hand.findIndex(c=>c.type==='monster'&&c.cost<=2);
+  if(pi>=0) {
+    const free = G.players[p].hand.splice(pi,1)[0];
+    addLog(`${m.n} — Plays ${free.n} for free!`,'event');
+    await playMonster(free, p);
+  }
+});
+registerEffect('entry', cap => cap.includes('entry_freespell2'), async ctx => {
+  const { p, m } = ctx;
+  const pi = G.players[p].hand.findIndex(c=>c.type==='spell'&&c.cost<=2);
+  if(pi>=0) {
+    const free = G.players[p].hand.splice(pi,1)[0];
+    addLog(`${m.n} — Plays ${free.n} for free!`,'event');
+    await applySpellEffect(free, p);
+    G.players[p].graveyard.push(free);
+  }
+});
+registerEffect('entry', cap => cap.includes('entry_draw_exit_draw'), async ctx => { drawCard(ctx.p); addLog(`${ctx.m.n} — Draw 1`,'buff'); });
+registerEffect('entry', cap => cap.includes('entry_cancel'), async ctx => { await pickTarget('cancel_ms', ctx.p, true); });
+registerEffect('entry', cap => cap.includes('entry_copy_ally'), async ctx => {
+  const { p, idx } = ctx;
+  // Bakeneko: copy an allied monster
+  const allies = G.players[p].field.filter((x,j) => x && j !== idx && !x.faceDown);
+  if(allies.length > 0) {
+    await pickTarget('copy_ally', p, true);
+  }
+});
+registerEffect('entry', cap => cap.includes('entry_search_ratatosk') || cap.includes('entry_search_self'), async ctx => {
+  const { p, m } = ctx;
+  const deck3 = G.players[p].deck;
+  const found3 = deck3.findIndex(c=>c.id==='RATATOSK');
+  if(found3>=0) {
+    const r3 = deck3.splice(found3,1)[0];
+    G.players[p].hand.push(r3);
+    addLog(`${m.n} — Ratatosk trouvé!`,'event');
+  }
+  deck3.sort(()=>rng()-0.5);
+});
+registerEffect('entry', cap => cap.includes('entry_tokens4'), async ctx => {
+  const { p, m } = ctx;
+  const P2 = G.players[p];
+  for(let t=0; t<4 && P2.field.length<6; t++) {
+    const tok = newCard({id:'TOKEN11',n:'Jeton 1/1',atk:1,def:1,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:G.players[p].faction});
+    tok.cAtk=1; tok.cDef=1; P2.field.push(tok);
+  }
+  addLog(`${m.n} — 4 jetons 1/1!`,'event');
+});
+registerEffect('entry', cap => cap.includes('entry_wipe'), async ctx => {
+  const { p, idx, m } = ctx;
+  const allToKill2 = [];
+  for(let pl=1;pl<=2;pl++) {
+    G.players[pl].field.filter((x,j)=>x&&!(pl===p&&j===idx)&&!x.faceDown).forEach(x=>allToKill2.push({pl,x}));
+  }
+  for(const {pl,x} of allToKill2) await handleDeath(pl,x);
+  addLog(`${m.n} — BOARD WIPE!`,'dmg');
+});
+registerEffect('entry', cap => cap.includes('hurry_entry_revive') || cap.includes('entry_resurrect3'), async ctx => {
+  const { p, m } = ctx;
+  const grave = G.players[p].graveyard.filter(c=>c.type==='monster' && c.def>=3);
+  if(grave.length>0 && G.players[p].field.length<6) {
+    const res = grave[grave.length-1];
+    G.players[p].graveyard.splice(G.players[p].graveyard.lastIndexOf(res),1);
+    res.cAtk=res.atk; res.cDef=res.def; res.endureUsed=false; res.cursed=false;
+    G.players[p].field.push(res);
+    addLog(`${m.n} — ${res.n} ressuscité!`,'event');
+  }
+});
+registerEffect('entry', cap => cap.includes('temp_steal_hurry') || cap.includes('temp_steal_hurry')||cap.includes('steal_hurry'), async ctx => {
+  await pickTarget('steal_hurry', ctx.p, true);
+});
+registerEffect('entry', cap => cap.includes('token_copies_graveyard') || cap.includes('token_copies_graveyard')||cap.includes('entry_tokens_graveyard'), async ctx => {
+  const { p, m } = ctx;
+  // Babaï: pick up to 2 monsters from graveyard, create 1/1 copies
+  const grave = G.players[p].graveyard.filter(c=>c.type==='monster');
+  const picked = grave.slice(-2);
+  for(const gm of picked) {
+    if(G.players[p].field.length<6) {
+      const tok = newCard({...gm, atk:1, def:1, cost:0, cap:'', txt:'(jeton copie 1/1)'});
+      tok.cAtk=1; tok.cDef=1;
+      G.players[p].field.push(tok);
+    }
+  }
+  if(picked.length) addLog(`${m.n} — ${picked.length} jeton(s) copie 1/1!`,'event');
+});
+registerEffect('entry', cap => cap.includes('entry_reclaim') || cap.includes('entry_reclaim_spell') || cap.includes('entry_reclaim')||cap.includes('entry_recover_grave') || cap.includes('entry_recover_spell'), async ctx => {
+  const { p, m, cap } = ctx;
+  if(cap.includes('entry_reclaim_spell') || cap.includes('entry_recover_spell')) {
+    const spells = G.players[p].graveyard.filter(c=>c.type==='spell'||c.type==='god');
+    if(spells.length>0) {
+      const sp2 = spells[spells.length-1];
+      G.players[p].graveyard.splice(G.players[p].graveyard.lastIndexOf(sp2),1);
+      G.players[p].hand.push(sp2);
+      addLog(`${m.n} — ${sp2.n} retourné en main!`,'event');
+    }
+  } else {
+    const monsters2 = G.players[p].graveyard.filter(c=>c.type==='monster');
+    if(monsters2.length>0) {
+      const gm2 = monsters2[monsters2.length-1];
+      G.players[p].graveyard.splice(G.players[p].graveyard.lastIndexOf(gm2),1);
+      G.players[p].hand.push(gm2);
+      addLog(`${m.n} — ${gm2.n} retourné en main!`,'event');
+    }
+  }
+});
+registerEffect('entry', cap => cap.includes('entry_copy_field'), async ctx => {
+  const { m } = ctx;
+  // Chimere: copy any visible monster
+  const all = [...G.players[1].field, ...G.players[2].field].filter(x=>x&&!x.faceDown);
+  if(all.length > 0) {
+    const best = all.reduce((a,b)=>(a.cAtk+a.cDef)>(b.cAtk+b.cDef)?a:b);
+    Object.assign(m, {atk:best.atk,def:best.def,cAtk:best.cAtk,cDef:best.cDef,cap:best.cap,txt:best.txt,n:`${m.n}(${best.n})`});
+    addLog(`${m.n} copie ${best.n}!`,'event');
+  }
+});
+registerEffect('entry', cap => cap.includes('entry_draw_per_greek') || cap.includes('entry_draw_per_greek')||cap.includes('entry_pioche_grec'), async ctx => {
+  ctx.m._scyllaActive = true;
+  addLog(`${ctx.m.n} — Moteur de pioche activé!`,'event');
+});
+registerEffect('entry', cap => cap.includes('entry_destroy_catchup'), async ctx => {
+  const { p } = ctx;
+  if(G.players[p].hp <= 60) {
+    await pickTarget('destroy', p, true);
+  }
+});
+registerEffect('entry', cap => cap.includes('entry_token_copies_2') || cap.includes('entry_token_copies_2')||cap.includes('entry_2copy_tokens'), async ctx => {
+  const { p, idx, m } = ctx;
+  const myField2 = G.players[p].field.filter((x,j)=>x&&j!==idx&&!x.faceDown);
+  const picked2 = myField2.slice(0,2);
+  for(const gm3 of picked2) {
+    if(G.players[p].field.length<6) {
+      const tok2 = newCard({...gm3, atk:1,def:1,cost:0,cap:'',txt:'(jeton copie 1/1)'});
+      tok2.cAtk=1; tok2.cDef=1;
+      G.players[p].field.push(tok2);
+    }
+  }
+  if(picked2.length) addLog(`${m.n} — ${picked2.length} jeton(s) copie 1/1!`,'event');
+});
+registerEffect('entry', cap => cap.includes('copy_ally_def') || cap.includes('copy_ally_def')||cap.includes('entry_copy_def'), async ctx => {
+  const { p, idx, m } = ctx;
+  const allies4 = G.players[p].field.filter((x,j)=>x&&j!==idx&&!x.faceDown);
+  if(allies4.length>0) {
+    const best4 = allies4.reduce((a,b)=>a.cDef>b.cDef?a:b);
+    m.cDef = best4.cDef; m.def = best4.cDef;
+    addLog(`${m.n} — copie DEF ${best4.cDef} de ${best4.n}!`,'event');
+  }
+});
+registerEffect('entry', cap => cap.includes('reveal_play_free') || cap.includes('reveal_play_free')||cap.includes('challenge_free'), async ctx => {
+  const { p, m } = ctx;
+  // KAQKOJ: reveal 3 cards, opponent picks one, play it free
+  const hand5 = G.players[p].hand;
+  if(hand5.length>=3) {
+    const chosen = hand5[0]; // AI: pick first; human would pick via UI
+    addLog(`${m.n} — Joue ${chosen.n} gratuitement!`,'event');
+    G.players[p].hand.splice(0,1);
+    chosen._freePlay = true;
+    if(chosen.type==='monster') await playMonster(chosen, p);
+    else if(chosen.type==='god'||chosen.type==='spell') { await applySpellEffect(chosen, p); G.players[p].graveyard.push(chosen); }
+  }
+});
+
 async function applyEntry(p, idx, m) {
-  const opp = p===1?2:1;
-  const cap = m.cap||'';
-
-  if(cap.includes('entry_dmg5_all')) {
-    // Typhon: 5 dmg to ALL other monsters in play
-    const allTargets5 = [];
-    for(let pl=1;pl<=2;pl++) G.players[pl].field.filter((x,j)=>x&&!x.faceDown&&!(pl===p&&j===idx)).forEach(x=>allTargets5.push({pl,x}));
-    for(const {pl,x} of allTargets5) { x.cDef=Math.max(0,x.cDef-5); if(x.cDef<=0) await handleDeath(pl,x); }
-    addLog(`${m.n} — 5 dégâts à tous!`,'dmg');
-  }
-  if(cap.includes('entry_dmg4') || cap.includes('entry_dmg3') && !cap.includes('entry_dmg5')) {
-    const dmgAmt = cap.includes('entry_dmg4') ? 4 : 3;
-    const oppField = G.players[opp].field.filter(x=>x&&!x.faceDown);
-    if(oppField.length>0) {
-      const tgt = oppField.reduce((a,b)=> (a.cDef<=b.cDef?a:b));
-      tgt.cDef -= dmgAmt;
-      addLog(`${m.n} — ${dmgAmt} damage to ${tgt.n}`,'dmg');
-      if(tgt.cDef<=0) await handleDeath(opp, tgt);
-    } else {
-      G.players[opp].hp -= dmgAmt;
-      addLog(`${m.n} — ${dmgAmt} damage to Player ${opp}`,'dmg');
-    }
-  }
-  if(cap.includes('entry_sleep')) await pickTarget('sleep', p, true);
-  if(cap.includes('entry_blind')) await pickTarget('blind', p, true);
-  if(cap.includes('entry_draw_per_ally')) {
-    const allyCnt = Math.min(3, G.players[p].field.filter((x,j)=>x&&j!==idx&&!x.faceDown).length);
-    for(let d=0;d<allyCnt;d++) drawCard(p);
-    if(allyCnt>0) addLog(`${m.n} — Pioche ${allyCnt}!`,'buff');
-  } else if(cap.includes('entry_draw') && !cap.includes('exit')) { drawCard(p); addLog(`${m.n} — Draw 1`,'buff'); }
-  if(cap.includes('entry_curse2')) {
-    const oppField = G.players[opp].field.filter(x=>x&&!x.faceDown);
-    let cnt=0;
-    for(const x of oppField) { if(cnt<2){ x.cursed=true; cnt++; addLog(`${x.n} CURSED!`,'debuff'); } }
-  }
-  if(cap.includes('entry_sandup')) await pickTarget('sandup', p, true);
-  if(cap.includes('entry_shield_all')) {
-    G.players[p].field.forEach((x,i) => { if(x && i!==idx) { x.cDef++; } });
-    addLog(`${m.n} — +1 shield all allies`,'buff');
-  }
-  if(cap.includes('entry_buff11')) {
-    G.players[p].field.forEach((x,i) => { if(x && i!==idx) { x.cAtk++; x.cDef++; } });
-    addLog(`${m.n} — +1/+1 all allies`,'buff');
-  }
-  if(cap.includes('entry_buff_atk')) {
-    G.players[p].field.forEach((x,i) => { if(x && i!==idx) { x.cAtk++; } });
-    addLog(`${m.n} — +1 ATK all allies`,'buff');
-  }
-  if(cap.includes('entry_bewitch')) await pickTarget('bewitch', p, true);
-  if(cap.includes('entry_freeplay2')) {
-    const pi = G.players[p].hand.findIndex(c=>c.type==='monster'&&c.cost<=2);
-    if(pi>=0) {
-      const free = G.players[p].hand.splice(pi,1)[0];
-      addLog(`${m.n} — Plays ${free.n} for free!`,'event');
-      await playMonster(free, p);
-    }
-  }
-  if(cap.includes('entry_freespell2')) {
-    const pi = G.players[p].hand.findIndex(c=>c.type==='spell'&&c.cost<=2);
-    if(pi>=0) {
-      const free = G.players[p].hand.splice(pi,1)[0];
-      addLog(`${m.n} — Plays ${free.n} for free!`,'event');
-      await applySpellEffect(free, p);
-      G.players[p].graveyard.push(free);
-    }
-  }
-  if(cap.includes('entry_draw_exit_draw')) { drawCard(p); addLog(`${m.n} — Draw 1`,'buff'); }
-  if(cap.includes('entry_cancel')) await pickTarget('cancel_ms', p, true);
-
-  // New entry effects from xlsx
-  if(cap.includes('entry_copy_ally')) {
-    // Bakeneko: copy an allied monster
-    const allies = G.players[p].field.filter((x,j) => x && j !== idx && !x.faceDown);
-    if(allies.length > 0) {
-      await pickTarget('copy_ally', p, true);
-    }
-  }
-  // entry_dmg4 handled above
-  if(cap.includes('entry_search_ratatosk') || cap.includes('entry_search_self')) {
-    const deck3 = G.players[p].deck;
-    const found3 = deck3.findIndex(c=>c.id==='RATATOSK');
-    if(found3>=0) {
-      const r3 = deck3.splice(found3,1)[0];
-      G.players[p].hand.push(r3);
-      addLog(`${m.n} — Ratatosk trouvé!`,'event');
-    }
-    deck3.sort(()=>rng()-0.5);
-  }
-  if(cap.includes('entry_tokens4')) {
-    const P2 = G.players[p];
-    for(let t=0; t<4 && P2.field.length<6; t++) {
-      const tok = newCard({id:'TOKEN11',n:'Jeton 1/1',atk:1,def:1,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:G.players[p].faction});
-      tok.cAtk=1; tok.cDef=1; P2.field.push(tok);
-    }
-    addLog(`${m.n} — 4 jetons 1/1!`,'event');
-  }
-  if(cap.includes('entry_wipe')) {
-    const allToKill2 = [];
-    for(let pl=1;pl<=2;pl++) {
-      G.players[pl].field.filter((x,j)=>x&&!(pl===p&&j===idx)&&!x.faceDown).forEach(x=>allToKill2.push({pl,x}));
-    }
-    for(const {pl,x} of allToKill2) await handleDeath(pl,x);
-    addLog(`${m.n} — BOARD WIPE!`,'dmg');
-  }
-  if(cap.includes('hurry_entry_revive') || cap.includes('entry_resurrect3')) {
-    const grave = G.players[p].graveyard.filter(c=>c.type==='monster' && c.def>=3);
-    if(grave.length>0 && G.players[p].field.length<6) {
-      const res = grave[grave.length-1];
-      G.players[p].graveyard.splice(G.players[p].graveyard.lastIndexOf(res),1);
-      res.cAtk=res.atk; res.cDef=res.def; res.endureUsed=false; res.cursed=false;
-      G.players[p].field.push(res);
-      addLog(`${m.n} — ${res.n} ressuscité!`,'event');
-    }
-  }
-  if(cap.includes('temp_steal_hurry') || cap.includes('temp_steal_hurry')||cap.includes('steal_hurry')) {
-    await pickTarget('steal_hurry', p, true);
-  }
-  if(cap.includes('token_copies_graveyard') || cap.includes('token_copies_graveyard')||cap.includes('entry_tokens_graveyard')) {
-    // Babaï: pick up to 2 monsters from graveyard, create 1/1 copies
-    const grave = G.players[p].graveyard.filter(c=>c.type==='monster');
-    const picked = grave.slice(-2);
-    for(const gm of picked) {
-      if(G.players[p].field.length<6) {
-        const tok = newCard({...gm, atk:1, def:1, cost:0, cap:'', txt:'(jeton copie 1/1)'});
-        tok.cAtk=1; tok.cDef=1;
-        G.players[p].field.push(tok);
-      }
-    }
-    if(picked.length) addLog(`${m.n} — ${picked.length} jeton(s) copie 1/1!`,'event');
-  }
-  if(cap.includes('entry_reclaim') || cap.includes('entry_reclaim_spell') || cap.includes('entry_reclaim')||cap.includes('entry_recover_grave') || cap.includes('entry_recover_spell')) {
-    if(cap.includes('entry_reclaim_spell') || cap.includes('entry_recover_spell')) {
-      const spells = G.players[p].graveyard.filter(c=>c.type==='spell'||c.type==='god');
-      if(spells.length>0) {
-        const sp2 = spells[spells.length-1];
-        G.players[p].graveyard.splice(G.players[p].graveyard.lastIndexOf(sp2),1);
-        G.players[p].hand.push(sp2);
-        addLog(`${m.n} — ${sp2.n} retourné en main!`,'event');
-      }
-    } else {
-      const monsters2 = G.players[p].graveyard.filter(c=>c.type==='monster');
-      if(monsters2.length>0) {
-        const gm2 = monsters2[monsters2.length-1];
-        G.players[p].graveyard.splice(G.players[p].graveyard.lastIndexOf(gm2),1);
-        G.players[p].hand.push(gm2);
-        addLog(`${m.n} — ${gm2.n} retourné en main!`,'event');
-      }
-    }
-  }
-  if(cap.includes('entry_copy_field')) {
-    // Chimere: copy any visible monster
-    const all = [...G.players[1].field, ...G.players[2].field].filter(x=>x&&!x.faceDown);
-    if(all.length > 0) {
-      const best = all.reduce((a,b)=>(a.cAtk+a.cDef)>(b.cAtk+b.cDef)?a:b);
-      Object.assign(m, {atk:best.atk,def:best.def,cAtk:best.cAtk,cDef:best.cDef,cap:best.cap,txt:best.txt,n:`${m.n}(${best.n})`});
-      addLog(`${m.n} copie ${best.n}!`,'event');
-    }
-  }
-  if(cap.includes('entry_draw_per_greek') || cap.includes('entry_draw_per_greek')||cap.includes('entry_pioche_grec')) {
-    m._scyllaActive = true;
-    addLog(`${m.n} — Moteur de pioche activé!`,'event');
-  }
-  if(cap.includes('entry_destroy_catchup')) {
-    if(G.players[p].hp <= 60) {
-      await pickTarget('destroy', p, true);
-    }
-  }
-  if(cap.includes('entry_token_copies_2') || cap.includes('entry_token_copies_2')||cap.includes('entry_2copy_tokens')) {
-    const myField2 = G.players[p].field.filter((x,j)=>x&&j!==idx&&!x.faceDown);
-    const picked2 = myField2.slice(0,2);
-    for(const gm3 of picked2) {
-      if(G.players[p].field.length<6) {
-        const tok2 = newCard({...gm3, atk:1,def:1,cost:0,cap:'',txt:'(jeton copie 1/1)'});
-        tok2.cAtk=1; tok2.cDef=1;
-        G.players[p].field.push(tok2);
-      }
-    }
-    if(picked2.length) addLog(`${m.n} — ${picked2.length} jeton(s) copie 1/1!`,'event');
-  }
-  if(cap.includes('copy_ally_def') || cap.includes('copy_ally_def')||cap.includes('entry_copy_def')) {
-    const allies4 = G.players[p].field.filter((x,j)=>x&&j!==idx&&!x.faceDown);
-    if(allies4.length>0) {
-      const best4 = allies4.reduce((a,b)=>a.cDef>b.cDef?a:b);
-      m.cDef = best4.cDef; m.def = best4.cDef;
-      addLog(`${m.n} — copie DEF ${best4.cDef} de ${best4.n}!`,'event');
-    }
-  }
-  if(cap.includes('reveal_play_free') || cap.includes('reveal_play_free')||cap.includes('challenge_free')) {
-    // KAQKOJ: reveal 3 cards, opponent picks one, play it free
-    const hand5 = G.players[p].hand;
-    if(hand5.length>=3) {
-      const chosen = hand5[0]; // AI: pick first; human would pick via UI
-      addLog(`${m.n} — Joue ${chosen.n} gratuitement!`,'event');
-      G.players[p].hand.splice(0,1);
-      chosen._freePlay = true;
-      if(chosen.type==='monster') await playMonster(chosen, p);
-      else if(chosen.type==='god'||chosen.type==='spell') { await applySpellEffect(chosen, p); G.players[p].graveyard.push(chosen); }
-    }
-  }
+  // Dispatch composable : la cap d'origine est figée une fois (comme l'ancien
+  // `const cap`), puis chaque effet d'entrée enregistré s'applique dans l'ordre.
+  await runEffects('entry', { p, idx, m, opp: p===1?2:1, cap: m.cap||'' });
 }
 
 async function applyExit(p, m) {
