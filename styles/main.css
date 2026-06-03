@@ -463,9 +463,13 @@ body{
 /* états main */
 .hcard.dim{opacity:.4;cursor:not-allowed;filter:saturate(.35) brightness(.8)}
 .hcard.playable{box-shadow:inset 1px 1px 2px rgba(255,235,150,.5),var(--shadow-card),0 0 16px rgba(244,201,93,.35)}
-.hcard:hover.playable,.hcard:hover.anytime{transform:rotate(0deg) translateY(-44px) scale(1.26)!important;z-index:200!important;
-  box-shadow:var(--shadow-float),0 0 30px rgba(244,201,93,.6),inset 1px 1px 2px rgba(255,235,150,.6)!important;filter:brightness(1.08)}
-.hcard:hover.dim{transform:rotate(0deg) translateY(-12px) scale(1.05)!important;z-index:200!important}
+/* HOVER PREVIEW — snap droit, agrandi, parfaitement lisible (réponse instantanée) */
+.hcard:hover.playable,.hcard:hover.anytime{transform:rotate(0deg) translateY(-130px) scale(2)!important;margin-left:0!important;z-index:300!important;
+  transition:transform .1s ease-out,box-shadow .1s,filter .1s!important;
+  box-shadow:var(--shadow-float),0 0 40px rgba(244,201,93,.7),inset 1px 1px 2px rgba(255,235,150,.6)!important;filter:brightness(1.1)}
+.hcard:hover.dim{transform:rotate(0deg) translateY(-90px) scale(1.7)!important;z-index:300!important;transition:transform .1s ease-out!important}
+/* le tilt 3D se neutralise pendant le preview agrandi pour rester lisible */
+.hcard:hover .hc-frame-inner{--rx:0deg!important;--ry:0deg!important}
 .hcard.anytime.playable{animation:hcard-anytime 1.5s ease-in-out infinite}
 @keyframes hcard-anytime{0%,100%{box-shadow:var(--shadow-card),0 0 12px rgba(244,160,20,.4)}50%{box-shadow:var(--shadow-card),0 0 26px rgba(244,160,20,.9)}}
 .hcard.reaction-ready{animation:pulse-reaction .8s ease-in-out infinite alternate!important}
