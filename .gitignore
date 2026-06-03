@@ -20,5 +20,6 @@ dist/
 5 legends cartes/
 5legends cartes/
 _originaux/
-tools/golden_snapshot*.json
 tools/node_modules/
+# NB: tools/golden_snapshot.json EST versionné (référence golden-master).
+#     Les snapshots candidats sont écrits dans /tmp, jamais dans le repo.

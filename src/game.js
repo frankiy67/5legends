@@ -134,7 +134,7 @@ const Audio5L = (() => {
     if (!ctx || !prefs.sfxOn) return;
     const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
     const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; // audio noise: never from game RNG stream
     const src2 = ctx.createBufferSource();
     const g = ctx.createGain();
     const flt = ctx.createBiquadFilter();
@@ -504,6 +504,31 @@ const SPELLS = {};  // Sorts retirés — deck 45 cartes (40 monstres + 5 dieux)
 // =====================================================
 // GAME STATE
 // =====================================================
+
+// ══════════════════════════════════════════════════
+// RNG SEEDABLE (mulberry32) — déterminisme reproductible (golden-master).
+// En prod (browser) le seed par défaut est aléatoire → comportement neutre.
+// Le harness Node appelle seedRNG(seed) avant chaque partie.
+// ══════════════════════════════════════════════════
+let _rng = (function(){ let a = (Date.now() >>> 0) ^ 0x9e3779b9; return mulberry32(a); })();
+function mulberry32(a){
+  return function(){
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function seedRNG(seed){ _rng = mulberry32(seed >>> 0); }
+function rng(){ return _rng(); }
+
+// Harness: en mode 'sim' (IA vs IA), les deux joueurs sont pilotés par l'IA.
+// En 'pve' seul le joueur 2 est IA ; en 'pvp' aucun. Comportement prod inchangé.
+function aiControls(p){
+  if(typeof G==='undefined' || !G) return false;
+  return G.mode==='sim' || (G.mode==='pve' && p===2);
+}
+
 let G = null;
 let pendingAction = null; // {type, data, resolve}
 let aiThinking = false;
@@ -557,7 +582,7 @@ function getDeckStats(faction) {
 
 function shuffle(a) {
   const r=[...a];
-  for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}
+  for(let i=r.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[r[i],r[j]]=[r[j],r[i]];}
   return r;
 }
 
@@ -628,7 +653,9 @@ function applyBattlefieldArt(f1, f2) {
 // =====================================================
 function addLog(msg, cls='') {
   G.log.unshift({msg, cls});
-  if(G.log.length>80) G.log.pop();
+  // En 'sim' (golden-master) on garde le log complet ; en prod on plafonne à 80
+  // (le log ne sert qu'au rendu, jamais à la logique → neutre).
+  if(G.log.length>80 && G.mode!=='sim') G.log.pop();
 }
 
 // =====================================================
@@ -814,7 +841,7 @@ function doEndTurn() {
         const top = newP.deck[0];
         addLog(`${m.n} — Oracle: ${top.n} est au sommet du deck.`,'event');
         // AI: always put it under if it's a bad card
-        if(G.mode==='pve' && G.cp===2 && top.cost<=2) {
+        if(aiControls(G.cp) && top.cost<=2) {
           newP.deck.splice(0,1); newP.deck.push(top);
           m.cDef=Math.max(0,m.cDef-3);
           addLog(`${m.n} — Oracle: carte mise sous le deck, -3 DEF à soi-même!`,'dmg');
@@ -829,8 +856,8 @@ function doEndTurn() {
       const opp2 = G.cp===1?2:1;
       const oppAlive = G.players[opp2].field.filter(x=>x&&!x.faceDown);
       if(oppAlive.length>0) {
-        if(Math.random()<0.5) {
-          const target3 = oppAlive[Math.floor(Math.random()*oppAlive.length)];
+        if(rng()<0.5) {
+          const target3 = oppAlive[Math.floor(rng()*oppAlive.length)];
           handleDeath(opp2, target3);
           addLog(`${m.n} — Charybde: PILE! ${target3.n} détruit!`,'special');
         } else {
@@ -1062,7 +1089,7 @@ async function applyEntry(p, idx, m) {
       G.players[p].hand.push(r3);
       addLog(`${m.n} — Ratatosk trouvé!`,'event');
     }
-    deck3.sort(()=>Math.random()-0.5);
+    deck3.sort(()=>rng()-0.5);
   }
   if(cap.includes('entry_tokens4')) {
     const P2 = G.players[p];
@@ -1199,7 +1226,7 @@ async function applyExit(p, m) {
   if(cap.includes('exit_freeplay')) {
     const P = G.players[p];
     if(P.hand.length>0) {
-      const ri = Math.floor(Math.random()*P.hand.length);
+      const ri = Math.floor(rng()*P.hand.length);
       const free = P.hand.splice(ri,1)[0];
       addLog(`${m.n} Exit — Plays ${free.n} for free!`,'event');
       if(free.type==='monster') await playMonster(free, p);
@@ -1335,7 +1362,7 @@ async function handleDeath(p, m) {
   if((m.cap||'').includes('reincarnation') && !m.reincarnated) {
     const m2 = newCard({...m, atk:m.atk+3, def:m.def+3, cap:m.cap, reincarnated:true});
     m2.cAtk=m2.atk; m2.cDef=m2.def;
-    G.players[p].deck.push(m2); G.players[p].deck.sort(()=>Math.random()-0.5);
+    G.players[p].deck.push(m2); G.players[p].deck.sort(()=>rng()-0.5);
     addLog(`✨ ${m.n} — Réincarnation! Retourne dans le deck avec +3/+3.`,'event');
     // Remove from field before exit, skip graveyard
     P.field.splice(idx,1); reindexSets(P,idx,true); return;
@@ -1596,7 +1623,7 @@ async function playGod(c, p) {
     addLog(`${c.n} — ${toRes.length} monstre(s) retourné(s) en main!`,'event');
   }
   else if(cap==='god_discard_hand_monster') {
-    if(G.mode==='pve' && p===2) {
+    if(aiControls(p)) {
       const oppHand = G.players[opp].hand.filter(x=>x.type==='monster');
       if(oppHand.length>0) {
         const disc = oppHand.reduce((a,b)=>a.cost>b.cost?a:b);
@@ -1752,7 +1779,7 @@ async function playGod(c, p) {
   }
   else if(cap==='god_discard2_random') {
     for(let i=0;i<2&&G.players[opp].hand.length>0;i++) {
-      const ri=Math.floor(Math.random()*G.players[opp].hand.length);
+      const ri=Math.floor(rng()*G.players[opp].hand.length);
       const disc2=G.players[opp].hand.splice(ri,1)[0];
       G.players[opp].graveyard.push(disc2);
       addLog(`${c.n} — ${disc2.n} défaussé!`,'event');
@@ -1845,7 +1872,7 @@ async function playGod(c, p) {
   else if(cap==='god_discard_per_faction') {
     const myFact = G.players[p].field.filter(x=>x&&!x.faceDown&&x.faction===G.players[p].faction).length;
     for(let i=0;i<myFact&&G.players[opp].hand.length>0;i++) {
-      const ri2=Math.floor(Math.random()*G.players[opp].hand.length);
+      const ri2=Math.floor(rng()*G.players[opp].hand.length);
       const disc3=G.players[opp].hand.splice(ri2,1)[0];
       G.players[opp].graveyard.push(disc3);
       addLog(`${c.n} — ${disc3.n} défaussé!`,'event');
@@ -1985,7 +2012,7 @@ async function showOracleModal(p) {
   if(cards.length === 0) { addLog('Oracle — deck vide!','event'); return; }
 
   // AI: do nothing (keep order)
-  if(G.mode==='pve' && p===2) {
+  if(aiControls(p)) {
     addLog('Oracle — IA garde l\'ordre du deck.','event');
     return;
   }
@@ -2087,7 +2114,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   if(typeof targetIdx==='number') {
     const def0 = DP.field[targetIdx];
     if(def0 && (def0.cap||'').includes('coinflip_defense')) {
-      if(Math.random()<0.5) {
+      if(rng()<0.5) {
         addLog(`${def0.n} — Coin flip: ANNULÉ!`,'special');
         AP.attacked.add(attackerIdx); renderAll(); return;
       } else {
@@ -2124,7 +2151,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
     if(atk.blinded && targetIdx !== 'player') {
       const allTargets = DP.field.map((m,i)=>m&&!m.faceDown?i:null).filter(i=>i!==null);
       if(allTargets.length > 1) {
-        finalTargetIdx = allTargets[Math.floor(Math.random()*allTargets.length)];
+        finalTargetIdx = allTargets[Math.floor(rng()*allTargets.length)];
         atk.blinded = false;
         addLog(`${atk.n} is blind — attacks random target!`,'debuff');
       }
@@ -2224,8 +2251,8 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
     await new Promise(r=>setTimeout(r,300));
     const newAtkIdx = AP.field.indexOf(atk);
     if(newAtkIdx>=0) {
-      if(attackerP===2 && G.mode==='pve') {
-        const newTarget = pickAITarget(targetP);
+      if(aiControls(attackerP)) {
+        const newTarget = pickAITarget(targetP, attackerP);
         if(newTarget!==null) await doAttack(attackerP, newAtkIdx, targetP, newTarget, true);
       } else if(attackerP===1) {
         // Open targeting for P1's second hit via promise
@@ -2334,8 +2361,8 @@ function checkFaceDownAthena(p, attacker, attackerP) {
 // =====================================================
 async function pickTarget(type, p, isEntry, card=null) {
   const opp=p===1?2:1;
-  // If AI turn, auto-pick
-  if(p===2 && G.mode==='pve') {
+  // If AI controls this player (pve P2, or sim both), auto-pick
+  if(aiControls(p)) {
     return aiPickTarget(type, p, card);
   }
   // Human: show modal
@@ -2374,6 +2401,7 @@ function checkVictory() {
  * Pendant ce temps, le joueur peut jouer des cartes Anytime.
  */
 async function waitForPlayerAck(triggerCard, context) {
+  if(G.mode==='sim') return; // headless IA-vs-IA: aucune attente d'input humain
   const P1 = G.players[1];
   const hasReactable = P1.hand.some(c => isAnytime(c) && P1.gems >= c.cost);
 
@@ -2433,8 +2461,8 @@ function resolveReaction() {
   if (window._resolveReaction) window._resolveReaction();
 }
 
-async function aiTurn() {
-  if(!G||G.cp!==2||aiThinking) return;
+async function aiTurn(p=2) {
+  if(!G||G.cp!==p||aiThinking) return;
   aiThinking=true;
 
   addLog(`── AI thinking... ──`,'phase');
@@ -2442,27 +2470,27 @@ async function aiTurn() {
 
   // Main1 phase
   G.phase='Main1';
-  handlePhaseStart(2);
+  handlePhaseStart(p);
   renderAll();
   await delay(300);
 
-  await aiMainPhase();
+  await aiMainPhase(p);
 
   // Combat phase
   G.phase='Combat';
   renderAll();
   Audio5L.combatMode();
   await delay(300);
-  await aiCombatPhase();
+  await aiCombatPhase(p);
 
   // Main2 phase
   G.phase='Main2';
-  handlePhaseStart(2);
+  handlePhaseStart(p);
   Audio5L.menuMode();
   renderAll();
   await delay(200);
 
-  await aiMainPhase();
+  await aiMainPhase(p);
 
   // End phase
   G.phase='End';
@@ -2473,8 +2501,8 @@ async function aiTurn() {
   doEndTurn();
 }
 
-async function aiMainPhase() {
-  const P = G.players[2];
+async function aiMainPhase(p=2) {
+  const P = G.players[p];
   let played = true;
 
   let safety = 0;
@@ -2482,7 +2510,7 @@ async function aiMainPhase() {
     safety++;
     played = false;
     const playable = P.hand
-      .map((c, i) => ({ c, i, score: scoreCard(c, 2) }))
+      .map((c, i) => ({ c, i, score: scoreCard(c, p) }))
       .filter(x => x.c.cost <= P.gems)
       .sort((a, b) => b.score - a.score);
 
@@ -2492,9 +2520,9 @@ async function aiMainPhase() {
       P.gems -= best.c.cost;
       P.hand.splice(best.i, 1);
 
-      if (best.c.type === 'monster')      await playMonster(best.c, 2);
-      else if (best.c.type === 'god')     await playGod(best.c, 2);
-      else                                await playSpell(best.c, 2);
+      if (best.c.type === 'monster')      await playMonster(best.c, p);
+      else if (best.c.type === 'god')     await playGod(best.c, p);
+      else                                await playSpell(best.c, p);
 
       renderAll();
 
@@ -2671,10 +2699,10 @@ function scoreCard(c, p) {
   return score * urgency;
 }
 
-async function aiCombatPhase() {
-  const P   = G.players[2];
-  const OP  = G.players[1];
-  const opp = 1;
+async function aiCombatPhase(p=2) {
+  const P   = G.players[p];
+  const opp = p===1?2:1;
+  const OP  = G.players[opp];
 
   // Build list of monsters that can attack this phase
   const getAttackers = () => P.field
@@ -2693,13 +2721,13 @@ async function aiCombatPhase() {
   if(!oppHasProtect && totalAtk >= OP.hp) {
     addLog('🎯 AI détecte une victoire — tout en face !', 'special');
     for(const {m,i} of attackers) {
-      if(!G.players[2].field[i]) continue;
-      if(m.bewitched && Math.random() < 0.5) { P.attacked.add(i); continue; }
+      if(!G.players[p].field[i]) continue;
+      if(m.bewitched && rng() < 0.5) { P.attacked.add(i); continue; }
       addLog(`${m.n} attaque le joueur directement !`, 'dmg');
       renderAll();
       await waitForPlayerAck(m, 'attack');
-      if(!G.players[2].field[i]) continue;
-      await doAttack(2, i, opp, 'player');
+      if(!G.players[p].field[i]) continue;
+      await doAttack(p, i, opp, 'player');
       renderAll();
       await new Promise(r => setTimeout(r, 350));
       if(checkVictoryBool()) return;
@@ -2711,13 +2739,13 @@ async function aiCombatPhase() {
   const oppAlive = OP.field.filter(m => m && !m.faceDown && !m.asleep && !m.sanded);
   if(oppAlive.length === 0) {
     for(const {m,i} of getAttackers()) {
-      if(!G.players[2].field[i]) continue;
-      if(m.bewitched && Math.random() < 0.5) { P.attacked.add(i); continue; }
+      if(!G.players[p].field[i]) continue;
+      if(m.bewitched && rng() < 0.5) { P.attacked.add(i); continue; }
       addLog(`${m.n} attaque directement (terrain adverse vide) !`, 'dmg');
       renderAll();
       await waitForPlayerAck(m, 'attack');
-      if(!G.players[2].field[i]) continue;
-      await doAttack(2, i, opp, 'player');
+      if(!G.players[p].field[i]) continue;
+      await doAttack(p, i, opp, 'player');
       renderAll();
       await new Promise(r => setTimeout(r, 350));
       if(checkVictoryBool()) return;
@@ -2734,18 +2762,18 @@ async function aiCombatPhase() {
   });
 
   for(const {m,i} of sorted) {
-    if(!G.players[2].field[i]) continue;
-    if(G.players[2].attacked.has(i)) continue;
+    if(!G.players[p].field[i]) continue;
+    if(G.players[p].attacked.has(i)) continue;
 
     if(m.bewitched) {
-      if(Math.random() < 0.5) {
+      if(rng() < 0.5) {
         addLog(`${m.n} envoûté — rate son attaque !`, 'debuff');
         P.attacked.add(i);
         continue;
       }
     }
 
-    const target = pickAITarget(opp);
+    const target = pickAITarget(opp, p);
     if(target === null) break;
 
     addLog(`${m.n} se prépare à attaquer...`, 'combat');
@@ -2754,7 +2782,7 @@ async function aiCombatPhase() {
     await waitForPlayerAck(m, 'attack');
     if(!G.players[2].field[i]) continue;
 
-    await doAttack(2, i, opp, target);
+    await doAttack(p, i, opp, target);
     renderAll();
     await new Promise(r => setTimeout(r, 450));
 
@@ -2762,9 +2790,9 @@ async function aiCombatPhase() {
   }
 }
 
-function pickAITarget(targetP) {
+function pickAITarget(targetP, attackerP=2) {
   const TP = G.players[targetP];
-  const AP = G.players[2];
+  const AP = G.players[attackerP];
 
   // Monsters that haven't attacked yet
   const myAttackers = AP.field
