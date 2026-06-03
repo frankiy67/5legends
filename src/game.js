@@ -4064,7 +4064,11 @@ async function executeRitual(p, cardIdx, sacrificeIdx) {
 }
 
 function renderHand() {
-  const cp=G.cp;
+  // En PvE, le joueur humain (J1) ne doit JAMAIS voir la main de l'IA :
+  // le « viewer » (main affichée face visible) est toujours J1. En PvP
+  // hot-seat, c'est le joueur actif. La main de l'autre est rendue en dos.
+  const cp = (G.mode==='pve') ? 1 : G.cp;
+  const viewerActive = (G.cp === cp); // le viewer peut-il agir en ce moment ?
   const ownTurn2=G.cp===G.activeTurn&&!G.waitingForPlayer;
   const banner=document.getElementById('opp-banner');
   if(banner) banner.classList.toggle('visible',!ownTurn2||G.waitingForPlayer);
@@ -4082,7 +4086,7 @@ function renderHand() {
   P.hand.forEach((c,i)=>{
     const isAnytimeC=isAnytime(c);
     const ownTurn=G.cp===G.activeTurn;
-    const canPlay=P.gems>=c.cost&&(
+    const canPlay=viewerActive&&P.gems>=c.cost&&(
       (ownTurn&&(G.phase==='Main1'||G.phase==='Main2'))||
       (ownTurn&&isAnytimeC&&G.phase!=='End')||
       (!ownTurn&&isAnytimeC)||
@@ -4149,7 +4153,7 @@ function renderHand() {
   // ── Opponent hand (card backs) ─────────────────────────────────────
   const oppEl = document.getElementById('opp-hand-cards');
   if(oppEl) {
-    const oppP = G.players[G.cp === 1 ? 2 : 1];
+    const oppP = G.players[cp === 1 ? 2 : 1];
     oppEl.innerHTML = '';
     const on = oppP.hand.length;
     const maxA2 = Math.min(22, on * 3.5);
