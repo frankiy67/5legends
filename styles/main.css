@@ -607,6 +607,10 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
 
 #victory{display:none;position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:200;flex-direction:column;align-items:center;justify-content:center}
 #vic-title{font-family:'Marcellus','Cinzel',serif;font-size:68px;font-weight:400;letter-spacing:6px;background:linear-gradient(135deg,#8a6010,#f4c95d 30%,#ffe18a 50%,#f4c95d 70%,#8a6010);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px;animation:vic-enter .7s cubic-bezier(.34,1.56,.64,1) forwards,glow 2s ease-in-out .7s infinite}
+/* DÉFAITE — teinte rouge sombre */
+#vic-title.defeat{background:linear-gradient(135deg,#3a0808,#e74c3c 35%,#ff8a80 50%,#e74c3c 65%,#3a0808);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#vic-title.defeat{animation:vic-enter .7s cubic-bezier(.34,1.56,.64,1) forwards,glowRed 2s ease-in-out .7s infinite}
+@keyframes glowRed{0%,100%{filter:drop-shadow(0 0 12px rgba(231,76,60,.5))}50%{filter:drop-shadow(0 0 34px rgba(231,76,60,.9))}}
 #vic-sub{font-size:18px;color:var(--ink2);margin-bottom:40px;animation:vic-sub-enter .5s ease-out .5s both}
 #vic-replay{font-family:'Cinzel',serif;font-size:14px;padding:13px 42px;border:1px solid var(--gold);background:rgba(244,201,93,.15);color:var(--gold-bright);border-radius:10px;cursor:pointer;letter-spacing:2px;transition:all .3s;animation:vic-sub-enter .5s ease-out .9s both}
 #vic-replay:hover{background:rgba(244,201,93,.3);box-shadow:0 0 28px rgba(244,201,93,.45)}

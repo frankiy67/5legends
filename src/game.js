@@ -2353,8 +2353,13 @@ function checkVictory() {
     if(G.players[p].hp<=0) {
       const w=p===1?2:1;
       if(w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
-      document.getElementById('vic-title').textContent=`Player ${w} Wins!`;
-      document.getElementById('vic-sub').textContent=`${G.players[w].faction} triumphs after turn ${G.turn}`;
+      const localWin = (G.mode==='pve') ? (w===1) : true; // en PvP, le gagnant est "victorieux"
+      const titleEl=document.getElementById('vic-title');
+      titleEl.textContent = (G.mode==='pve')
+        ? (w===1 ? 'VICTOIRE' : 'DÉFAITE')
+        : `JOUEUR ${w} — VICTOIRE`;
+      titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
+      document.getElementById('vic-sub').textContent=`${(G.players[w].faction||'').toUpperCase()} triomphe au tour ${G.turn}`;
       document.getElementById('victory').style.display='flex';
     }
   }
