@@ -2151,33 +2151,39 @@ async function playSpell(c, p) {
   G.players[p].graveyard.push(c);
 }
 
+// ── Registre des effets de SORTS ([Sort] / spells) — Event 'spell' ─────
+// Caps mutuellement exclusives (égalité exacte) → dispatch cumulatif
+// équivalent à l'ancien else-if. async uniquement si await dans le corps.
+registerEffect('spell', cap => cap==='spell_dmg4'||cap==='spell_dmg4_sand'||cap==='spell_dmg4_bewitch', async ctx => {
+  const { c, p, cap } = ctx;
+  await pickTarget('spell4dmg', p, false, c);
+  if(cap==='spell_dmg4_sand') await pickTarget('sandup', p, false);
+  if(cap==='spell_dmg4_bewitch') await pickTarget('bewitch', p, false);
+});
+registerEffect('spell', cap => cap==='spell_draw3', ctx => {
+  const { p } = ctx;
+  drawCard(p); drawCard(p); drawCard(p);
+  // discard 2 (just auto-discard last 2 for AI, prompt for human)
+  if(G.cp===p && G.mode==='pvp' || (G.mode==='pve'&&p===1)) {
+    const P=G.players[p];
+    if(P.hand.length>7) { const d=P.hand.splice(7); d.forEach(x=>P.graveyard.push(x)); }
+  } else {
+    const P=G.players[p]; while(P.hand.length>7){P.graveyard.push(P.hand.pop());}
+  }
+  addLog(`Draw 3, discard to 7`,'buff');
+});
+registerEffect('spell', cap => cap==='spell_cancel', ctx => {
+  const { c } = ctx;
+  if(G.stack && G.stack.length>0) {
+    const entry=G.stack[0]; G.stack=[];
+    addLog(`${c.n} — ${entry.card.n} COUNTERED!`,'special');
+  } else { addLog(`${c.n} — Nothing to counter`,'special'); }
+});
+registerEffect('spell', cap => cap==='oracle_3', async ctx => { await showOracleModal(ctx.p); });
+
 async function applySpellEffect(c, p) {
-  const cap = c.cap||'';
-  if(cap==='spell_dmg4'||cap==='spell_dmg4_sand'||cap==='spell_dmg4_bewitch') {
-    await pickTarget('spell4dmg', p, false, c);
-    if(cap==='spell_dmg4_sand') await pickTarget('sandup', p, false);
-    if(cap==='spell_dmg4_bewitch') await pickTarget('bewitch', p, false);
-  }
-  else if(cap==='spell_draw3') {
-    drawCard(p); drawCard(p); drawCard(p);
-    // discard 2 (just auto-discard last 2 for AI, prompt for human)
-    if(G.cp===p && G.mode==='pvp' || (G.mode==='pve'&&p===1)) {
-      const P=G.players[p];
-      if(P.hand.length>7) { const d=P.hand.splice(7); d.forEach(x=>P.graveyard.push(x)); }
-    } else {
-      const P=G.players[p]; while(P.hand.length>7){P.graveyard.push(P.hand.pop());}
-    }
-    addLog(`Draw 3, discard to 7`,'buff');
-  }
-  else if(cap==='spell_cancel') {
-    if(G.stack && G.stack.length>0) {
-      const entry=G.stack[0]; G.stack=[];
-      addLog(`${c.n} — ${entry.card.n} COUNTERED!`,'special');
-    } else { addLog(`${c.n} — Nothing to counter`,'special'); }
-  }
-  else if(cap==='oracle_3') {
-    await showOracleModal(p);
-  }
+  // Dispatch composable des effets de sort (cf. moteur d'effets, Event 'spell').
+  await runEffects('spell', { c, p, opp: p===1?2:1, cap: c.cap||'' });
 }
 
 // ── Oracle de Delphes — UI modal ─────────────────────────────
