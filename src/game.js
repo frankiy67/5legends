@@ -1014,7 +1014,14 @@ const EFFECTS = { entry: [], exit: [], passive: [], combat: [], anytime: [], spe
 function registerEffect(event, cond, run) { EFFECTS[event].push({ cond, run }); }
 async function runEffects(event, ctx) {
   for (const eff of EFFECTS[event]) {
-    if (eff.cond(ctx.cap, ctx)) await eff.run(ctx);
+    if (eff.cond(ctx.cap, ctx)) {
+      // On n'attend QUE les effets réellement asynchrones (thenable). Les
+      // effets synchrones (déclarés non-async) s'exécutent sans introduire de
+      // frontière de micro-tâche → on reproduit exactement la séquence d'await
+      // de l'ancienne chaîne (où seuls les `await pickTarget(...)` suspendaient).
+      const r = eff.run(ctx);
+      if (r && typeof r.then === 'function') await r;
+    }
   }
 }
 // Selectors — fabriquent des ensembles de cibles à partir du contexte.
@@ -1103,7 +1110,7 @@ registerEffect('entry', cap => cap.includes('entry_freespell2'), async ctx => {
     G.players[p].graveyard.push(free);
   }
 });
-registerEffect('entry', cap => cap.includes('entry_draw_exit_draw'), async ctx => { drawCard(ctx.p); addLog(`${ctx.m.n} — Draw 1`,'buff'); });
+registerEffect('entry', cap => cap.includes('entry_draw_exit_draw'), ctx => { drawCard(ctx.p); addLog(`${ctx.m.n} — Draw 1`,'buff'); });
 registerEffect('entry', cap => cap.includes('entry_cancel'), async ctx => { await pickTarget('cancel_ms', ctx.p, true); });
 registerEffect('entry', cap => cap.includes('entry_copy_ally'), async ctx => {
   const { p, idx } = ctx;
@@ -1252,83 +1259,90 @@ async function applyEntry(p, idx, m) {
   await runEffects('entry', { p, idx, m, opp: p===1?2:1, cap: m.cap||'' });
 }
 
-async function applyExit(p, m) {
-  const opp = p===1?2:1;
-  const cap = m.cap||'';
-  if(cap.includes('exit_sleep')) await pickTarget('sleep', p, false);
-  if(cap.includes('exit_destroy')) await pickTarget('destroy', p, false);
-  if(cap.includes('exit_blind')) await pickTarget('blind', p, false);
-  if(cap.includes('exit_curse')) await pickTarget('curse', p, false);
-  if(cap.includes('exit_draw')) { drawCard(p); addLog(`${m.n} Exit — Draw 1`,'buff'); }
-  if(cap.includes('exit_sandup')) await pickTarget('sandup', p, false);
-  if(cap.includes('exit_bewitch')) await pickTarget('bewitch', p, false);
-  if(cap.includes('exit_copy')) {
-    const P = G.players[p];
-    if(P.field.length<6) {
-      const copy = newCard({...m, cap:'', txt:'(copy, no capacity)'});
-      copy.cAtk=m.atk; copy.cDef=m.def;
-      P.field.push(copy);
-      addLog(`${m.n} Exit — Creates a copy!`,'event');
-    }
+// ── Registre des effets de SORTIE ([Sortie] / deathrattle) ─────────────
+registerEffect('exit', cap => cap.includes('exit_sleep'), async ctx => { await pickTarget('sleep', ctx.p, false); });
+registerEffect('exit', cap => cap.includes('exit_destroy'), async ctx => { await pickTarget('destroy', ctx.p, false); });
+registerEffect('exit', cap => cap.includes('exit_blind'), async ctx => { await pickTarget('blind', ctx.p, false); });
+registerEffect('exit', cap => cap.includes('exit_curse'), async ctx => { await pickTarget('curse', ctx.p, false); });
+registerEffect('exit', cap => cap.includes('exit_draw'), ctx => { drawCard(ctx.p); addLog(`${ctx.m.n} Exit — Draw 1`,'buff'); });
+registerEffect('exit', cap => cap.includes('exit_sandup'), async ctx => { await pickTarget('sandup', ctx.p, false); });
+registerEffect('exit', cap => cap.includes('exit_bewitch'), async ctx => { await pickTarget('bewitch', ctx.p, false); });
+registerEffect('exit', cap => cap.includes('exit_copy'), ctx => {
+  const { p, m } = ctx;
+  const P = G.players[p];
+  if(P.field.length<6) {
+    const copy = newCard({...m, cap:'', txt:'(copy, no capacity)'});
+    copy.cAtk=m.atk; copy.cDef=m.def;
+    P.field.push(copy);
+    addLog(`${m.n} Exit — Creates a copy!`,'event');
   }
-  if(cap.includes('exit_freeplay')) {
-    const P = G.players[p];
-    if(P.hand.length>0) {
-      const ri = Math.floor(rng()*P.hand.length);
-      const free = P.hand.splice(ri,1)[0];
-      addLog(`${m.n} Exit — Plays ${free.n} for free!`,'event');
-      if(free.type==='monster') await playMonster(free, p);
-      else { await applySpellEffect(free, p); P.graveyard.push(free); }
-    }
+});
+registerEffect('exit', cap => cap.includes('exit_freeplay'), async ctx => {
+  const { p, m } = ctx;
+  const P = G.players[p];
+  if(P.hand.length>0) {
+    const ri = Math.floor(rng()*P.hand.length);
+    const free = P.hand.splice(ri,1)[0];
+    addLog(`${m.n} Exit — Plays ${free.n} for free!`,'event');
+    if(free.type==='monster') await playMonster(free, p);
+    else { await applySpellEffect(free, p); P.graveyard.push(free); }
   }
-  if(cap.includes('entry_draw_exit_draw')) { drawCard(p); addLog(`${m.n} Exit — Draw 1`,'buff'); }
+});
+registerEffect('exit', cap => cap.includes('entry_draw_exit_draw'), ctx => { drawCard(ctx.p); addLog(`${ctx.m.n} Exit — Draw 1`,'buff'); });
+registerEffect('exit', cap => cap.includes('exit_search_3def')||cap.includes('exit_search_3atk')||cap.includes('exit_search3')||cap.includes('exit_search_atk3')||cap.includes('exit_search_faction'), ctx => {
+  const { p, m, cap } = ctx;
+  const P3 = G.players[p];
+  let candidates;
+  if(cap.includes('exit_search_3atk')||cap.includes('exit_search_atk3')) {
+    candidates = P3.deck.filter(c=>c.type==='monster' && c.atk<=3);
+  } else {
+    candidates = P3.deck.filter(c=>c.type==='monster' && c.def<=3);
+  }
+  if(candidates.length>0) {
+    // Pick best candidate
+    const found = candidates[0];
+    P3.deck.splice(P3.deck.indexOf(found),1);
+    P3.hand.push(found);
+    addLog(`${m.n} Exit — ${found.n} trouvé!`,'event');
+  }
+});
+registerEffect('exit', cap => cap.includes('exit_copy_killer') || cap.includes('exit_copy_killer')||cap.includes('exit_copy_token'), ctx => {
+  const { p, m } = ctx;
+  if(m._killedBy && G.players[p].field.length<6) {
+    const tok = newCard({...m._killedBy, atk:m._killedBy.atk, def:m._killedBy.def, cost:0, cap:'', txt:'(copie sans cap)'});
+    tok.cAtk=m._killedBy.atk; tok.cDef=m._killedBy.def;
+    G.players[p].field.push(tok);
+    addLog(`${m.n} Exit — Copie de ${m._killedBy.n}!`,'event');
+  }
+});
+registerEffect('exit', cap => cap.includes('exit_autocopy'), ctx => {
+  const { p, m } = ctx;
+  // Akkorokamui
+  if(G.players[p].field.length<6) {
+    const copy = newCard({...m, cap:'', txt:'(copie sans capacité)'});
+    copy.cAtk=m.atk; copy.cDef=m.def;
+    G.players[p].field.push(copy);
+    addLog(`${m.n} Exit — Auto-copie invoquée!`,'event');
+  }
+});
+registerEffect('exit', cap => cap.includes('exit_dmg3_all') || cap.includes('exit_dmg3_all_opp'), ctx => {
+  const { p, m } = ctx;
+  const opp3 = p===1?2:1;
+  G.players[opp3].field.filter(x=>x&&!x.faceDown).forEach(async x=>{
+    x.cDef = Math.max(0, x.cDef-3);
+    if(x.cDef<=0) await handleDeath(opp3,x);
+  });
+  addLog(`${m.n} Exit — 3 dégâts à tous les adverses!`,'dmg');
+});
+registerEffect('exit', cap => cap.includes('exit_heal4'), ctx => {
+  const { p, m } = ctx;
+  G.players[p].hp = Math.min(25, G.players[p].hp + 4);
+  addLog(`${m.n} Exit — +4 PV!`,'heal');
+});
 
-  // New exit effects from xlsx
-  if(cap.includes('exit_search_3def')||cap.includes('exit_search_3atk')||cap.includes('exit_search3')||cap.includes('exit_search_atk3')||cap.includes('exit_search_faction')) {
-    const P3 = G.players[p];
-    let candidates;
-    if(cap.includes('exit_search_3atk')||cap.includes('exit_search_atk3')) {
-      candidates = P3.deck.filter(c=>c.type==='monster' && c.atk<=3);
-    } else {
-      candidates = P3.deck.filter(c=>c.type==='monster' && c.def<=3);
-    }
-    if(candidates.length>0) {
-      // Pick best candidate
-      const found = candidates[0];
-      P3.deck.splice(P3.deck.indexOf(found),1);
-      P3.hand.push(found);
-      addLog(`${m.n} Exit — ${found.n} trouvé!`,'event');
-    }
-  }
-  if(cap.includes('exit_copy_killer') || cap.includes('exit_copy_killer')||cap.includes('exit_copy_token')) {
-    if(m._killedBy && G.players[p].field.length<6) {
-      const tok = newCard({...m._killedBy, atk:m._killedBy.atk, def:m._killedBy.def, cost:0, cap:'', txt:'(copie sans cap)'});
-      tok.cAtk=m._killedBy.atk; tok.cDef=m._killedBy.def;
-      G.players[p].field.push(tok);
-      addLog(`${m.n} Exit — Copie de ${m._killedBy.n}!`,'event');
-    }
-  }
-  if(cap.includes('exit_autocopy')) {
-    // Akkorokamui
-    if(G.players[p].field.length<6) {
-      const copy = newCard({...m, cap:'', txt:'(copie sans capacité)'});
-      copy.cAtk=m.atk; copy.cDef=m.def;
-      G.players[p].field.push(copy);
-      addLog(`${m.n} Exit — Auto-copie invoquée!`,'event');
-    }
-  }
-  if(cap.includes('exit_dmg3_all') || cap.includes('exit_dmg3_all_opp')) {
-    const opp3 = p===1?2:1;
-    G.players[opp3].field.filter(x=>x&&!x.faceDown).forEach(async x=>{
-      x.cDef = Math.max(0, x.cDef-3);
-      if(x.cDef<=0) await handleDeath(opp3,x);
-    });
-    addLog(`${m.n} Exit — 3 dégâts à tous les adverses!`,'dmg');
-  }
-  if(cap.includes('exit_heal4')) {
-    G.players[p].hp = Math.min(25, G.players[p].hp + 4);
-    addLog(`${m.n} Exit — +4 PV!`,'heal');
-  }
+async function applyExit(p, m) {
+  // Dispatch composable des effets de sortie (cf. moteur d'effets).
+  await runEffects('exit', { p, m, opp: p===1?2:1, cap: m.cap||'' });
 }
 
 // =====================================================
