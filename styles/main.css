@@ -620,6 +620,23 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
 #big-preview-overlay{align-items:center;justify-content:center}
 
 /* ──────────────────────────────────────────────────────────────────
+   15b. INCLINAISON 3D (tilt) — perspective conteneur + rotX/rotY ±8°
+   Le tilt s'applique au cadre INTERNE pour composer avec l'arc/hover.
+   ────────────────────────────────────────────────────────────────── */
+.fcard,.hcard{perspective:600px}
+.fc-frame,.hc-frame-inner{
+  transform:rotateX(var(--ry,0deg)) rotateY(var(--rx,0deg));
+  transform-style:preserve-3d;
+  transition:transform .12s ease,box-shadow .3s,background .3s;
+  will-change:transform;
+}
+/* reflet spéculaire glissant selon le tilt */
+.fc-frame::after,.hc-frame-inner::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:5;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,calc(.10 + var(--gloss,0)*.14)) 50%,transparent 65%);
+  opacity:0;transition:opacity .2s}
+.fcard:hover .fc-frame::after,.hcard:hover .hc-frame-inner::after{opacity:1}
+
+/* ──────────────────────────────────────────────────────────────────
    16. RESPONSIVE — laptop 1280
    ────────────────────────────────────────────────────────────────── */
 @media (max-width:1366px){

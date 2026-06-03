@@ -301,4 +301,31 @@
   </div>
 </div>
 
+<!-- Inclinaison 3D des cartes (purement visuel, n'affecte pas la logique) -->
+<script>
+(function(){
+  var MAX = 8; // degrés
+  function inner(card){ return card.querySelector('.fc-frame, .hc-frame-inner'); }
+  document.addEventListener('mousemove', function(e){
+    var card = e.target.closest ? e.target.closest('.fcard, .hcard') : null;
+    if(!card) return;
+    var el = inner(card); if(!el) return;
+    var r = card.getBoundingClientRect();
+    var px = (e.clientX - r.left)/r.width - 0.5;   // -.5..+.5
+    var py = (e.clientY - r.top)/r.height - 0.5;
+    el.style.setProperty('--rx', (px*MAX*2).toFixed(2)+'deg');   // rotateY
+    el.style.setProperty('--ry', (-py*MAX*2).toFixed(2)+'deg');  // rotateX
+    el.style.setProperty('--gloss', Math.abs(px).toFixed(2));
+  }, {passive:true});
+  document.addEventListener('mouseout', function(e){
+    var card = e.target.closest ? e.target.closest('.fcard, .hcard') : null;
+    if(!card || card.contains(e.relatedTarget)) return;
+    var el = inner(card); if(!el) return;
+    el.style.setProperty('--rx','0deg');
+    el.style.setProperty('--ry','0deg');
+    el.style.setProperty('--gloss','0');
+  }, {passive:true});
+})();
+</script>
+
 </body></html>
