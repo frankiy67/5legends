@@ -3196,20 +3196,32 @@ function aiPrayPhase(p=2) {
       keepN = Math.min(eligible.length, Math.max(1, enemyThreat));
     }
   } else if (prof === 'RAID') {
-    // Ne prie QUE sans bonne attaque : si une créature ennemie est attaquable,
-    // on garde tout le monde pour le combat (déni + Ferveur) ; sinon on prie tout.
-    const canRaid = OP.field.some(m => m && !m.faceDown && !m.asleep && attackTargetable(opp, m));
-    keepN = canRaid ? eligible.length : 0;
+    keepN = -1; // marqueur : RAID utilise un prédicat PAR créature (cf. defIds ci-dessous)
   } else {
     keepN = Math.min(eligible.length, Math.ceil(enemyThreat / 2)); // CONTROL (inchangé)
   }
-  // noyau défensif : gardiennes (protect) d'abord, puis plus haute DEF
-  const defenders = [...eligible].sort((a,b) => {
-    const ap = (a.m.cap||'').includes('protect') ? 1 : 0;
-    const bp = (b.m.cap||'').includes('protect') ? 1 : 0;
-    return (bp - ap) || ((b.m.cDef||0) - (a.m.cDef||0));
-  }).slice(0, keepN);
-  const defIds = new Set(defenders.map(d => d.i));
+  let defIds;
+  if (prof === 'RAID') {
+    // Ne prie QUE sans BONNE attaque (décision par créature) : on garde au combat
+    // toute créature qui a une attaque rentable — tuer une cible, profaner un
+    // fidèle à genoux, ou déclencher la Ferveur. Les créatures sans attaque utile
+    // prient (génèrent quand même de la Foi au lieu de rester inertes).
+    const targets = OP.field.filter(m => m && !m.faceDown && !m.asleep && attackTargetable(opp, m));
+    const goodAttack = (m) => targets.length > 0 && (
+      targets.some(t => t.cDef <= (m.cAtk || 0)) ||        // kill franc
+      targets.some(t => t.kneeling) ||                     // profanation (déni)
+      (m.cap || '').includes('fervor')                     // Ferveur (Guerre→Foi)
+    );
+    defIds = new Set(eligible.filter(({ m }) => goodAttack(m)).map(d => d.i));
+  } else {
+    // noyau défensif : gardiennes (protect) d'abord, puis plus haute DEF
+    const defenders = [...eligible].sort((a,b) => {
+      const ap = (a.m.cap||'').includes('protect') ? 1 : 0;
+      const bp = (b.m.cap||'').includes('protect') ? 1 : 0;
+      return (bp - ap) || ((b.m.cDef||0) - (a.m.cDef||0));
+    }).slice(0, keepN);
+    defIds = new Set(defenders.map(d => d.i));
+  }
   let prayed = false;
   for(const {m,i} of eligible) {
     if(defIds.has(i)) continue;     // gardienne : garde son action pour défendre/attaquer
