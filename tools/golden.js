@@ -25,7 +25,10 @@ const GAME_SRC = path.join(ROOT, 'src', 'game.js');
 
 const OUT = process.argv[2] || path.join(__dirname, 'golden_snapshot.json');
 const N_GAMES = parseInt(process.argv[3] || '200', 10);
-const MAX_TURNS = 200; // garde-fou anti-partie-infinie (pas de fatigue dans ce jeu)
+// ASCENSION (C3) : plus de fin par PV → la Foi (>=14) est la seule conclusion.
+// Garde-fou de terminaison : abandon à 50 tours = partie "non conclue" (winner=null).
+// Sert à DÉTECTER d'éventuelles parties qui ne se terminent pas (pré-horloge C4).
+const MAX_TURNS = 50;
 
 // ── Stub DOM/Audio universel ────────────────────────────────────────────
 // Proxy "ANY" : tout accès de propriété renvoie un objet chaînable/appelable,
@@ -194,11 +197,14 @@ async function playGame(API, seed) {
     error = m.replace(/:\d+:\d+/g, ':L:C');
   }
 
+  // ASCENSION (C3) : vainqueur = celui qui atteint la Foi (>=14). null = non conclue
+  // (garde-fou MAX_TURNS atteint). Plus de victoire par PV.
   let winner = null;
-  if (G.players[1].hp <= 0 && G.players[2].hp <= 0) winner = 'both';
-  else if (G.players[1].hp <= 0) winner = 2;
-  else if (G.players[2].hp <= 0) winner = 1;
-  else winner = null; // timeout / draw
+  const faith1 = G.players[1].faith || 0, faith2 = G.players[2].faith || 0;
+  if (faith1 >= 14 && faith2 >= 14) winner = 'both';
+  else if (faith1 >= 14) winner = 1;
+  else if (faith2 >= 14) winner = 2;
+  else winner = null; // non conclue (cap de tours atteint)
 
   // Le log est stocké en unshift (plus récent en tête) → on remet en ordre chrono.
   const actionLog = G.log.map((e) => e.msg).reverse();

@@ -624,6 +624,22 @@ const SUPREME_GODS = {
   yokai:'Amaterasu', norse:'Odin', egyptian:'Ra', greek:'Zeus', aztec:'Huitzilopochtli'
 };
 
+// ══════════════════════════════════════════════════════════════════════════
+// FLAG ASCENSION-TODO (C3 → C4) — capacités touchant les PV, désormais INERTES.
+// En C3 les PV sont retirés (la Foi est la seule victoire), donc ces capacités
+// ne font plus rien d'utile. NE PAS les supprimer : à REPENSER en capacités
+// pertinentes pour la Foi (état transitoire normal). Idées de refonte :
+//   • VOL DE VIE (cap 'heal' / 'hurry_heal') — Mujnina, Ryuu, Ljosalfar,
+//     Landvaettir, Apis, Criosphinx, Pégase, Lion de Némée…
+//       → ex. « +1 Foi quand cette créature inflige des dégâts ».
+//   • SOINS DE PV — Griffon (hurry_exit_heal4 +4), Osiris (god_cancel_attack +3),
+//     Idunn (+5), Mayahuel (+5)…  → ex. gain de Foi / protection de fidèle.
+//   • DÉGÂTS AU VISAGE — Karura (entry_dmg4 quand board adverse vide), effets
+//     « X dégâts directs au joueur ».  → déjà neutralisés (no-op loggé).
+// Le champ player.hp est conservé en interne (référencé par ces effets) mais
+// n'a plus aucun rôle de victoire/défaite ni d'affichage.
+// ══════════════════════════════════════════════════════════════════════════
+
 function initGame(f1, f2, mode) {
   G = {
     mode, // 'pvp' or 'pve' (p2 is AI)
@@ -1107,6 +1123,9 @@ async function playCard(handIdx) {
     if (window._resolveReaction) window._resolveReaction();
   }
 
+  // SÉCURITÉ (Pégase) : après TOUT effet de carte (dieu/sort/entrée AoE), balaye
+  // les créatures à 0 bouclier laissées en jeu. handleDeath idempotent.
+  await checkAllDeaths();
   renderAll();
   checkVictory();
 }
@@ -1316,8 +1335,9 @@ registerEffect('entry', cap => cap.includes('entry_dmg4') || cap.includes('entry
     addLog(`${m.n} — ${dmgAmt} damage to ${tgt.n}`,'dmg');
     if(tgt.cDef<=0) await handleDeath(opp, tgt);
   } else {
-    G.players[opp].hp -= dmgAmt;
-    addLog(`${m.n} — ${dmgAmt} damage to Player ${opp}`,'dmg');
+    // FLAG ASCENSION-TODO : plus de dégâts au visage (PV retirés en C3).
+    // Pas de créature adverse → l'effet est neutralisé (à repenser pour la Foi).
+    addLog(`${m.n} — aucune créature adverse à viser (effet neutralisé).`,'event');
   }
 });
 registerEffect('entry', cap => cap.includes('entry_sleep'), async ctx => { await pickTarget('sleep', ctx.p, true); });
@@ -2463,21 +2483,9 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
     targetIdx = finalTargetIdx;
 
     if(targetIdx==='player') {
-      // Direct attack
-      Audio5L.sfx.attack(); Audio5L.sfx.damage();
-      DP.hp -= atkVal;
-      flashDamage(document.getElementById(`p${targetP}-orb`));
-      addLog(`${atk.n} attacks P${targetP} directly — ${atkVal} dmg (❤${DP.hp})`,'dmg');
-      // Big flash + shake on direct damage
-      const hpbar = document.getElementById(`p${targetP}-hpbar`);
-      if(hpbar) { hpbar.style.boxShadow='inset 0 0 20px rgba(231,76,60,0.9)'; setTimeout(()=>{hpbar.style.boxShadow='';},400); }
-      const pbarEl = document.getElementById(`p${targetP}-bar`);
-      if(pbarEl) { pbarEl.classList.add('direct-hit'); setTimeout(()=>pbarEl.classList.remove('direct-hit'),400); }
-      screenShake(atkVal >= 8);
-      const orbEl = document.getElementById(`p${targetP}-orb`);
-      showFloatDmg(atkVal, orbEl, '#ff4444');
-      Audio5L.sfx.damage();
-      if(hasHeal) { Audio5L.sfx.heal(); AP.hp=Math.min(25,AP.hp+atkVal); addLog(`Heal — P${attackerP} +${atkVal} HP`,'heal'); showFloatHeal(atkVal, document.getElementById(`p${attackerP}-orb`)); }
+      // ASCENSION (C3) : plus de dégâts au visage. Les attaques ne ciblent que
+      // les créatures — cette branche ne doit plus être atteinte (no-op de sûreté).
+      return;
     } else {
       let def = DP.field[targetIdx];
       if(!def) return;
@@ -2597,6 +2605,9 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   const finalIdx = AP.field.indexOf(atk);
   if(finalIdx >= 0) AP.attacked.add(finalIdx);
   G.selAtk=null;
+  // SÉCURITÉ (Pégase) : balayage des morts après TOUS les effets de combat
+  // (splash, combat_dmg2, Seth…). handleDeath est idempotent → sans risque.
+  await checkAllDeaths();
   renderAll();
   checkVictory();
 }
@@ -2680,23 +2691,8 @@ async function pickTarget(type, p, isEntry, card=null) {
 // VICTORY CHECK
 // =====================================================
 function checkVictory() {
-  for(let p=1;p<=2;p++) {
-    if(G.players[p].hp<=0) {
-      const w=p===1?2:1;
-      if(w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
-      const localWin = (G.mode==='pve') ? (w===1) : true; // en PvP, le gagnant est "victorieux"
-      const titleEl=document.getElementById('vic-title');
-      titleEl.textContent = (G.mode==='pve')
-        ? (w===1 ? 'VICTOIRE' : 'DÉFAITE')
-        : `JOUEUR ${w} — VICTOIRE`;
-      titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
-      document.getElementById('vic-sub').textContent=`${(G.players[w].faction||'').toUpperCase()} triomphe au tour ${G.turn}`;
-      document.getElementById('victory').style.display='flex';
-    }
-  }
-  // ── ASCENSION (C1) : victoire par la Foi. INERTE en C1 (rien n'augmente la
-  // Foi → faith reste 0/2 < FAITH_WIN). Câblé pour que C2 n'ait qu'à remplir
-  // la jauge. Aucun effet sur le golden (branche jamais atteinte en sim). ──
+  // ── ASCENSION (C3) : la Foi est la SEULE victoire. Plus de victoire/défaite
+  // par PV (retirée en C3 — hp<=0 ne fait plus ni gagner ni perdre). ──
   for(let p=1;p<=2;p++) {
     if((G.players[p].faith||0) >= FAITH_WIN) {
       const P=G.players[p];
@@ -3069,45 +3065,10 @@ async function aiCombatPhase(p=2) {
       (!P.summoned.has(i) || (m.cap||'').includes('hurry'))
     );
 
-  // ── PRE-COMBAT LETHAL CHECK ──────────────────────────────────────
-  const attackers = getAttackers();
-  const oppHasProtect = OP.field.some(m => m && (m.cap||'').includes('protect') && !m.faceDown && !m.asleep && !m.kneeling);
-  const totalAtk = attackers.reduce((s,{m}) => s + (m.cAtk||0), 0);
-
-  if(!oppHasProtect && totalAtk >= OP.hp) {
-    addLog('🎯 AI détecte une victoire — tout en face !', 'special');
-    for(const {m,i} of attackers) {
-      if(!G.players[p].field[i]) continue;
-      if(m.bewitched && rng() < 0.5) { P.attacked.add(i); continue; }
-      addLog(`${m.n} attaque le joueur directement !`, 'dmg');
-      renderAll();
-      await waitForPlayerAck(m, 'attack');
-      if(!G.players[p].field[i]) continue;
-      await doAttack(p, i, opp, 'player');
-      renderAll();
-      await new Promise(r => setTimeout(r, 350));
-      if(checkVictoryBool()) return;
-    }
-    return;
-  }
-
-  // ── ANTI-STALL: opponent has no monsters → all attackers go face ─
-  const oppAlive = OP.field.filter(m => m && !m.faceDown && !m.asleep && !m.sanded);
-  if(oppAlive.length === 0) {
-    for(const {m,i} of getAttackers()) {
-      if(!G.players[p].field[i]) continue;
-      if(m.bewitched && rng() < 0.5) { P.attacked.add(i); continue; }
-      addLog(`${m.n} attaque directement (terrain adverse vide) !`, 'dmg');
-      renderAll();
-      await waitForPlayerAck(m, 'attack');
-      if(!G.players[p].field[i]) continue;
-      await doAttack(p, i, opp, 'player');
-      renderAll();
-      await new Promise(r => setTimeout(r, 350));
-      if(checkVictoryBool()) return;
-    }
-    return;
-  }
+  // ── ASCENSION (C3) : plus de « go face ». Les blocs léthal-visage et
+  // anti-stall-visage sont retirés. L'IA n'attaque QUE des créatures ; si
+  // l'adversaire n'en a aucune, pickAITarget renvoie null → aucune attaque
+  // (l'IA marque sa Foi via aiPrayPhase). ──
 
   // ── NORMAL COMBAT: strongest attackers first ────────────────────
   // Sort: Hurry/high-atk first, then others
@@ -3159,20 +3120,15 @@ function pickAITarget(targetP, attackerP=2) {
   // ASCENSION (C2) : un protecteur agenouillé ne protège plus (règle 4).
   const hasProtect = alive.some(x => (x.m.cap||'').includes('protect') && !x.m.kneeling);
 
-  // ── LETHAL CHECK: can remaining attackers kill the player? ──────
-  const totalRemainingAtk = myAttackers.reduce((s,{m}) => s + (m.cAtk||0), 0);
-  if(!hasProtect && totalRemainingAtk >= TP.hp) {
-    addLog('🎯 AI vise le coup fatal !', 'special');
-    return 'player';
-  }
+  // ── ASCENSION (C3) : plus de coup fatal au visage. ──
 
   // ── Must attack Protect first ───────────────────────────────────
   if(hasProtect) {
     const prot = alive.find(x => (x.m.cap||'').includes('protect') && !x.m.kneeling);
-    return prot ? prot.i : (alive.length ? alive[0].i : 'player');
+    return prot ? prot.i : (alive.length ? alive[0].i : null);
   }
 
-  if(alive.length === 0) return 'player';
+  if(alive.length === 0) return null;   // aucune créature à attaquer → pas de cible
 
   // Get current attacker's stats
   const cur = AP.field.find((m,i) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
@@ -3202,8 +3158,7 @@ function pickAITarget(targetP, attackerP=2) {
     }
   }
 
-  // ── CHIP DAMAGE: go face if nothing good to kill ────────────────
-  if(myAtk >= 4 && TP.hp <= 15) return 'player';
+  // ── ASCENSION (C3) : plus de « chip damage » au visage. ──
 
   // ── LAST RESORT: weakest shield ─────────────────────────────────
   alive.sort((a,b) => a.m.cDef - b.m.cDef);
@@ -3284,8 +3239,8 @@ function aiPickTarget(type, p, card) {
 }
 
 function checkVictoryBool() {
-  return G.players[1].hp<=0 || G.players[2].hp<=0
-    || (G.players[1].faith||0) >= FAITH_WIN || (G.players[2].faith||0) >= FAITH_WIN;
+  // ASCENSION (C3) : Foi>=FAITH_WIN = seule condition de fin (plus de PV).
+  return (G.players[1].faith||0) >= FAITH_WIN || (G.players[2].faith||0) >= FAITH_WIN;
 }
 
 function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }
@@ -3491,9 +3446,8 @@ function startAttackTargeting(attacker, p, idx) {
     if(m && !m.faceDown) el.classList.add('valid-target-dmg');
   });
 
-  // Mark player HP bar as target (if no protect)
-  const oppBar = document.getElementById(`p${opp}-bar`);
-  if(oppBar && !hasProtect) oppBar.classList.add('targetable');
+  // ASCENSION (C3) : le visage n'est plus ciblable — les attaques ne visent
+  // que les créatures. (On ne marque plus la barre joueur comme cible.)
 
   // Show hint
   const hint = document.getElementById('targeting-hint');
@@ -3643,20 +3597,18 @@ function resolvePlayerTarget(targetP) {
   stopTargeting();
 
   if(t.mode==='attack') {
-    const {p, idx, opp} = t;
-    // Bug #6 fix: second hit for P1 direct attack
+    // ASCENSION (C3) : plus d'attaque au visage. On clôt proprement le flux
+    // (notamment la 2e frappe) sans infliger de dégâts au joueur.
     if(window._hitStrikeResolve) {
       const resolve = window._hitStrikeResolve;
       window._hitStrikeResolve = null;
-      doAttack(p, idx, opp, 'player', true);
       resolve();
-      return;
     }
-    doAttack(p, idx, opp, 'player');
   } else if(t.mode==='card') {
     if(t.pendingResolve) {
-      G.players[targetP].hp -= 4;
-      addLog('Spell — P' + targetP + ' takes 4 dmg (❤' + G.players[targetP].hp + ')','dmg');
+      // FLAG ASCENSION-TODO : effet « dégâts directs au joueur » neutralisé (PV
+      // retirés en C3). À repenser en effet pertinent pour la Foi.
+      addLog('Effet au visage neutralisé (Ascension — PV retirés).','event');
       t.pendingResolve();
     }
   }
@@ -3961,16 +3913,7 @@ function renderAll() {
       atkModal.style.display='none'; G.selAtk=null;
     }
   }
-  // Re-apply player bar targetable state in attack mode
-  if(G.targeting && G.targeting.mode==='attack') {
-    const opp=G.targeting.opp;
-    const OP=G.players[opp];
-    const hasProtect=OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep&&!m.kneeling);
-    if(!hasProtect) {
-      const bar=document.getElementById(`p${opp}-bar`);
-      if(bar) bar.classList.add('targetable');
-    }
-  }
+  // ASCENSION (C3) : le visage n'est plus ciblable en attaque (réapplication retirée).
   // Re-apply card targeting markers
   if(G.targeting && G.targeting.mode==='card') {
     const {cap,p,opp}=G.targeting;
@@ -3990,10 +3933,6 @@ function flashDamage(selector) {
 
 function renderPlayerBar(p) {
   const P = G.players[p];
-  const maxHp = 25;
-  const pct = Math.max(0, P.hp / maxHp * 100);
-  const hpColor = pct > 50 ? '#2ecc71' : pct > 25 ? '#e67e22' : '#e74c3c';
-  const hpGlow  = pct > 50 ? 'rgba(46,204,113,0.7)' : pct > 25 ? 'rgba(230,126,34,0.7)' : 'rgba(231,76,60,0.7)';
   const col = { yokai:'#d04030', norse:'#7090b0', egyptian:'#2090d0', greek:'#9050c0', aztec:'#c8a010' };
   const emo = { yokai:'🦊', norse:'⚡', egyptian:'🏺', greek:'🏛', aztec:'🌞' };
 
@@ -4006,18 +3945,7 @@ function renderPlayerBar(p) {
   const bar = document.getElementById(`p${p}-bar`);
   if (bar) bar.dataset.faction = P.faction||'';
 
-  const orb = document.getElementById(`p${p}-orb`);
-  if (orb) {
-    orb.style.background = `radial-gradient(circle at 38% 32%, ${hpColor}dd 0%, ${hpColor}88 45%, ${hpColor}22 100%)`;
-    orb.style.color = hpColor;
-    orb.style.boxShadow = `0 0 0 2px rgba(255,255,255,0.06), 0 0 0 4px rgba(0,0,0,0.5), 0 0 18px ${hpGlow}, inset 0 3px 10px rgba(255,255,255,0.18), inset 0 -3px 8px rgba(0,0,0,0.5)`;
-    orb.style.setProperty('--hp', pct);          // anneau qui se vide
-    orb.classList.toggle('low-hp', P.hp < 10);   // glow rouge critique
-  }
-  const hpEl = document.getElementById(`p${p}-hp`);
-  if (hpEl) hpEl.textContent = P.hp;
-  const hpBar = document.getElementById(`p${p}-hpbar`);
-  if (hpBar) { hpBar.style.width = `${pct}%`; hpBar.style.background = hpColor; }
+  // ASCENSION (C3) : orbe PV retirée (le champ hp reste en interne, vestigial).
 
   const gemsEl = document.getElementById(`p${p}-gems`);
   if (gemsEl) {
@@ -4488,10 +4416,9 @@ function showActionMenu(p, i) {
   if(!m) return;
   const opp = p===1?2:1;
   const OP = G.players[opp];
-  // Attaque possible s'il existe une cible : une créature adverse visible, OU le
-  // joueur en face (si aucun protecteur non-agenouillé).
-  const oppHasProtect = OP.field.some(x=>x&&(x.cap||'').includes('protect')&&!x.faceDown&&!x.asleep&&!x.kneeling);
-  const hasAttackTarget = OP.field.some(x=>x&&!x.faceDown) || !oppHasProtect;
+  // ASCENSION (C3) : on n'attaque QUE des créatures (plus de visage). ⚔️ Attaquer
+  // n'apparaît que s'il existe une créature adverse visible ; sinon, seul 🙏 Prier.
+  const hasAttackTarget = OP.field.some(x=>x&&!x.faceDown);
   const canPrayNow = canPray(p, i);
   if(!hasAttackTarget && !canPrayNow) return;
 
