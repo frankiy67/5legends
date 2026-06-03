@@ -13,8 +13,9 @@
   /* Encres / textes */
   --ink:#ece6f5; --ink2:#b7adcf; --ink3:#7d7499; --muted:#4d4668;
   /* Or chaud */
-  --gold:#f4c95d; --gold-bright:#ffe18a; --gold-deep:#b8862f; --gold-dark:#6e4d18;
+  --gold:#f4c95d; --gold-bright:#ffe9a8; --gold-deep:#b8862f; --gold-dark:#6e4d18;
   --gold-glow:rgba(244,201,93,.5);
+  --glow-gold:0 0 22px rgba(244,201,93,.6),0 0 4px rgba(255,233,168,.5);
   /* Accents de faction */
   --yokai:#e8455f; --norse:#5b9bd5; --egyptian:#f0b429; --greek:#d8d4c0; --aztec:#2ea36f;
   /* Stats */
