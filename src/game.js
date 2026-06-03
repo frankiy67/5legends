@@ -4315,6 +4315,13 @@ function updateBg(bgId, faction) {
   bg.className = 'setup-screen-bg' + (faction ? ' ' + faction : '');
 }
 
+// ── ÉCRAN 0 : Titre → lancement ──────────────────────────────────
+document.getElementById('btn-play').addEventListener('click', () => {
+  Audio5L.startMusic();
+  document.getElementById('setup-title').classList.remove('active');
+  document.getElementById('setup-p1').classList.add('active');
+});
+
 // ── ÉCRAN 1 : Player 1 ───────────────────────────────────────────
 document.querySelectorAll('.fp[data-p="1"]').forEach(fp => {
   const f = fp.dataset.f;
