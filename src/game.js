@@ -982,18 +982,9 @@ async function playMonster(c, p) {
   P.field.push(m);
   const idx = P.field.length-1;
   P.summoned.add(idx);
-  // passive_entry_buff11 (CENTAURE): new ally enters with +1/+1
-  if(P.field.some((x,j)=>x&&j!==idx&&(x.cap||'').includes('passive_entry_buff11'))) {
-    m.cAtk++; m.cDef++;
-    addLog(`Centaure — ${m.n} entre avec +1/+1!`,'buff');
-  }
-  // Ragnarök: if Norse player and counter >= 5, entering monster gets +3/+3 + endure
-  if(P.faction==='norse' && (G.ragnarok||0)>=5) {
-    m.cAtk+=3; m.cDef+=3;
-    if(!(m.cap||'').includes('endure')) m.cap=(m.cap||'')+' endure'; m.endureUsed=false;
-    G.ragnarok=0;
-    addLog(`⚡ RAGNARÖK! ${m.n} entre avec +3/+3 et Endurance!`,'special');
-  }
+  // Passifs/auras du plateau s'appliquant au monstre entrant (cf. moteur d'effets,
+  // Event 'passive'). Conditions = état du plateau/faction ; ordre préservé.
+  await runEffects('passive', { p, idx, m, opp, cap: m.cap||'' });
   addLog(`Player ${p} summons ${m.n} (${m.cAtk}⚔/${m.cDef}🛡)`,'summon');
 
   // Check face-down Greek gods triggered by monster entry
@@ -1035,6 +1026,24 @@ const Sel = {
 function eachAllyExclSelf(ctx, fn) {
   G.players[ctx.p].field.forEach((x, i) => { if (x && i !== ctx.idx) fn(x, i); });
 }
+
+// ── Passifs / auras du plateau appliqués au monstre entrant (Event 'passive') ──
+// Conditions = état du plateau / faction (pas la cap du monstre entrant).
+// Effets synchrones → exécutés inline (timing identique aux anciens `if`).
+registerEffect('passive', (cap, ctx) => G.players[ctx.p].field.some((x,j)=>x&&j!==ctx.idx&&(x.cap||'').includes('passive_entry_buff11')), ctx => {
+  // passive_entry_buff11 (CENTAURE): new ally enters with +1/+1
+  const { m } = ctx;
+  m.cAtk++; m.cDef++;
+  addLog(`Centaure — ${m.n} entre avec +1/+1!`,'buff');
+});
+registerEffect('passive', (cap, ctx) => G.players[ctx.p].faction==='norse' && (G.ragnarok||0)>=5, ctx => {
+  // Ragnarök: if Norse player and counter >= 5, entering monster gets +3/+3 + endure
+  const { m } = ctx;
+  m.cAtk+=3; m.cDef+=3;
+  if(!(m.cap||'').includes('endure')) m.cap=(m.cap||'')+' endure'; m.endureUsed=false;
+  G.ragnarok=0;
+  addLog(`⚡ RAGNARÖK! ${m.n} entre avec +3/+3 et Endurance!`,'special');
+});
 
 // ── Registre des effets d'ENTRÉE ([Entrée] / battlecry) ────────────────
 registerEffect('entry', cap => cap.includes('entry_dmg5_all'), async ctx => {
