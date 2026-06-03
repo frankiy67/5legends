@@ -494,11 +494,14 @@ body{
 /* états main */
 .hcard.dim{opacity:.4;cursor:not-allowed;filter:saturate(.35) brightness(.8)}
 .hcard.playable{box-shadow:inset 1px 1px 2px rgba(255,235,150,.5),var(--shadow-card),0 0 16px rgba(244,201,93,.35)}
-/* HOVER PREVIEW — snap droit, agrandi, parfaitement lisible (réponse instantanée) */
-.hcard:hover.playable,.hcard:hover.anytime{transform:rotate(0deg) translateY(-130px) scale(2)!important;margin-left:0!important;z-index:300!important;
-  transition:transform .1s ease-out,box-shadow .1s,filter .1s!important;
-  box-shadow:var(--shadow-float),0 0 40px rgba(244,201,93,.7),inset 1px 1px 2px rgba(255,235,150,.6)!important;filter:brightness(1.1)}
-.hcard:hover.dim{transform:rotate(0deg) translateY(-90px) scale(1.7)!important;z-index:300!important;transition:transform .1s ease-out!important}
+/* HOVER — lift DOUX qui garde la carte sous le curseur (clic fiable).
+   On NE touche PAS margin-left (sinon tous les voisins se décalent → « ça saute »),
+   et on n'utilise QUE transform (pas de reflow). Le gros zoom lisible est délégué
+   au popup de preview (showCardPreview). */
+.hcard:hover.playable,.hcard:hover.anytime{transform:translateY(-44px) scale(1.28)!important;z-index:300!important;
+  transition:transform .12s ease-out,box-shadow .12s,filter .12s!important;
+  box-shadow:var(--shadow-float),0 0 32px rgba(244,201,93,.6),inset 1px 1px 2px rgba(255,235,150,.6)!important;filter:brightness(1.08)}
+.hcard:hover.dim{transform:translateY(-30px) scale(1.18)!important;z-index:300!important;transition:transform .12s ease-out!important}
 /* le tilt 3D se neutralise pendant le preview agrandi pour rester lisible */
 .hcard:hover .hc-frame-inner{--rx:0deg!important;--ry:0deg!important}
 .hcard.anytime.playable{animation:hcard-anytime 1.5s ease-in-out infinite}
