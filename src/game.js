@@ -412,8 +412,8 @@ greek:[
   {id:'CYCLOPE',    n:'Cyclope',    atk:6,def:9,cost:7,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
   {id:'ECHIDNA',    n:'Echidna',    atk:10,def:6,cost:8,rarity:'uncommon',cap:'entry_reclaim',          txt:'Entrée : Récupérez 1 monstre de votre défausse en main.'},
   // RARES x1
-  {id:'CERBERE',    n:'Cerbère',    atk:3,def:5,cost:3,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
-  {id:'MINOTAURE',  n:'Minotaure',  atk:4,def:6,cost:4,rarity:'rare',   cap:'protect_hit',             txt:'Protection + Double attaque.'},
+  {id:'CERBERE',    n:'Cerbère',    atk:3,def:5,cost:3,rarity:'rare',    cap:'protect_egide',          txt:"Protection + Égide : protège aussi tes fidèles à genoux (improfanables tant que Cerbère vit)."},
+  {id:'MINOTAURE',  n:'Minotaure',  atk:4,def:6,cost:4,rarity:'rare',   cap:'protect_egide_hit',      txt:"Protection + Égide (protège tes fidèles à genoux) + Double attaque."},
   {id:'LADON',      n:'Ladon',      atk:8,def:4,cost:5,rarity:'rare',    cap:'copy_on_attack',          txt:'Attaque : invoquez une copie (sans cap) du monstre attaqué.'},
   {id:'HYDRE',      n:'Hydre',      atk:3,def:5,cost:6,rarity:'rare',    cap:'entry_token_per_greek',   txt:'Entrée : jeton Hydre 3/5 par monstre grec allié en jeu.'},
   {id:'CHARYBDE',   n:'Charybde',   atk:11,def:5,cost:7,rarity:'rare',  cap:'start_coinflip_destroy',  txt:'Début de tour : pile = détruisez un monstre adverse.'},
@@ -500,13 +500,13 @@ greek:[
   {id:'ARES',       n:'Arès',       cost:2, cap:'god_halve_atk',            txt:"N'importe quand : Divisez par 2 l'ATK d'un monstre ciblé jusqu'à la fin du tour."},
   {id:'ARTHEMIS',   n:'Artémis',    cost:4, cap:'god_equip_bounce_attack',  txt:'Équipez à un monstre. Chaque fois qu\'il attaque, renvoyez un monstre adverse en main.'},
   {id:'ATHENA',     n:'Athéna',     cost:2, cap:'god_double_atk',           txt:"N'importe quand : Doublez l'ATK d'un monstre allié jusqu'à la fin du tour."},
-  {id:'DEMETER',    n:'Déméter',    cost:5, cap:'god_tokens_protect',       txt:'Créez 4 jetons 0/2 Protection. Bonus : 2 jetons 2/2 Protection si seul monstre allié.'},
+  {id:'DEMETER',    n:'Déméter',    cost:5, cap:'god_tokens_protect',       txt:"Créez 4 jetons 0/2 Égide (protègent tes fidèles à genoux). Bonus : 2 jetons 2/2 si seul monstre allié."},
   {id:'DIONYSOS',   n:'Dionysos',   cost:4, cap:'god_swap_monsters',        txt:'Échangez un monstre allié contre un monstre adverse de votre choix.'},
   {id:'HADES',      n:'Hadès',      cost:4, cap:'god_discard_per_faction',  txt:"Choisissez une légende. L'adversaire se défausse d'1 carte par monstre de cette légende sur votre terrain."},
   {id:'HEPHAISTOS', n:'Héphaïstos', cost:3, cap:'god_bounce_1or2',         txt:"N'importe quand : Renvoyez 1 monstre adverse en main. Bonus : Renvoyez-en 2."},
   {id:'HERA',       n:'Héra',       cost:4, cap:'fd_draw3_no_dmg',          txt:'Face caché permanent : Si votre joueur n\'a pas subi de dégâts ce tour, piochez 3 cartes.'},
   {id:'HERMES',     n:'Hermès',     cost:2, cap:'god_equip_hurry_all',      txt:'Équipez à un monstre. Ce tour, tous vos monstres ont Rapide.'},
-  {id:'HESTIA',     n:'Hestia',     cost:4, cap:'god_3shield_attacks',      txt:'Permanent : 3 marqueurs. Chaque attaque adverse est annulée et retire 1 marqueur.'},
+  {id:'HESTIA',     n:'Hestia',     cost:4, cap:'god_3shield_attacks',      txt:"Invoque le Foyer Sacré 0/5 (Égide) : protège tes fidèles à genoux tant qu'il vit."},
   {id:'POSEIDON',   n:'Poséidon',   cost:4, cap:'god_cancel_spell_draw',    txt:"N'importe quand : Annulez un sort et piochez. Bonus : Annulez aussi un monstre."},
   {id:'ZEUS',       n:'Zeus',       cost:6, cap:'god_destroy_low_all',      txt:'Détruisez tous les monstres de DEF ≤5. Bonus : Détruisez tous les monstres.'},
   {id:'ORACLE_DELPHES', n:'Oracle de Delphes', cost:2, type:'spell', cap:'oracle_3', txt:'Regardez les 3 prochaines cartes de votre deck. Réordonnez-les.'},
@@ -2043,11 +2043,13 @@ GOD_EFFECTS["god_destroy_low_all"] = async (ctx) => { const {c,p,opp,cap}=ctx;
   };
 GOD_EFFECTS["god_cancel_spell_draw"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('cancel_ms',p,false); drawCard(p); };
 GOD_EFFECTS["god_3shield_attacks"] = (ctx) => { const {c,p,opp,cap}=ctx;
-    // Hestia: permanent 3-shield
-    const hestiaToken = newCard({id:'HESTIA_TOKEN',n:'Hestia (3 boucliers)',atk:0,def:0,cost:0,type:'monster',cap:'hestia_passive',txt:'Annule 3 attaques adverses',rarity:'rare'});
-    hestiaToken.cAtk=0; hestiaToken.cDef=0; hestiaToken._hestiaShields=3;
-    if(G.players[p].field.length<6) G.players[p].field.push(hestiaToken);
-    addLog(`${c.n} — 3 boucliers anti-attaque!`,'event');
+    // ASCENSION (P2) : Hestia — refonte « Foyer Sacré ». Crée un VRAI corps 0/5
+    // (DEF 5 → survit au balayage death-check C3) doté d'ÉGIDE : il protège tes
+    // fidèles à genoux (improfanables) et sert de mur (Protection) tant qu'il vit.
+    const foyer = newCard({id:'FOYER_SACRE',n:'Foyer Sacré',atk:0,def:5,cost:0,type:'monster',cap:'protect_egide',txt:'Égide : protège les fidèles à genoux',rarity:'rare',faction:G.players[p].faction});
+    foyer.cAtk=0; foyer.cDef=5;
+    if(G.players[p].field.length<6) G.players[p].field.push(foyer);
+    addLog(`${c.n} — Foyer Sacré 0/5 (Égide) invoqué !`,'event');
     G.players[p].graveyard.push(c); return 'noDiscard';
   };
 GOD_EFFECTS["god_bounce_1or2"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('bounce',p,false); };
@@ -2218,7 +2220,7 @@ GOD_EFFECTS["god_tokens_protect"] = (ctx) => { const {c,p,opp,cap}=ctx;
     const count2 = G.players[p].field.filter(x=>x).length === 0 ? 2 : 4;
     const tokStats = G.players[p].field.filter(x=>x).length === 0 ? {a:2,d:2} : {a:0,d:2};
     for(let i=0;i<count2&&G.players[p].field.length<6;i++) {
-      const tok4=newCard({id:'DEMETER_TOK',n:`${tokStats.a}/${tokStats.d} Protection`,atk:tokStats.a,def:tokStats.d,cost:0,type:'monster',cap:'protect',txt:'Protection',rarity:'common',faction:G.players[p].faction});
+      const tok4=newCard({id:'DEMETER_TOK',n:`${tokStats.a}/${tokStats.d} Égide`,atk:tokStats.a,def:tokStats.d,cost:0,type:'monster',cap:'protect_egide',txt:'Égide : protège les fidèles à genoux',rarity:'common',faction:G.players[p].faction});
       tok4.cAtk=tokStats.a; tok4.cDef=tokStats.d; G.players[p].field.push(tok4);
     }
     addLog(`${c.n} — ${count2} jeton(s) Protection!`,'event');
@@ -3144,7 +3146,7 @@ function pickAITarget(targetP, attackerP=2) {
     .map((m,i) => ({m,i}))
     .filter(({m,i}) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
 
-  const alive = TP.field.map((m,i)=>({m,i})).filter(x => x.m && !x.m.faceDown && !x.m.asleep);
+  const alive = TP.field.map((m,i)=>({m,i})).filter(x => x.m && !x.m.faceDown && !x.m.asleep && attackTargetable(targetP, x.m));  // ÉGIDE : exclut les agenouillés protégés
   // ASCENSION (C2) : un protecteur agenouillé ne protège plus (règle 4).
   const hasProtect = alive.some(x => (x.m.cap||'').includes('protect') && !x.m.kneeling);
 
@@ -3471,7 +3473,7 @@ function startAttackTargeting(attacker, p, idx) {
   document.querySelectorAll(`[data-player="${opp}"]`).forEach(el => {
     const mi = parseInt(el.dataset.idx);
     const m = OP.field[mi];
-    if(m && !m.faceDown) el.classList.add('valid-target-dmg');
+    if(attackTargetable(opp, m)) el.classList.add('valid-target-dmg');  // ÉGIDE : agenouillé protégé non marqué
   });
 
   // ASCENSION (C3) : le visage n'est plus ciblable — les attaques ne visent
@@ -3576,9 +3578,32 @@ function markValidTargets(cap, p, opp) {
   else { markOppField(); markOwnField(); } // default: any field
 }
 
+// ── ASCENSION (P2) : ÉGIDE — exception grecque à la règle C2. Une créature
+// Égide (vivante, non agenouillée) protège les fidèles AGENOUILLÉS de son
+// contrôleur : l'ennemi doit la détruire avant de pouvoir attaquer/profaner
+// ces agenouillés. ──────────────────────────────────────────────────────────
+function hasEgide(P) {
+  return !!P && P.field.some(x => x && !x.faceDown && !x.asleep && !x.kneeling && (x.cap||'').includes('egide'));
+}
+// Une créature ennemie est-elle ciblable par une attaque ? (un agenouillé
+// protégé par une Égide alliée ne l'est pas tant que l'Égide vit.)
+function attackTargetable(targetP, m) {
+  if(!m || m.faceDown) return false;
+  if(m.kneeling && hasEgide(G.players[targetP])) return false;
+  return true;
+}
+
 function resolveTarget(target) {
   if(!G || !G.targeting) return;
   const t = G.targeting;
+  // ÉGIDE : interdire de cibler un fidèle agenouillé protégé (garde le ciblage actif).
+  if(t.mode==='attack' && target.type==='field') {
+    const def = G.players[target.p] && G.players[target.p].field[target.i];
+    if(def && !attackTargetable(target.p, def)) {
+      addLog(`${def.n} est protégé par une Égide — détruisez-la d'abord.`,'warn');
+      return;
+    }
+  }
   stopTargeting();
 
   if(t.mode==='attack') {
@@ -4069,7 +4094,7 @@ function renderField(p) {
       if(G.targeting.mode==='attack') {
         // Attack: all visible opponent monsters + player bar (handled in renderPlayerBar)
         const opp=G.targeting.p===1?2:1;
-        if(p===opp) cls+=' valid-target-dmg';
+        if(p===opp && attackTargetable(p, m)) cls+=' valid-target-dmg';  // ÉGIDE
       } else if(G.targeting.mode==='card') {
         // Card targeting: defer to markValidTargets (called separately)
       }
