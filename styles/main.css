@@ -164,8 +164,10 @@ body{
 .cycle-phase{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;transition:transform .4s ease,filter .4s ease,opacity .4s ease;opacity:.32;filter:grayscale(.65) brightness(.8)}
 .cycle-icon{font-size:15px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7))}
 .cycle-phase-label{font-family:'Cinzel',serif;font-size:6.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-bright);opacity:0;transition:opacity .3s;height:8px}
-.cycle-phase.active{opacity:1;filter:none;transform:translateY(-3px) scale(1.32)}
-.cycle-phase.active .cycle-icon{animation:zenithGlow 2.2s ease-in-out infinite alternate}
+.cycle-phase.active{opacity:1;filter:none;transform:translateY(-3px) scale(1.4)}
+.cycle-phase.active .cycle-icon{animation:zenithGlowFac 2.2s ease-in-out infinite alternate}
+@keyframes zenithGlowFac{from{filter:drop-shadow(0 0 5px var(--zen,var(--gold-glow)))}to{filter:drop-shadow(0 0 15px var(--zen,var(--gold-bright)))}}
+.cycle-phase.active{will-change:transform,filter}
 .cycle-phase.active .cycle-phase-label{opacity:1}
 .cycle-zenith{font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:.8px;color:var(--gold-bright);text-shadow:0 0 8px var(--gold-glow);white-space:nowrap;text-align:center;margin-top:1px}
 .cycle-zenith strong{color:var(--gold-bright)}

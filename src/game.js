@@ -3487,9 +3487,11 @@ function renderCycleBanner() {
     </div>`;
   }).join('');
 
+  const zenCol = (typeof FC!=='undefined' && FC[zenFaction]) || 'var(--gold-bright)';
+  el.style.setProperty('--zen', zenCol);
   el.innerHTML = `
     <div class="cycle-phases">${iconsHTML}</div>
-    <div class="cycle-zenith">ZÉNITH · <strong>${ZENITH_LABEL[zenFaction]}</strong><span class="cycle-bonus">+1/+1</span></div>`;
+    <div class="cycle-zenith" data-zen="${zenFaction}">ZÉNITH · <strong style="color:${zenCol};text-shadow:0 0 10px ${zenCol}">${ZENITH_LABEL[zenFaction]}</strong><span class="cycle-bonus">+1/+1</span></div>`;
 
   // Teinte du champ de bataille selon la phase
   const game = document.getElementById('game');
