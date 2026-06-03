@@ -620,6 +620,10 @@ function shuffle(a) {
 // ── ASCENSION (C1) — infrastructure de Foi (additive, inerte tant que la Foi
 // n'augmente pas). Voir ÉTAPE C2 pour le remplissage de la jauge. ──────────
 const FAITH_WIN = 14;
+// ── ASCENSION (C4) : Horloge céleste. Si personne n'atteint FAITH_WIN à la fin
+// du tour TURN_CAP (compteur de rounds G.turn), le joueur avec le plus de Foi
+// gagne (égalité exacte = nul). Soupape de terminaison. ──
+const TURN_CAP = 18;
 const SUPREME_GODS = {
   yokai:'Amaterasu', norse:'Odin', egyptian:'Ra', greek:'Zeus', aztec:'Huitzilopochtli'
 };
@@ -948,6 +952,10 @@ function doEndTurn() {
     const prevCycle = G.cycle;
     G.cycle = (G.cycle + 1) % 5;
     if(G.cycle !== prevCycle) scheduleCycleAnim();
+    // ── ASCENSION (C4) : Horloge céleste. Annonce au dernier tour, puis résolution
+    // une fois le tour TURN_CAP joué (le plus de Foi gagne). ──
+    if(G.turn === TURN_CAP) addLog("🔔 L'horloge céleste sonne — dernier tour !", 'warn');
+    if(G.turn > TURN_CAP) { checkVictory(); }
   }
   G.phase='Main1';
   G.selAtk=null;
@@ -2733,7 +2741,27 @@ function checkVictory() {
       titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
       document.getElementById('vic-sub').textContent=`${(P.faction||'').toUpperCase()} atteint l'Ascension (${P.faith}/${FAITH_WIN}) au tour ${G.turn}`;
       document.getElementById('victory').style.display='flex';
+      return;
     }
+  }
+  // ── ASCENSION (C4) : HORLOGE CÉLESTE — fin du tour TURN_CAP sans Ascension :
+  // le joueur avec le PLUS de Foi gagne (égalité exacte = nul). ──
+  if(G.turn > TURN_CAP) {
+    const f1=G.players[1].faith||0, f2=G.players[2].faith||0;
+    const titleEl=document.getElementById('vic-title');
+    if(f1===f2) {
+      titleEl.textContent = `Match nul — l'horloge céleste a sonné`;
+      titleEl.classList.remove('defeat');
+      document.getElementById('vic-sub').textContent=`Égalité de Foi (${f1}/${FAITH_WIN}) au tour ${G.turn}`;
+    } else {
+      const w = f1>f2 ? 1 : 2;
+      const P=G.players[w];
+      if(G.mode!=='pve' || w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
+      titleEl.textContent = `${P.supremeGod} l'emporte à l'horloge !`;
+      titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
+      document.getElementById('vic-sub').textContent=`Plus de Foi à l'horloge céleste — ${(P.faction||'').toUpperCase()} ${Math.max(f1,f2)}/${FAITH_WIN} vs ${Math.min(f1,f2)}`;
+    }
+    document.getElementById('victory').style.display='flex';
   }
 }
 
@@ -3269,8 +3297,10 @@ function aiPickTarget(type, p, card) {
 }
 
 function checkVictoryBool() {
-  // ASCENSION (C3) : Foi>=FAITH_WIN = seule condition de fin (plus de PV).
-  return (G.players[1].faith||0) >= FAITH_WIN || (G.players[2].faith||0) >= FAITH_WIN;
+  // ASCENSION (C3/C4) : fin de partie = Foi>=FAITH_WIN OU horloge céleste (tour
+  // TURN_CAP dépassé → le round TURN_CAP a été joué).
+  return (G.players[1].faith||0) >= FAITH_WIN || (G.players[2].faith||0) >= FAITH_WIN
+    || G.turn > TURN_CAP;
 }
 
 function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }

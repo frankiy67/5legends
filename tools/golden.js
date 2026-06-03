@@ -197,14 +197,20 @@ async function playGame(API, seed) {
     error = m.replace(/:\d+:\d+/g, ':L:C');
   }
 
-  // ASCENSION (C3) : vainqueur = celui qui atteint la Foi (>=14). null = non conclue
-  // (garde-fou MAX_TURNS atteint). Plus de victoire par PV.
+  // ASCENSION (C3/C4) : vainqueur = Ascension (Foi>=14) OU, à l'horloge céleste
+  // (tour TURN_CAP), le plus de Foi (égalité = nul). null = vrai timeout (cap
+  // MAX_TURNS du harnais, ne devrait plus arriver puisque l'horloge conclut).
   let winner = null;
   const faith1 = G.players[1].faith || 0, faith2 = G.players[2].faith || 0;
   if (faith1 >= 14 && faith2 >= 14) winner = 'both';
   else if (faith1 >= 14) winner = 1;
   else if (faith2 >= 14) winner = 2;
-  else winner = null; // non conclue (cap de tours atteint)
+  else if (G.turn > 18) { // horloge céleste : plus de Foi gagne, égalité = nul
+    if (faith1 > faith2) winner = 1;
+    else if (faith2 > faith1) winner = 2;
+    else winner = null; // égalité exacte = nul
+  }
+  else winner = null; // timeout pur (cap MAX_TURNS)
 
   // Le log est stocké en unshift (plus récent en tête) → on remet en ordre chrono.
   const actionLog = G.log.map((e) => e.msg).reverse();

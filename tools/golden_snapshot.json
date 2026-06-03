@@ -34312,9 +34312,9 @@
    "f2": "greek",
    "winner": 1,
    "error": null,
-   "turn": 20,
+   "turn": 19,
    "cp": 1,
-   "cycle": 4,
+   "cycle": 3,
    "ragnarok": 0,
    "hp": [
     25,
@@ -34500,28 +34500,13 @@
      19,
      25,
      25
-    ],
-    [
-     19,
-     25,
-     25
-    ],
-    [
-     20,
-     25,
-     25
-    ],
-    [
-     20,
-     25,
-     25
     ]
    ],
    "players": {
     "1": {
      "faction": "aztec",
      "hp": 25,
-     "gems": 2,
+     "gems": 10,
      "maxGems": 10,
      "field": [
       {
@@ -34545,41 +34530,9 @@
        "id": "CUETZPALIN",
        "type": "monster",
        "cAtk": 4,
-       "cDef": 2,
+       "cDef": 4,
        "cost": 4,
        "cap": "protect",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
-      },
-      {
-       "n": "Ocelotl",
-       "id": "OCELOTL",
-       "type": "monster",
-       "cAtk": 5,
-       "cDef": 4,
-       "cost": 3,
-       "cap": "copy_ally_def",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
-      },
-      {
-       "n": "Camazotz",
-       "id": "CAMAZOTZ",
-       "type": "monster",
-       "cAtk": 1,
-       "cDef": 2,
-       "cost": 1,
-       "cap": "curse",
        "faceDown": false,
        "asleep": false,
        "sanded": false,
@@ -34590,9 +34543,7 @@
       }
      ],
      "hand": [
-      "Nagual",
-      "Huay Chivo",
-      "Tzi"
+      "Ocelotl"
      ],
      "graveyard": [
       "Xipe Totec",
@@ -34615,17 +34566,11 @@
       "Xiuhcoatl",
       "Mayahuel",
       "Otomitl",
-      "Kaqkoj",
-      "Huitzilopochtli",
-      "Tonatiuh"
+      "Kaqkoj"
      ],
-     "deckCount": 15,
-     "attacked": [
-      2
-     ],
-     "summoned": [
-      3
-     ]
+     "deckCount": 21,
+     "attacked": [],
+     "summoned": []
     },
     "2": {
      "faction": "greek",
@@ -34650,13 +34595,13 @@
        "buff3turn": false
       },
       {
-       "n": "Centaure",
-       "id": "CENTAURE",
+       "n": "0/2 Égide",
+       "id": "DEMETER_TOK",
        "type": "monster",
-       "cAtk": 8,
+       "cAtk": 1,
        "cDef": 3,
-       "cost": 6,
-       "cap": "passive_entry_buff11",
+       "cost": 0,
+       "cap": "protect_egide",
        "faceDown": false,
        "asleep": false,
        "sanded": false,
@@ -34666,13 +34611,29 @@
        "buff3turn": false
       },
       {
-       "n": "Gorgone",
-       "id": "GORGONE",
+       "n": "0/2 Égide",
+       "id": "DEMETER_TOK",
        "type": "monster",
-       "cAtk": 9,
-       "cDef": 7,
+       "cAtk": 1,
+       "cDef": 3,
+       "cost": 0,
+       "cap": "protect_egide",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Centaure",
+       "id": "CENTAURE",
+       "type": "monster",
+       "cAtk": 8,
+       "cDef": 3,
        "cost": 6,
-       "cap": "endure",
+       "cap": "passive_entry_buff11",
        "faceDown": false,
        "asleep": false,
        "sanded": false,
@@ -34707,20 +34668,19 @@
       "Zeus",
       "Déméter",
       "0/2 Égide",
-      "0/2 Égide",
-      "0/2 Égide",
       "0/2 Égide"
      ],
-     "deckCount": 20,
+     "deckCount": 21,
      "attacked": [
-      1
+      1,
+      2
      ],
      "summoned": [
-      2
+      3
      ]
     }
    },
-   "actionCount": 386,
+   "actionCount": 356,
    "actionLog": [
     "⚔ Battle begins!",
     "── AI thinking... ──",
@@ -35057,6 +35017,7 @@
     "0/2 Égide se prépare à attaquer...",
     "0/2 Égide(1⚔) vs Kaqkoj(2⚔/1🛡) — def:0🛡 atk:0🛡",
     "Phase: MAIN 2",
+    "🔔 L'horloge céleste sonne — dernier tour !",
     "── Turn 18 — Player 1 (aztec) ──",
     "🌌 Cycle Céleste — CRÉPUSCULE ! Zénith : Aztèque 🌞",
     "── AI thinking... ──",
@@ -35076,38 +35037,7 @@
     "0/2 Égide(1⚔) vs Cuetzpalin(4⚔/5🛡) — def:4🛡 atk:-1🛡",
     "Phase: MAIN 2",
     "── Turn 19 — Player 1 (aztec) ──",
-    "🌌 Cycle Céleste — NUIT ! Zénith : Yokai 🦊",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Ocelotl",
-    "Player 1 summons Ocelotl (5⚔/1🛡)",
-    "Ocelotl — copie DEF 4 de Cuetzpalin!",
-    "Cuetzpalin se prépare à attaquer...",
-    "Cuetzpalin(4⚔) vs 0/2 Égide(1⚔/3🛡) — def:-1🛡 atk:3🛡",
-    "Phase: MAIN 2",
-    "── Turn 19 — Player 2 (greek) ──",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Gorgone",
-    "Centaure — Gorgone entre avec +1/+1!",
-    "Player 2 summons Gorgone (9⚔/7🛡)",
-    "🙏 Centaure prie — Zeus canalise +1 Foi (11/14)",
-    "0/2 Égide se prépare à attaquer...",
-    "0/2 Égide(1⚔) vs Cuetzpalin(4⚔/3🛡) — def:2🛡 atk:-1🛡",
-    "Phase: MAIN 2",
-    "── Turn 20 — Player 1 (aztec) ──",
-    "🌌 Cycle Céleste — TÉNÈBRES ! Zénith : Norse ⚡",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Huitzilopochtli",
-    "Player 1 plays God: Huitzilopochtli!",
-    "Huitzilopochtli — Piochez 4!",
-    "AI joue : Camazotz",
-    "Player 1 summons Camazotz (1⚔/2🛡)",
-    "AI joue : Tonatiuh",
-    "Player 1 plays God: Tonatiuh!",
-    "Tonatiuh — Pas de sort, piochez 1!",
-    "🙏 Ocelotl prie — Huitzilopochtli canalise +1 Foi (14/14)"
+    "🌌 Cycle Céleste — NUIT ! Zénith : Yokai 🦊"
    ]
   },
   {
@@ -44450,10 +44380,10 @@
    "f2": "greek",
    "winner": 2,
    "error": null,
-   "turn": 22,
-   "cp": 2,
-   "cycle": 1,
-   "ragnarok": 3,
+   "turn": 19,
+   "cp": 1,
+   "cycle": 3,
+   "ragnarok": 2,
    "hp": [
     25,
     25
@@ -44638,62 +44568,22 @@
      19,
      25,
      25
-    ],
-    [
-     19,
-     25,
-     25
-    ],
-    [
-     20,
-     25,
-     25
-    ],
-    [
-     20,
-     25,
-     25
-    ],
-    [
-     21,
-     25,
-     25
-    ],
-    [
-     21,
-     25,
-     25
-    ],
-    [
-     22,
-     25,
-     25
-    ],
-    [
-     22,
-     25,
-     25
-    ],
-    [
-     22,
-     25,
-     25
     ]
    ],
    "players": {
     "1": {
      "faction": "norse",
      "hp": 25,
-     "gems": 7,
+     "gems": 10,
      "maxGems": 10,
      "field": [
       {
-       "n": "Tanngrisnir",
-       "id": "TANNGRISNIR",
+       "n": "Ljosalfar",
+       "id": "LJOSALFAR",
        "type": "monster",
-       "cAtk": 5,
+       "cAtk": 6,
        "cDef": 1,
-       "cost": 3,
+       "cost": 5,
        "cap": "",
        "faceDown": false,
        "asleep": false,
@@ -44704,7 +44594,9 @@
        "buff3turn": false
       }
      ],
-     "hand": [],
+     "hand": [
+      "Idi"
+     ],
      "graveyard": [
       "Huginn",
       "Draugr",
@@ -44730,34 +44622,26 @@
       "Dokkalfar",
       "Niddhog",
       "Draugr",
-      "Hildisvini",
-      "Ljosalfar",
-      "Lion de Némée",
-      "Tyr",
-      "Ljosalfar"
+      "Hildisvini"
      ],
-     "deckCount": 13,
-     "attacked": [
-      0
-     ],
-     "summoned": [
-      0
-     ]
+     "deckCount": 16,
+     "attacked": [],
+     "summoned": []
     },
     "2": {
      "faction": "greek",
      "hp": 25,
-     "gems": 0,
+     "gems": 2,
      "maxGems": 10,
      "field": [
       {
-       "n": "Idi",
-       "id": "IDI",
+       "n": "Gorgone",
+       "id": "GORGONE",
        "type": "monster",
        "cAtk": 8,
-       "cDef": 8,
-       "cost": 7,
-       "cap": "exit_search_3def",
+       "cDef": 1,
+       "cost": 6,
+       "cap": "",
        "faceDown": false,
        "asleep": false,
        "sanded": false,
@@ -44767,77 +44651,29 @@
        "buff3turn": false
       },
       {
-       "n": "Hippocampe",
-       "id": "HIPPOCAMPE",
+       "n": "Scylla",
+       "id": "SCYLLA",
        "type": "monster",
-       "cAtk": 5,
+       "cAtk": 4,
+       "cDef": 7,
+       "cost": 5,
+       "cap": "entry_draw_per_greek",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Lion de Némée",
+       "id": "LION_NEMEE",
+       "type": "monster",
+       "cAtk": 3,
        "cDef": 4,
        "cost": 3,
-       "cap": "start_filter",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
-      },
-      {
-       "n": "Harpie",
-       "id": "HARPIE",
-       "type": "monster",
-       "cAtk": 5,
-       "cDef": 5,
-       "cost": 5,
-       "cap": "hurry_exit_dmg3",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
-      },
-      {
-       "n": "0/2 Égide",
-       "id": "DEMETER_TOK",
-       "type": "monster",
-       "cAtk": 0,
-       "cDef": 2,
-       "cost": 0,
-       "cap": "protect_egide",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
-      },
-      {
-       "n": "0/2 Égide",
-       "id": "DEMETER_TOK",
-       "type": "monster",
-       "cAtk": 0,
-       "cDef": 2,
-       "cost": 0,
-       "cap": "protect_egide",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
-      },
-      {
-       "n": "0/2 Égide",
-       "id": "DEMETER_TOK",
-       "type": "monster",
-       "cAtk": 0,
-       "cDef": 2,
-       "cost": 0,
-       "cap": "protect_egide",
+       "cap": "fervor",
        "faceDown": false,
        "asleep": false,
        "sanded": false,
@@ -44847,7 +44683,10 @@
        "buff3turn": false
       }
      ],
-     "hand": [],
+     "hand": [
+      "Dionysos",
+      "Artémis"
+     ],
      "graveyard": [
       "Chimère(Chimère)",
       "Sirènes",
@@ -44872,28 +44711,19 @@
       "Sirènes",
       "Zeus",
       "Hestia",
-      "Foyer Sacré",
-      "Gorgone",
-      "Dionysos",
-      "Scylla",
-      "Oracle de Delphes",
-      "Artémis",
-      "Cyclope",
-      "Centaure",
-      "Arès",
-      "Déméter"
+      "Foyer Sacré"
      ],
-     "deckCount": 9,
+     "deckCount": 16,
      "attacked": [
-      0,
-      1
+      0
      ],
      "summoned": [
+      1,
       2
      ]
     }
    },
-   "actionCount": 464,
+   "actionCount": 385,
    "actionLog": [
     "⚔ Battle begins!",
     "── AI thinking... ──",
@@ -45251,6 +45081,7 @@
     "Foyer Sacré se prépare à attaquer...",
     "Foyer Sacré(1⚔) vs Draugr(4⚔/1🛡) — def:0🛡 atk:1🛡",
     "Phase: MAIN 2",
+    "🔔 L'horloge céleste sonne — dernier tour !",
     "── Turn 18 — Player 1 (norse) ──",
     "🌌 Cycle Céleste — CRÉPUSCULE ! Zénith : Aztèque 🌞",
     "── AI thinking... ──",
@@ -45278,87 +45109,7 @@
     "Gorgone — Endure! Returns with 1🛡",
     "Phase: MAIN 2",
     "── Turn 19 — Player 1 (norse) ──",
-    "🌌 Cycle Céleste — NUIT ! Zénith : Yokai 🦊",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Idi",
-    "Player 1 summons Idi (7⚔/10🛡)",
-    "Ljosalfar se prépare à attaquer...",
-    "Ljosalfar(6⚔) vs Gorgone(8⚔/1🛡) — def:-5🛡 atk:-7🛡",
-    "Phase: MAIN 2",
-    "── Turn 19 — Player 2 (greek) ──",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Hippocampe",
-    "Player 2 summons Hippocampe (4⚔/3🛡)",
-    "AI joue : Dionysos",
-    "Player 2 plays God: Dionysos!",
-    "Loki — swaps Lion de Némée ↔ Idi",
-    "🙏 Scylla prie — Zeus canalise +1 Foi (8/14)",
-    "Idi se prépare à attaquer...",
-    "Idi(7⚔) vs Lion de Némée(3⚔/4🛡) — def:-3🛡 atk:7🛡",
-    "Phase: MAIN 2",
-    "── Turn 20 — Player 1 (norse) ──",
-    "🌌 Cycle Céleste — TÉNÈBRES ! Zénith : Norse ⚡",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Tyr",
-    "Player 1 plays God: Tyr!",
-    "Tyr — Scylla sacrifié!",
-    "Phase: MAIN 2",
-    "── Turn 20 — Player 2 (greek) ──",
-    "Hippocampe — Filtre: défausse + pioche!",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Cyclope",
-    "Player 2 summons Cyclope (6⚔/9🛡)",
-    "🙏 Idi prie — Zeus canalise +1 Foi (9/14)",
-    "🙏 Hippocampe prie — Zeus canalise +1 Foi (10/14)",
-    "Phase: MAIN 2",
-    "── Turn 21 — Player 1 (norse) ──",
-    "🌌 Cycle Céleste — AUBE ! Zénith : Égyptien 🏺",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Ljosalfar",
-    "⚡ RAGNARÖK! Ljosalfar entre avec +3/+3 et Endurance!",
-    "Player 1 summons Ljosalfar (9⚔/7🛡)",
-    "Phase: MAIN 2",
-    "── Turn 21 — Player 2 (greek) ──",
-    "Hippocampe — Filtre: défausse + pioche!",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Centaure",
-    "Player 2 summons Centaure (8⚔/3🛡)",
-    "Centaure — +1/+1 all allies",
-    "🙏 Idi prie — Zeus canalise +1 Foi (11/14)",
-    "🙏 Hippocampe prie — Zeus canalise +1 Foi (12/14)",
-    "Cyclope se prépare à attaquer...",
-    "Cyclope(7⚔) vs Ljosalfar(9⚔/7🛡) — def:0🛡 atk:1🛡",
-    "Ljosalfar — Endure! Returns with 1🛡",
-    "Cyclope — HIT: attacks again!",
-    "Cyclope(7⚔) vs Ljosalfar(6⚔/1🛡) — def:-6🛡 atk:-5🛡",
-    "Phase: MAIN 2",
-    "── Turn 22 — Player 1 (norse) ──",
-    "🌌 Cycle Céleste — MIDI ! Zénith : Grec 🏛",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Tanngrisnir",
-    "Player 1 summons Tanngrisnir (5⚔/2🛡)",
-    "Tanngrisnir se prépare à attaquer...",
-    "Tanngrisnir(5⚔) vs Centaure(8⚔/3🛡) — def:-2🛡 atk:-6🛡",
-    "Tanngrisnir — Endure! Returns with 1🛡",
-    "Phase: MAIN 2",
-    "── Turn 22 — Player 2 (greek) ──",
-    "Hippocampe — Filtre: défausse + pioche!",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Harpie",
-    "Player 2 summons Harpie (5⚔/5🛡)",
-    "AI joue : Déméter",
-    "Player 2 plays God: Déméter!",
-    "Déméter — 4 jeton(s) Protection!",
-    "🙏 Idi prie — Zeus canalise +1 Foi (13/14)",
-    "🙏 Hippocampe prie — Zeus canalise +1 Foi (14/14)"
+    "🌌 Cycle Céleste — NUIT ! Zénith : Yokai 🦊"
    ]
   },
   {
@@ -52078,18 +51829,13 @@
      19,
      25,
      25
-    ],
-    [
-     19,
-     25,
-     25
     ]
    ],
    "players": {
     "1": {
      "faction": "yokai",
      "hp": 25,
-     "gems": 9,
+     "gems": 10,
      "maxGems": 10,
      "field": [
       {
@@ -52123,25 +51869,11 @@
        "bewitched": false,
        "blinded": false,
        "buff3turn": false
-      },
-      {
-       "n": "Kitsune",
-       "id": "KITSUNE",
-       "type": "monster",
-       "cAtk": 2,
-       "cDef": 1,
-       "cost": 1,
-       "cap": "hurry",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
       }
      ],
-     "hand": [],
+     "hand": [
+      "Kitsune"
+     ],
      "graveyard": [
       "Tenjin",
       "Izanami",
@@ -52166,12 +51898,8 @@
       "Mujnina"
      ],
      "deckCount": 23,
-     "attacked": [
-      1
-     ],
-     "summoned": [
-      2
-     ]
+     "attacked": [],
+     "summoned": []
     },
     "2": {
      "faction": "norse",
@@ -52250,7 +51978,7 @@
      ]
     }
    },
-   "actionCount": 358,
+   "actionCount": 354,
    "actionLog": [
     "⚔ Battle begins!",
     "── AI thinking... ──",
@@ -52577,6 +52305,7 @@
     "⚡ RAGNARÖK! Garm entre avec +3/+3 et Endurance!",
     "Player 2 summons Garm (9⚔/7🛡)",
     "Phase: MAIN 2",
+    "🔔 L'horloge céleste sonne — dernier tour !",
     "── Turn 18 — Player 1 (yokai) ──",
     "🌌 Cycle Céleste — CRÉPUSCULE ! Zénith : Aztèque 🌞",
     "── AI thinking... ──",
@@ -52604,12 +52333,7 @@
     "Garm(9⚔) vs Mujnina(3⚔/2🛡) — def:-7🛡 atk:1🛡",
     "Phase: MAIN 2",
     "── Turn 19 — Player 1 (yokai) ──",
-    "🌌 Cycle Céleste — NUIT ! Zénith : Yokai 🦊",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Kitsune",
-    "Player 1 summons Kitsune (2⚔/1🛡)",
-    "🙏 Ningyo prie — Amaterasu canalise +1 Foi (14/14)"
+    "🌌 Cycle Céleste — NUIT ! Zénith : Yokai 🦊"
    ]
   },
   {
@@ -59128,9 +58852,9 @@
    "f2": "greek",
    "winner": 2,
    "error": null,
-   "turn": 20,
-   "cp": 2,
-   "cycle": 4,
+   "turn": 19,
+   "cp": 1,
+   "cycle": 3,
    "ragnarok": 0,
    "hp": [
     25,
@@ -59316,33 +59040,13 @@
      19,
      25,
      25
-    ],
-    [
-     19,
-     25,
-     25
-    ],
-    [
-     20,
-     25,
-     25
-    ],
-    [
-     20,
-     25,
-     25
-    ],
-    [
-     20,
-     25,
-     25
     ]
    ],
    "players": {
     "1": {
      "faction": "greek",
      "hp": 25,
-     "gems": 5,
+     "gems": 10,
      "maxGems": 10,
      "field": [
       {
@@ -59382,7 +59086,7 @@
        "id": "HARPIE",
        "type": "monster",
        "cAtk": 5,
-       "cDef": 1,
+       "cDef": 5,
        "cost": 5,
        "cap": "hurry_exit_dmg3",
        "faceDown": false,
@@ -59408,42 +59112,10 @@
        "bewitched": false,
        "blinded": false,
        "buff3turn": false
-      },
-      {
-       "n": "Harpie",
-       "id": "HARPIE",
-       "type": "monster",
-       "cAtk": 5,
-       "cDef": 5,
-       "cost": 5,
-       "cap": "hurry_exit_dmg3",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
-      },
-      {
-       "n": "0/2 Égide",
-       "id": "DEMETER_TOK",
-       "type": "monster",
-       "cAtk": 0,
-       "cDef": 2,
-       "cost": 0,
-       "cap": "protect_egide",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
       }
      ],
      "hand": [
-      "Sirènes"
+      "Apollon"
      ],
      "graveyard": [
       "Pégase",
@@ -59465,26 +59137,34 @@
       "Echidna",
       "Pégase",
       "Hestia",
-      "Foyer Sacré",
-      "Apollon",
-      "Chimère(Chimère(Centaure))",
-      "Déméter"
+      "Foyer Sacré"
      ],
-     "deckCount": 17,
-     "attacked": [
-      1,
-      2,
-      3,
-      4
-     ],
+     "deckCount": 21,
+     "attacked": [],
      "summoned": []
     },
     "2": {
      "faction": "greek",
      "hp": 25,
-     "gems": 8,
+     "gems": 5,
      "maxGems": 10,
      "field": [
+      {
+       "n": "Centaure",
+       "id": "CENTAURE",
+       "type": "monster",
+       "cAtk": 8,
+       "cDef": 3,
+       "cost": 6,
+       "cap": "passive_entry_buff11",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
       {
        "n": "Sirènes",
        "id": "SIRENES",
@@ -59502,13 +59182,13 @@
        "buff3turn": false
       },
       {
-       "n": "Chimère(Centaure)",
-       "id": "CHIMERE",
+       "n": "Lion de Némée",
+       "id": "LION_NEMEE",
        "type": "monster",
-       "cAtk": 8,
-       "cDef": 3,
-       "cost": 2,
-       "cap": "passive_entry_buff11",
+       "cAtk": 4,
+       "cDef": 5,
+       "cost": 3,
+       "cap": "fervor",
        "faceDown": false,
        "asleep": false,
        "sanded": false,
@@ -59518,13 +59198,13 @@
        "buff3turn": false
       },
       {
-       "n": "Pégase",
-       "id": "PEGASE",
+       "n": "Chimère(Centaure)",
+       "id": "CHIMERE",
        "type": "monster",
-       "cAtk": 4,
-       "cDef": 5,
+       "cAtk": 8,
+       "cDef": 3,
        "cost": 2,
-       "cap": "hurry_fervor",
+       "cap": "passive_entry_buff11",
        "faceDown": false,
        "asleep": false,
        "sanded": false,
@@ -59557,21 +59237,20 @@
       "Zeus",
       "Ophiotaurus",
       "Apollon",
-      "Satyre",
-      "Lion de Némée",
-      "Héphaïstos",
-      "Centaure"
+      "Satyre"
      ],
-     "deckCount": 15,
+     "deckCount": 17,
      "attacked": [
-      0
+      0,
+      1
      ],
      "summoned": [
-      2
+      2,
+      3
      ]
     }
    },
-   "actionCount": 445,
+   "actionCount": 355,
    "actionLog": [
     "⚔ Battle begins!",
     "── AI thinking... ──",
@@ -59898,6 +59577,7 @@
     "Satyre se prépare à attaquer...",
     "Satyre(7⚔) vs Pégase(3⚔/4🛡) — def:-3🛡 atk:1🛡",
     "Phase: MAIN 2",
+    "🔔 L'horloge céleste sonne — dernier tour !",
     "── Turn 18 — Player 1 (greek) ──",
     "🌌 Cycle Céleste — CRÉPUSCULE ! Zénith : Aztèque 🌞",
     "── AI thinking... ──",
@@ -59926,98 +59606,7 @@
     "Centaure(8⚔) vs Foyer Sacré(0⚔/5🛡) — def:-3🛡 atk:3🛡",
     "Phase: MAIN 2",
     "── Turn 19 — Player 1 (greek) ──",
-    "🌌 Cycle Céleste — NUIT ! Zénith : Yokai 🦊",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Apollon",
-    "Player 1 plays God: Apollon!",
-    "Apollon — Pioche 3, défausse 2!",
-    "AI joue : Harpie",
-    "Player 1 summons Harpie (5⚔/5🛡)",
-    "AI joue : Chimère",
-    "Player 1 summons Chimère (2⚔/2🛡)",
-    "Chimère(Chimère(Centaure)) copie Chimère(Centaure)!",
-    "🙏 Scylla prie — Zeus canalise +1 Foi (7/14)",
-    "🙏 Satyre prie — Zeus canalise +1 Foi (8/14)",
-    "Harpie se prépare à attaquer...",
-    "Harpie(5⚔) vs Lion de Némée(4⚔/5🛡) — def:0🛡 atk:1🛡",
-    "Harpie se prépare à attaquer...",
-    "Phase: MAIN 2",
-    "── Turn 19 — Player 2 (greek) ──",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Héphaïstos",
-    "Player 2 plays God: Héphaïstos!",
-    "🙏 Sirènes prie — Zeus canalise +1 Foi (13/14)",
-    "Centaure se prépare à attaquer...",
-    "Centaure(8⚔) vs Chimère(Chimère(Centaure))(8⚔/3🛡) — def:-5🛡 atk:-5🛡",
-    "Phase: MAIN 2",
-    "── Turn 20 — Player 1 (greek) ──",
-    "🌌 Cycle Céleste — TÉNÈBRES ! Zénith : Norse ⚡",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Déméter",
-    "Player 1 plays God: Déméter!",
-    "Déméter — 4 jeton(s) Protection!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "🙏 Scylla prie — Zeus canalise +1 Foi (9/14)",
-    "🙏 Harpie prie — Zeus canalise +1 Foi (10/14)",
-    "🙏 Satyre prie — Zeus canalise +1 Foi (11/14)",
-    "🙏 Harpie prie — Zeus canalise +1 Foi (12/14)",
-    "0/2 Égide se prépare à attaquer...",
-    "Phase: MAIN 2",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "AI joue : Sirènes",
-    "Field full — cannot summon!",
-    "── Turn 20 — Player 2 (greek) ──",
-    "── AI thinking... ──",
-    "Phase: MAIN 1",
-    "AI joue : Pégase",
-    "Centaure — Pégase entre avec +1/+1!",
-    "Player 2 summons Pégase (4⚔/5🛡)",
-    "🙏 Sirènes prie — Zeus canalise +1 Foi (14/14)"
+    "🌌 Cycle Céleste — NUIT ! Zénith : Yokai 🦊"
    ]
   },
   {
