@@ -1015,6 +1015,19 @@ async function runEffects(event, ctx) {
     }
   }
 }
+// Effets de COMBAT (phase 'preStrike') : peuvent renvoyer 'abort' pour annuler
+// l'attaque en cours. On n'attend que les effets thenable (timing préservé).
+function registerCombat(phase, cond, run) { EFFECTS.combat.push({ phase, cond, run }); }
+async function runCombatEffects(phase, ctx) {
+  for (const eff of EFFECTS.combat) {
+    if (eff.phase !== phase) continue;
+    if (!eff.cond(ctx.cap, ctx)) continue;
+    const r = eff.run(ctx);
+    const res = (r && typeof r.then === 'function') ? await r : r;
+    if (res === 'abort') return 'abort';
+  }
+  return 'continue';
+}
 // Selectors — fabriquent des ensembles de cibles à partir du contexte.
 const Sel = {
   oppMonsters: ctx => G.players[ctx.opp].field.filter(x => x && !x.faceDown),
@@ -1043,6 +1056,73 @@ registerEffect('passive', (cap, ctx) => G.players[ctx.p].faction==='norse' && (G
   if(!(m.cap||'').includes('endure')) m.cap=(m.cap||'')+' endure'; m.endureUsed=false;
   G.ragnarok=0;
   addLog(`⚡ RAGNARÖK! ${m.n} entre avec +3/+3 et Endurance!`,'special');
+});
+
+// ── Capacités de COMBAT pré-frappe (Event combat/'preStrike') ──────────
+// Chaque effet = Condition (sur l'attaquant ou le défenseur) + Action.
+// Les chemins synchrones ne renvoient PAS de promesse (pas de tick ajouté) ;
+// les chemins async renvoient une IIFE → reproduit la séquence d'await d'origine.
+// solo_destroy (RAIJU): si seul allié, détruit la cible sans combat → abort.
+registerCombat('preStrike', (cap, ctx) => (ctx.atk.cap||'').includes('solo_destroy') && typeof ctx.targetIdx==='number', ctx => {
+  const { AP, DP, atk, attackerIdx, targetP, targetIdx } = ctx;
+  const myLive = AP.field.filter((x,i2)=>x&&!x.faceDown&&i2!==attackerIdx);
+  if(myLive.length===0) {
+    const tgt2 = DP.field[targetIdx];
+    if(tgt2) {
+      return (async () => {
+        addLog(`${atk.n} — Solo Destroy!`,'special');
+        await handleDeath(targetP, tgt2);
+        AP.attacked.add(attackerIdx);
+        renderAll(); checkVictory();
+        return 'abort';
+      })();
+    }
+  }
+});
+// coinflip_defense (SIRENES): le défenseur tire à pile/face, pile = annulé → abort.
+registerCombat('preStrike', (cap, ctx) => {
+  if(typeof ctx.targetIdx!=='number') return false;
+  const def0 = ctx.DP.field[ctx.targetIdx];
+  return !!(def0 && (def0.cap||'').includes('coinflip_defense'));
+}, ctx => {
+  const { AP, DP, attackerIdx, targetIdx } = ctx;
+  const def0 = DP.field[targetIdx];
+  if(rng()<0.5) {
+    addLog(`${def0.n} — Coin flip: ANNULÉ!`,'special');
+    AP.attacked.add(attackerIdx); renderAll(); return 'abort';
+  } else {
+    addLog(`${def0.n} — Coin flip: combat normal.`,'event');
+  }
+});
+// splash_adjacent (JÖRMUNGANDR): demi-ATK aux monstres adjacents (jamais d'abort).
+registerCombat('preStrike', (cap, ctx) => (ctx.atk.cap||'').includes('splash_adjacent') && typeof ctx.targetIdx==='number', ctx => {
+  const { DP, atk, targetP, targetIdx } = ctx;
+  const adj = [targetIdx-1, targetIdx+1];
+  // Détermine si un soin/mort nécessitera un await ; sinon reste synchrone.
+  let needsAsync = false;
+  for(const ai of adj) { const am=DP.field[ai]; if(am&&!am.faceDown && Math.max(0,am.cDef-Math.ceil(atk.cAtk/2))<=0) needsAsync=true; }
+  if(!needsAsync) {
+    for(const ai of adj) {
+      const am = DP.field[ai];
+      if(am&&!am.faceDown) {
+        const splashDmg = Math.ceil(atk.cAtk/2);
+        am.cDef = Math.max(0, am.cDef - splashDmg);
+        addLog(`${atk.n} — Splash ${splashDmg} dmg to ${am.n}!`,'dmg');
+      }
+    }
+    return;
+  }
+  return (async () => {
+    for(const ai of adj) {
+      const am = DP.field[ai];
+      if(am&&!am.faceDown) {
+        const splashDmg = Math.ceil(atk.cAtk/2);
+        am.cDef = Math.max(0, am.cDef - splashDmg);
+        addLog(`${atk.n} — Splash ${splashDmg} dmg to ${am.n}!`,'dmg');
+        if(am.cDef<=0) await handleDeath(targetP, am);
+      }
+    }
+  })();
 });
 
 // ── Registre des effets d'ENTRÉE ([Entrée] / battlecry) ────────────────
@@ -2168,44 +2248,9 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   const atkVal = atk.cAtk + (isZenith(atk) ? 1 : 0);
   const hasHit = (atk.cap||'').includes('hit');
   const hasHeal = (atk.cap||'').includes('heal');
-  // solo_destroy (RAIJU): if only ally, destroy target without combat
-  if((atk.cap||'').includes('solo_destroy') && typeof targetIdx==='number') {
-    const myLive = AP.field.filter((x,i2)=>x&&!x.faceDown&&i2!==attackerIdx);
-    if(myLive.length===0) {
-      const tgt2 = DP.field[targetIdx];
-      if(tgt2) {
-        addLog(`${atk.n} — Solo Destroy!`,'special');
-        await handleDeath(targetP, tgt2);
-        AP.attacked.add(attackerIdx);
-        renderAll(); checkVictory(); return;
-      }
-    }
-  }
-  // coinflip_defense (SIRENES): defender flips, tails = attack cancelled
-  if(typeof targetIdx==='number') {
-    const def0 = DP.field[targetIdx];
-    if(def0 && (def0.cap||'').includes('coinflip_defense')) {
-      if(rng()<0.5) {
-        addLog(`${def0.n} — Coin flip: ANNULÉ!`,'special');
-        AP.attacked.add(attackerIdx); renderAll(); return;
-      } else {
-        addLog(`${def0.n} — Coin flip: combat normal.`,'event');
-      }
-    }
-  }
-  // splash_adjacent (JÖRMUNGANDR): half ATK dmg to adjacent monsters
-  if((atk.cap||'').includes('splash_adjacent') && typeof targetIdx==='number') {
-    const adj = [targetIdx-1, targetIdx+1];
-    for(const ai of adj) {
-      const am = DP.field[ai];
-      if(am&&!am.faceDown) {
-        const splashDmg = Math.ceil(atk.cAtk/2);
-        am.cDef = Math.max(0, am.cDef - splashDmg);
-        addLog(`${atk.n} — Splash ${splashDmg} dmg to ${am.n}!`,'dmg');
-        if(am.cDef<=0) await handleDeath(targetP, am);
-      }
-    }
-  }
+  // Capacités de combat pré-frappe composables (solo_destroy, coinflip_defense,
+  // splash_adjacent). 'abort' annule l'attaque (RAIJU / SIRENES).
+  if(await runCombatEffects('preStrike', { attackerP, attackerIdx, targetP, targetIdx, AP, DP, atk, cap: atk.cap||'' }) === 'abort') return;
   // token_per_dmg (YMIR): generate tokens when taking damage
 
 
