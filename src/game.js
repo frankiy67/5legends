@@ -1824,7 +1824,8 @@ GOD_EFFECTS["god_discard_hand_monster"] = async (ctx) => { const {c,p,opp,cap}=c
 GOD_EFFECTS["god_dmg3_or_6"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('dmg3or6',p,false); };
 GOD_EFFECTS["god_sacrifice_opp_draw2"] = async (ctx) => { const {c,p,opp,cap}=ctx;
     if(G.players[opp].field.length>0) {
-      const biggest = G.players[opp].field.filter(x=>x&&!x.faceDown).reduce((a,b)=>a.cAtk>b.cAtk?a:b,null);
+      const _live = G.players[opp].field.filter(x=>x&&!x.faceDown);
+      const biggest = _live.length ? _live.reduce((a,b)=>a.cAtk>b.cAtk?a:b) : null;
       if(biggest) {
         const bIdx = G.players[opp].field.indexOf(biggest);
         await handleDeath(opp,biggest);

@@ -2,13 +2,13 @@
  "meta": {
   "nGames": 200,
   "maxTurns": 200,
-  "generatedSeconds": 1.4,
+  "generatedSeconds": 1.3,
   "summary": {
-   "p1Wins": 34,
-   "p2Wins": 162,
-   "draws": 4,
+   "p1Wins": 35,
+   "p2Wins": 165,
+   "draws": 0,
    "both": 0,
-   "errored": 4
+   "errored": 0
   }
  },
  "games": [
@@ -34997,14 +34997,14 @@
    "seed": 83,
    "f1": "egyptian",
    "f2": "norse",
-   "winner": null,
-   "error": "TypeError: Cannot read properties of null (reading 'cAtk') |     at game.js:L:C |     at Array.reduce (<anonymous>)",
-   "turn": 10,
-   "cp": 2,
-   "cycle": 4,
-   "ragnarok": 0,
+   "winner": 2,
+   "error": null,
+   "turn": 11,
+   "cp": 1,
+   "cycle": 0,
+   "ragnarok": 1,
    "hp": [
-    11,
+    -8,
     25
    ],
    "hpTrace": [
@@ -35102,31 +35102,20 @@
      10,
      11,
      25
+    ],
+    [
+     11,
+     -8,
+     25
     ]
    ],
    "players": {
     "1": {
      "faction": "egyptian",
-     "hp": 11,
-     "gems": 1,
+     "hp": -8,
+     "gems": 10,
      "maxGems": 10,
      "field": [
-      {
-       "n": "Apis",
-       "id": "APIS",
-       "type": "monster",
-       "cAtk": 5,
-       "cDef": 3,
-       "cost": 5,
-       "cap": "heal",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
-      },
       {
        "n": "Sha",
        "id": "SHA",
@@ -35190,11 +35179,44 @@
        "bewitched": false,
        "blinded": false,
        "buff3turn": false
+      },
+      {
+       "n": "Jeton 1/1",
+       "id": "TOKEN11",
+       "type": "monster",
+       "cAtk": 1,
+       "cDef": 1,
+       "cost": 0,
+       "cap": "",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Jeton 1/1",
+       "id": "TOKEN11",
+       "type": "monster",
+       "cAtk": 1,
+       "cDef": 1,
+       "cost": 0,
+       "cap": "",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
       }
      ],
      "hand": [
       "Sekhmet",
-      "Sobek"
+      "Sobek",
+      "Momie"
      ],
      "graveyard": [
       "Jeton 1/1",
@@ -35210,18 +35232,12 @@
       "Apis",
       "Jeton 1/1",
       "Manticore",
-      "Momie"
+      "Momie",
+      "Apis"
      ],
-     "deckCount": 29,
-     "attacked": [
-      0,
-      1
-     ],
-     "summoned": [
-      2,
-      3,
-      4
-     ]
+     "deckCount": 28,
+     "attacked": [],
+     "summoned": []
     },
     "2": {
      "faction": "norse",
@@ -35311,7 +35327,9 @@
       }
      ],
      "hand": [
-      "Loki"
+      "Loki",
+      "Draugr",
+      "Hildisvini"
      ],
      "graveyard": [
       "Frigg",
@@ -35325,16 +35343,20 @@
       "Glace 1/1",
       "Tyr",
       "Glace 1/1",
-      "Glace 1/1"
+      "Glace 1/1",
+      "Thor"
      ],
-     "deckCount": 28,
-     "attacked": [],
+     "deckCount": 26,
+     "attacked": [
+      0,
+      1
+     ],
      "summoned": [
       4
      ]
     }
    },
-   "actionCount": 270,
+   "actionCount": 281,
    "actionLog": [
     "⚔ Battle begins!",
     "── AI thinking... ──",
@@ -35605,7 +35627,18 @@
     "⚡ RAGNARÖK! Tanngrisnir entre avec +3/+3 et Endurance!",
     "Player 2 summons Tanngrisnir (8⚔/5🛡)",
     "AI joue : Thor",
-    "Player 2 plays God: Thor!"
+    "Player 2 plays God: Thor!",
+    "Thor — Apis sacrifié!",
+    "Thor — Piochez 2!",
+    "🎯 AI détecte une victoire — tout en face !",
+    "Ymir attaque le joueur directement !",
+    "Ymir attacks P1 directly — 9 dmg (❤2)",
+    "Fenrir attaque le joueur directement !",
+    "Fenrir attacks P1 directly — 10 dmg (❤-8)",
+    "Phase: MAIN 2",
+    "── Turn 11 — Player 1 (egyptian) ──",
+    "🌌 Cycle Céleste — AUBE ! Zénith : Égyptien 🏺",
+    "Medjed — 2 jeton(s) 1/1!"
    ]
   },
   {
@@ -44129,14 +44162,14 @@
    "seed": 106,
    "f1": "yokai",
    "f2": "norse",
-   "winner": null,
-   "error": "TypeError: Cannot read properties of null (reading 'cAtk') |     at game.js:L:C |     at Array.reduce (<anonymous>)",
-   "turn": 10,
+   "winner": 2,
+   "error": null,
+   "turn": 12,
    "cp": 1,
-   "cycle": 4,
+   "cycle": 1,
    "ragnarok": 3,
    "hp": [
-    23,
+    -1,
     25
    ],
    "hpTrace": [
@@ -44229,17 +44262,70 @@
      10,
      23,
      25
+    ],
+    [
+     10,
+     23,
+     25
+    ],
+    [
+     11,
+     6,
+     25
+    ],
+    [
+     11,
+     6,
+     25
+    ],
+    [
+     12,
+     -1,
+     25
     ]
    ],
    "players": {
     "1": {
      "faction": "yokai",
-     "hp": 23,
-     "gems": 5,
+     "hp": -1,
+     "gems": 10,
      "maxGems": 10,
-     "field": [],
+     "field": [
+      {
+       "n": "Baku",
+       "id": "BAKU",
+       "type": "monster",
+       "cAtk": 6,
+       "cDef": 6,
+       "cost": 6,
+       "cap": "entry_sleep",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Ningyo",
+       "id": "NINGYO",
+       "type": "monster",
+       "cAtk": 1,
+       "cDef": 2,
+       "cost": 1,
+       "cap": "attack_draw",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      }
+     ],
      "hand": [
-      "Raijin"
+      "Raiju"
      ],
      "graveyard": [
       "Tenjin",
@@ -44256,16 +44342,19 @@
       "Tyr",
       "Huginn",
       "Onikuma",
-      "Huginn"
+      "Huginn",
+      "Thor",
+      "Raijin",
+      "Kagutsuchi"
      ],
-     "deckCount": 32,
+     "deckCount": 28,
      "attacked": [],
      "summoned": []
     },
     "2": {
      "faction": "norse",
      "hp": 25,
-     "gems": 0,
+     "gems": 2,
      "maxGems": 10,
      "field": [
       {
@@ -44276,8 +44365,8 @@
        "cDef": 1,
        "cost": 7,
        "cap": "",
-       "faceDown": false,
-       "asleep": false,
+       "faceDown": true,
+       "asleep": true,
        "sanded": false,
        "cursed": false,
        "bewitched": false,
@@ -44304,10 +44393,58 @@
        "n": "Dokkalfar",
        "id": "DOKKALFAR",
        "type": "monster",
-       "cAtk": 9,
-       "cDef": 8,
+       "cAtk": 6,
+       "cDef": 1,
        "cost": 6,
-       "cap": "curse endure",
+       "cap": "",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Jotunn",
+       "id": "JOTUNN",
+       "type": "monster",
+       "cAtk": 6,
+       "cDef": 6,
+       "cost": 6,
+       "cap": "protect",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Draugr",
+       "id": "DRAUGR",
+       "type": "monster",
+       "cAtk": 4,
+       "cDef": 2,
+       "cost": 3,
+       "cap": "endure",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Fenrir",
+       "id": "FENRIR",
+       "type": "monster",
+       "cAtk": 6,
+       "cDef": 10,
+       "cost": 8,
+       "cap": "curse",
        "faceDown": false,
        "asleep": false,
        "sanded": false,
@@ -44319,8 +44456,7 @@
      ],
      "hand": [
       "Ljosalfar",
-      "Bragi",
-      "Jotunn"
+      "Bragi"
      ],
      "graveyard": [
       "Frigg",
@@ -44341,16 +44477,17 @@
       "Freya",
       "Loki"
      ],
-     "deckCount": 20,
+     "deckCount": 18,
      "attacked": [
-      0,
       1,
       2
      ],
-     "summoned": []
+     "summoned": [
+      5
+     ]
     }
    },
-   "actionCount": 186,
+   "actionCount": 232,
    "actionLog": [
     "⚔ Battle begins!",
     "── AI thinking... ──",
@@ -44537,7 +44674,53 @@
     "── AI thinking... ──",
     "Phase: MAIN 1",
     "AI joue : Thor",
-    "Player 1 plays God: Thor!"
+    "Player 1 plays God: Thor!",
+    "Dokkalfar — Endure! Returns with 1🛡",
+    "Thor — Dokkalfar sacrifié!",
+    "Thor — Piochez 2!",
+    "AI joue : Raijin",
+    "Player 1 plays God: Raijin!",
+    "Raijin — Attaque redirigée vers un monstre adverse!",
+    "Phase: MAIN 2",
+    "── Turn 10 — Player 2 (norse) ──",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Jotunn",
+    "Player 2 summons Jotunn (6⚔/6🛡)",
+    "AI joue : Draugr",
+    "Player 2 summons Draugr (4⚔/2🛡)",
+    "Idi attaque directement (terrain adverse vide) !",
+    "Idi attacks P1 directly — 8 dmg (❤15)",
+    "Ratatosk attaque directement (terrain adverse vide) !",
+    "Ratatosk attacks P1 directly — 2 dmg (❤13)",
+    "Dokkalfar attaque directement (terrain adverse vide) !",
+    "Dokkalfar attacks P1 directly — 7 dmg (❤6)",
+    "Phase: MAIN 2",
+    "── Turn 11 — Player 1 (yokai) ──",
+    "🌌 Cycle Céleste — AUBE ! Zénith : Égyptien 🏺",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Baku",
+    "Player 1 summons Baku (6⚔/6🛡)",
+    "Idi put to sleep!",
+    "AI joue : Ningyo",
+    "Player 1 summons Ningyo (1⚔/2🛡)",
+    "AI joue : Kagutsuchi",
+    "Player 1 plays God: Kagutsuchi!",
+    "Phase: MAIN 2",
+    "── Turn 11 — Player 2 (norse) ──",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Fenrir",
+    "Player 2 summons Fenrir (6⚔/10🛡)",
+    "🎯 AI détecte une victoire — tout en face !",
+    "Ratatosk attaque le joueur directement !",
+    "Ratatosk attacks P1 directly — 1 dmg (❤5)",
+    "Dokkalfar attaque le joueur directement !",
+    "Dokkalfar attacks P1 directly — 6 dmg (❤-1)",
+    "Phase: MAIN 2",
+    "── Turn 12 — Player 1 (yokai) ──",
+    "🌌 Cycle Céleste — MIDI ! Zénith : Grec 🏛"
    ]
   },
   {
@@ -51171,15 +51354,15 @@
    "seed": 122,
    "f1": "norse",
    "f2": "aztec",
-   "winner": null,
-   "error": "TypeError: Cannot read properties of null (reading 'cAtk') |     at game.js:L:C |     at Array.reduce (<anonymous>)",
-   "turn": 13,
-   "cp": 1,
-   "cycle": 2,
-   "ragnarok": 8,
+   "winner": 1,
+   "error": null,
+   "turn": 17,
+   "cp": 2,
+   "cycle": 1,
+   "ragnarok": 0,
    "hp": [
-    12,
-    25
+    19,
+    -4
    ],
    "hpTrace": [
     [
@@ -51301,16 +51484,161 @@
      13,
      12,
      25
+    ],
+    [
+     13,
+     12,
+     25
+    ],
+    [
+     14,
+     12,
+     25
+    ],
+    [
+     14,
+     12,
+     25
+    ],
+    [
+     15,
+     12,
+     25
+    ],
+    [
+     15,
+     12,
+     13
+    ],
+    [
+     16,
+     12,
+     13
+    ],
+    [
+     16,
+     12,
+     13
+    ],
+    [
+     17,
+     12,
+     13
+    ],
+    [
+     17,
+     19,
+     -4
     ]
    ],
    "players": {
     "1": {
      "faction": "norse",
-     "hp": 12,
-     "gems": 2,
+     "hp": 19,
+     "gems": 10,
      "maxGems": 10,
-     "field": [],
-     "hand": [],
+     "field": [
+      {
+       "n": "Dokkalfar",
+       "id": "DOKKALFAR",
+       "type": "monster",
+       "cAtk": 6,
+       "cDef": 7,
+       "cost": 6,
+       "cap": "curse",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Eitri",
+       "id": "EITRI",
+       "type": "monster",
+       "cAtk": 4,
+       "cDef": 2,
+       "cost": 4,
+       "cap": "combat_recycle_dmg2",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Landvaettir",
+       "id": "LANDVAETTIR",
+       "type": "monster",
+       "cAtk": 7,
+       "cDef": 5,
+       "cost": 2,
+       "cap": "heal endure",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Ratatosk",
+       "id": "RATATOSK",
+       "type": "monster",
+       "cAtk": 1,
+       "cDef": 2,
+       "cost": 1,
+       "cap": "entry_search_ratatosk",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Ratatosk",
+       "id": "RATATOSK",
+       "type": "monster",
+       "cAtk": 1,
+       "cDef": 2,
+       "cost": 1,
+       "cap": "entry_search_ratatosk",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Ratatosk",
+       "id": "RATATOSK",
+       "type": "monster",
+       "cAtk": 1,
+       "cDef": 2,
+       "cost": 1,
+       "cap": "entry_search_ratatosk",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      }
+     ],
+     "hand": [
+      "Huginn",
+      "Jotunn"
+     ],
      "graveyard": [
       "Tanngrisnir",
       "Tanngrisnir",
@@ -51326,59 +51654,34 @@
       "Dokkalfar",
       "Sleipnir",
       "Niddhog",
-      "Frigg"
+      "Frigg",
+      "Thor",
+      "Eikthyrnir",
+      "Hoder"
      ],
-     "deckCount": 28,
-     "attacked": [],
+     "deckCount": 18,
+     "attacked": [
+      0,
+      1,
+      2
+     ],
      "summoned": []
     },
     "2": {
      "faction": "aztec",
-     "hp": 25,
-     "gems": 2,
+     "hp": -4,
+     "gems": 10,
      "maxGems": 10,
      "field": [
       {
-       "n": "Nagual",
-       "id": "NAGUAL",
-       "type": "monster",
-       "cAtk": 3,
-       "cDef": 5,
-       "cost": 6,
-       "cap": "hit",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
-      },
-      {
-       "n": "Chaneque",
-       "id": "CHANEQUE",
-       "type": "monster",
-       "cAtk": 2,
-       "cDef": 3,
+       "n": "Tlaltecuhtli",
+       "id": "TLALTECUHTLI_S",
+       "type": "god",
+       "cAtk": 0,
+       "cDef": 0,
        "cost": 2,
-       "cap": "heal",
-       "faceDown": false,
-       "asleep": false,
-       "sanded": false,
-       "cursed": false,
-       "bewitched": false,
-       "blinded": false,
-       "buff3turn": false
-      },
-      {
-       "n": "Camazotz",
-       "id": "CAMAZOTZ",
-       "type": "monster",
-       "cAtk": 1,
-       "cDef": 2,
-       "cost": 1,
-       "cap": "curse",
-       "faceDown": false,
+       "cap": "fd_cancel_spell",
+       "faceDown": true,
        "asleep": false,
        "sanded": false,
        "cursed": false,
@@ -51387,7 +51690,9 @@
        "buff3turn": false
       }
      ],
-     "hand": [],
+     "hand": [
+      "Kaqkoj"
+     ],
      "graveyard": [
       "Ahuizotl",
       "Coatlicue",
@@ -51404,19 +51709,20 @@
       "Camazotz",
       "Ceuyatl",
       "Xiuhtecuhtli",
-      "Ceuyatl"
+      "Ceuyatl",
+      "Nagual",
+      "Chaneque",
+      "Chohix",
+      "Jeton 2/2",
+      "Camazotz",
+      "Xipe Totec"
      ],
-     "deckCount": 26,
-     "attacked": [
-      0
-     ],
-     "summoned": [
-      1,
-      2
-     ]
+     "deckCount": 21,
+     "attacked": [],
+     "summoned": []
     }
    },
-   "actionCount": 327,
+   "actionCount": 519,
    "actionLog": [
     "⚔ Battle begins!",
     "── AI thinking... ──",
@@ -51744,7 +52050,199 @@
     "Player 1 plays God: Frigg!",
     "Frigg — Nothing on stack to counter",
     "AI joue : Thor",
-    "Player 1 plays God: Thor!"
+    "Player 1 plays God: Thor!",
+    "Thor — Nagual sacrifié!",
+    "Thor — Piochez 2!",
+    "AI joue : Eikthyrnir",
+    "⚡ RAGNARÖK! Eikthyrnir entre avec +3/+3 et Endurance!",
+    "Player 1 summons Eikthyrnir (4⚔/5🛡)",
+    "Phase: MAIN 2",
+    "── Turn 13 — Player 2 (aztec) ──",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Chohix",
+    "Player 2 summons Chohix (8⚔/5🛡)",
+    "Chaneque se prépare à attaquer...",
+    "Chaneque(3⚔) vs Eikthyrnir(4⚔/5🛡) — def:2🛡 atk:-1🛡",
+    "Heal — P2 +3 HP",
+    "Chohix — Jeton 2/2 invoqué!",
+    "Camazotz se prépare à attaquer...",
+    "Chohix(9⚔) vs Eikthyrnir(4⚔/2🛡) — def:-7🛡 atk:1🛡",
+    "Eikthyrnir — Endure! Returns with 1🛡",
+    "Phase: MAIN 2",
+    "── Turn 14 — Player 1 (norse) ──",
+    "🌌 Cycle Céleste — NUIT ! Zénith : Yokai 🦊",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Dokkalfar",
+    "Player 1 summons Dokkalfar (6⚔/7🛡)",
+    "AI joue : Eitri",
+    "Player 1 summons Eitri (4⚔/5🛡)",
+    "Eikthyrnir se prépare à attaquer...",
+    "Eikthyrnir(1⚔) vs Chohix(8⚔/1🛡) — def:0🛡 atk:-7🛡",
+    "Phase: MAIN 2",
+    "── Turn 14 — Player 2 (aztec) ──",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Tlaltecuhtli",
+    "Player 2 plays God: Tlaltecuhtli!",
+    "Tlaltecuhtli enters Face Down",
+    "Jeton 2/2 se prépare à attaquer...",
+    "Jeton 2/2(2⚔) vs Eitri(4⚔/5🛡) — def:3🛡 atk:-2🛡",
+    "Camazotz se prépare à attaquer...",
+    "Camazotz(1⚔) vs Eitri(4⚔/3🛡) — def:2🛡 atk:-2🛡",
+    "Phase: MAIN 2",
+    "── Turn 15 — Player 1 (norse) ──",
+    "🌌 Cycle Céleste — TÉNÈBRES ! Zénith : Norse ⚡",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Hoder",
+    "Player 1 plays God: Hoder!",
+    "Hoder — 2 monstre(s) cherché(s)!",
+    "AI joue : Landvaettir",
+    "⚡ RAGNARÖK! Landvaettir entre avec +3/+3 et Endurance!",
+    "Player 1 summons Landvaettir (7⚔/5🛡)",
+    "AI joue : Ratatosk",
+    "Player 1 summons Ratatosk (1⚔/2🛡)",
+    "Ratatosk — Ratatosk trouvé!",
+    "AI joue : Ratatosk",
+    "Player 1 summons Ratatosk (1⚔/2🛡)",
+    "Ratatosk — Ratatosk trouvé!",
+    "AI joue : Ratatosk",
+    "Player 1 summons Ratatosk (1⚔/2🛡)",
+    "Dokkalfar attaque directement (terrain adverse vide) !",
+    "Dokkalfar attacks P2 directly — 7 dmg (❤18)",
+    "Eitri attaque directement (terrain adverse vide) !",
+    "Eitri attacks P2 directly — 5 dmg (❤13)",
+    "Phase: MAIN 2",
+    "── Turn 15 — Player 2 (aztec) ──",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Xipe Totec",
+    "Player 2 plays God: Xipe Totec!",
+    "Xipe Totec — Monstres adverses immobilisés!",
+    "Phase: MAIN 2",
+    "── Turn 16 — Player 1 (norse) ──",
+    "🌌 Cycle Céleste — AUBE ! Zénith : Égyptien 🏺",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "Phase: MAIN 2",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "── Turn 16 — Player 2 (aztec) ──",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Mictlantecuhtli",
+    "Player 2 plays God: Mictlantecuhtli!",
+    "Phase: MAIN 2",
+    "── Turn 17 — Player 1 (norse) ──",
+    "🌌 Cycle Céleste — MIDI ! Zénith : Grec 🏛",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "🎯 AI détecte une victoire — tout en face !",
+    "Dokkalfar attaque le joueur directement !",
+    "Dokkalfar attacks P2 directly — 6 dmg (❤7)",
+    "Eitri attaque le joueur directement !",
+    "Eitri attacks P2 directly — 4 dmg (❤3)",
+    "Landvaettir attaque le joueur directement !",
+    "Landvaettir attacks P2 directly — 7 dmg (❤-4)",
+    "Heal — P1 +7 HP",
+    "Phase: MAIN 2",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "AI joue : Jotunn",
+    "Field full — cannot summon!",
+    "── Turn 17 — Player 2 (aztec) ──"
    ]
   },
   {
@@ -77548,14 +78046,14 @@
    "seed": 182,
    "f1": "norse",
    "f2": "norse",
-   "winner": null,
-   "error": "TypeError: Cannot read properties of null (reading 'cAtk') |     at game.js:L:C |     at Array.reduce (<anonymous>)",
-   "turn": 11,
-   "cp": 2,
-   "cycle": 0,
-   "ragnarok": 0,
+   "winner": 2,
+   "error": null,
+   "turn": 15,
+   "cp": 1,
+   "cycle": 4,
+   "ragnarok": 4,
    "hp": [
-    19,
+    -5,
     25
    ],
    "hpTrace": [
@@ -77663,23 +78161,58 @@
      11,
      19,
      25
+    ],
+    [
+     12,
+     19,
+     25
+    ],
+    [
+     12,
+     19,
+     25
+    ],
+    [
+     13,
+     19,
+     25
+    ],
+    [
+     13,
+     19,
+     25
+    ],
+    [
+     14,
+     11,
+     25
+    ],
+    [
+     14,
+     11,
+     25
+    ],
+    [
+     15,
+     -5,
+     25
     ]
    ],
    "players": {
     "1": {
      "faction": "norse",
-     "hp": 19,
-     "gems": 0,
+     "hp": -5,
+     "gems": 10,
      "maxGems": 10,
      "field": [
       {
-       "n": "Hildisvini",
-       "id": "HILDISVINI",
+       "n": "Idi",
+       "id": "IDI",
        "type": "monster",
-       "cAtk": 6,
-       "cDef": 11,
-       "cost": 5,
-       "cap": "hit endure",
+       "cAtk": 7,
+       "cDef": 10,
+       "cost": 7,
+       "cap": "exit_search_3def",
        "faceDown": false,
        "asleep": false,
        "sanded": false,
@@ -77689,7 +78222,9 @@
        "buff3turn": false
       }
      ],
-     "hand": [],
+     "hand": [
+      "Idunn"
+     ],
      "graveyard": [
       "Tanngrisnir",
       "Eitri",
@@ -77706,28 +78241,61 @@
       "Jotunn",
       "Ratatosk",
       "Ratatosk",
-      "Odin"
+      "Odin",
+      "Hildisvini",
+      "Fenrir",
+      "Frigg"
      ],
-     "deckCount": 28,
+     "deckCount": 24,
      "attacked": [],
-     "summoned": [
-      0
-     ]
+     "summoned": []
     },
     "2": {
      "faction": "norse",
      "hp": 25,
-     "gems": 5,
+     "gems": 2,
      "maxGems": 10,
      "field": [
       {
-       "n": "Jörmungandr",
-       "id": "JORMUNGANDR",
+       "n": "Surt",
+       "id": "SURT",
        "type": "monster",
-       "cAtk": 4,
-       "cDef": 7,
-       "cost": 5,
-       "cap": "splash_adjacent",
+       "cAtk": 8,
+       "cDef": 10,
+       "cost": 8,
+       "cap": "entry_wipe",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Ymir",
+       "id": "YMIR",
+       "type": "monster",
+       "cAtk": 8,
+       "cDef": 9,
+       "cost": 7,
+       "cap": "token_per_dmg",
+       "faceDown": false,
+       "asleep": false,
+       "sanded": false,
+       "cursed": false,
+       "bewitched": false,
+       "blinded": false,
+       "buff3turn": false
+      },
+      {
+       "n": "Fenrir",
+       "id": "FENRIR",
+       "type": "monster",
+       "cAtk": 6,
+       "cDef": 10,
+       "cost": 8,
+       "cap": "curse",
        "faceDown": false,
        "asleep": false,
        "sanded": false,
@@ -77737,7 +78305,9 @@
        "buff3turn": false
       }
      ],
-     "hand": [],
+     "hand": [
+      "Dokkalfar"
+     ],
      "graveyard": [
       "Tanngrisnir",
       "Draugr",
@@ -77755,14 +78325,22 @@
       "Ljosalfar",
       "Ljosalfar",
       "Tanngrisnir",
-      "Eikthyrnir"
+      "Eikthyrnir",
+      "Thor",
+      "Jörmungandr",
+      "Eitri"
      ],
-     "deckCount": 26,
-     "attacked": [],
-     "summoned": []
+     "deckCount": 21,
+     "attacked": [
+      0,
+      1
+     ],
+     "summoned": [
+      2
+     ]
     }
    },
-   "actionCount": 291,
+   "actionCount": 349,
    "actionLog": [
     "⚔ Battle begins!",
     "── AI thinking... ──",
@@ -78054,7 +78632,65 @@
     "── AI thinking... ──",
     "Phase: MAIN 1",
     "AI joue : Thor",
-    "Player 2 plays God: Thor!"
+    "Player 2 plays God: Thor!",
+    "Hildisvini — Endure! Returns with 1🛡",
+    "Thor — Hildisvini sacrifié!",
+    "Thor — Piochez 2!",
+    "AI joue : Eitri",
+    "Player 2 summons Eitri (4⚔/5🛡)",
+    "Jörmungandr se prépare à attaquer...",
+    "Jörmungandr(4⚔) vs Hildisvini(3⚔/1🛡) — def:-3🛡 atk:4🛡",
+    "Phase: MAIN 2",
+    "── Turn 12 — Player 1 (norse) ──",
+    "🌌 Cycle Céleste — MIDI ! Zénith : Grec 🏛",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Fenrir",
+    "Player 1 summons Fenrir (6⚔/10🛡)",
+    "Phase: MAIN 2",
+    "── Turn 12 — Player 2 (norse) ──",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Surt",
+    "Player 2 summons Surt (8⚔/10🛡)",
+    "Surt — BOARD WIPE!",
+    "Phase: MAIN 2",
+    "── Turn 13 — Player 1 (norse) ──",
+    "🌌 Cycle Céleste — CRÉPUSCULE ! Zénith : Aztèque 🌞",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Frigg",
+    "Player 1 plays God: Frigg!",
+    "Frigg — Nothing on stack to counter",
+    "Phase: MAIN 2",
+    "── Turn 13 — Player 2 (norse) ──",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Ymir",
+    "Player 2 summons Ymir (8⚔/9🛡)",
+    "Surt attaque directement (terrain adverse vide) !",
+    "Surt attacks P1 directly — 8 dmg (❤11)",
+    "Phase: MAIN 2",
+    "── Turn 14 — Player 1 (norse) ──",
+    "🌌 Cycle Céleste — NUIT ! Zénith : Yokai 🦊",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Idi",
+    "Player 1 summons Idi (7⚔/10🛡)",
+    "Phase: MAIN 2",
+    "── Turn 14 — Player 2 (norse) ──",
+    "── AI thinking... ──",
+    "Phase: MAIN 1",
+    "AI joue : Fenrir",
+    "Player 2 summons Fenrir (6⚔/10🛡)",
+    "🎯 AI détecte une victoire — tout en face !",
+    "Surt attaque le joueur directement !",
+    "Surt attacks P1 directly — 8 dmg (❤3)",
+    "Ymir attaque le joueur directement !",
+    "Ymir attacks P1 directly — 8 dmg (❤-5)",
+    "Phase: MAIN 2",
+    "── Turn 15 — Player 1 (norse) ──",
+    "🌌 Cycle Céleste — TÉNÈBRES ! Zénith : Norse ⚡"
    ]
   },
   {
