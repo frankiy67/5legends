@@ -4209,14 +4209,9 @@ function renderField(p) {
       ritBtn.onclick = (e) => { e.stopPropagation(); startRitual(p, i); };
       div.appendChild(ritBtn);
     }
-    // ── ASCENSION (C2) : bouton PRIER (alternative à l'attaque, phase Combat) ──
-    if(isCurrent && !aiControls(p) && !G.targeting && canPray(p, i)) {
-      const prayBtn = document.createElement('button');
-      prayBtn.className = 'btn-pray';
-      prayBtn.textContent = '🙏 PRIER';
-      prayBtn.onclick = (e) => { e.stopPropagation(); prayWith(p, i); };
-      div.appendChild(prayBtn);
-    }
+    // ── ASCENSION (C2/UI) : le choix Guerre/Prière se fait via un menu flottant
+    // au clic sur la créature (voir onFieldClick → showActionMenu). Plus de
+    // bouton dans la carte (qui reflowait/recouvrait le terrain).
 
     el.appendChild(div);
   });
@@ -4467,9 +4462,69 @@ function onFieldClick(p,i) {
     const hasHurry=(m.cap||'').includes('hurry');
     if(P.summoned.has(i)&&!hasHurry){ addLog(`${m.n} summoned this turn — can't attack`); return; }
     if(m.sanded){ addLog(`${m.n} is sanded!`); return; }
-    G.selAtk={p:cp,i};
-    startAttackTargeting(m,cp,i);
+    // ASCENSION : choix primaire Guerre/Prière via menu flottant (au lieu de
+    // lancer directement le ciblage d'attaque).
+    showActionMenu(cp, i);
   }
+}
+
+// ── ASCENSION (C2/UI) : menu d'action flottant Guerre / Prière ─────────────
+// 100% UI : ⚔️ Attaquer relance le flux d'attaque existant (startAttackTargeting),
+// 🙏 Prier appelle prayWith. Aucune logique de jeu modifiée. Positionné au-dessus
+// de la carte, au-dessus de la barre d'action (z-index), sans reflow ni recouvrement.
+function _actionMenuOutside(e) {
+  const menu = document.getElementById('action-menu');
+  if(menu && !menu.contains(e.target)) closeActionMenu();
+}
+function closeActionMenu() {
+  const el = document.getElementById('action-menu');
+  if(el) el.remove();
+  document.removeEventListener('mousedown', _actionMenuOutside, true);
+}
+function showActionMenu(p, i) {
+  closeActionMenu();
+  const P = G.players[p];
+  const m = P && P.field[i];
+  if(!m) return;
+  const opp = p===1?2:1;
+  const OP = G.players[opp];
+  // Attaque possible s'il existe une cible : une créature adverse visible, OU le
+  // joueur en face (si aucun protecteur non-agenouillé).
+  const oppHasProtect = OP.field.some(x=>x&&(x.cap||'').includes('protect')&&!x.faceDown&&!x.asleep&&!x.kneeling);
+  const hasAttackTarget = OP.field.some(x=>x&&!x.faceDown) || !oppHasProtect;
+  const canPrayNow = canPray(p, i);
+  if(!hasAttackTarget && !canPrayNow) return;
+
+  const menu = document.createElement('div');
+  menu.id = 'action-menu';
+  let html = '';
+  if(hasAttackTarget) html += `<button class="am-btn am-attack" data-act="attack">⚔️ Attaquer</button>`;
+  if(canPrayNow)      html += `<button class="am-btn am-pray" data-act="pray">🙏 Prier<span class="am-sub">+1 Foi</span></button>`;
+  menu.innerHTML = html;
+  document.body.appendChild(menu);
+
+  // Positionnement : au-dessus de la carte, centré, clampé au viewport.
+  const cardEl = document.querySelector(`[data-player="${p}"][data-idx="${i}"]`);
+  const mr = menu.getBoundingClientRect();
+  let x, y;
+  if(cardEl){
+    const r = cardEl.getBoundingClientRect();
+    x = r.left + r.width/2 - mr.width/2;
+    y = r.top - mr.height - 10;
+    if(y < 8) y = r.bottom + 10;
+  } else { x = (window.innerWidth - mr.width)/2; y = (window.innerHeight - mr.height)/2; }
+  x = Math.max(8, Math.min(x, window.innerWidth - mr.width - 8));
+  y = Math.max(8, Math.min(y, window.innerHeight - mr.height - 8));
+  menu.style.left = x+'px';
+  menu.style.top = y+'px';
+
+  const atkBtn = menu.querySelector('.am-attack');
+  if(atkBtn) atkBtn.onclick = (e) => { e.stopPropagation(); closeActionMenu(); G.selAtk={p,i}; startAttackTargeting(m,p,i); };
+  const prayBtn = menu.querySelector('.am-pray');
+  if(prayBtn) prayBtn.onclick = (e) => { e.stopPropagation(); closeActionMenu(); prayWith(p,i); };
+
+  // Fermer au clic extérieur (différé pour ne pas capter le clic d'ouverture).
+  setTimeout(() => document.addEventListener('mousedown', _actionMenuOutside, true), 0);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -4631,6 +4686,7 @@ function showVictory(winner,faction,turn){
 
 // ESC / right-click to cancel targeting (keydown 2 — conservé pour cancelTargeting)
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ closeActionMenu(); }
   if(e.key==='Escape'&&G&&G.targeting){ cancelTargeting(); }
 });
 document.addEventListener('contextmenu',e=>{

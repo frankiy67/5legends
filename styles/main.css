@@ -480,13 +480,26 @@ body{
 .btn-ritual:hover{filter:brightness(1.2)}
 @keyframes pulse-ritual{from{box-shadow:0 0 4px #ff4500}to{box-shadow:0 0 14px #ff4500,0 0 4px #8b0000}}
 
-/* ── ASCENSION (C2) : bouton PRIER + créature à genoux ── */
-.btn-pray{display:block;width:100%;margin-top:4px;background:linear-gradient(135deg,#5a2080,#a04fd0);
-  color:#fff;border:1px solid #c77dff;padding:4px 8px;border-radius:5px;font-family:'Cinzel',serif;
-  font-size:9px;cursor:pointer;letter-spacing:1px;box-shadow:0 0 6px rgba(199,125,255,.5);
-  transition:filter .15s,box-shadow .2s;animation:pulse-pray 1.4s ease-in-out infinite alternate}
-.btn-pray:hover{filter:brightness(1.18);box-shadow:0 0 13px rgba(199,125,255,.85)}
-@keyframes pulse-pray{from{box-shadow:0 0 5px rgba(199,125,255,.5)}to{box-shadow:0 0 14px rgba(199,125,255,.9)}}
+/* ── ASCENSION (C2/UI) : menu d'action Guerre/Prière + créature à genoux ── */
+/* Menu flottant à deux choix, au-dessus de la carte et AU-DESSUS de la barre
+   d'action du bas (z-index). Ne reflow pas la carte, ne recouvre pas le terrain. */
+#action-menu{position:fixed;z-index:200;display:flex;gap:8px;padding:6px;border-radius:13px;
+  background:linear-gradient(160deg,rgba(26,21,48,.98),rgba(12,9,26,.98));
+  border:1px solid rgba(244,201,93,.4);box-shadow:0 12px 34px rgba(0,0,0,.85),0 0 0 1px rgba(0,0,0,.5);
+  animation:amIn .12s ease-out}
+@keyframes amIn{from{opacity:0;transform:translateY(5px) scale(.95)}to{opacity:1;transform:none}}
+.am-btn{font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;
+  padding:10px 16px;border-radius:9px;color:#fff;border:1.5px solid;display:flex;align-items:center;gap:6px;
+  white-space:nowrap;transition:transform .12s,box-shadow .2s,filter .15s}
+.am-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.am-btn:active{transform:translateY(0)}
+.am-attack{background:radial-gradient(ellipse at 50% 25%,#7a1d12,#3a0d08);border-color:#ff6347;
+  box-shadow:0 0 14px rgba(255,90,60,.4)}
+.am-attack:hover{box-shadow:0 0 24px rgba(255,90,60,.7)}
+.am-pray{background:radial-gradient(ellipse at 50% 25%,#5a2080,#2a0e44);border-color:#c77dff;
+  box-shadow:0 0 14px rgba(199,125,255,.45)}
+.am-pray:hover{box-shadow:0 0 24px rgba(199,125,255,.8)}
+.am-sub{font-family:'Spectral',serif;font-size:9.5px;font-weight:600;color:var(--gold-bright);opacity:.9;margin-left:2px}
 /* fidèle à genoux : désaturé, anneau violet « Foi », icône 🙏 */
 .fcard.kneeling .fc-frame{filter:saturate(.6) brightness(.82)}
 .fcard.kneeling .fc-frame::before{border-color:var(--rar-god)!important;opacity:1!important;
