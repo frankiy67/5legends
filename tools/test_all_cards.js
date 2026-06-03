@@ -27,7 +27,8 @@ const ROOT = path.resolve(__dirname, '..');
 const GAME_SRC = path.join(ROOT, 'src', 'game.js');
 
 // Cartes sans fichier d'illustration (placeholder volontaire, pas un échec).
-const PLACEHOLDER_OK = new Set(['HESTIA', 'SOBEK', 'ORACLE_DELPHES']);
+// (Hestia, Sobek, Oracle de Delphes ont désormais leur illustration.)
+const PLACEHOLDER_OK = new Set([]);
 
 // ── Stub DOM/Audio (identique à golden.js) ───────────────────────────────
 const ANY = new Proxy(function () {}, {

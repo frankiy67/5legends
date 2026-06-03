@@ -292,6 +292,8 @@ const B64_IMAGES = {};
     SET:'egyptian/seth', KHONSU:'egyptian/khnum', TENJIN:'yokai/tengin',
     XIPE_TOTEC:'aztec/xipetotec', TLALTECUHTLI_S:'aztec/tlaltecuhtli',
     LION_NEMEE:'greek/liondenemee',
+    // Illustrations ajoutées (remplacent les anciens placeholders)
+    HESTIA:'greek/hestia', SOBEK:'egyptian/sobek', ORACLE_DELPHES:'greek/oracledelphes',
   };
   for (const [id, rel] of Object.entries(EXTRA)) {
     const p = `./assets/cards/${rel}.jpeg`;
