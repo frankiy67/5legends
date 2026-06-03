@@ -3182,12 +3182,19 @@ function aiPrayPhase(p=2) {
   if (prof === 'RUSH') {
     keepN = 0;                                  // prie TOUT : course à la Foi
   } else if (prof === 'GUARD') {
-    // Prie DERRIÈRE les gardiennes : on garde toutes les gardiennes (Égide/Protect)
-    // en réserve ; à défaut, un noyau couvrant la menace entière.
+    // Prie DERRIÈRE les gardiennes, à un degré PROPORTIONNEL à la protection :
+    //  • Égide vivante  → les fidèles à genoux sont improfanables : prier tout le reste.
+    //  • murs Protect   → ils encaissent en premier : prier derrière, mais garder un tampon.
+    //  • aucune gardienne → prudence : garder un noyau couvrant la menace.
     const guardians = eligible.filter(({ m }) => /protect|egide/.test(m.cap || ''));
-    keepN = guardians.length > 0
-      ? Math.min(eligible.length, guardians.length)
-      : Math.min(eligible.length, Math.max(1, enemyThreat));
+    const haveEgide = P.field.some(m => m && !m.faceDown && !m.asleep && !m.kneeling && (m.cap || '').includes('egide'));
+    if (haveEgide) {
+      keepN = Math.min(eligible.length, guardians.length);
+    } else if (guardians.length > 0) {
+      keepN = Math.min(eligible.length, guardians.length + Math.ceil(enemyThreat / 2));
+    } else {
+      keepN = Math.min(eligible.length, Math.max(1, enemyThreat));
+    }
   } else if (prof === 'RAID') {
     // Ne prie QUE sans bonne attaque : si une créature ennemie est attaquable,
     // on garde tout le monde pour le combat (déni + Ferveur) ; sinon on prie tout.
