@@ -955,3 +955,39 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
 .gc-ico{font-size:15px}
 .god-choice-desc{font-family:'Spectral',serif;font-size:12px;color:#d8d2ea;line-height:1.4;text-align:center;padding:0 12px 8px;min-height:50px}
 .god-choice-cost{font-family:'Spectral',serif;font-size:11px;color:rgba(255,255,255,.6);text-align:center;padding:0 0 11px}
+
+/* ══ BRIQUE 5 : MARCHÉ — panneau discret à GAUCHE (replié → survol/clic déplie) ══ */
+#market{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:150;
+  display:flex;align-items:stretch;
+  /* REPLIÉ : on ne voit que les bords des cartes + l'onglet. */
+  transition:transform .32s cubic-bezier(.34,1.1,.5,1)}
+#market{transform:translate(calc(-100% + 30px),-50%)}     /* seuls ~30px dépassent */
+#market:hover, #market.open{transform:translate(0,-50%)}  /* déplié */
+.market-tab{position:absolute;right:-26px;top:50%;transform:translateY(-50%) rotate(0deg);
+  display:flex;flex-direction:column;align-items:center;gap:5px;width:26px;padding:10px 0;cursor:pointer;
+  background:linear-gradient(180deg,rgba(40,30,70,.97),rgba(18,12,36,.97));
+  border:1px solid rgba(244,201,93,.4);border-left:none;border-radius:0 12px 12px 0;
+  box-shadow:6px 0 18px rgba(0,0,0,.6)}
+.market-tab-ico{font-size:16px}
+.market-tab-lbl{writing-mode:vertical-rl;font-family:'Cinzel',serif;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--gold-bright)}
+#market-cards{display:flex;flex-direction:column;gap:7px;padding:10px;border-radius:0 14px 14px 0;
+  background:linear-gradient(160deg,rgba(20,15,38,.96),rgba(9,6,20,.97));
+  border:1px solid rgba(244,201,93,.3);border-left:none;box-shadow:8px 0 30px rgba(0,0,0,.7);max-height:92vh;overflow:hidden}
+.mk-card{display:flex;gap:8px;width:212px;border-radius:11px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(30,22,52,.9),rgba(14,10,26,.92));
+  border:1px solid rgba(255,255,255,.08);animation:mkIn .25s ease-out}
+@keyframes mkIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+.mk-art{position:relative;width:54px;flex-shrink:0;background:#06060f;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.mk-art img{width:54px;height:100%;object-fit:cover;object-position:top}
+.mk-ph{font-size:24px}
+.mk-cost{position:absolute;top:2px;left:2px;font-family:'Cinzel',serif;font-size:9.5px;font-weight:800;color:#fff;background:rgba(0,0,0,.7);border-radius:6px;padding:1px 4px}
+.mk-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:7px 8px 7px 2px;min-width:0}
+.mk-name{font-family:'Cinzel',serif;font-size:12px;font-weight:800;color:var(--gold-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-stats{display:flex;gap:6px;align-items:center;font-family:'Spectral',serif;font-size:10.5px;color:#d8d2ea;flex-wrap:wrap}
+.mk-atk{color:#ff8a7a}.mk-def{color:#7db4ff}.mk-type{color:#c9a6ff}
+.mk-cap{color:rgba(255,255,255,.5);font-size:9.5px}
+.mk-buy{margin-top:2px;cursor:pointer;font-family:'Cinzel',serif;font-size:10.5px;font-weight:800;letter-spacing:.4px;
+  padding:5px 8px;border-radius:8px;color:#fff;border:1.5px solid #ffcf5a;
+  background:radial-gradient(ellipse at 50% 25%,#7a5d12,#3a2c08);transition:transform .12s,box-shadow .2s,filter .15s}
+.mk-buy:hover:not(.disabled){transform:translateY(-1px);box-shadow:0 0 16px rgba(244,201,93,.6)}
+.mk-buy.disabled{opacity:.38;cursor:not-allowed;filter:grayscale(.5);border-color:#666}

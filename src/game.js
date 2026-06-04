@@ -740,6 +740,7 @@ function initGame(f1, f2, mode) {
     G.players[p].god = gc.godId; G.players[p].godName = gc.godName; G.players[p].godPower = gc.godPower;
   }
   setupGod = { 1:null, 2:null }; // consommé
+  G.market = initMarket();   // BRIQUE 5 : marché commun de 5 cartes (pool complet)
   G.activeTurn = 1; // Player 1 starts
   addLog('⚔ Battle begins!', 'event');
   applyBattlefieldArt(f1, f2);
@@ -1198,6 +1199,110 @@ async function aiUseGodPower(p) {
     case 'resurrection':  if(P._lastDead && (P._lastDead.atk||0)>=3 && P.field.length<6) go=true; break;
   }
   if(go) await activateGodPower(p, tp, ti);
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// BRIQUE 5 : MARCHÉ — 5 cartes communes du pool complet (171), achat 2💎 → main.
+// Système ADDITIF : ne touche ni aux cartes/factions ni aux cycles/dieux.
+// ══════════════════════════════════════════════════════════════════════════
+const MARKET_SIZE = 5;
+const MARKET_COST = 2;
+const HAND_LIMIT = 7;
+let CARD_POOL = null;
+// Pool plat de TOUS les modèles de cartes (monstres + dieux, toutes factions).
+function buildCardPool() {
+  if(CARD_POOL) return CARD_POOL;
+  const pool = [];
+  for(const f of FACTIONS) {
+    for(const m of (MONSTERS[f]||[])) pool.push({...m, type:'monster', faction:f});
+    for(const g of (GODS[f]||[]))     pool.push({...g, type:g.type||'god', faction:f});
+  }
+  CARD_POOL = pool;
+  return pool;
+}
+function marketRandomCard() {
+  const pool = buildCardPool();
+  return newCard({...pool[Math.floor(rng()*pool.length)]});
+}
+function initMarket() {
+  const m = [];
+  for(let i=0;i<MARKET_SIZE;i++) m.push(marketRandomCard());
+  return m;
+}
+// Achat possible ? (son tour, ≥2 gems, main non pleine)
+function canBuyMarket(p) {
+  const P = G.players[p];
+  return !!(P && G.cp===p && P.gems>=MARKET_COST && P.hand.length<HAND_LIMIT);
+}
+// Achète la carte d'indice idx → main du joueur, remplacée par une nouvelle.
+function buyFromMarket(p, idx) {
+  if(!canBuyMarket(p)) return false;
+  const card = G.market && G.market[idx];
+  if(!card) return false;
+  const P = G.players[p];
+  P.gems -= MARKET_COST;
+  P.hand.push(card);
+  G.market[idx] = marketRandomCard();         // refresh : marché toujours à 5
+  addLog(`🛒 P${p} achète ${card.n} au marché (−${MARKET_COST}💎).`,'event');
+  renderAll();
+  return true;
+}
+// Valeur heuristique d'une carte du marché (IA).
+function marketValue(c) {
+  if(!c) return 0;
+  if(c.type==='monster') {
+    let v = (c.atk||0)+(c.def||0); const cap = c.cap||'';
+    if(cap.includes('hurry'))   v+=3;
+    if(cap.includes('hit'))     v+=3;
+    if(cap.includes('egide'))   v+=3;
+    if(cap.includes('protect')) v+=2;
+    if(cap.includes('fervor'))  v+=2;
+    return v;
+  }
+  if(c.type==='god') return 6;
+  return 4;
+}
+// IA minimale (brique 6 = raffinage) : 1 achat/tour si gems≥2 ET main ≤2.
+function aiCheckMarket(p) {
+  if(!canBuyMarket(p)) return;
+  const P = G.players[p];
+  if(P.gems < MARKET_COST || P.hand.length > 2) return;
+  let best = -1, bi = -1;
+  (G.market||[]).forEach((c,i) => { const v = marketValue(c); if(v>best){ best=v; bi=i; } });
+  if(bi>=0) buyFromMarket(p, bi);
+}
+
+// Achat humain (joueur actif). Le marché est partagé ; on achète pour G.cp.
+function humanBuyMarket(idx) {
+  const p = G.cp;
+  if(aiControls(p)) return;
+  if(buyFromMarket(p, idx)) { Audio5L.sfx.select && Audio5L.sfx.select(); }
+}
+
+// ── BRIQUE 5 : rendu du panneau Marché (gauche) ───────────────────────────
+function renderMarket() {
+  const wrap = document.getElementById('market-cards');
+  if(!wrap || !G || !G.market) return;
+  const p = G.cp;
+  const buyable = !aiControls(p) && canBuyMarket(p);   // achetable par le joueur humain actif
+  const FEloc = { yokai:'🦊', norse:'⚡', egyptian:'🏺', greek:'🏛️', aztec:'🌞' };
+  wrap.innerHTML = G.market.map((c, i) => {
+    if(!c) return '';
+    const img = getCardImage(c.id||'');
+    const isMon = c.type==='monster';
+    const stat = isMon ? `<span class="mk-atk">${c.atk}⚔</span><span class="mk-def">${c.def}🛡</span>` : `<span class="mk-type">${c.type==='god'?'⚡ Dieu':'✨ Sort'}</span>`;
+    const cap = (c.cap||'').replace(/_/g,' ').split(' ').slice(0,2).join(' ');
+    const art = img ? `<img src="${img}" alt="${c.n}" loading="lazy">` : `<span class="mk-ph">${FEloc[c.faction]||'🃏'}</span>`;
+    return `<div class="mk-card" data-fac="${c.faction||''}">
+      <div class="mk-art">${art}<span class="mk-cost">${c.cost}💎</span></div>
+      <div class="mk-body">
+        <div class="mk-name">${c.n}</div>
+        <div class="mk-stats">${stat}${cap?`<span class="mk-cap">${cap}</span>`:''}</div>
+        <button class="mk-buy${buyable?'':' disabled'}" data-i="${i}" ${buyable?'':'disabled'}>Acheter ${MARKET_COST}💎</button>
+      </div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('.mk-buy').forEach(b => b.onclick = (e) => { e.stopPropagation(); humanBuyMarket(+b.dataset.i); });
 }
 
 function nextPhase() { advancePhase(); }
@@ -3281,6 +3386,9 @@ async function aiTurn(p=2) {
 
   await aiMainPhase(p);
 
+  // BRIQUE 5 : l'IA consulte le marché APRÈS avoir joué ses cartes de main (1 achat max).
+  aiCheckMarket(p);
+
   // End phase
   G.phase='End';
   renderAll();
@@ -4555,6 +4663,7 @@ function renderAll() {
   if(!G) return;
   renderCycleBanner();
   renderCyclePrompt();
+  renderMarket();
   applyCycleAnim();
   renderPlayerBar(1); renderPlayerBar(2);
   renderField(1); renderField(2);
@@ -5390,6 +5499,12 @@ document.getElementById('btn-endturn').addEventListener('click',endTurn);
   const close=document.getElementById('log-close');
   if(toggle&&drawer) toggle.addEventListener('click',()=>drawer.classList.toggle('open'));
   if(close&&drawer)  close.addEventListener('click',()=>drawer.classList.remove('open'));
+})();
+
+// ── BRIQUE 5 : clic sur le panneau Marché → épingle/déplie (le survol déplie aussi). ──
+(function(){
+  const mk=document.getElementById('market');
+  if(mk) mk.addEventListener('click', (e)=>{ if(!e.target.closest('.mk-buy')) mk.classList.toggle('open'); });
 })();
 
 // Victory display
