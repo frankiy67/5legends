@@ -135,6 +135,23 @@ function loadGame() {
 // sont SOURCÉS DEPUIS LE JEU (API) à chaque partie → aucune dérive si game.js change.
 const MAX_TURNS = 50;
 
+// BRIQUE 2 : décision du vainqueur, PURE et testable. Reproduit l'ordre de
+// checkVictory : Foi (priorité absolue) → PV<=0 (adversaire gagne ; p=1 testé en
+// premier) → horloge (plus de Foi, puis plus de PV, sinon nul).
+function decideWinner(f1, f2, h1, h2, turn, FAITH_WIN, TURN_CAP) {
+  if (f1 >= FAITH_WIN && f2 >= FAITH_WIN) return { winner: 'both', endReason: 'faith' };
+  if (f1 >= FAITH_WIN) return { winner: 1, endReason: 'faith' };
+  if (f2 >= FAITH_WIN) return { winner: 2, endReason: 'faith' };
+  if (h1 <= 0) return { winner: 2, endReason: 'hp' };   // checkVictory teste p=1 d'abord
+  if (h2 <= 0) return { winner: 1, endReason: 'hp' };
+  if (turn > TURN_CAP) {
+    if (f1 !== f2) return { winner: f1 > f2 ? 1 : 2, endReason: 'clock' };
+    if (h1 !== h2) return { winner: h1 > h2 ? 1 : 2, endReason: 'clock' };
+    return { winner: null, endReason: 'clock' }; // Foi ET PV égaux = nul
+  }
+  return { winner: null, endReason: 'timeout' };
+}
+
 // Joue une partie complète. profiles = { 1:'RUSH', 2:'GUARD' } (défaut CONTROL).
 // Retourne un résumé + les compteurs d'observation des deux joueurs.
 async function playGame(API, seed, f1, f2, profiles, p2faith) {
@@ -161,23 +178,18 @@ async function playGame(API, seed, f1, f2, profiles, p2faith) {
     error = (e && e.stack ? e.stack : String(e)).split('\n').slice(0, 2).join(' | ');
   }
 
+  // BRIQUE 2 : décision via la fonction pure decideWinner (cf. tests).
   const faith1 = G.players[1].faith || 0, faith2 = G.players[2].faith || 0;
-  let winner = null;
-  if (faith1 >= FAITH_WIN && faith2 >= FAITH_WIN) winner = 'both';
-  else if (faith1 >= FAITH_WIN) winner = 1;
-  else if (faith2 >= FAITH_WIN) winner = 2;
-  else if (G.turn > TURN_CAP) {
-    if (faith1 > faith2) winner = 1;
-    else if (faith2 > faith1) winner = 2;
-    else winner = null; // égalité de Foi à l'horloge = nul
-  } else winner = null; // timeout pur
+  const hp1 = G.players[1].hp, hp2 = G.players[2].hp;
+  const { winner, endReason } = decideWinner(faith1, faith2, hp1, hp2, G.turn, FAITH_WIN, TURN_CAP);
 
   const stats = G.aiStats || { 1: {}, 2: {} };
   return {
-    seed, f1, f2, winner, error,
+    seed, f1, f2, winner, error, endReason,
     turn: G.turn,
     clock: G.turn > TURN_CAP,        // partie conclue par l'horloge céleste
     faith: [faith1, faith2],
+    hp: [hp1, hp2],
     stats: { 1: { ...stats[1] }, 2: { ...stats[2] } },
   };
 }
@@ -193,4 +205,4 @@ function loadGameCustom(names) {
   return sandbox.__API;
 }
 
-module.exports = { loadGame, loadGameCustom, playGame, MAX_TURNS };
+module.exports = { loadGame, loadGameCustom, playGame, decideWinner, MAX_TURNS };

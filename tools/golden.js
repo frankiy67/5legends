@@ -199,18 +199,21 @@ async function playGame(API, seed) {
     error = m.replace(/:\d+:\d+/g, ':L:C');
   }
 
-  // ASCENSION (C3/C4) : vainqueur = Ascension (Foi>=14) OU, à l'horloge céleste
-  // (tour TURN_CAP), le plus de Foi (égalité = nul). null = vrai timeout (cap
-  // MAX_TURNS du harnais, ne devrait plus arriver puisque l'horloge conclut).
+  // BRIQUE 2 : vainqueur = Ascension (Foi>=FAITH_WIN, priorité) OU adversaire d'un
+  // joueur à 0 PV OU, à l'horloge céleste, plus de Foi puis plus de PV (sinon nul).
+  // Reproduit l'ordre de checkVictory (Foi → PV → horloge).
   let winner = null;
   const faith1 = G.players[1].faith || 0, faith2 = G.players[2].faith || 0;
+  const hp1 = G.players[1].hp, hp2 = G.players[2].hp;
   if (faith1 >= FAITH_WIN && faith2 >= FAITH_WIN) winner = 'both';
   else if (faith1 >= FAITH_WIN) winner = 1;
   else if (faith2 >= FAITH_WIN) winner = 2;
-  else if (G.turn > TURN_CAP) { // horloge céleste : plus de Foi gagne, égalité = nul
-    if (faith1 > faith2) winner = 1;
-    else if (faith2 > faith1) winner = 2;
-    else winner = null; // égalité exacte = nul
+  else if (hp1 <= 0) winner = 2;   // checkVictory teste p=1 d'abord → adversaire 2 gagne
+  else if (hp2 <= 0) winner = 1;
+  else if (G.turn > TURN_CAP) { // horloge : plus de Foi, puis plus de PV, sinon nul
+    if (faith1 !== faith2) winner = faith1 > faith2 ? 1 : 2;
+    else if (hp1 !== hp2) winner = hp1 > hp2 ? 1 : 2;
+    else winner = null; // Foi ET PV égaux = nul
   }
   else winner = null; // timeout pur (cap MAX_TURNS)
 
