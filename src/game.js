@@ -1600,10 +1600,15 @@ async function playCard(handIdx) {
   checkVictory();
 }
 
+// PHASE 1 : nombre de CRÉATURES pour le cap de 6. Les dieux face cachés (pièges)
+// ne comptent pas ; les MONSTRES endormis (face cachée) comptent toujours (ce
+// sont des corps qui se réveilleront). Garde aussi un plafond dur (sûreté).
+function monsterCount(P){ return P.field.filter(m=>m&&m.type==='monster').length; }
+
 async function playMonster(c, p) {
   const P = G.players[p];
-  if(P.field.length>=6) {
-    addLog('Field full — cannot summon!','warn');
+  if(monsterCount(P)>=6 || P.field.length>=9) {
+    addLog('Terrain plein — invocation impossible !','warn');
     P.hand.push(c); P.gems+=c.cost;
     return;
   }
@@ -1806,9 +1811,10 @@ registerEffect('entry', cap => cap.includes('entry_dmg4') || cap.includes('entry
     addLog(`${m.n} — ${dmgAmt} damage to ${tgt.n}`,'dmg');
     if(tgt.cDef<=0) await handleDeath(opp, tgt);
   } else {
-    // FLAG ASCENSION-TODO : plus de dégâts au visage (PV retirés en C3).
-    // Pas de créature adverse → l'effet est neutralisé (à repenser pour la Foi).
-    addLog(`${m.n} — aucune créature adverse à viser (effet neutralisé).`,'event');
+    // PHASE 1 — Karura (Yokai, oiseau de feu) : sans cible, la flamme la nourrit.
+    // Plus de cas inerte : +1/+1 permanent (thème transformation/ruse Yokai).
+    m.cAtk = (m.cAtk||0)+1; m.cDef = (m.cDef||0)+1; m.atk=(m.atk||0)+1; m.def=(m.def||0)+1;
+    addLog(`${m.n} — aucune cible : la flamme la renforce (+1/+1).`,'buff');
   }
 });
 registerEffect('entry', cap => cap.includes('entry_sleep'), async ctx => { await pickTarget('sleep', ctx.p, true); });
@@ -2087,9 +2093,11 @@ registerEffect('exit', cap => cap.includes('exit_dmg3_all') || cap.includes('exi
   addLog(`${m.n} Exit — 3 dégâts à tous les adverses!`,'dmg');
 });
 registerEffect('exit', cap => cap.includes('exit_heal4'), ctx => {
+  // PHASE 1 (PV vestigiaux) : soin joueur → restaure 2 DEF à la créature alliée la
+  // plus endommagée.
   const { p, m } = ctx;
-  G.players[p].hp = Math.min(25, G.players[p].hp + 4);
-  addLog(`${m.n} Exit — +4 PV!`,'heal');
+  const allies = G.players[p].field.filter(x=>x&&!x.faceDown&&x.cDef<x.def);
+  if(allies.length) { const t=allies.reduce((a,b)=>(a.def-a.cDef)>(b.def-b.cDef)?a:b); t.cDef=Math.min(t.def,t.cDef+2); addLog(`${m.n} Sortie — ${t.n} restauré (+2 DEF → ${t.cDef}🛡).`,'heal'); }
 });
 // ── ASCENSION (P1) : Griffon — à sa mort, +1 Foi (remplace le soin PV). ──
 registerEffect('exit', cap => cap.includes('exit_faith'), ctx => {
@@ -2426,7 +2434,11 @@ GOD_EFFECTS["god_resurrect"] = (ctx) => { const {c,p,opp,cap}=ctx;
       addLog(`${c.n} — ${m.n} resurrected!`,'event');
     }
   };
-GOD_EFFECTS["god_cancel_attack"] = (ctx) => { const {c,p,opp,cap}=ctx; addLog(`${c.n} — Attack cancelled! +HP`,'special'); G.players[p].hp=Math.min(25,G.players[p].hp+3); drawCard(p); };
+GOD_EFFECTS["god_cancel_attack"] = (ctx) => { const {c,p,opp,cap}=ctx; addLog(`${c.n} — Attaque annulée !`,'special');
+  // PHASE 1 (PV vestigiaux) : soin joueur → +2 DEF à une créature alliée.
+  const allies=G.players[p].field.filter(x=>x&&!x.faceDown&&x.cDef<x.def);
+  if(allies.length){const t=allies.reduce((a,b)=>(a.def-a.cDef)>(b.def-b.cDef)?a:b); t.cDef=Math.min(t.def,t.cDef+2); addLog(`${c.n} — ${t.n} restauré (+2 DEF).`,'heal');}
+  drawCard(p); };
 GOD_EFFECTS["god_redirect"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('redirect', p, false); };
 GOD_EFFECTS["god_destroy_ms"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('destroy', p, false); };
 GOD_EFFECTS["god_cancel_m_steal"] = (ctx) => { const {c,p,opp,cap}=ctx;
@@ -3028,6 +3040,14 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
         bumpStat(attackerP, 'fervorTriggers'); // mesure (no-op logique)
         addLog(`🔥 Ferveur — ${atk.n} : +1 Foi (${AP.faith}/${FAITH_WIN})`, 'special');
       }
+      // ── MALÉDICTION (cap 'curse') : quand cette créature inflige des dégâts à
+      // une créature ennemie, la cible perd -1 ATK PERMANENT (min 0). Affaiblit
+      // l'ennemi par le combat. ──
+      if(actualDmg > 0 && (atk.cap||'').includes('curse') && def.cDef > 0) {
+        def.cAtk = Math.max(0, (def.cAtk||0) - 1);
+        def.atk  = Math.max(0, (def.atk||0) - 1);
+        addLog(`☠️ Malédiction — ${def.n} perd 1 ATK (${def.cAtk}⚔).`, 'debuff');
+      }
       const retDmg = def.cursed ? 0 : retVal;
       atk.cDef -= retDmg;
 
@@ -3041,7 +3061,9 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       const atkEl2 = document.querySelector(`[data-player="${attackerP}"][data-idx="${attackerIdx}"]`);
       if(retDmg > 0) showFloatDmg(retDmg, atkEl2, '#e74c3c');
 
-      if(hasHeal) { Audio5L.sfx.heal(); AP.hp=Math.min(25,AP.hp+actualDmg); addLog(`Heal — P${attackerP} +${actualDmg} HP`,'heal'); }
+      // PHASE 1 (PV vestigiaux) : vol de vie → auto-soin de la CRÉATURE (restaure
+      // 1 DEF à l'attaquant, plafonné à sa DEF d'origine).
+      if(hasHeal && AP.field.includes(atk)) { Audio5L.sfx.heal(); atk.cDef=Math.min(atk.def, atk.cDef+1); addLog(`💚 ${atk.n} se régénère (+1 DEF → ${atk.cDef}🛡).`,'heal'); }
       // token_per_dmg (YMIR): N tokens per damage received
       if((atk.cap||'').includes('token_per_dmg') && retDmg>0) {
         for(let t=0;t<retDmg&&AP.field.length<6;t++) {
@@ -3384,7 +3406,7 @@ async function aiMainPhase(p=2) {
     // BRIQUE 6 (L-1) : exclure les monstres impossibles à invoquer (terrain plein)
     // pour ne pas boucler dessus et BLOQUER le jeu des dieux/sorts. Correction IA
     // pure (aucun stat/coût/équilibrage touché).
-    const boardFull = P.field.length >= 6;
+    const boardFull = monsterCount(P) >= 6 || P.field.length >= 9;
     const playable = P.hand
       .map((c, i) => ({ c, i, score: scoreCard(c, p) }))
       .filter(x => x.c.cost <= P.gems && !(x.c.type === 'monster' && boardFull))
@@ -3856,13 +3878,12 @@ function aiPickTarget(type, p, card) {
       applyTargetEffect(type,p,idx,card);
     }
   } else if(type==='spell4dmg') {
+    // PHASE 1 (PV vestigiaux) : plus de dégâts au visage. Ne frappe qu'une créature
+    // ennemie ; sans cible → l'effet fizzle (le corps reste utile).
     if(oppField.length>0) {
       const best=oppField.reduce((a,b)=>a.cDef<b.cDef?a:b);
       const idx=G.players[opp].field.indexOf(best);
       applyTargetEffect(type,opp,idx,card);
-    } else {
-      G.players[opp].hp-=4;
-      addLog(`Spell — P${opp} takes 4 direct dmg (❤${G.players[opp].hp})`,'dmg');
     }
   } else if(type==='steal') {
     if(oppField.length>0) {
