@@ -923,3 +923,35 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
 .fc-name-band,.hc-name-band,.fc-cap-text{max-width:100%}
 /* curseur cohérent sur tout ce qui est cliquable */
 .fp,.confirm-btn,.btn,.tgt-item,.gem,.deck-pile,#audio-fab,.pref-toggle{cursor:pointer}
+
+/* ══ BRIQUE 4 : POUVOIR DE DIEU — bouton barre joueur + écran de choix ══ */
+.god-btn{display:flex;align-items:center;gap:7px;cursor:pointer;flex-shrink:0;
+  padding:5px 11px;border-radius:11px;color:#fff;border:1.5px solid rgba(244,201,93,.55);
+  background:linear-gradient(160deg,rgba(60,42,96,.95),rgba(26,16,48,.95));
+  box-shadow:0 0 14px rgba(199,125,255,.32),inset 0 1px 0 rgba(255,255,255,.08);
+  transition:transform .12s,box-shadow .2s,filter .15s,opacity .2s;font-family:'Cinzel',serif}
+.god-btn:hover:not(.disabled){transform:translateY(-2px);box-shadow:0 0 22px rgba(199,125,255,.6)}
+.god-btn:active:not(.disabled){transform:translateY(0)}
+.god-btn.disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.5);box-shadow:none}
+.god-btn.used{opacity:.5;filter:grayscale(.6)}
+.god-ico{font-size:20px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8))}
+.god-meta{display:flex;flex-direction:column;align-items:flex-start;line-height:1.05}
+.god-pw{font-size:11px;font-weight:800;letter-spacing:.3px;color:var(--gold-bright)}
+.god-cost{font-family:'Spectral',serif;font-size:9.5px;color:rgba(255,255,255,.75)}
+
+/* écran de choix du dieu */
+.god-choice-grid{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:18px;max-width:1100px}
+.god-choice{width:208px;border-radius:16px;overflow:hidden;cursor:pointer;
+  background:linear-gradient(180deg,rgba(24,18,44,.96),rgba(10,7,22,.97));
+  border:1.5px solid rgba(244,201,93,.35);box-shadow:0 14px 40px rgba(0,0,0,.7);
+  transition:transform .18s ease,box-shadow .25s ease,border-color .2s}
+.god-choice:hover{transform:translateY(-8px) scale(1.025);border-color:var(--gold);
+  box-shadow:0 22px 56px rgba(0,0,0,.85),0 0 30px rgba(244,201,93,.3)}
+.god-choice-art{height:150px;background:#06060f;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.god-choice-art img{width:100%;height:100%;object-fit:cover;object-position:top}
+.god-choice-ph{font-size:58px}
+.god-choice-name{font-family:'Cinzel',serif;font-size:16px;font-weight:800;color:var(--gold-bright);text-align:center;padding:9px 8px 3px}
+.god-choice-pw{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:#c9a6ff;text-align:center;padding:0 8px 4px}
+.gc-ico{font-size:15px}
+.god-choice-desc{font-family:'Spectral',serif;font-size:12px;color:#d8d2ea;line-height:1.4;text-align:center;padding:0 12px 8px;min-height:50px}
+.god-choice-cost{font-family:'Spectral',serif;font-size:11px;color:rgba(255,255,255,.6);text-align:center;padding:0 0 11px}

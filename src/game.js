@@ -685,6 +685,9 @@ const SUPREME_GODS = {
 // n'a plus aucun rôle de victoire/défaite ni d'affichage.
 // ══════════════════════════════════════════════════════════════════════════
 
+// BRIQUE 4 : choix de dieu/pouvoir issus de l'UI de setup, consommés par initGame.
+let setupGod = { 1: null, 2: null };
+
 function initGame(f1, f2, mode) {
   G = {
     mode, // 'pvp' or 'pve' (p2 is AI)
@@ -729,8 +732,14 @@ function initGame(f1, f2, mode) {
       // Pièce de Foi du 2e joueur : J1=0, J2=P2_START_FAITH. Affectation silencieuse.
       faith: p===1 ? 0 : P2_START_FAITH,
       supremeGod: SUPREME_GODS[f] || 'Dieu Suprême',
+      // BRIQUE 4 : pouvoir de dieu. Choix UI (setupGod) sinon aléatoire (sim/IA).
+      god: null, godName: '', godPower: null, godUsedThisTurn: false,
+      _exaltedPrayer: false, _lastDead: null,
     };
+    const gc = (setupGod && setupGod[p]) || randomGodAssign(f);
+    G.players[p].god = gc.godId; G.players[p].godName = gc.godName; G.players[p].godPower = gc.godPower;
   }
+  setupGod = { 1:null, 2:null }; // consommé
   G.activeTurn = 1; // Player 1 starts
   addLog('⚔ Battle begins!', 'event');
   applyBattlefieldArt(f1, f2);
@@ -1038,6 +1047,159 @@ function humanStormTarget(targetP, i) {
   renderAll();
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// BRIQUE 4 : POUVOIRS DE DIEU (hero power) — choisis au départ, 2💎, 1×/tour.
+// Système ADDITIF : n'altère ni les cartes Dieu (GODS) ni les factions/cycles.
+// ══════════════════════════════════════════════════════════════════════════
+const GOD_POWER_COST = 2;
+const GOD_POWERS = [
+  { id:'frappe_divine',  name:'Frappe divine',  icon:'⚡', desc:'2 dégâts à une créature ennemie.',            target:'enemy'  },
+  { id:'benediction',    name:'Bénédiction',    icon:'✨', desc:'+1/+1 permanent à une de tes créatures.',     target:'ally'   },
+  { id:'vision',         name:'Vision',         icon:'👁️', desc:'Pioche 1 carte.',                             target:'instant'},
+  { id:'guerison',       name:'Guérison',       icon:'💚', desc:'+3 PV à ton héros.',                          target:'instant'},
+  { id:'inspiration',    name:'Inspiration',    icon:'🔥', desc:'+2 ATK à une créature ce tour.',              target:'ally'   },
+  { id:'bouclier',       name:'Bouclier',       icon:'🛡️', desc:'+2 DEF à une créature ce tour.',              target:'ally'   },
+  { id:'zele',           name:'Zèle',           icon:'🏃', desc:"Retire le mal d'invocation d'une créature.",  target:'ally'   },
+  { id:'priere_exaltee', name:'Prière exaltée', icon:'🙏', desc:'La prochaine prière ce tour donne +1 Foi.',   target:'instant'},
+  { id:'foudre',         name:'Foudre',         icon:'🌩️', desc:'1 dégât à TOUTES les créatures ennemies.',    target:'instant'},
+  { id:'resurrection',   name:'Résurrection',   icon:'⚰️', desc:'Ramène ta dernière créature morte (1 PV).',   target:'instant'},
+];
+const GOD_POWER_BY_ID = Object.fromEntries(GOD_POWERS.map(p => [p.id, p]));
+
+// Liste des dieux (illustration/nom) disponibles pour une faction (hors sorts).
+function factionGods(faction) {
+  return (GODS[faction] || []).filter(g => g.type !== 'spell');
+}
+// Snapshot d'une créature pour la résurrection (stats d'ORIGINE).
+function godSnapshot(m) {
+  return { id:m.id, n:m.n, atk:m.atk, def:m.def, cost:m.cost, cap:m.cap, txt:m.txt, rarity:m.rarity, faction:m.faction, type:'monster' };
+}
+// Assignation aléatoire (déterministe via rng) d'un dieu + pouvoir à une faction.
+function randomGodAssign(faction) {
+  const gods = factionGods(faction);
+  const g = gods[Math.floor(rng()*gods.length)] || { id:'', n:'Dieu' };
+  const pw = GOD_POWERS[Math.floor(rng()*GOD_POWERS.length)];
+  return { godId:g.id, godName:g.n, godPower:pw.id };
+}
+
+// Pouvoir utilisable (préconditions hors gems/used) — pour le grisé.
+function godPowerUsable(p) {
+  const P = G.players[p]; if(!P || !P.godPower) return false;
+  const opp = p===1?2:1, OP = G.players[opp];
+  const myCr = P.field.filter(m=>m&&!m.faceDown);
+  const enemyCr = OP.field.filter(m=>m&&!m.faceDown);
+  switch(P.godPower) {
+    case 'frappe_divine': case 'foudre':                 return enemyCr.length>0;
+    case 'benediction': case 'inspiration': case 'bouclier': return myCr.length>0;
+    case 'zele':         return P.field.some((m,i)=>m&&!m.faceDown&&P.summoned.has(i)&&!(m.cap||'').includes('hurry'));
+    case 'resurrection': return !!P._lastDead && P.field.length<6;
+    default:             return true; // vision, guerison, priere_exaltee
+  }
+}
+// Activable maintenant ? (dieu présent, pas déjà utilisé, assez de gems, utile, son tour)
+function canActivateGod(p) {
+  const P = G.players[p];
+  return !!(P && P.godPower && !P.godUsedThisTurn && P.gems>=GOD_POWER_COST
+    && G.cp===p && godPowerUsable(p));
+}
+
+// Applique l'effet du pouvoir (targetP/targetIdx selon le ciblage).
+async function applyGodPower(p, targetP, targetIdx) {
+  const P = G.players[p]; const id = P.godPower;
+  const opp = p===1?2:1, OP = G.players[opp];
+  if(id==='frappe_divine') {
+    const m = OP.field[targetIdx];
+    if(m){ m.cDef-=2; addLog(`⚡ Frappe divine — ${m.n} subit 2 dégâts (${m.cDef}🛡).`,'dmg');
+      const el=document.querySelector(`[data-player="${opp}"][data-idx="${targetIdx}"]`); if(el) showFloatDmg(2, el, '#ffd166');
+      if(m.cDef<=0) await handleDeath(opp, m); }
+  } else if(id==='benediction') {
+    const m = P.field[targetIdx];
+    if(m){ m.cAtk+=1; m.cDef+=1; m.atk=(m.atk||0)+1; m.def=(m.def||0)+1; addLog(`✨ Bénédiction — ${m.n} +1/+1 permanent.`,'buff'); }
+  } else if(id==='vision') {
+    drawCard(p); addLog('👁️ Vision — pioche 1 carte.','buff');
+  } else if(id==='guerison') {
+    P.hp=Math.min(PLAYER_HP, P.hp+3); addLog(`💚 Guérison — +3 PV (❤${P.hp}).`,'heal');
+    const el=document.getElementById(`p${p}-orb`); if(el) showFloatHeal(3, el);
+  } else if(id==='inspiration') {
+    const m = P.field[targetIdx]; if(m){ m.cAtk+=2; m._cycleAtk=(m._cycleAtk||0)+2; addLog(`🔥 Inspiration — ${m.n} +2 ATK ce tour.`,'buff'); }
+  } else if(id==='bouclier') {
+    const m = P.field[targetIdx]; if(m){ m.cDef+=2; m._cycleDef=(m._cycleDef||0)+2; addLog(`🛡️ Bouclier — ${m.n} +2 DEF ce tour.`,'buff'); }
+  } else if(id==='zele') {
+    const m = P.field[targetIdx]; if(m){ P.summoned.delete(targetIdx); addLog(`🏃 Zèle — ${m.n} peut agir ce tour.`,'buff'); }
+  } else if(id==='priere_exaltee') {
+    P._exaltedPrayer=true; addLog('🙏 Prière exaltée — ta prochaine prière donnera +1 Foi bonus.','special');
+  } else if(id==='foudre') {
+    const dying=[];
+    OP.field.forEach(m=>{ if(m&&!m.faceDown){ m.cDef-=1; if(m.cDef<=0) dying.push(m); } });
+    addLog('🌩️ Foudre — 1 dégât à toutes les créatures ennemies.','dmg');
+    for(const m of dying){ if(OP.field.includes(m)) await handleDeath(opp, m); }
+  } else if(id==='resurrection') {
+    const d = P._lastDead;
+    if(d && P.field.length<6){
+      const m = newCard({...d}); m.cAtk=d.atk; m.cDef=1;
+      P.field.push(m); const idx=P.field.length-1; P.summoned.add(idx); P._lastDead=null;
+      addLog(`⚰️ Résurrection — ${m.n} revient (1🛡, mal d'invocation).`,'special');
+    }
+  }
+}
+
+// Active le pouvoir : déduit le coût, marque utilisé, applique. async.
+async function activateGodPower(p, targetP, targetIdx) {
+  if(!canActivateGod(p)) return false;
+  const P = G.players[p];
+  const pw = GOD_POWER_BY_ID[P.godPower];
+  P.gems -= GOD_POWER_COST;
+  P.godUsedThisTurn = true;
+  addLog(`${pw.icon} ${P.godName} invoque ${pw.name} (−${GOD_POWER_COST}💎).`,'event');
+  await applyGodPower(p, targetP, targetIdx);
+  renderAll();
+  return true;
+}
+
+// ── Activation HUMAINE du pouvoir (bouton de la barre joueur) ─────────────
+function useGodPowerHuman(p) {
+  if(!canActivateGod(p)) return;
+  const pw = GOD_POWER_BY_ID[G.players[p].godPower];
+  if(pw.target === 'instant') {
+    Promise.resolve(activateGodPower(p)).then(()=>{ renderAll(); checkVictory(); });
+  } else {
+    startGodTargeting(p, pw.target);   // 'enemy' | 'ally'
+  }
+}
+function startGodTargeting(p, side) {
+  hideCardPreview();
+  const opp = p===1?2:1;
+  G.targeting = { mode:'godpower', p, side, opp };
+  document.body.classList.add('targeting');
+  const pw = GOD_POWER_BY_ID[G.players[p].godPower];
+  const hint = document.getElementById('targeting-hint');
+  if(hint){ hint.style.display='block';
+    hint.innerHTML = `${pw.icon} <b>${pw.name}</b> — clique une cible ${side==='enemy'?'ennemie':'alliée'} · <span style="color:#888">ESC pour annuler</span>`; }
+  renderAll();
+}
+
+// IA minimale (brique 6 = raffinage) : utilise le pouvoir quand clairement bon.
+async function aiUseGodPower(p) {
+  if(!canActivateGod(p)) return;
+  const P = G.players[p], opp = p===1?2:1, OP = G.players[opp];
+  const myCr = P.field.map((m,i)=>({m,i})).filter(x=>x.m&&!x.m.faceDown);
+  const enemyCr = OP.field.map((m,i)=>({m,i})).filter(x=>x.m&&!x.m.faceDown);
+  let go=false, tp=null, ti=null;
+  switch(P.godPower) {
+    case 'frappe_divine': { const k=enemyCr.find(x=>x.m.cDef<=2); if(k){ go=true; tp=opp; ti=k.i; } break; }
+    case 'benediction':   { if(myCr.length){ const b=myCr.reduce((a,c)=>c.m.cAtk>a.m.cAtk?c:a); go=true; tp=p; ti=b.i; } break; }
+    case 'vision':        if(P.hand.length<=2) go=true; break;
+    case 'guerison':      if(P.hp<=15) go=true; break;
+    case 'inspiration':   { if(myCr.length && enemyCr.length){ const b=myCr.reduce((a,c)=>c.m.cAtk>a.m.cAtk?c:a); go=true; tp=p; ti=b.i; } break; }
+    case 'bouclier':      { if(myCr.length){ const w=myCr.reduce((a,c)=>c.m.cDef<a.m.cDef?c:a); go=true; tp=p; ti=w.i; } break; }
+    case 'zele':          { const s=myCr.find(x=>P.summoned.has(x.i)&&!(x.m.cap||'').includes('hurry')); if(s && enemyCr.length){ go=true; tp=p; ti=s.i; } break; }
+    case 'priere_exaltee': go=true; break;                         // l'IA prie quasi toujours
+    case 'foudre':        if(enemyCr.length>=2) go=true; break;
+    case 'resurrection':  if(P._lastDead && (P._lastDead.atk||0)>=3 && P.field.length<6) go=true; break;
+  }
+  if(go) await activateGodPower(p, tp, ti);
+}
+
 function nextPhase() { advancePhase(); }
 
 function advancePhase() {
@@ -1120,6 +1282,8 @@ function doEndTurn() {
   // BRIQUE 3 : retire les buffs temporaires de cycle (Zénith/Crépuscule) du joueur
   // qui termine son tour.
   clearCycleBuffs(P);
+  // BRIQUE 4 : la « prière exaltée » non utilisée expire en fin de tour.
+  P._exaltedPrayer = false;
   // Bug #5 fix: sleep counts down on OPPONENT's field at end of current player's turn
   // "wakes up 2 opponent's turns later" = after 2 turns of the player who put it to sleep
   G.players[oppP].field.forEach(m => {
@@ -1155,6 +1319,7 @@ function doEndTurn() {
   // (leur Foi est déjà acquise ; ils peuvent de nouveau agir).
   // (P1) : reset du flag Ferveur (1×/tour) et de la protection Sanctuaire (Mayahuel).
   NP.field.forEach(m => { if(m) { m.kneeling = false; m._fervor = false; m._sanctuary = false; } });
+  NP.godUsedThisTurn = false;   // BRIQUE 4 : pouvoir de dieu réutilisable au nouveau tour
   G.actions = 1;
   // Auto-draw
   if(NP.deck.length > 0) { NP.hand.push(NP.deck.shift()); Audio5L.sfx.draw(); }
@@ -1947,6 +2112,7 @@ async function handleDeath(p, m) {
   await applyExit(p, m);
   P.field.splice(idx,1);
   P.graveyard.push(m);
+  if(m.type==='monster') P._lastDead = godSnapshot(m); // BRIQUE 4 : pour la Résurrection
   reindexSets(P, idx, true);
 }
 
@@ -3091,6 +3257,10 @@ async function aiTurn(p=2) {
 
   await aiMainPhase(p);
 
+  // BRIQUE 4 : l'IA active éventuellement son pouvoir de dieu (avant prière/combat).
+  await aiUseGodPower(p);
+  if(checkVictoryBool()) { checkVictory(); aiThinking=false; return; }
+
   // Combat phase
   G.phase='Combat';
   renderAll();
@@ -4027,6 +4197,13 @@ function resolveTarget(target) {
       window._forcedTarget = target;
       playCard(t.handIdx);
     }
+  } else if(t.mode==='godpower') {
+    // BRIQUE 4 : cible d'un pouvoir de dieu ciblé. Valide le côté (allié/ennemi).
+    const wantP = t.side==='enemy' ? t.opp : t.p;
+    if(target.type==='field' && target.p===wantP) {
+      const m = G.players[target.p].field[target.i];
+      if(m && !m.faceDown) Promise.resolve(activateGodPower(t.p, target.p, target.i)).then(()=>{ renderAll(); checkVictory(); });
+    }
   }
 
   // If we were in a reaction window and targeting is now done, end reaction
@@ -4464,6 +4641,26 @@ function renderPlayerBar(p) {
     `<span class="deck-pile">🂠</span><span class="deck-count">${P.deck ? P.deck.length : 0}</span>`
     + `<span class="grave-count">${P.graveyard ? P.graveyard.length : 0}†</span>`;
 
+  // BRIQUE 4 : bouton du pouvoir de dieu (icône + nom + coût 2💎), grisé si inutilisable.
+  const godEl = document.getElementById(`p${p}-god`);
+  if (godEl) {
+    const pw = P.godPower && GOD_POWER_BY_ID[P.godPower];
+    if (!pw) { godEl.style.display = 'none'; }
+    else {
+      godEl.style.display = '';
+      const usable = canActivateGod(p);
+      godEl.className = 'god-btn' + (usable ? '' : ' disabled') + (P.godUsedThisTurn ? ' used' : '');
+      godEl.disabled = !usable;
+      godEl.title = `${P.godName} — ${pw.name} : ${pw.desc} (${GOD_POWER_COST}💎, 1×/tour)`;
+      godEl.innerHTML =
+        `<span class="god-ico">${pw.icon}</span>`
+        + `<span class="god-meta"><span class="god-pw">${pw.name}</span>`
+        + `<span class="god-cost">${P.godUsedThisTurn ? 'utilisé' : GOD_POWER_COST + '💎'}</span></span>`;
+      // Interactif uniquement pour un joueur HUMAIN (l'IA active via aiUseGodPower).
+      godEl.onclick = aiControls(p) ? null : () => useGodPowerHuman(p);
+    }
+  }
+
   // ── ASCENSION (C1) : jauge de Foi (Dieu Suprême + X / 14), à côté des PV ──
   const faithEl = document.getElementById(`p${p}-faith`);
   if (faithEl) {
@@ -4547,6 +4744,11 @@ function renderField(p) {
       const pend=G.cyclePending, opp=pend.p===1?2:1;
       if(pend.type==='tempete' && p===opp) cls+=' valid-target-dmg';
       if(pend.type==='nuit' && pend.choosing && p===pend.p) cls+=' valid-target-dmg';
+    }
+    // BRIQUE 4 : cibles valides d'un pouvoir de dieu ciblé.
+    if(G.targeting && G.targeting.mode==='godpower' && !m.faceDown) {
+      const wantP = G.targeting.side==='enemy' ? G.targeting.opp : G.targeting.p;
+      if(p===wantP) cls+=' valid-target-dmg';
     }
     if(m._cycleAtk||m._cycleDef) cls+=' zenith-card';   // BRIQUE 3 : créature buffée par le cycle
     // Re-apply targeting highlights when in targeting mode
@@ -4867,13 +5069,16 @@ function canPray(p, i) {
 function doPray(p, i) {
   const P = G.players[p];
   const m = P.field[i];
-  P.faith = (P.faith || 0) + 1;
+  // BRIQUE 4 : « Prière exaltée » (pouvoir de dieu) — +1 Foi bonus à la 1ʳᵉ prière.
+  let gain = 1;
+  if(P._exaltedPrayer) { gain += 1; P._exaltedPrayer = false; addLog('🙏 Prière exaltée — +1 Foi bonus !','special'); }
+  P.faith = (P.faith || 0) + gain;
   m.kneeling = true;
   P.attacked.add(i);
   // Mesure (no-op logique) : nombre de prières + tour de la 1ʳᵉ prière.
   bumpStat(p, 'prayers');
   if (G.aiStats && G.aiStats[p] && G.aiStats[p].firstPrayTurn == null) G.aiStats[p].firstPrayTurn = G.turn;
-  addLog(`🙏 ${m.n} prie — ${P.supremeGod} canalise +1 Foi (${P.faith}/${FAITH_WIN})`, 'special');
+  addLog(`🙏 ${m.n} prie — ${P.supremeGod} canalise +${gain} Foi (${P.faith}/${FAITH_WIN})`, 'special');
 }
 
 // Action déclenchée par le joueur humain (bouton 🙏).
@@ -5101,9 +5306,46 @@ document.querySelectorAll('.fp[data-p="1"]').forEach(fp => {
 
 document.getElementById('btn-p1-confirm').addEventListener('click', () => {
   if (!setupP1) return;
-  document.getElementById('setup-p1').classList.remove('active');
-  document.getElementById('setup-p2').classList.add('active');
+  // BRIQUE 4 : écran de choix du dieu pour P1, puis écran faction P2.
+  showGodChoice(1, setupP1, () => {
+    document.getElementById('setup-p2').classList.add('active');
+  });
 });
+
+// ── BRIQUE 4 : écran de choix du dieu (4 dieux × 4 pouvoirs distincts) ──────
+function _shuffleArr(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function showGodChoice(p, faction, onDone) {
+  const screen = document.getElementById('setup-god');
+  if(!screen) { onDone(); return; }
+  const numEl = document.getElementById('god-screen-num');
+  if(numEl) numEl.textContent = 'Player ' + p;
+  const bg = document.getElementById('bg-god'); if(bg) bg.className = 'setup-screen-bg ' + faction;
+  const pickGods = _shuffleArr([...factionGods(faction)]).slice(0, 4);
+  const pickPowers = _shuffleArr([...GOD_POWERS]).slice(0, 4);   // 4 pouvoirs sans doublon
+  const grid = document.getElementById('god-choices');
+  grid.innerHTML = pickGods.map((g, idx) => {
+    const pw = pickPowers[idx];
+    const img = getCardImage(g.id);
+    return `<div class="god-choice" data-i="${idx}">
+      <div class="god-choice-art">${img ? `<img src="${img}" alt="${g.n}" loading="lazy">` : `<span class="god-choice-ph">${pw.icon}</span>`}</div>
+      <div class="god-choice-name">${g.n}</div>
+      <div class="god-choice-pw"><span class="gc-ico">${pw.icon}</span> ${pw.name}</div>
+      <div class="god-choice-desc">${pw.desc}</div>
+      <div class="god-choice-cost">${GOD_POWER_COST}💎 · 1×/tour</div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.god-choice').forEach(el => {
+    el.onclick = () => {
+      if(typeof Audio5L !== 'undefined') Audio5L.startMusic();
+      const i = +el.dataset.i, g = pickGods[i], pw = pickPowers[i];
+      setupGod[p] = { godId: g.id, godName: g.n, godPower: pw.id };
+      screen.classList.remove('active');
+      onDone();
+    };
+  });
+  document.querySelectorAll('.setup-screen').forEach(s => s.classList.remove('active'));
+  screen.classList.add('active');
+}
 
 // ── ÉCRAN 2 : Player 2 ───────────────────────────────────────────
 document.querySelectorAll('.fp[data-p="2"]').forEach(fp => {
@@ -5126,9 +5368,14 @@ document.getElementById('start-btn').addEventListener('click', () => {
   Audio5L.startMusic();
   if (!setupP1 || !setupP2) return;
   const mode = document.querySelector('input[name=mode]:checked').value;
-  document.getElementById('setup').style.display = 'none';
-  document.getElementById('game').style.display = 'grid';
-  initGame(setupP1, setupP2, mode);
+  const launch = () => {
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('game').style.display = 'grid';
+    initGame(setupP1, setupP2, mode);   // setupGod[2] null en pve → dieu IA aléatoire
+  };
+  // BRIQUE 4 : en pvp, P2 (humain) choisit aussi son dieu ; en pve l'IA tire au hasard.
+  if (mode === 'pvp') showGodChoice(2, setupP2, launch);
+  else launch();
 });
 
 document.getElementById('mull-confirm').addEventListener('click', confirmMulligan);
