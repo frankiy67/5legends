@@ -1,0 +1,51 @@
+{
+ "meta": {
+  "games": 10000,
+  "seedsPerPair": 400,
+  "factions": [
+   "yokai",
+   "norse",
+   "egyptian",
+   "greek",
+   "aztec"
+  ],
+  "faithWin": 16,
+  "turnCap": 18,
+  "desecrateFaith": 1,
+  "seconds": 263.2
+ },
+ "target": {
+  "j2Low": 0.5,
+  "j2High": 0.54
+ },
+ "recommended": 0,
+ "rows": [
+  {
+   "p2StartFaith": 0,
+   "games": 10000,
+   "j2WinRate": 0.7337,
+   "j1WinRate": 0.2643,
+   "drawRate": 0.002,
+   "avgTurn": 10.6298,
+   "clockPct": 0.0155
+  },
+  {
+   "p2StartFaith": 1,
+   "games": 10000,
+   "j2WinRate": 0.76,
+   "j1WinRate": 0.2376,
+   "drawRate": 0.0024,
+   "avgTurn": 10.356,
+   "clockPct": 0.013
+  },
+  {
+   "p2StartFaith": 2,
+   "games": 10000,
+   "j2WinRate": 0.7876,
+   "j1WinRate": 0.2118,
+   "drawRate": 0.0006,
+   "avgTurn": 10.0551,
+   "clockPct": 0.0106
+  }
+ ]
+}
