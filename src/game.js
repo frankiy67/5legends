@@ -704,7 +704,9 @@ function initGame(f1, f2, mode) {
     waitingForPlayer: false,  // true quand IA pause et attend ESPACE
     reactionUsed: false,
     ragnarok: 0,  // Counter: Norse bonus at 5
-    cycle: 0,     // Cycle Céleste — 0=aube … 4=ténèbres
+    cycle: null,        // BRIQUE 3 : clé du cycle courant (tiré chaque tour)
+    cycleOwner: null,   // joueur actif possédant le cycle courant
+    cyclePending: null, // interaction de cycle en attente (Nuit/Tempête, humain)
   };
   for(let p=1;p<=2;p++){
     const f = p===1?f1:f2;
@@ -744,6 +746,9 @@ function initGame(f1, f2, mode) {
 
 // Démarre la partie pour de bon (après le mulligan éventuel).
 function beginPlay() {
+  // BRIQUE 3 : tirage du cycle du 1er tour pour un joueur humain (en 'sim', c'est
+  // aiTurn qui s'en charge ; beginPlay n'est pas appelé).
+  if(!aiControls(G.cp)) beginCycle(G.cp);
   renderAll();
 }
 
@@ -880,20 +885,157 @@ const PHASES = ['Main1','Combat','Main2','End'];
 const PHASE_LABELS = {Main1:'MAIN 1',Combat:'COMBAT',Main2:'MAIN 2',End:'END'};
 const PHASE_NAMES = PHASE_LABELS; // backwards compat
 
-// ── Cycle Céleste ─────────────────────────────────────────────────
-const CYCLE_PHASES = ['aube','midi','crepuscule','nuit','tenebres'];
-const ZENITH_MAP   = {aube:'egyptian',midi:'greek',crepuscule:'aztec',nuit:'yokai',tenebres:'norse'};
-const CYCLE_ICONS  = {aube:'🌅',midi:'☀️',crepuscule:'🌆',nuit:'🌙',tenebres:'🌑'};
-const CYCLE_NAMES  = {aube:'AUBE',midi:'MIDI',crepuscule:'CRÉPUSCULE',nuit:'NUIT',tenebres:'TÉNÈBRES'};
-const ZENITH_LABEL = {egyptian:'Égyptien 🏺',greek:'Grec 🏛',aztec:'Aztèque 🌞',yokai:'Yokai 🦊',norse:'Norse ⚡'};
+// ── BRIQUE 3 : Cycles du temps refondus ───────────────────────────────────
+// 5 cycles à pouvoirs DISTINCTS (un par faction), tirés ALÉATOIREMENT chaque
+// tour avec rubber-band. S'appliquent au JOUEUR ACTIF, pour ce tour seulement.
+// G.cycle = clé du cycle courant (string), G.cycleOwner = joueur actif.
+const CYCLES = {
+  aube:       { name:'AUBE',       faction:'egyptian', icon:'🌅', type:'comeback',  power:'Pioche 1 carte supplémentaire.' },
+  zenith:     { name:'ZÉNITH',     faction:'greek',    icon:'☀️', type:'aggressif', power:'Tes créatures ont +1 ATK ce tour.' },
+  crepuscule: { name:'CRÉPUSCULE', faction:'yokai',    icon:'🌆', type:'comeback',  power:'Tes créatures ont +1 DEF ce tour.' },
+  nuit:       { name:'NUIT',       faction:'aztec',    icon:'🌙', type:'comeback',  power:'Tu peux sacrifier une créature → +1 Foi (optionnel).' },
+  tempete:    { name:'TEMPÊTE',    faction:'norse',    icon:'⚡', type:'aggressif', power:'Inflige 1 dégât à une créature ennemie de ton choix.' },
+};
+const CYCLE_KEYS = ['aube','zenith','crepuscule','nuit','tempete'];
+const FACTION_LABEL = {egyptian:'Égyptien 🏺',greek:'Grec 🏛',aztec:'Aztèque 🌞',yokai:'Yokai 🦊',norse:'Norse ⚡'};
+const FACTION_COLOR = {egyptian:'#2090d0',greek:'#9050c0',aztec:'#c8a010',yokai:'#d04030',norse:'#7090b0'};
 
-function getZenithFaction() {
-  if(!G) return null;
-  return ZENITH_MAP[CYCLE_PHASES[G.cycle % 5]];
+// ── Rubber-band : le joueur actif est-il EN RETARD ? (Foi prioritaire, puis PV) ─
+function isBehind(p) {
+  if(!G) return false;
+  const opp = p===1?2:1;
+  const fp = G.players[p].faith||0, fo = G.players[opp].faith||0;
+  if(fp !== fo) return fp < fo;                 // moins de Foi = en retard
+  const hp = G.players[p].hp, ho = G.players[opp].hp;
+  if(hp !== ho) return hp < ho;                 // Foi égale → moins de PV = en retard
+  return false;                                  // tout égal → personne en retard
 }
-function isZenith(m) {
-  if(!G || !m || !m.faction || m.faceDown) return false;
-  return m.faction === getZenithFaction();
+// Tirage pondéré : joueur EN RETARD → cycles « comeback » poids 2, « aggressif »
+// poids 1 (~75% comeback). Sinon poids égaux (20% chacun).
+function drawCycleKey(p) {
+  const behind = isBehind(p);
+  const weights = CYCLE_KEYS.map(k => (behind && CYCLES[k].type==='comeback') ? 2 : 1);
+  const total = weights.reduce((a,b)=>a+b,0);
+  let r = rng()*total;
+  for(let i=0;i<CYCLE_KEYS.length;i++){ r -= weights[i]; if(r<0) return CYCLE_KEYS[i]; }
+  return CYCLE_KEYS[CYCLE_KEYS.length-1];
+}
+
+// Début de tour : tire le cycle du joueur actif p et applique son effet.
+// Async : les cycles interactifs IA (Nuit/Tempête) peuvent awaiter handleDeath.
+async function beginCycle(p) {
+  if(!G || !G.players[p]) return;
+  const key = drawCycleKey(p);
+  G.cycle = key;
+  G.cycleOwner = p;
+  G.cyclePending = null;
+  scheduleCycleAnim();
+  const C = CYCLES[key];
+  addLog(`${C.icon} Cycle du temps — ${C.name} (${FACTION_LABEL[C.faction]}) : ${C.power}`, 'special');
+  await applyCycleEffect(p, key);
+  renderAll();
+}
+
+async function applyCycleEffect(p, key) {
+  const P = G.players[p];
+  const opp = p===1?2:1;
+  const OP = G.players[opp];
+  if(key==='aube') {
+    drawCard(p);
+    addLog('🌅 Aube — pioche +1.','buff');
+  } else if(key==='zenith') {
+    let n=0; P.field.forEach(m=>{ if(m && !m.faceDown){ m.cAtk+=1; m._cycleAtk=(m._cycleAtk||0)+1; n++; } });
+    addLog(`☀️ Zénith — +1 ATK à ${n} créature(s) ce tour.`,'buff');
+  } else if(key==='crepuscule') {
+    let n=0; P.field.forEach(m=>{ if(m && !m.faceDown){ m.cDef+=1; m._cycleDef=(m._cycleDef||0)+1; n++; } });
+    addLog(`🌆 Crépuscule — +1 DEF à ${n} créature(s) ce tour.`,'buff');
+  } else if(key==='nuit') {
+    if(aiControls(p)) await aiResolveNuit(p);
+    else if(P.field.some(m=>m&&!m.faceDown)) G.cyclePending = { type:'nuit', p };
+    // pas de créature → rien à sacrifier
+  } else if(key==='tempete') {
+    if(aiControls(p)) await aiResolveTempete(p);
+    else if(OP.field.some(m=>m&&!m.faceDown)) G.cyclePending = { type:'tempete', p };
+    else addLog('⚡ Tempête — aucune cible ennemie, effet perdu.','event');
+  }
+}
+
+// ── Retrait des buffs temporaires de cycle (fin de tour du joueur P) ──
+function clearCycleBuffs(P) {
+  P.field.forEach(m => {
+    if(!m) return;
+    if(m._cycleAtk) { m.cAtk = Math.max(0, m.cAtk - m._cycleAtk); m._cycleAtk = 0; }
+    if(m._cycleDef) { m.cDef = Math.max(0, m.cDef - m._cycleDef); m._cycleDef = 0; }
+  });
+}
+
+// ── Résolution IA des cycles interactifs ──────────────────────────────────
+async function aiResolveNuit(p) {
+  // Sacrifie sa créature la plus faible SI en retard sur la Foi ; sinon passe.
+  const opp = p===1?2:1;
+  const behindFaith = (G.players[p].faith||0) < (G.players[opp].faith||0);
+  if(!behindFaith) { addLog('🌙 Nuit — l\'IA conserve ses créatures (passe).','event'); return; }
+  const P = G.players[p];
+  const cands = P.field.map((m,i)=>({m,i})).filter(x=>x.m && !x.m.faceDown);
+  if(cands.length===0) { addLog('🌙 Nuit — aucune créature à sacrifier.','event'); return; }
+  cands.sort((a,b)=>((a.m.cAtk+a.m.cDef)-(b.m.cAtk+b.m.cDef)));   // plus faible
+  const m = cands[0].m;
+  P.faith=(P.faith||0)+1;
+  addLog(`🌙 Nuit — sacrifice de ${m.n} → +1 Foi (${P.faith}/${FAITH_WIN}).`,'special');
+  await handleDeath(p, m);
+}
+
+async function aiResolveTempete(p) {
+  const opp = p===1?2:1;
+  const OP = G.players[opp];
+  const cands = OP.field.map((m,i)=>({m,i})).filter(x=>x.m && !x.m.faceDown);
+  if(cands.length===0) { addLog('⚡ Tempête — aucune cible ennemie, effet perdu.','event'); return; }
+  // tuer une créature à 1 PV (cDef<=1), sinon la plus menaçante (plus haute ATK)
+  let tgt = cands.find(x=>x.m.cDef <= 1);
+  if(!tgt) { cands.sort((a,b)=>b.m.cAtk-a.m.cAtk); tgt = cands[0]; }
+  await dealCycleStorm(opp, tgt.m);
+}
+
+// 1 dégât de Tempête à une créature (partagé IA/humain).
+async function dealCycleStorm(targetP, m) {
+  if(!m) return;
+  const idx = G.players[targetP].field.indexOf(m);
+  m.cDef -= 1;
+  addLog(`⚡ Tempête — ${m.n} foudroyé (1 dégât → ${m.cDef}🛡).`,'dmg');
+  const el = document.querySelector(`[data-player="${targetP}"][data-idx="${idx}"]`);
+  if(el) showFloatDmg(1, el, '#7db4ff');
+  if(m.cDef <= 0) await handleDeath(targetP, m);
+}
+
+// ── Résolution HUMAINE des cycles interactifs (appelée par l'UI) ───────────
+function humanSacrificeNuit(i) {
+  if(!G || !G.cyclePending || G.cyclePending.type!=='nuit') return;
+  const p = G.cyclePending.p;
+  const P = G.players[p];
+  const m = P.field[i];
+  if(!m || m.faceDown) return;
+  P.faith=(P.faith||0)+1;
+  addLog(`🌙 Nuit — tu sacrifies ${m.n} → +1 Foi (${P.faith}/${FAITH_WIN}).`,'special');
+  G.cyclePending = null;
+  Promise.resolve(handleDeath(p, m)).then(()=>{ renderAll(); checkVictory(); });
+  renderAll();
+}
+function passCyclePending() {
+  if(!G || !G.cyclePending) return;
+  const t = G.cyclePending.type;
+  addLog(t==='nuit' ? '🌙 Nuit — tu passes (aucun sacrifice).' : '⚡ Tempête — tu renonces.','event');
+  G.cyclePending = null;
+  renderAll();
+}
+function humanStormTarget(targetP, i) {
+  if(!G || !G.cyclePending || G.cyclePending.type!=='tempete') return;
+  const p = G.cyclePending.p;
+  if(targetP === p) return;                       // cible ennemie uniquement
+  const m = G.players[targetP].field[i];
+  if(!m || m.faceDown) return;
+  G.cyclePending = null;
+  Promise.resolve(dealCycleStorm(targetP, m)).then(()=>{ renderAll(); checkVictory(); });
+  renderAll();
 }
 
 function nextPhase() { advancePhase(); }
@@ -975,6 +1117,9 @@ function doEndTurn() {
     if(m.sanded) m.sanded=false;
     if(m.buff3turn) { m.cAtk = Math.max(0,m.cAtk-3); m.cDef = Math.max(0,m.cDef-3); m.buff3turn=false; }
   });
+  // BRIQUE 3 : retire les buffs temporaires de cycle (Zénith/Crépuscule) du joueur
+  // qui termine son tour.
+  clearCycleBuffs(P);
   // Bug #5 fix: sleep counts down on OPPONENT's field at end of current player's turn
   // "wakes up 2 opponent's turns later" = after 2 turns of the player who put it to sleep
   G.players[oppP].field.forEach(m => {
@@ -990,9 +1135,8 @@ function doEndTurn() {
   G.activeTurn = G.cp; // track whose actual turn it is
   if(G.cp===1) {
     G.turn++;
-    const prevCycle = G.cycle;
-    G.cycle = (G.cycle + 1) % 5;
-    if(G.cycle !== prevCycle) scheduleCycleAnim();
+    // BRIQUE 3 : le cycle est désormais TIRÉ chaque tour (cf. beginCycle ci-dessous /
+    // aiTurn), plus d'avance déterministe ici.
     // ── ASCENSION (C4) : Horloge céleste. Annonce au dernier tour, puis résolution
     // une fois le tour TURN_CAP joué (le plus de Foi gagne). ──
     if(G.turn === TURN_CAP) addLog("🔔 L'horloge céleste sonne — dernier tour !", 'warn');
@@ -1017,6 +1161,10 @@ function doEndTurn() {
   G.phase = 'Main1';
 
   addLog(`── Turn ${G.turn} — Player ${G.cp} (${NP.faction}) ──`,'turn');
+  // BRIQUE 3 : tirage + application du cycle pour le joueur actif. L'IA tire son
+  // cycle au début de aiTurn (contexte async) ; ici on ne le fait que pour un
+  // joueur HUMAIN (effets immédiats + éventuelle interaction en attente).
+  if(!aiControls(G.cp)) beginCycle(G.cp);
   renderAll();
   checkVictory();
 
@@ -2536,7 +2684,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   const atk = AP.field[attackerIdx];
   if(!atk) return;
 
-  const atkVal = atk.cAtk + (isZenith(atk) ? 1 : 0);
+  const atkVal = atk.cAtk;
   const hasHit = (atk.cap||'').includes('hit');
   const hasHeal = (atk.cap||'').includes('heal');
   // Capacités de combat pré-frappe composables (solo_destroy, coinflip_defense,
@@ -2648,7 +2796,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
         }
       }
 
-      if(def.cDef <= -(isZenith(def) ? 1 : 0)) {
+      if(def.cDef <= 0) {
         const defWasKneeling = !!def.kneeling; // mesure : profanation ?
         await handleDeath(targetP, def);
         if(!DP.field.includes(def)) { // réellement retiré (ni Sanctuaire ni Endure)
@@ -2656,7 +2804,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
           if(defWasKneeling) { bumpStat(attackerP, 'profanations'); bumpStat(targetP, 'kneelersLost'); }
         }
       }
-      if(atk.cDef <= -(isZenith(atk) ? 1 : 0)) await handleDeath(attackerP, atk);
+      if(atk.cDef <= 0) await handleDeath(attackerP, atk);
     }
   };
 
@@ -2928,6 +3076,12 @@ async function aiTurn(p=2) {
 
   addLog(`── AI thinking... ──`,'phase');
   renderAll();
+
+  // BRIQUE 3 : l'IA tire et applique son cycle au début de son tour (contexte
+  // async → Nuit/Tempête peuvent awaiter handleDeath). Si un cycle conclut la
+  // partie (sacrifice/foudre létal → Foi/PV), on s'arrête proprement.
+  await beginCycle(p);
+  if(checkVictoryBool()) { checkVictory(); aiThinking=false; return; }
 
   // Main1 phase
   G.phase='Main1';
@@ -4138,67 +4292,92 @@ async function applyTargetEffect(type, fromP, idx, card) {
 const FC = {yokai:'#d04030',norse:'#8090a0',egyptian:'#3090d0',greek:'#9050c0',aztec:'#d0b010'};
 const FE = {yokai:'🦊',norse:'⚡',egyptian:'🏺',greek:'🏛️',aztec:'🌿'};
 
-// ── Cycle Céleste — render & animation ────────────────────────────
+// ── BRIQUE 3 : Cycle du temps — render (panneau DROITE) & animation ────────
 function renderCycleBanner() {
-  const el = document.getElementById('cycle-banner');
+  const el = document.getElementById('cycle-dock');
   if(!el || !G) return;
-  const cur = G.cycle % 5;
-  const phaseName = CYCLE_PHASES[cur];
-  const zenFaction = ZENITH_MAP[phaseName];
-
-  const iconsHTML = CYCLE_PHASES.map((ph, idx) => {
-    const active = idx === cur;
-    return `<div class="cycle-phase${active?' active':''}" title="${CYCLE_NAMES[ph]}">
-      <span class="cycle-icon">${CYCLE_ICONS[ph]}</span>
-      <span class="cycle-phase-label">${CYCLE_NAMES[ph]}</span>
-    </div>`;
-  }).join('');
-
-  const zenCol = (typeof FC!=='undefined' && FC[zenFaction]) || 'var(--gold-bright)';
-  el.style.setProperty('--zen', zenCol);
+  const key = G.cycle;
+  if(!key || !CYCLES[key]) { el.innerHTML = ''; el.classList.remove('open'); return; }
+  const C = CYCLES[key];
+  const col = FACTION_COLOR[C.faction] || 'var(--gold-bright)';
+  const owner = G.cycleOwner;
+  const ownerLabel = owner ? (owner===1 ? 'Toi' : (G.mode==='pve'?'Adversaire':'Joueur 2')) : '';
+  el.style.setProperty('--cyc', col);
+  // Vue compacte (toujours visible) + panneau détaillé (toggle via .open)
   el.innerHTML = `
-    <div class="cycle-phases">${iconsHTML}</div>
-    <div class="cycle-zenith" data-zen="${zenFaction}">ZÉNITH · <strong style="color:${zenCol};text-shadow:0 0 10px ${zenCol}">${ZENITH_LABEL[zenFaction]}</strong><span class="cycle-bonus">+1/+1</span></div>`;
-
-  // Teinte du champ de bataille selon la phase
+    <button class="cycle-toggle" title="${C.name} — clique pour le pouvoir">
+      <span class="cycle-icon-big">${C.icon}</span>
+      <span class="cycle-name">${C.name}</span>
+      <span class="cycle-faction-dot" style="background:${col}"></span>
+    </button>
+    <div class="cycle-detail">
+      <div class="cycle-detail-head"><span class="cycle-icon-big">${C.icon}</span>
+        <strong style="color:${col};text-shadow:0 0 10px ${col}">${C.name}</strong></div>
+      <div class="cycle-detail-fac" style="color:${col}">${FACTION_LABEL[C.faction]}</div>
+      <div class="cycle-detail-power">${C.power}</div>
+      <div class="cycle-detail-type">${C.type==='comeback'?'🛡 Comeback':'⚔ Agressif'}${ownerLabel?` · ${ownerLabel}`:''}</div>
+    </div>`;
+  const med = document.getElementById('divider-medallion-icon');
+  if(med) med.textContent = C.icon;
   const game = document.getElementById('game');
-  if(game) game.dataset.cyclePhase = phaseName;
-  // Médaillon central
-  const medIcon = document.getElementById('divider-medallion-icon');
-  if(medIcon) medIcon.textContent = CYCLE_ICONS[phaseName];
+  if(game) game.dataset.cyclePhase = key;   // teinte du champ de bataille (cf. CSS)
+  // Toggle du panneau détaillé au clic.
+  const tgl = el.querySelector('.cycle-toggle');
+  if(tgl) tgl.onclick = () => el.classList.toggle('open');
+}
+
+// ── BRIQUE 3 : invite interactive (Nuit/Tempête) — barre fixe bas-centre ────
+function renderCyclePrompt() {
+  const existing = document.getElementById('cycle-prompt');
+  const pend = G && G.cyclePending;
+  // N'afficher que pour une interaction HUMAINE en attente.
+  if(!pend || aiControls(pend.p)) { if(existing) existing.remove(); return; }
+  let bar = existing;
+  if(!bar) { bar = document.createElement('div'); bar.id = 'cycle-prompt'; document.body.appendChild(bar); }
+  let html = '';
+  if(pend.type==='nuit' && !pend.choosing) {
+    html = `<span class="cp-label">🌙 Nuit — sacrifier une créature pour +1 Foi ?</span>`
+      + `<button class="am-btn am-pray" data-cp="sac">🗡 Sacrifier</button>`
+      + `<button class="am-btn am-cancel" data-cp="pass">Passer</button>`;
+  } else if(pend.type==='nuit' && pend.choosing) {
+    html = `<span class="cp-label">🌙 Clique la créature à sacrifier</span>`
+      + `<button class="am-btn am-cancel" data-cp="back">✕ Annuler</button>`;
+  } else if(pend.type==='tempete') {
+    html = `<span class="cp-label">⚡ Tempête — clique une créature ennemie à foudroyer</span>`
+      + `<button class="am-btn am-cancel" data-cp="pass">Passer</button>`;
+  }
+  bar.innerHTML = html;
+  bar.querySelectorAll('[data-cp]').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    const act = b.dataset.cp;
+    if(act==='sac')  { G.cyclePending.choosing = true; renderAll(); }
+    else if(act==='back') { G.cyclePending.choosing = false; renderAll(); }
+    else if(act==='pass') { passCyclePending(); }
+  });
 }
 
 let _cycleAnimPending = false;
-function scheduleCycleAnim() {
-  _cycleAnimPending = true;
-}
+function scheduleCycleAnim() { _cycleAnimPending = true; }
 
 function applyCycleAnim() {
   if(!_cycleAnimPending) return;
   _cycleAnimPending = false;
-  const el = document.getElementById('cycle-banner');
+  const el = document.getElementById('cycle-dock');
   if(!el) return;
   el.classList.remove('cycle-transition');
   el.offsetHeight;
   el.classList.add('cycle-transition');
-  setTimeout(() => el.classList.remove('cycle-transition'), 1200);
-  // Flash du médaillon central
+  setTimeout(() => { if(el) el.classList.remove('cycle-transition'); }, 1100);
   const med = document.getElementById('divider-medallion');
   if(med){ med.style.animation='none'; med.offsetHeight; med.style.animation='medallionFlash 1s ease-out, medallionFloat 6s ease-in-out 1s infinite'; }
-  // SFX
-  if(typeof Audio5L !== 'undefined') {
-    Audio5L.sfx.mana();
-    setTimeout(() => Audio5L.sfx.draw(), 180);
-  }
-  // Log
-  const ph = CYCLE_PHASES[G.cycle % 5];
-  addLog(`🌌 Cycle Céleste — ${CYCLE_NAMES[ph]} ! Zénith : ${ZENITH_LABEL[ZENITH_MAP[ph]]}`, 'special');
+  if(typeof Audio5L !== 'undefined') { Audio5L.sfx.mana(); setTimeout(() => Audio5L.sfx.draw(), 180); }
 }
 
 function renderAll() {
   if(G) { [1,2].forEach(p => { if(G.players[p]) renderPassiveIndicators(p); }); }
   if(!G) return;
   renderCycleBanner();
+  renderCyclePrompt();
   applyCycleAnim();
   renderPlayerBar(1); renderPlayerBar(2);
   renderField(1); renderField(2);
@@ -4322,9 +4501,11 @@ function renderPassiveIndicators(p) {
     if(c.includes('passive_empty_hand_buff') && P.hand.length===0) indicators.push(`💪 OTOMITL — Main vide: Alliés +2/+1`);
   });
   if((G.ragnarok||0)>0 && P.faction==='norse') indicators.push(`⚡ RAGNARÖK: ${G.ragnarok}/5`);
-  // Zenith indicator
-  const zFaction = getZenithFaction();
-  if(P.faction === zFaction) indicators.push(`🌌 ZÉNITH — vos monstres +1/+1`);
+  // BRIQUE 3 : indicateur de buff de cycle (Zénith/Crépuscule) actif sur ce joueur.
+  if(G.cycleOwner===p && G.players[p].field.some(m=>m&&(m._cycleAtk||m._cycleDef))) {
+    if(G.cycle==='zenith') indicators.push(`☀️ ZÉNITH — tes créatures +1 ATK`);
+    if(G.cycle==='crepuscule') indicators.push(`🌆 CRÉPUSCULE — tes créatures +1 DEF`);
+  }
   el.innerHTML = indicators.map(i=>`<span class="passive-indicator">${i}</span>`).join('');
 }
 
@@ -4361,7 +4542,13 @@ function renderField(p) {
     if(m.faceDown) cls+=' face-down';
     if(m.kneeling) cls+=' kneeling';   // ASCENSION (C2) : fidèle à genoux
     if(uiSelected && uiSelected.p===p && uiSelected.i===i) cls+=' selected'; // v2 : surlignage barre d'action
-    if(isZenith(m)) cls+=' zenith-card';
+    // BRIQUE 3 : cibles valides d'un cycle interactif en attente (humain).
+    if(G.cyclePending && !aiControls(G.cyclePending.p) && !m.faceDown) {
+      const pend=G.cyclePending, opp=pend.p===1?2:1;
+      if(pend.type==='tempete' && p===opp) cls+=' valid-target-dmg';
+      if(pend.type==='nuit' && pend.choosing && p===pend.p) cls+=' valid-target-dmg';
+    }
+    if(m._cycleAtk||m._cycleDef) cls+=' zenith-card';   // BRIQUE 3 : créature buffée par le cycle
     // Re-apply targeting highlights when in targeting mode
     if(G.targeting && !m.faceDown) {
       if(G.targeting.mode==='attack') {
@@ -4427,7 +4614,7 @@ function renderField(p) {
       if(m.izanamiEquipped)statuses.push('<span class="st izanami">IZA</span>');
 
       const capShort=(m.cap||'').replace(/_/g,' ').split(' ').slice(0,2).join(' ')||'—';
-      const z=isZenith(m);
+      const z=!!(m._cycleAtk||m._cycleDef);   // BRIQUE 3 : surbrillance « boosted » si buff de cycle
 
       div.innerHTML=`
         <div class="fc-frame">
@@ -4447,7 +4634,7 @@ function renderField(p) {
           ${m.cost!=null&&m.cost!==''?`<div class="fc-cost">${m.cost}</div>`:''}
           <div class="fc-rarity"></div>
         </div>
-        ${m.type==='monster'?`<div class="fc-atk${z?' boosted':''}">${m.cAtk+(z?1:0)}</div><div class="fc-def${z?' boosted':''}">${m.cDef+(z?1:0)}</div>`:''}
+        ${m.type==='monster'?`<div class="fc-atk${z?' boosted':''}">${m.cAtk}</div><div class="fc-def${z?' boosted':''}">${m.cDef}</div>`:''}
       `;
     }
     // ── Bouton RITUEL pour monstres aztèques compatibles ────────
@@ -4700,6 +4887,22 @@ function prayWith(p, i) {
 
 function onFieldClick(p,i) {
   if(!G) return;
+  // BRIQUE 3 : interaction de cycle en attente (humain) — prioritaire.
+  if(G.cyclePending && !aiControls(G.cyclePending.p)) {
+    const pend = G.cyclePending;
+    const opp = pend.p===1?2:1;
+    if(pend.type==='tempete' && p===opp) {
+      const m = G.players[p].field[i];
+      if(m && !m.faceDown) { humanStormTarget(p, i); }
+      return;
+    }
+    if(pend.type==='nuit' && pend.choosing && p===pend.p) {
+      const m = G.players[p].field[i];
+      if(m && !m.faceDown) { humanSacrificeNuit(i); }
+      return;
+    }
+    return; // tant que l'interaction n'est pas résolue, on bloque les autres clics
+  }
   // Ritual: picking an ally to sacrifice
   if(G.ritualPending && p===G.ritualPending.p && i!==G.ritualPending.cardIdx) {
     const m = G.players[p].field[i];

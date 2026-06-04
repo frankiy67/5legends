@@ -177,39 +177,38 @@ body{
 /* ──────────────────────────────────────────────────────────────────
    5. CYCLE CÉLESTE — bandeau central + arc
    ────────────────────────────────────────────────────────────────── */
-#cycle-banner{
-  position:absolute;left:50%;top:0;transform:translateX(-50%);height:100%;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:1px;padding:0 22px;z-index:5;
-}
-.cycle-phases{display:flex;align-items:flex-end;gap:13px;position:relative;padding:2px 6px 0}
-/* arc reliant les phases */
-.cycle-phases::before{
-  content:'';position:absolute;left:8px;right:8px;top:11px;height:26px;
-  border-top:1.5px solid rgba(244,201,93,.22);border-radius:50%;
-  pointer-events:none;
-}
-.cycle-phase{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;transition:transform .4s ease,filter .4s ease,opacity .4s ease;opacity:.32;filter:grayscale(.65) brightness(.8)}
-.cycle-icon{font-size:15px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7))}
-.cycle-phase-label{font-family:'Cinzel',serif;font-size:6.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-bright);opacity:0;transition:opacity .3s;height:8px}
-.cycle-phase.active{opacity:1;filter:none;transform:translateY(-3px) scale(1.4)}
-.cycle-phase.active .cycle-icon{animation:zenithGlowFac 2.2s ease-in-out infinite alternate}
-@keyframes zenithGlowFac{from{filter:drop-shadow(0 0 5px var(--zen,var(--gold-glow)))}to{filter:drop-shadow(0 0 15px var(--zen,var(--gold-bright)))}}
-.cycle-phase.active{will-change:transform,filter}
-.cycle-phase.active .cycle-phase-label{opacity:1}
-.cycle-zenith{font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:.8px;color:var(--gold-bright);text-shadow:0 0 8px var(--gold-glow);white-space:nowrap;text-align:center;margin-top:1px}
-.cycle-zenith strong{color:var(--gold-bright)}
-.cycle-bonus{margin-left:7px;color:var(--boost);font-family:'Spectral',serif;font-size:8px;letter-spacing:0}
-/* transition de phase : flash + petite rotation de l'arc */
-#cycle-banner.cycle-transition .cycle-phases{animation:cycleSpin 1.1s cubic-bezier(.34,1.3,.5,1)}
-#cycle-banner.cycle-transition .cycle-phase.active{animation:cycleChangeFlash 1.1s ease-out}
-@keyframes cycleSpin{0%{transform:rotateX(0) scale(.96)}40%{transform:rotateX(14deg) scale(1.04)}100%{transform:rotateX(0) scale(1)}}
-@keyframes cycleChangeFlash{
-  0%{filter:brightness(1)}
-  25%{filter:brightness(2.4) drop-shadow(0 0 18px var(--gold-bright));transform:translateY(-3px) scale(1.6)}
-  100%{filter:none;transform:translateY(-3px) scale(1.32)}
-}
-@keyframes zenithGlow{from{filter:drop-shadow(0 0 4px var(--gold-glow))}to{filter:drop-shadow(0 0 12px var(--gold-bright))}}
+/* BRIQUE 3 : Cycle du temps — dock fixe à DROITE (toujours visible) + panneau. */
+#cycle-dock{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:160;
+  display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
+#cycle-dock>*{pointer-events:auto}
+.cycle-toggle{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
+  width:88px;padding:12px 8px;border-radius:14px;color:#fff;
+  background:linear-gradient(160deg,rgba(20,16,38,.96),rgba(8,6,18,.96));
+  border:1.5px solid var(--cyc,rgba(244,201,93,.5));
+  box-shadow:0 0 18px color-mix(in srgb,var(--cyc,#caa) 45%,transparent),0 10px 30px rgba(0,0,0,.7)}
+.cycle-toggle:hover{filter:brightness(1.12)}
+.cycle-icon-big{font-size:30px;line-height:1;filter:drop-shadow(0 0 8px var(--cyc,rgba(244,201,93,.6)))}
+.cycle-name{font-family:'Cinzel',serif;font-size:11px;font-weight:800;letter-spacing:1px;color:var(--cyc,var(--gold-bright));text-shadow:0 0 8px var(--cyc,var(--gold-glow))}
+.cycle-faction-dot{width:8px;height:8px;border-radius:50%;box-shadow:0 0 6px currentColor}
+/* panneau détaillé (toggle .open) */
+.cycle-detail{display:none;width:210px;padding:12px 14px;border-radius:13px;
+  background:linear-gradient(160deg,rgba(22,18,42,.98),rgba(10,8,22,.98));
+  border:1px solid var(--cyc,rgba(244,201,93,.45));box-shadow:0 12px 36px rgba(0,0,0,.85)}
+#cycle-dock.open .cycle-detail{display:block;animation:abIn .16s ease-out}
+.cycle-detail-head{display:flex;align-items:center;gap:8px;font-family:'Cinzel',serif;font-size:14px;font-weight:800}
+.cycle-detail-fac{font-family:'Cinzel',serif;font-size:11px;font-weight:700;margin:5px 0 7px}
+.cycle-detail-power{font-family:'Spectral',serif;font-size:12.5px;color:#e8e2f5;line-height:1.45}
+.cycle-detail-type{margin-top:8px;font-size:10px;letter-spacing:.5px;color:rgba(255,255,255,.6)}
+/* transition discrète au changement de cycle */
+#cycle-dock.cycle-transition .cycle-toggle{animation:cycleChangeFlash 1s ease-out}
+@keyframes cycleChangeFlash{0%{filter:brightness(1)}30%{filter:brightness(1.9);transform:scale(1.08)}100%{filter:none;transform:scale(1)}}
+
+/* Invite interactive Nuit/Tempête — barre fixe bas-centre, au-dessus du reste. */
+#cycle-prompt{position:fixed;left:50%;bottom:74px;transform:translateX(-50%);z-index:610;
+  display:flex;gap:10px;align-items:center;padding:9px 14px;border-radius:14px;
+  background:linear-gradient(160deg,rgba(30,22,52,.98),rgba(14,10,28,.98));
+  border:1px solid rgba(244,201,93,.5);box-shadow:0 14px 40px rgba(0,0,0,.9);animation:abIn .15s ease-out}
+.cp-label{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold-bright);letter-spacing:.4px}
 
 /* ──────────────────────────────────────────────────────────────────
    6. PLAYER BARS — portrait + orbe + cristaux
@@ -309,11 +308,12 @@ body{
 .bf.bf1 .bf-overlay-dark{background-color:rgba(8,12,28,.42)}
 /* teinte selon la phase du cycle */
 .bf-cycle-tint{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;mix-blend-mode:soft-light;transition:background .9s ease}
+/* BRIQUE 3 : teinte du champ selon le cycle (clés : aube/zenith/crepuscule/nuit/tempete) */
 #game[data-cycle-phase="aube"]      .bf-cycle-tint{background:linear-gradient(180deg,rgba(255,150,90,.5),rgba(255,200,120,.15))}
-#game[data-cycle-phase="midi"]      .bf-cycle-tint{background:linear-gradient(180deg,rgba(255,235,180,.45),rgba(255,250,220,.1))}
+#game[data-cycle-phase="zenith"]    .bf-cycle-tint{background:linear-gradient(180deg,rgba(255,235,180,.45),rgba(200,160,255,.12))}
 #game[data-cycle-phase="crepuscule"].bf-cycle-tint{background:linear-gradient(180deg,rgba(230,110,80,.45),rgba(150,70,120,.18))}
 #game[data-cycle-phase="nuit"]      .bf-cycle-tint{background:linear-gradient(180deg,rgba(60,80,170,.5),rgba(30,40,100,.2))}
-#game[data-cycle-phase="tenebres"]  .bf-cycle-tint{background:linear-gradient(180deg,rgba(40,30,70,.6),rgba(10,8,30,.3))}
+#game[data-cycle-phase="tempete"]   .bf-cycle-tint{background:linear-gradient(180deg,rgba(90,120,180,.5),rgba(40,60,120,.25))}
 
 .bf-label{position:absolute;top:7px;left:18px;z-index:3;font-family:'Cinzel',serif;font-size:8px;color:rgba(244,201,93,.3);letter-spacing:4px;text-transform:uppercase}
 
