@@ -131,3 +131,56 @@ décision de design ou une validation visuelle que je ne peux pas faire).
 *Branche `feat-gameplay-v2`. Outils : `tools/audit.js` (diagnostic), tests
 `tools/test_*.js`, harnais `tools/golden.js` / `sim_core.js`. Golden recapturé
 après chaque phase.*
+
+---
+
+# Brique 6B — Amélioration continue (bilan de session)
+
+Boucle d'amélioration (corriger / équilibrer / enrichir). Détail commit-par-commit
+dans `CHANGELOG.md`. Outil de mesure : `tools/balance.js`.
+
+## Phase 1 — Corrections des 4 problèmes flaggés ✅
+- **Malédiction** (`cap:'curse'*`, 10 cartes) implémentée : −1 ATK permanent à la
+  créature touchée en combat.
+- **Effets PV vestigiaux convertis** (plus aucune écriture active sur `player.hp`) :
+  vol de vie → +1 DEF auto ; soin joueur → +2 DEF allié ; dégâts directs joueur →
+  créature ennemie uniquement.
+- **Karura** : plus de cas inerte (+1/+1 sans cible).
+- **Pièges hors du cap de 6** (`monsterCount()` ; monstres endormis comptés, dieux
+  face cachés exclus).
+
+## Phase 2 — Équilibrage par les données ✅
+Mesure CONTROL vs CONTROL, 2500 parties, sièges équilibrés.
+
+| Faction | Avant | Après | Cible 45-55% |
+|---|---|---|---|
+| norse | 64.1% | **55.5%** | ~ (légèrement chaud) |
+| egyptian | 56.4% | **54.0%** | ✅ |
+| yokai | 45.6% | **47.2%** | ✅ |
+| aztec | 43.6% | **46.9%** | ✅ |
+| greek | 40.1% | **46.4%** | ✅ |
+
+**Spread 24 pts → 9.1 pts.** 31 cartes ajustées (nerfs durabilité norse, buffs
+greek/aztec). Aucune illustration retirée. norse reste structurellement un peu fort
+(rendements décroissants sur les stats — piste future : ajuster son économie de Foi
+plutôt que les stats).
+
+## Run final de stabilité
+```
+1000 parties CONTROL vs CONTROL — CRASHES 0 | NON-TERM 0 | VIOLATIONS DURES 0
+Fins : Foi 994 | horloge 6 | timeout 0   ✓✓✓ STABLE
+```
+Tests scriptés tous verts (cycles 16, desecrate 14, god_powers 28, market 16).
+
+## Restant pour de futures passes (non traité cette session)
+- **Pégase** : carte la plus efficace (eff 3.5, hurry+fervor) mais dans une faction
+  désormais équilibrée (greek 46%). Pas OP au niveau faction ; à surveiller si greek
+  remonte. Nerf possible (retirer `hurry` ou 3/4→2/4) si besoin.
+- **Carte morte** : `Oracle de Delphes` (greek, spell) jouée 0% par l'IA (effet de
+  réorganisation à faible valeur immédiate). Candidate à une refonte (twist Foi/grec).
+- **Phase 3 (synergies intra-faction)**, **Phase 4 (simplification mots-clés /
+  différenciation Hearthstone)**, **Phase 5 (amélioration des dieux — « Équipez »
+  sous-joués)**, **Phase 6 (polish UI/CSS)** : non entamées. Nécessitent l'ajout de
+  nouveaux handlers (Phase 3/5) — à faire par passes prudentes + re-mesure.
+- norse 55.5% : un cran au-dessus de la cible ; envisager un ajustement de son
+  économie de Foi (plutôt que d'autres nerfs de stats à rendement décroissant).
