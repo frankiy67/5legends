@@ -480,14 +480,17 @@ body{
 .btn-ritual:hover{filter:brightness(1.2)}
 @keyframes pulse-ritual{from{box-shadow:0 0 4px #ff4500}to{box-shadow:0 0 14px #ff4500,0 0 4px #8b0000}}
 
-/* ── ASCENSION (C2/UI) : menu d'action Guerre/Prière + créature à genoux ── */
-/* Menu flottant à deux choix, au-dessus de la carte et AU-DESSUS de la barre
-   d'action du bas (z-index). Ne reflow pas la carte, ne recouvre pas le terrain. */
-#action-menu{position:fixed;z-index:200;display:flex;gap:8px;padding:6px;border-radius:13px;
+/* ── ASCENSION (C2/UI v2) : BARRE D'ACTION FIXE Guerre/Prière + à genoux ── */
+/* Barre FIXE en bas-centre, DÉCOUPLÉE du zoom de carte. z-index 600 > #card-preview
+   (500) → le zoom ne la recouvre JAMAIS. Toujours au même endroit, lisible. */
+#act-choice-bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:600;
+  display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:14px;
   background:linear-gradient(160deg,rgba(26,21,48,.98),rgba(12,9,26,.98));
-  border:1px solid rgba(244,201,93,.4);box-shadow:0 12px 34px rgba(0,0,0,.85),0 0 0 1px rgba(0,0,0,.5);
-  animation:amIn .12s ease-out}
-@keyframes amIn{from{opacity:0;transform:translateY(5px) scale(.95)}to{opacity:1;transform:none}}
+  border:1px solid rgba(244,201,93,.4);box-shadow:0 14px 40px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.5);
+  animation:abIn .14s ease-out}
+@keyframes abIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.ab-label{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold-bright);
+  letter-spacing:.5px;padding:0 6px 0 2px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .am-btn{font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;
   padding:10px 16px;border-radius:9px;color:#fff;border:1.5px solid;display:flex;align-items:center;gap:6px;
   white-space:nowrap;transition:transform .12s,box-shadow .2s,filter .15s}
@@ -499,7 +502,14 @@ body{
 .am-pray{background:radial-gradient(ellipse at 50% 25%,#5a2080,#2a0e44);border-color:#c77dff;
   box-shadow:0 0 14px rgba(199,125,255,.45)}
 .am-pray:hover{box-shadow:0 0 24px rgba(199,125,255,.8)}
+.am-cancel{background:radial-gradient(ellipse at 50% 25%,#3a3550,#1c1830);border-color:#8a85a0;
+  box-shadow:0 0 10px rgba(140,130,170,.3)}
+.am-cancel:hover{box-shadow:0 0 18px rgba(160,150,190,.55)}
 .am-sub{font-family:'Spectral',serif;font-size:9.5px;font-weight:600;color:var(--gold-bright);opacity:.9;margin-left:2px}
+/* Créature sélectionnée (barre d'action ouverte) : léger soulèvement + anneau or. */
+.fcard.selected{transform:translateY(-10px) scale(1.05);z-index:18}
+.fcard.selected .fc-frame::before{border-color:var(--gold)!important;opacity:1!important;
+  box-shadow:inset 0 0 12px rgba(244,201,93,.6),0 0 12px rgba(244,201,93,.55)!important}
 /* fidèle à genoux : désaturé, anneau violet « Foi », icône 🙏 */
 .fcard.kneeling .fc-frame{filter:saturate(.6) brightness(.82)}
 .fcard.kneeling .fc-frame::before{border-color:var(--rar-god)!important;opacity:1!important;

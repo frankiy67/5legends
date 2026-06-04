@@ -4284,6 +4284,7 @@ function renderField(p) {
     if(summonSick && !canAtk) cls+=' summon-sick';
     if(m.faceDown) cls+=' face-down';
     if(m.kneeling) cls+=' kneeling';   // ASCENSION (C2) : fidèle à genoux
+    if(uiSelected && uiSelected.p===p && uiSelected.i===i) cls+=' selected'; // v2 : surlignage barre d'action
     if(isZenith(m)) cls+=' zenith-card';
     // Re-apply targeting highlights when in targeting mode
     if(G.targeting && !m.faceDown) {
@@ -4386,9 +4387,9 @@ function renderField(p) {
       ritBtn.onclick = (e) => { e.stopPropagation(); startRitual(p, i); };
       div.appendChild(ritBtn);
     }
-    // ── ASCENSION (C2/UI) : le choix Guerre/Prière se fait via un menu flottant
-    // au clic sur la créature (voir onFieldClick → showActionMenu). Plus de
-    // bouton dans la carte (qui reflowait/recouvrait le terrain).
+    // ── ASCENSION (C2/UI v2) : le choix Guerre/Prière se fait via la BARRE
+    // D'ACTION FIXE en bas-centre, au clic sur la créature (voir onFieldClick →
+    // showActionBar). Découplée du zoom de carte (plus de recouvrement).
 
     el.appendChild(div);
   });
@@ -4642,27 +4643,46 @@ function onFieldClick(p,i) {
     const hasHurry=(m.cap||'').includes('hurry');
     if(P.summoned.has(i)&&!hasHurry){ addLog(`${m.n} summoned this turn — can't attack`); return; }
     if(m.sanded){ addLog(`${m.n} is sanded!`); return; }
-    // ASCENSION : choix primaire Guerre/Prière via menu flottant (au lieu de
-    // lancer directement le ciblage d'attaque).
-    showActionMenu(cp, i);
+    // ASCENSION v2 : choix primaire Guerre/Prière via BARRE FIXE en bas-centre
+    // (découplée du zoom de carte) au lieu de lancer directement le ciblage.
+    showActionBar(cp, i);
   }
 }
 
-// ── ASCENSION (C2/UI) : menu d'action flottant Guerre / Prière ─────────────
-// 100% UI : ⚔️ Attaquer relance le flux d'attaque existant (startAttackTargeting),
-// 🙏 Prier appelle prayWith. Aucune logique de jeu modifiée. Positionné au-dessus
-// de la carte, au-dessus de la barre d'action (z-index), sans reflow ni recouvrement.
-function _actionMenuOutside(e) {
-  const menu = document.getElementById('action-menu');
-  if(menu && !menu.contains(e.target)) closeActionMenu();
+// ── ASCENSION (C2/UI) — v2 : BARRE D'ACTION FIXE Guerre / Prière ───────────
+// 100% UI : le choix est DÉCOUPLÉ du zoom de carte. Au lieu d'un menu flottant
+// ancré sur la carte (recouvert par #card-preview), une barre FIXE en bas-centre
+// (position:fixed, z-index au-dessus du zoom) propose ⚔️ Attaquer · 🙏 Prier · ✕.
+// ⚔️ Attaquer relance startAttackTargeting, 🙏 Prier appelle prayWith, ✕ annule.
+// AUCUNE logique de jeu modifiée — uniquement la sélection et l'affichage.
+// État de sélection UI hors de G (jamais sérialisé, jamais lu par la simulation).
+let uiSelected = null; // { p, i } de la créature sélectionnée, ou null.
+
+function setSelectedHighlight(sel) {
+  // Manipule directement la classe .selected (pas de renderAll → pas de course DOM).
+  document.querySelectorAll('.fcard.selected').forEach(el => el.classList.remove('selected'));
+  if(sel) {
+    const el = document.querySelector(`[data-player="${sel.p}"][data-idx="${sel.i}"]`);
+    if(el) el.classList.add('selected');
+  }
 }
-function closeActionMenu() {
-  const el = document.getElementById('action-menu');
+function _actionBarOutside(e) {
+  const bar = document.getElementById('act-choice-bar');
+  if(bar && !bar.contains(e.target)) clearActionBar();
+}
+// Ferme la barre et retire le surlignage (sans renderAll : on nettoie la classe
+// nous-mêmes, ce qui évite de reconstruire le DOM pendant un clic de re-sélection).
+function clearActionBar() {
+  uiSelected = null;
+  setSelectedHighlight(null);
+  const el = document.getElementById('act-choice-bar');
   if(el) el.remove();
-  document.removeEventListener('mousedown', _actionMenuOutside, true);
+  document.removeEventListener('mousedown', _actionBarOutside, true);
 }
-function showActionMenu(p, i) {
-  closeActionMenu();
+const cancelActionBar = clearActionBar; // alias sémantique (bouton ✕ / ESC)
+
+function showActionBar(p, i) {
+  clearActionBar();
   const P = G.players[p];
   const m = P && P.field[i];
   if(!m) return;
@@ -4674,36 +4694,27 @@ function showActionMenu(p, i) {
   const canPrayNow = canPray(p, i);
   if(!hasAttackTarget && !canPrayNow) return;
 
-  const menu = document.createElement('div');
-  menu.id = 'action-menu';
-  let html = '';
+  uiSelected = { p, i };
+  setSelectedHighlight(uiSelected);
+
+  const bar = document.createElement('div');
+  bar.id = 'act-choice-bar';
+  let html = `<span class="ab-label">${m.n}</span>`;
   if(hasAttackTarget) html += `<button class="am-btn am-attack" data-act="attack">⚔️ Attaquer</button>`;
   if(canPrayNow)      html += `<button class="am-btn am-pray" data-act="pray">🙏 Prier<span class="am-sub">+1 Foi</span></button>`;
-  menu.innerHTML = html;
-  document.body.appendChild(menu);
+  html += `<button class="am-btn am-cancel" data-act="cancel">✕ Annuler</button>`;
+  bar.innerHTML = html;
+  document.body.appendChild(bar);
 
-  // Positionnement : au-dessus de la carte, centré, clampé au viewport.
-  const cardEl = document.querySelector(`[data-player="${p}"][data-idx="${i}"]`);
-  const mr = menu.getBoundingClientRect();
-  let x, y;
-  if(cardEl){
-    const r = cardEl.getBoundingClientRect();
-    x = r.left + r.width/2 - mr.width/2;
-    y = r.top - mr.height - 10;
-    if(y < 8) y = r.bottom + 10;
-  } else { x = (window.innerWidth - mr.width)/2; y = (window.innerHeight - mr.height)/2; }
-  x = Math.max(8, Math.min(x, window.innerWidth - mr.width - 8));
-  y = Math.max(8, Math.min(y, window.innerHeight - mr.height - 8));
-  menu.style.left = x+'px';
-  menu.style.top = y+'px';
-
-  const atkBtn = menu.querySelector('.am-attack');
-  if(atkBtn) atkBtn.onclick = (e) => { e.stopPropagation(); closeActionMenu(); G.selAtk={p,i}; startAttackTargeting(m,p,i); };
-  const prayBtn = menu.querySelector('.am-pray');
-  if(prayBtn) prayBtn.onclick = (e) => { e.stopPropagation(); closeActionMenu(); prayWith(p,i); };
+  const atkBtn = bar.querySelector('.am-attack');
+  if(atkBtn) atkBtn.onclick = (e) => { e.stopPropagation(); clearActionBar(); G.selAtk={p,i}; startAttackTargeting(m,p,i); };
+  const prayBtn = bar.querySelector('.am-pray');
+  if(prayBtn) prayBtn.onclick = (e) => { e.stopPropagation(); clearActionBar(); prayWith(p,i); };
+  const cancelBtn = bar.querySelector('.am-cancel');
+  if(cancelBtn) cancelBtn.onclick = (e) => { e.stopPropagation(); cancelActionBar(); };
 
   // Fermer au clic extérieur (différé pour ne pas capter le clic d'ouverture).
-  setTimeout(() => document.addEventListener('mousedown', _actionMenuOutside, true), 0);
+  setTimeout(() => document.addEventListener('mousedown', _actionBarOutside, true), 0);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -4865,7 +4876,7 @@ function showVictory(winner,faction,turn){
 
 // ESC / right-click to cancel targeting (keydown 2 — conservé pour cancelTargeting)
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){ closeActionMenu(); }
+  if(e.key==='Escape'){ cancelActionBar(); }
   if(e.key==='Escape'&&G&&G.targeting){ cancelTargeting(); }
 });
 document.addEventListener('contextmenu',e=>{
