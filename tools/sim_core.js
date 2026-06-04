@@ -120,6 +120,8 @@ function loadGame() {
     resetAI: function(){ aiThinking = false; },
     FACTIONS,
     setAIProfile, getAIProfile,
+    FAITH_WIN, TURN_CAP,
+    DESECRATE_FAITH: (typeof DESECRATE_FAITH !== 'undefined' ? DESECRATE_FAITH : 0),
   };\n`;
   const sandbox = buildSandbox();
   vm.createContext(sandbox);
@@ -127,14 +129,14 @@ function loadGame() {
   return sandbox.__API;
 }
 
-// Constantes de fin de partie (doivent suivre game.js : FAITH_WIN=14, TURN_CAP=18).
-const FAITH_WIN = 14;
-const TURN_CAP = 18;
-const MAX_TURNS = 50; // garde-fou de terminaison du harnais
+// Garde-fou de terminaison du harnais. Les seuils de fin (FAITH_WIN / TURN_CAP)
+// sont SOURCÉS DEPUIS LE JEU (API) à chaque partie → aucune dérive si game.js change.
+const MAX_TURNS = 50;
 
 // Joue une partie complète. profiles = { 1:'RUSH', 2:'GUARD' } (défaut CONTROL).
 // Retourne un résumé + les compteurs d'observation des deux joueurs.
 async function playGame(API, seed, f1, f2, profiles) {
+  const FAITH_WIN = API.FAITH_WIN, TURN_CAP = API.TURN_CAP;
   API.resetAI();
   API.seedRNG(seed);
   API.initGame(f1, f2, 'sim');
@@ -175,4 +177,15 @@ async function playGame(API, seed, f1, f2, profiles) {
   };
 }
 
-module.exports = { loadGame, playGame, FAITH_WIN, TURN_CAP, MAX_TURNS };
+// Charge game.js avec un boot SUR MESURE exposant les noms demandés (tests).
+function loadGameCustom(names) {
+  const src = fs.readFileSync(GAME_SRC, 'utf8');
+  const list = names.map((n) => `${n}: (typeof ${n}!=='undefined'?${n}:undefined)`).join(', ');
+  const boot = `\n;globalThis.__API = { getG:function(){return G;}, ${list} };\n`;
+  const sandbox = buildSandbox();
+  vm.createContext(sandbox);
+  vm.runInContext(src + boot, sandbox, { filename: 'game.js' });
+  return sandbox.__API;
+}
+
+module.exports = { loadGame, loadGameCustom, playGame, MAX_TURNS };

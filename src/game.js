@@ -642,11 +642,17 @@ function shuffle(a) {
 
 // ── ASCENSION (C1) — infrastructure de Foi (additive, inerte tant que la Foi
 // n'augmente pas). Voir ÉTAPE C2 pour le remplissage de la jauge. ──────────
-const FAITH_WIN = 14;
+// EXPÉRIENCE (feat-ai-multistrat) : FAITH_WIN 14 → 16 (test de fermeture du
+// triangle RPS avec DESECRATE_FAITH). Une variable change à la fois.
+const FAITH_WIN = 16;
 // ── ASCENSION (C4) : Horloge céleste. Si personne n'atteint FAITH_WIN à la fin
 // du tour TURN_CAP (compteur de rounds G.turn), le joueur avec le plus de Foi
 // gagne (égalité exacte = nul). Soupape de terminaison. ──
 const TURN_CAP = 18;
+// EXPÉRIENCE : DESECRATE_FAITH — Foi gagnée par l'adversaire (le tueur) quand
+// une créature AGENOUILLÉE (qui a prié) est profanée, c.-à-d. réellement tuée
+// (combat, sort, AoE…). 0 = désactivé. Hypothèse : ouvre RAID>RUSH (Foi-des-kills).
+const DESECRATE_FAITH = 1;
 const SUPREME_GODS = {
   yokai:'Amaterasu', norse:'Odin', egyptian:'Ra', greek:'Zeus', aztec:'Huitzilopochtli'
 };
@@ -1721,6 +1727,17 @@ async function handleDeath(p, m) {
 
   // Poseidon trigger
   const opp=p===1?2:1;
+
+  // ── EXPÉRIENCE : DESECRATE_FAITH — profanation. Sanctuaire/Endure ont déjà
+  // rendu la main (survie) ; ici la créature MEURT vraiment. Si elle était
+  // agenouillée (avait prié), son meurtrier (l'adversaire `opp`) gagne de la Foi.
+  // Couvre tous les chemins de mort qui passent par handleDeath (combat/sort/AoE).
+  if(DESECRATE_FAITH && m.kneeling) {
+    const OPP = G.players[opp];
+    OPP.faith = (OPP.faith || 0) + DESECRATE_FAITH;
+    addLog(`⛧ Profanation — ${m.n} (à genoux) tué : +${DESECRATE_FAITH} Foi pour P${opp} (${OPP.faith}/${FAITH_WIN})`,'special');
+  }
+
   checkFaceDownTrigger(opp,'ally_dies',m,p);
 
   // Balder

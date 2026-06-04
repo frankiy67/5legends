@@ -132,7 +132,7 @@ function buildSandbox() {
 function loadGame() {
   const src = fs.readFileSync(GAME_SRC, 'utf8');
   // Bootstrap : expose l'API interne (ferme sur le scope du script).
-  const boot = `\n;globalThis.__API = { initGame, aiTurn, seedRNG, doEndTurn, checkVictoryBool, getG: function(){ return G; }, resetAI: function(){ aiThinking = false; }, FACTIONS };\n`;
+  const boot = `\n;globalThis.__API = { initGame, aiTurn, seedRNG, doEndTurn, checkVictoryBool, getG: function(){ return G; }, resetAI: function(){ aiThinking = false; }, FACTIONS, FAITH_WIN, TURN_CAP };\n`;
   const sandbox = buildSandbox();
   vm.createContext(sandbox);
   vm.runInContext(src + boot, sandbox, { filename: 'game.js' });
@@ -168,6 +168,8 @@ function serPlayer(P) {
 
 async function playGame(API, seed) {
   const F = API.FACTIONS;
+  // Seuils de fin SOURCÉS DEPUIS LE JEU (évite la dérive si FAITH_WIN/TURN_CAP changent).
+  const FAITH_WIN = API.FAITH_WIN, TURN_CAP = API.TURN_CAP;
   const f1 = F[(seed - 1) % F.length];
   const f2 = F[Math.floor((seed - 1) / F.length) % F.length];
 
@@ -202,10 +204,10 @@ async function playGame(API, seed) {
   // MAX_TURNS du harnais, ne devrait plus arriver puisque l'horloge conclut).
   let winner = null;
   const faith1 = G.players[1].faith || 0, faith2 = G.players[2].faith || 0;
-  if (faith1 >= 14 && faith2 >= 14) winner = 'both';
-  else if (faith1 >= 14) winner = 1;
-  else if (faith2 >= 14) winner = 2;
-  else if (G.turn > 18) { // horloge céleste : plus de Foi gagne, égalité = nul
+  if (faith1 >= FAITH_WIN && faith2 >= FAITH_WIN) winner = 'both';
+  else if (faith1 >= FAITH_WIN) winner = 1;
+  else if (faith2 >= FAITH_WIN) winner = 2;
+  else if (G.turn > TURN_CAP) { // horloge céleste : plus de Foi gagne, égalité = nul
     if (faith1 > faith2) winner = 1;
     else if (faith2 > faith1) winner = 2;
     else winner = null; // égalité exacte = nul

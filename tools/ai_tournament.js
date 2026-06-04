@@ -137,7 +137,8 @@ async function runFactionStrat(Sa, Fa) {
       gamesPerStratPair: 25 * SEEDS_STRAT * 2,
       gamesPerFactionCell: 5 * SEEDS_FAC * 2,
       totalGames: GAMES_PLAYED, seconds,
-      faithWin: 14, turnCap: 18,
+      faithWin: API.FAITH_WIN, turnCap: API.TURN_CAP,
+      desecrateFaith: API.DESECRATE_FAITH,
     },
     stratMatrix, pairMeta, mirror, factionStrat,
   };
