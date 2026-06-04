@@ -653,6 +653,15 @@ const TURN_CAP = 18;
 // une créature AGENOUILLÉE (qui a prié) est profanée, c.-à-d. réellement tuée
 // (combat, sort, AoE…). 0 = désactivé. Hypothèse : ouvre RAID>RUSH (Foi-des-kills).
 const DESECRATE_FAITH = 1;
+// EXPÉRIENCE : compensation du 2e joueur. J1 démarre toujours à 0 Foi ; J2 démarre
+// à P2_START_FAITH (le « jeton de Foi » du second joueur). Calibrée pour viser
+// ~50-54 % de victoires J2 en miroir dans un monde riche en sources de Foi
+// (Ferveur + DESECRATE_FAITH). Historiquement = 2. `let` + setter pour pouvoir
+// la SWEEPER proprement depuis les harnais (la valeur par défaut reste 2 → prod
+// et golden inchangés tant qu'on n'appelle pas setP2StartFaith).
+let P2_START_FAITH = 2;
+function setP2StartFaith(v) { P2_START_FAITH = (v == null ? 2 : v); }
+function getP2StartFaith() { return P2_START_FAITH; }
 const SUPREME_GODS = {
   yokai:'Amaterasu', norse:'Odin', egyptian:'Ra', greek:'Zeus', aztec:'Huitzilopochtli'
 };
@@ -712,8 +721,8 @@ function initGame(f1, f2, mode) {
       golems: [],
       balderActive: false,
       // ASCENSION (C1) : jauge de Foi (inerte en C1) + Dieu Suprême de la faction.
-      // Pièce de Foi du 2e joueur : J1=0, J2=2. Affectation silencieuse (aucun log).
-      faith: p===1 ? 0 : 2,
+      // Pièce de Foi du 2e joueur : J1=0, J2=P2_START_FAITH. Affectation silencieuse.
+      faith: p===1 ? 0 : P2_START_FAITH,
       supremeGod: SUPREME_GODS[f] || 'Dieu Suprême',
     };
   }

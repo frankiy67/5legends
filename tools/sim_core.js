@@ -122,6 +122,8 @@ function loadGame() {
     setAIProfile, getAIProfile,
     FAITH_WIN, TURN_CAP,
     DESECRATE_FAITH: (typeof DESECRATE_FAITH !== 'undefined' ? DESECRATE_FAITH : 0),
+    setP2StartFaith: (typeof setP2StartFaith !== 'undefined' ? setP2StartFaith : function(){}),
+    getP2StartFaith: (typeof getP2StartFaith !== 'undefined' ? getP2StartFaith : function(){ return 2; }),
   };\n`;
   const sandbox = buildSandbox();
   vm.createContext(sandbox);
@@ -135,10 +137,13 @@ const MAX_TURNS = 50;
 
 // Joue une partie complète. profiles = { 1:'RUSH', 2:'GUARD' } (défaut CONTROL).
 // Retourne un résumé + les compteurs d'observation des deux joueurs.
-async function playGame(API, seed, f1, f2, profiles) {
+async function playGame(API, seed, f1, f2, profiles, p2faith) {
   const FAITH_WIN = API.FAITH_WIN, TURN_CAP = API.TURN_CAP;
   API.resetAI();
   API.seedRNG(seed);
+  // Compensation J2 : toujours fixée explicitement (défaut 2) → aucune fuite
+  // d'état entre configurations d'un sweep. Doit précéder initGame.
+  API.setP2StartFaith(p2faith == null ? 2 : p2faith);
   API.initGame(f1, f2, 'sim');
   API.setAIProfile(1, (profiles && profiles[1]) || 'CONTROL');
   API.setAIProfile(2, (profiles && profiles[2]) || 'CONTROL');
