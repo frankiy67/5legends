@@ -135,19 +135,16 @@ function loadGame() {
 // sont SOURCÉS DEPUIS LE JEU (API) à chaque partie → aucune dérive si game.js change.
 const MAX_TURNS = 50;
 
-// BRIQUE 2 : décision du vainqueur, PURE et testable. Reproduit l'ordre de
-// checkVictory : Foi (priorité absolue) → PV<=0 (adversaire gagne ; p=1 testé en
-// premier) → horloge (plus de Foi, puis plus de PV, sinon nul).
+// PHASE A (brique 6) : décision du vainqueur, PURE et testable. Reproduit l'ordre
+// de checkVictory : Foi (priorité) → horloge (plus de Foi, sinon nul). Plus de PV.
+// (h1/h2 conservés dans la signature pour compatibilité, mais ignorés.)
 function decideWinner(f1, f2, h1, h2, turn, FAITH_WIN, TURN_CAP) {
   if (f1 >= FAITH_WIN && f2 >= FAITH_WIN) return { winner: 'both', endReason: 'faith' };
   if (f1 >= FAITH_WIN) return { winner: 1, endReason: 'faith' };
   if (f2 >= FAITH_WIN) return { winner: 2, endReason: 'faith' };
-  if (h1 <= 0) return { winner: 2, endReason: 'hp' };   // checkVictory teste p=1 d'abord
-  if (h2 <= 0) return { winner: 1, endReason: 'hp' };
   if (turn > TURN_CAP) {
     if (f1 !== f2) return { winner: f1 > f2 ? 1 : 2, endReason: 'clock' };
-    if (h1 !== h2) return { winner: h1 > h2 ? 1 : 2, endReason: 'clock' };
-    return { winner: null, endReason: 'clock' }; // Foi ET PV égaux = nul
+    return { winner: null, endReason: 'clock' }; // Foi égale = nul
   }
   return { winner: null, endReason: 'timeout' };
 }

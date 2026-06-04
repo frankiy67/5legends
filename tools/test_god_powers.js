@@ -11,7 +11,7 @@ const { loadGameCustom } = require('./sim_core.js');
 const API = loadGameCustom([
   'initGame', 'seedRNG', 'newCard', 'activateGodPower', 'canActivateGod',
   'godPowerUsable', 'clearCycleBuffs', 'doPray', 'handleDeath',
-  'GOD_POWER_COST', 'PLAYER_HP',
+  'GOD_POWER_COST',
 ]);
 
 let pass = 0, fail = 0;
@@ -43,9 +43,11 @@ function put(G, p, { atk = 3, def = 3 } = {}) {
     check('  permanent (base modifiée)', m.atk === 4 && m.def === 5); }
   // 3 vision
   { const G = setup('vision'); const before = G.players[1].hand.length; await API.activateGodPower(1); check('vision : +1 carte', G.players[1].hand.length === before + 1); }
-  // 4 guerison
-  { const G = setup('guerison'); G.players[1].hp = 18; await API.activateGodPower(1); check('guerison : +3 PV', G.players[1].hp === 21, `(${G.players[1].hp})`);
-    G.players[1].godUsedThisTurn = false; G.players[1].hp = 24; await API.activateGodPower(1); check('guerison : plafonné à PLAYER_HP', G.players[1].hp === 25); }
+  // 4 invocation_mineure (remplace guerison) : crée un jeton 1/1 avec mal d'invocation
+  { const G = setup('invocation_mineure'); const n0 = G.players[1].field.length; await API.activateGodPower(1);
+    check('invocation_mineure : +1 créature', G.players[1].field.length === n0 + 1);
+    const tok = G.players[1].field[G.players[1].field.length - 1];
+    check('  jeton 1/1 + mal d\'invocation', tok.cAtk === 1 && tok.cDef === 1 && G.players[1].summoned.has(G.players[1].field.length - 1)); }
   // 5 inspiration (temp)
   { const G = setup('inspiration'); const m = put(G, 1, { atk: 3, def: 4 }); await API.activateGodPower(1, 1, 0);
     check('inspiration : +2 ATK', m.cAtk === 5, `(${m.cAtk})`);

@@ -662,9 +662,10 @@ const DESECRATE_FAITH = 1;
 let P2_START_FAITH = 2;
 function setP2StartFaith(v) { P2_START_FAITH = (v == null ? 2 : v); }
 function getP2StartFaith() { return P2_START_FAITH; }
-// BRIQUE 2 : PV joueur rétablis. Les deux joueurs démarrent à PLAYER_HP ; tomber
-// à 0 PV est une 2e condition de défaite (en plus de l'Ascension à la Foi).
-const PLAYER_HP = 25;
+// BRIQUE 6 (PHASE A) : PV joueurs retirés du gameplay. Le champ player.hp reste
+// VESTIGIAL (initialisé à 25) car des effets de cartes (vol de vie, soin, dégâts
+// directs) l'écrivent encore — mais il n'a plus AUCUN rôle de victoire ni d'attaque
+// au visage ni d'affichage. (cf. note ci-dessus, héritée de C3.)
 const SUPREME_GODS = {
   yokai:'Amaterasu', norse:'Odin', egyptian:'Ra', greek:'Zeus', aztec:'Huitzilopochtli'
 };
@@ -717,7 +718,7 @@ function initGame(f1, f2, mode) {
     G.players[p] = {
       id: p,
       faction: f,
-      hp: PLAYER_HP,
+      hp: 25,   // vestigial (cf. PHASE A) — écrit par des effets de cartes, sans rôle de victoire
       maxGems: 1,
       gems: 1,
       field: [],
@@ -910,15 +911,12 @@ const CYCLE_KEYS = ['aube','zenith','crepuscule','nuit','tempete'];
 const FACTION_LABEL = {egyptian:'Égyptien 🏺',greek:'Grec 🏛',aztec:'Aztèque 🌞',yokai:'Yokai 🦊',norse:'Norse ⚡'};
 const FACTION_COLOR = {egyptian:'#2090d0',greek:'#9050c0',aztec:'#c8a010',yokai:'#d04030',norse:'#7090b0'};
 
-// ── Rubber-band : le joueur actif est-il EN RETARD ? (Foi prioritaire, puis PV) ─
+// ── Rubber-band : le joueur actif est-il EN RETARD ? (PHASE A : Foi SEULE) ─────
 function isBehind(p) {
   if(!G) return false;
   const opp = p===1?2:1;
   const fp = G.players[p].faith||0, fo = G.players[opp].faith||0;
-  if(fp !== fo) return fp < fo;                 // moins de Foi = en retard
-  const hp = G.players[p].hp, ho = G.players[opp].hp;
-  if(hp !== ho) return hp < ho;                 // Foi égale → moins de PV = en retard
-  return false;                                  // tout égal → personne en retard
+  return fp < fo;                                // moins de Foi = en retard ; égalité = personne
 }
 // Tirage pondéré : joueur EN RETARD → cycles « comeback » poids 2, « aggressif »
 // poids 1 (~75% comeback). Sinon poids égaux (20% chacun).
@@ -1057,7 +1055,7 @@ const GOD_POWERS = [
   { id:'frappe_divine',  name:'Frappe divine',  icon:'⚡', desc:'2 dégâts à une créature ennemie.',            target:'enemy'  },
   { id:'benediction',    name:'Bénédiction',    icon:'✨', desc:'+1/+1 permanent à une de tes créatures.',     target:'ally'   },
   { id:'vision',         name:'Vision',         icon:'👁️', desc:'Pioche 1 carte.',                             target:'instant'},
-  { id:'guerison',       name:'Guérison',       icon:'💚', desc:'+3 PV à ton héros.',                          target:'instant'},
+  { id:'invocation_mineure', name:'Invocation mineure', icon:'🐣', desc:'Crée un jeton 1/1 sur ton terrain (mal d\'invocation).', target:'instant'},
   { id:'inspiration',    name:'Inspiration',    icon:'🔥', desc:'+2 ATK à une créature ce tour.',              target:'ally'   },
   { id:'bouclier',       name:'Bouclier',       icon:'🛡️', desc:'+2 DEF à une créature ce tour.',              target:'ally'   },
   { id:'zele',           name:'Zèle',           icon:'🏃', desc:"Retire le mal d'invocation d'une créature.",  target:'ally'   },
@@ -1094,7 +1092,8 @@ function godPowerUsable(p) {
     case 'benediction': case 'inspiration': case 'bouclier': return myCr.length>0;
     case 'zele':         return P.field.some((m,i)=>m&&!m.faceDown&&P.summoned.has(i)&&!(m.cap||'').includes('hurry'));
     case 'resurrection': return !!P._lastDead && P.field.length<6;
-    default:             return true; // vision, guerison, priere_exaltee
+    case 'invocation_mineure': return P.field.length<6;   // PHASE A : besoin de place
+    default:             return true; // vision, priere_exaltee
   }
 }
 // Activable maintenant ? (dieu présent, pas déjà utilisé, assez de gems, utile, son tour)
@@ -1118,9 +1117,12 @@ async function applyGodPower(p, targetP, targetIdx) {
     if(m){ m.cAtk+=1; m.cDef+=1; m.atk=(m.atk||0)+1; m.def=(m.def||0)+1; addLog(`✨ Bénédiction — ${m.n} +1/+1 permanent.`,'buff'); }
   } else if(id==='vision') {
     drawCard(p); addLog('👁️ Vision — pioche 1 carte.','buff');
-  } else if(id==='guerison') {
-    P.hp=Math.min(PLAYER_HP, P.hp+3); addLog(`💚 Guérison — +3 PV (❤${P.hp}).`,'heal');
-    const el=document.getElementById(`p${p}-orb`); if(el) showFloatHeal(3, el);
+  } else if(id==='invocation_mineure') {
+    if(P.field.length<6) {
+      const tok = newCard({id:'GOD_TOKEN', n:'Jeton 1/1', atk:1, def:1, cost:0, type:'monster', cap:'', txt:'', rarity:'common', faction:P.faction});
+      tok.cAtk=1; tok.cDef=1; P.field.push(tok); P.summoned.add(P.field.length-1);
+      addLog('🐣 Invocation mineure — jeton 1/1 (mal d\'invocation).','event');
+    }
   } else if(id==='inspiration') {
     const m = P.field[targetIdx]; if(m){ m.cAtk+=2; m._cycleAtk=(m._cycleAtk||0)+2; addLog(`🔥 Inspiration — ${m.n} +2 ATK ce tour.`,'buff'); }
   } else if(id==='bouclier') {
@@ -1190,7 +1192,7 @@ async function aiUseGodPower(p) {
     case 'frappe_divine': { const k=enemyCr.find(x=>x.m.cDef<=2); if(k){ go=true; tp=opp; ti=k.i; } break; }
     case 'benediction':   { if(myCr.length){ const b=myCr.reduce((a,c)=>c.m.cAtk>a.m.cAtk?c:a); go=true; tp=p; ti=b.i; } break; }
     case 'vision':        if(P.hand.length<=2) go=true; break;
-    case 'guerison':      if(P.hp<=15) go=true; break;
+    case 'invocation_mineure': if(P.field.filter(m=>m&&!m.faceDown).length<=2 && P.field.length<6) go=true; break;
     case 'inspiration':   { if(myCr.length && enemyCr.length){ const b=myCr.reduce((a,c)=>c.m.cAtk>a.m.cAtk?c:a); go=true; tp=p; ti=b.i; } break; }
     case 'bouclier':      { if(myCr.length){ const w=myCr.reduce((a,c)=>c.m.cDef<a.m.cDef?c:a); go=true; tp=p; ti=w.i; } break; }
     case 'zele':          { const s=myCr.find(x=>P.summoned.has(x.i)&&!(x.m.cap||'').includes('hurry')); if(s && enemyCr.length){ go=true; tp=p; ti=s.i; } break; }
@@ -2985,16 +2987,8 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
     targetIdx = finalTargetIdx;
 
     if(targetIdx==='player') {
-      // BRIQUE 2 : attaque au visage rétablie. Dégâts = attaque de la créature,
-      // retirés des PV du joueur ennemi. Le vol de vie (heal) reste cohérent avec
-      // le combat créature (effet de carte inchangé). Pas de Ferveur sur le visage.
-      DP.hp -= atkVal;
-      addLog(`${atk.n} attaque P${targetP} au visage — ${atkVal} dégâts (❤${DP.hp})`,'dmg');
-      const orbEl = document.getElementById(`p${targetP}-orb`);
-      showFloatDmg(atkVal, orbEl, '#e74c3c');
-      const hpbar = document.getElementById(`p${targetP}-hpbar`);
-      if(hpbar) { hpbar.style.boxShadow='inset 0 0 20px rgba(231,76,60,0.9)'; setTimeout(()=>{ if(hpbar) hpbar.style.boxShadow=''; },400); }
-      if(hasHeal) { Audio5L.sfx.heal(); AP.hp=Math.min(PLAYER_HP,AP.hp+atkVal); addLog(`Soin — P${attackerP} +${atkVal} PV`,'heal'); showFloatHeal(atkVal, document.getElementById(`p${attackerP}-orb`)); }
+      // PHASE A : plus de dégâts au visage. Les attaques ne ciblent QUE des
+      // créatures — cette branche ne doit plus être atteinte (no-op de sûreté).
       return;
     } else {
       let def = DP.field[targetIdx];
@@ -3217,8 +3211,8 @@ async function pickTarget(type, p, isEntry, card=null) {
 // VICTORY CHECK
 // =====================================================
 function checkVictory() {
-  // ── ASCENSION (C3) : la Foi est la SEULE victoire. Plus de victoire/défaite
-  // par PV (retirée en C3 — hp<=0 ne fait plus ni gagner ni perdre). ──
+  // ── PHASE A : la Foi est la SEULE victoire (Foi>=FAITH_WIN), sinon horloge.
+  // Plus de victoire/défaite par PV. ──
   for(let p=1;p<=2;p++) {
     if((G.players[p].faith||0) >= FAITH_WIN) {
       const P=G.players[p];
@@ -3232,41 +3226,22 @@ function checkVictory() {
       return;
     }
   }
-  // ── BRIQUE 2 : 2e condition — un joueur à 0 PV → l'adversaire gagne. La Foi est
-  // évaluée AVANT (boucle ci-dessus) → priorité à la Foi en cas de simultanéité. ──
-  for(let p=1;p<=2;p++) {
-    if(G.players[p].hp <= 0) {
-      const w = p===1?2:1; // l'adversaire du joueur à 0 PV gagne
-      const P=G.players[w];
-      if(G.mode!=='pve' || w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
-      const titleEl=document.getElementById('vic-title');
-      titleEl.textContent = `${P.supremeGod} terrasse l'adversaire !`;
-      titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
-      document.getElementById('vic-sub').textContent=`${(G.players[p].faction||'').toUpperCase()} tombe à 0 PV au tour ${G.turn}`;
-      document.getElementById('victory').style.display='flex';
-      return;
-    }
-  }
-  // ── ASCENSION (C4) : HORLOGE CÉLESTE — fin du tour TURN_CAP sans Ascension :
-  // départage = plus haute Foi ; à Foi égale, plus de PV ; sinon match nul. ──
+  // ── HORLOGE CÉLESTE — fin du tour TURN_CAP sans Ascension : le joueur avec le
+  // PLUS de Foi gagne (égalité de Foi = match nul). PHASE A : plus de départage PV. ──
   if(G.turn > TURN_CAP) {
     const f1=G.players[1].faith||0, f2=G.players[2].faith||0;
-    const h1=G.players[1].hp, h2=G.players[2].hp;
     const titleEl=document.getElementById('vic-title');
-    if(f1===f2 && h1===h2) {
+    if(f1===f2) {
       titleEl.textContent = `Match nul — l'horloge céleste a sonné`;
       titleEl.classList.remove('defeat');
-      document.getElementById('vic-sub').textContent=`Égalité de Foi (${f1}/${FAITH_WIN}) et de PV (${h1}) au tour ${G.turn}`;
+      document.getElementById('vic-sub').textContent=`Égalité de Foi (${f1}/${FAITH_WIN}) au tour ${G.turn}`;
     } else {
-      const w = (f1!==f2) ? (f1>f2 ? 1 : 2) : (h1>h2 ? 1 : 2);
+      const w = f1>f2 ? 1 : 2;
       const P=G.players[w];
       if(G.mode!=='pve' || w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
       titleEl.textContent = `${P.supremeGod} l'emporte à l'horloge !`;
       titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
-      const reason = (f1!==f2)
-        ? `Plus de Foi à l'horloge — ${(P.faction||'').toUpperCase()} ${Math.max(f1,f2)}/${FAITH_WIN} vs ${Math.min(f1,f2)}`
-        : `Foi égale (${f1}/${FAITH_WIN}) — départage aux PV : ${(P.faction||'').toUpperCase()} ${Math.max(h1,h2)} vs ${Math.min(h1,h2)}`;
-      document.getElementById('vic-sub').textContent=reason;
+      document.getElementById('vic-sub').textContent=`Plus de Foi à l'horloge céleste — ${(P.faction||'').toUpperCase()} ${Math.max(f1,f2)}/${FAITH_WIN} vs ${Math.min(f1,f2)}`;
     }
     document.getElementById('victory').style.display='flex';
   }
@@ -3661,12 +3636,6 @@ function aiPrayPhase(p=2) {
     && !P.attacked.has(i)
     && (!P.summoned.has(i) || (m.cap||'').includes('hurry')));
   if(eligible.length === 0) return;
-  // ── BRIQUE 2 — IA MINIMALE : si un kill létal au visage est disponible CE TOUR
-  // (aucune gardienne Taunt adverse, puissance d'attaque éligible >= PV adverse),
-  // on NE prie PAS — on garde les attaquants pour le coup fatal (aiCombatPhase). ──
-  const oppHasProtect = OP.field.some(m => m && (m.cap||'').includes('protect') && !m.faceDown && !m.asleep && !m.kneeling);
-  const eligibleAtk = eligible.reduce((s,{m}) => s + (m.cAtk||0), 0);
-  if(!oppHasProtect && OP.hp > 0 && eligibleAtk >= OP.hp) return;
   // menace = créatures adverses visibles pouvant attaquer (non agenouillées)
   const enemyThreat = OP.field.filter(m => m && !m.faceDown && !m.asleep && !m.kneeling).length;
   // ── IA MULTI-STRATÉGIES : combien de défenseurs garder en réserve (keepN) ──
@@ -3801,15 +3770,9 @@ function pickAITarget(targetP, attackerP=2) {
     return prot ? prot.i : (alive.length ? alive[0].i : null);
   }
 
-  // ── BRIQUE 2 — IA MINIMALE : ne JAMAIS rater un kill létal au visage. Si aucune
-  // gardienne (Taunt) ne protège l'adversaire et que la puissance d'attaque totale
-  // restante suffit à le mettre à 0 PV, on va au visage. (Sinon, comportement
-  // inchangé : on cible les créatures. La pression au visage non-létale viendra à
-  // l'équilibrage.) ──
-  const totalRemainingAtk = myAttackers.reduce((s,x)=>s+(x.m.cAtk||0),0);
-  if(!hasProtect && TP.hp > 0 && totalRemainingAtk >= TP.hp) return 'player';
-
-  if(alive.length === 0) return null;   // pas de créature à attaquer ET pas de létal → pas de cible
+  // PHASE A : plus de coup au visage. L'IA n'attaque QUE des créatures ; si
+  // l'adversaire n'en a aucune (ciblable), pas de cible.
+  if(alive.length === 0) return null;
 
   // ── IA MULTI-STRATÉGIES : ciblage RAID (profanation + déni de Ferveur) ──
   // No-op pour les autres profils → CONTROL inchangé.
@@ -3937,10 +3900,9 @@ function aiPickTarget(type, p, card) {
 }
 
 function checkVictoryBool() {
-  // BRIQUE 2 : fin de partie = Ascension (Foi>=FAITH_WIN) OU un joueur à 0 PV
-  // OU horloge céleste (tour TURN_CAP dépassé).
+  // PHASE A : fin de partie = Ascension (Foi>=FAITH_WIN) OU horloge céleste
+  // (tour TURN_CAP dépassé). Plus de fin par PV.
   return (G.players[1].faith||0) >= FAITH_WIN || (G.players[2].faith||0) >= FAITH_WIN
-    || G.players[1].hp <= 0 || G.players[2].hp <= 0
     || G.turn > TURN_CAP;
 }
 
@@ -4147,9 +4109,7 @@ function startAttackTargeting(attacker, p, idx) {
     if(attackTargetable(opp, m)) el.classList.add('valid-target-dmg');  // ÉGIDE : agenouillé protégé non marqué
   });
 
-  // BRIQUE 2 : le visage adverse est ciblable s'il n'y a pas de gardienne (Taunt).
-  const oppBar = document.getElementById(`p${opp}-bar`);
-  if(oppBar && !hasProtect) oppBar.classList.add('targetable');
+  // PHASE A : le visage n'est plus ciblable — les attaques ne visent que les créatures.
 
   // Show hint
   const hint = document.getElementById('targeting-hint');
@@ -4329,20 +4289,12 @@ function resolvePlayerTarget(targetP) {
   stopTargeting();
 
   if(t.mode==='attack') {
-    // BRIQUE 2 : attaque au visage rétablie, soumise au Taunt (gardienne Protect
-    // non-agenouillée → visage interdit tant qu'elle vit).
-    const {p, idx, opp} = t;
-    const oppHasProtect = G.players[opp].field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep&&!m.kneeling);
+    // PHASE A : plus d'attaque au visage. On clôt proprement le flux (notamment la
+    // 2e frappe) sans infliger de dégâts au joueur.
     if(window._hitStrikeResolve) {
       const resolve = window._hitStrikeResolve;
       window._hitStrikeResolve = null;
-      if(!oppHasProtect) doAttack(p, idx, opp, 'player', true);
-      else addLog('Gardienne (Taunt) en jeu — visage protégé.','warn');
       resolve();
-    } else if(!oppHasProtect) {
-      doAttack(p, idx, opp, 'player');
-    } else {
-      addLog('Gardienne (Taunt) en jeu — détruisez-la avant d\'attaquer le visage.','warn');
     }
   } else if(t.mode==='card') {
     if(t.pendingResolve) {
@@ -4679,15 +4631,7 @@ function renderAll() {
       atkModal.style.display='none'; G.selAtk=null;
     }
   }
-  // BRIQUE 2 : réapplique le marquage « visage ciblable » après un re-render en
-  // mode attaque (sauf gardienne Taunt).
-  if(G.targeting && G.targeting.mode==='attack') {
-    const opp=G.targeting.opp;
-    const OP=G.players[opp];
-    const hasProtect=OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep&&!m.kneeling);
-    const oppBar=document.getElementById(`p${opp}-bar`);
-    if(oppBar && !hasProtect) oppBar.classList.add('targetable');
-  }
+  // PHASE A : le visage n'est plus ciblable en attaque (réapplication retirée).
   // Re-apply card targeting markers
   if(G.targeting && G.targeting.mode==='card') {
     const {cap,p,opp}=G.targeting;
@@ -4719,23 +4663,7 @@ function renderPlayerBar(p) {
   const bar = document.getElementById(`p${p}-bar`);
   if (bar) bar.dataset.faction = P.faction||'';
 
-  // BRIQUE 2 : orbe PV rétablie (2e condition de victoire).
-  const maxHp = PLAYER_HP;
-  const pct = Math.max(0, P.hp / maxHp * 100);
-  const hpColor = pct > 50 ? '#2ecc71' : pct > 25 ? '#e67e22' : '#e74c3c';
-  const hpGlow  = pct > 50 ? 'rgba(46,204,113,0.7)' : pct > 25 ? 'rgba(230,126,34,0.7)' : 'rgba(231,76,60,0.7)';
-  const orb = document.getElementById(`p${p}-orb`);
-  if (orb) {
-    orb.style.background = `radial-gradient(circle at 38% 32%, ${hpColor}dd 0%, ${hpColor}88 45%, ${hpColor}22 100%)`;
-    orb.style.color = hpColor;
-    orb.style.boxShadow = `0 0 0 2px rgba(255,255,255,0.06), 0 0 0 4px rgba(0,0,0,0.5), 0 0 18px ${hpGlow}, inset 0 3px 10px rgba(255,255,255,0.18), inset 0 -3px 8px rgba(0,0,0,0.5)`;
-    orb.style.setProperty('--hp', pct);          // anneau qui se vide
-    orb.classList.toggle('low-hp', P.hp < 10);   // glow rouge critique
-  }
-  const hpEl = document.getElementById(`p${p}-hp`);
-  if (hpEl) hpEl.textContent = P.hp;
-  const hpBar = document.getElementById(`p${p}-hpbar`);
-  if (hpBar) { hpBar.style.width = `${pct}%`; hpBar.style.background = hpColor; }
+  // PHASE A : orbe PV retirée (la Foi est la seule jauge ; hp reste vestigial).
 
   const gemsEl = document.getElementById(`p${p}-gems`);
   if (gemsEl) {
