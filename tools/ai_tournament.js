@@ -11,10 +11,10 @@
  *   3. Passe faction × stratégie : win rate de chaque (faction, stratégie) contre
  *      CONTROL (étalon), factions adverses balayées, sièges équilibrés.
  *
- * Écrit tools/ai_tournament_results.json (consommé par ai_report.js, Phase 4).
+ * Écrit le JSON de résultats (consommé par ai_report.js, Phase 4).
  * Ne MESURE que — ne change ni cartes ni factions.
  *
- * Usage: node tools/ai_tournament.js [seedsStrat=100] [seedsFaction=40]
+ * Usage: node tools/ai_tournament.js [seedsStrat=100] [seedsFaction=40] [out.json]
  */
 const fs = require('fs');
 const path = require('path');
@@ -142,7 +142,9 @@ async function runFactionStrat(Sa, Fa) {
     },
     stratMatrix, pairMeta, mirror, factionStrat,
   };
-  const OUT = path.join(__dirname, 'ai_tournament_results.json');
+  const OUT = process.argv[4]
+    ? path.resolve(process.argv[4])
+    : path.join(__dirname, 'ai_tournament_results.json');
   fs.writeFileSync(OUT, JSON.stringify(out, null, 1));
   console.log(`\n✓ ${GAMES_PLAYED} parties en ${seconds}s → ${path.relative(path.resolve(__dirname, '..'), OUT)}`);
 })().catch((e) => { console.error(e); process.exit(1); });
