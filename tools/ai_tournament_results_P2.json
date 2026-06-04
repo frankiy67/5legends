@@ -1,0 +1,321 @@
+{
+ "meta": {
+  "strategies": [
+   "CONTROL",
+   "RUSH",
+   "GUARD",
+   "RAID"
+  ],
+  "factions": [
+   "yokai",
+   "norse",
+   "egyptian",
+   "greek",
+   "aztec"
+  ],
+  "seedsStrat": 100,
+  "seedsFaction": 40,
+  "gamesPerStratPair": 5000,
+  "gamesPerFactionCell": 400,
+  "totalGames": 42000,
+  "seconds": 425.4,
+  "faithWin": 16,
+  "turnCap": 18,
+  "desecrateFaith": 1,
+  "p2StartFaith": 0
+ },
+ "stratMatrix": {
+  "CONTROL": {
+   "RUSH": 0.5546,
+   "GUARD": 0.5234,
+   "RAID": 0.51
+  },
+  "RUSH": {
+   "CONTROL": 0.4446,
+   "GUARD": 0.4642,
+   "RAID": 0.5938
+  },
+  "GUARD": {
+   "CONTROL": 0.4682,
+   "RUSH": 0.5358,
+   "RAID": 0.4658
+  },
+  "RAID": {
+   "CONTROL": 0.4834,
+   "RUSH": 0.405,
+   "GUARD": 0.5198
+  }
+ },
+ "pairMeta": {
+  "CONTROL|RUSH": {
+   "games": 5000,
+   "winA": 2773,
+   "winB": 2223,
+   "draws": 4,
+   "winRateA": 0.5546,
+   "winRateB": 0.4446,
+   "drawPct": 0.0008,
+   "avgTurn": 7.5224,
+   "clockPct": 0
+  },
+  "CONTROL|GUARD": {
+   "games": 5000,
+   "winA": 2617,
+   "winB": 2341,
+   "draws": 42,
+   "winRateA": 0.5234,
+   "winRateB": 0.4682,
+   "drawPct": 0.0084,
+   "avgTurn": 12.142,
+   "clockPct": 0.079
+  },
+  "CONTROL|RAID": {
+   "games": 5000,
+   "winA": 2550,
+   "winB": 2417,
+   "draws": 33,
+   "winRateA": 0.51,
+   "winRateB": 0.4834,
+   "drawPct": 0.0066,
+   "avgTurn": 12.41,
+   "clockPct": 0.092
+  },
+  "RUSH|GUARD": {
+   "games": 5000,
+   "winA": 2321,
+   "winB": 2679,
+   "draws": 0,
+   "winRateA": 0.4642,
+   "winRateB": 0.5358,
+   "drawPct": 0,
+   "avgTurn": 8.2706,
+   "clockPct": 0
+  },
+  "RUSH|RAID": {
+   "games": 5000,
+   "winA": 2969,
+   "winB": 2025,
+   "draws": 6,
+   "winRateA": 0.5938,
+   "winRateB": 0.405,
+   "drawPct": 0.0012,
+   "avgTurn": 10.207,
+   "clockPct": 0.003
+  },
+  "GUARD|RAID": {
+   "games": 5000,
+   "winA": 2329,
+   "winB": 2599,
+   "draws": 72,
+   "winRateA": 0.4658,
+   "winRateB": 0.5198,
+   "drawPct": 0.0144,
+   "avgTurn": 13.437,
+   "clockPct": 0.1626
+  }
+ },
+ "mirror": {
+  "CONTROL": {
+   "games": 1000,
+   "p1Wins": 258,
+   "p2Wins": 741,
+   "draws": 1,
+   "avgTurn": 10.681,
+   "clockPct": 0.019
+  },
+  "RUSH": {
+   "games": 1000,
+   "p1Wins": 259,
+   "p2Wins": 741,
+   "draws": 0,
+   "avgTurn": 6.422,
+   "clockPct": 0
+  },
+  "GUARD": {
+   "games": 1000,
+   "p1Wins": 289,
+   "p2Wins": 694,
+   "draws": 17,
+   "avgTurn": 13.707,
+   "clockPct": 0.198
+  },
+  "RAID": {
+   "games": 1000,
+   "p1Wins": 273,
+   "p2Wins": 718,
+   "draws": 9,
+   "avgTurn": 13.793,
+   "clockPct": 0.182
+  }
+ },
+ "factionStrat": {
+  "CONTROL": {
+   "yokai": {
+    "games": 400,
+    "wins": 189,
+    "draws": 0,
+    "winRate": 0.4725,
+    "avgTurn": 11.3375,
+    "clockPct": 0.015
+   },
+   "norse": {
+    "games": 400,
+    "wins": 276,
+    "draws": 0,
+    "winRate": 0.69,
+    "avgTurn": 10.74,
+    "clockPct": 0.0225
+   },
+   "egyptian": {
+    "games": 400,
+    "wins": 220,
+    "draws": 1,
+    "winRate": 0.55,
+    "avgTurn": 9.345,
+    "clockPct": 0.0025
+   },
+   "greek": {
+    "games": 400,
+    "wins": 155,
+    "draws": 1,
+    "winRate": 0.3875,
+    "avgTurn": 11.1975,
+    "clockPct": 0.0225
+   },
+   "aztec": {
+    "games": 400,
+    "wins": 159,
+    "draws": 0,
+    "winRate": 0.3975,
+    "avgTurn": 10.785,
+    "clockPct": 0.0325
+   }
+  },
+  "RUSH": {
+   "yokai": {
+    "games": 400,
+    "wins": 152,
+    "draws": 0,
+    "winRate": 0.38,
+    "avgTurn": 7.89,
+    "clockPct": 0
+   },
+   "norse": {
+    "games": 400,
+    "wins": 205,
+    "draws": 0,
+    "winRate": 0.5125,
+    "avgTurn": 7.27,
+    "clockPct": 0
+   },
+   "egyptian": {
+    "games": 400,
+    "wins": 215,
+    "draws": 1,
+    "winRate": 0.5375,
+    "avgTurn": 7.0475,
+    "clockPct": 0
+   },
+   "greek": {
+    "games": 400,
+    "wins": 157,
+    "draws": 0,
+    "winRate": 0.3925,
+    "avgTurn": 7.49,
+    "clockPct": 0
+   },
+   "aztec": {
+    "games": 400,
+    "wins": 144,
+    "draws": 0,
+    "winRate": 0.36,
+    "avgTurn": 7.67,
+    "clockPct": 0
+   }
+  },
+  "GUARD": {
+   "yokai": {
+    "games": 400,
+    "wins": 170,
+    "draws": 3,
+    "winRate": 0.425,
+    "avgTurn": 13.06,
+    "clockPct": 0.125
+   },
+   "norse": {
+    "games": 400,
+    "wins": 280,
+    "draws": 2,
+    "winRate": 0.7,
+    "avgTurn": 12.74,
+    "clockPct": 0.1125
+   },
+   "egyptian": {
+    "games": 400,
+    "wins": 223,
+    "draws": 2,
+    "winRate": 0.5575,
+    "avgTurn": 10.83,
+    "clockPct": 0.0275
+   },
+   "greek": {
+    "games": 400,
+    "wins": 132,
+    "draws": 5,
+    "winRate": 0.33,
+    "avgTurn": 12.555,
+    "clockPct": 0.11
+   },
+   "aztec": {
+    "games": 400,
+    "wins": 139,
+    "draws": 2,
+    "winRate": 0.3475,
+    "avgTurn": 12.54,
+    "clockPct": 0.11
+   }
+  },
+  "RAID": {
+   "yokai": {
+    "games": 400,
+    "wins": 195,
+    "draws": 4,
+    "winRate": 0.4875,
+    "avgTurn": 13.0925,
+    "clockPct": 0.115
+   },
+   "norse": {
+    "games": 400,
+    "wins": 284,
+    "draws": 3,
+    "winRate": 0.71,
+    "avgTurn": 13.0075,
+    "clockPct": 0.12
+   },
+   "egyptian": {
+    "games": 400,
+    "wins": 200,
+    "draws": 1,
+    "winRate": 0.5,
+    "avgTurn": 11.4625,
+    "clockPct": 0.0375
+   },
+   "greek": {
+    "games": 400,
+    "wins": 155,
+    "draws": 2,
+    "winRate": 0.3875,
+    "avgTurn": 12.98,
+    "clockPct": 0.1225
+   },
+   "aztec": {
+    "games": 400,
+    "wins": 152,
+    "draws": 4,
+    "winRate": 0.38,
+    "avgTurn": 12.485,
+    "clockPct": 0.095
+   }
+  }
+ }
+}

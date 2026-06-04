@@ -25,6 +25,9 @@ const FACTIONS = ['yokai', 'norse', 'egyptian', 'greek', 'aztec'];
 const STRATS = ['CONTROL', 'RUSH', 'GUARD', 'RAID'];
 const SEEDS_STRAT = parseInt(process.argv[2] || '100', 10);   // 25 paires × 2 sièges × 100 = 5000 / paire
 const SEEDS_FAC = parseInt(process.argv[3] || '40', 10);
+// Compensation J2 mesurée (env P2FAITH). null → défaut du jeu (2). N'altère pas
+// game.js : passé partie par partie via le harnais.
+const P2FAITH = process.env.P2FAITH != null ? parseInt(process.env.P2FAITH, 10) : null;
 
 let GAMES_PLAYED = 0;
 const T0 = Date.now();
@@ -45,11 +48,11 @@ async function runStratPair(A, B) {
     for (const fY of FACTIONS) {
       for (let s = 1; s <= SEEDS_STRAT; s++) {
         // siège 1 : A=P1 (fX), B=P2 (fY)
-        let r = await playGame(API, s, fX, fY, { 1: A, 2: B });
+        let r = await playGame(API, s, fX, fY, { 1: A, 2: B }, P2FAITH);
         games++; turnSum += r.turn; if (r.clock) clock++;
         if (r.winner === 1) winA++; else if (r.winner === 2) winB++; else draws++;
         // siège 2 : A=P2 (fX), B=P1 (fY)
-        r = await playGame(API, s, fY, fX, { 1: B, 2: A });
+        r = await playGame(API, s, fY, fX, { 1: B, 2: A }, P2FAITH);
         games++; turnSum += r.turn; if (r.clock) clock++;
         if (r.winner === 2) winA++; else if (r.winner === 1) winB++; else draws++;
       }
@@ -65,7 +68,7 @@ async function runMirror(A) {
   for (const fX of FACTIONS) {
     for (const fY of FACTIONS) {
       for (let s = 1; s <= SEEDS_FAC; s++) {
-        const r = await playGame(API, s, fX, fY, { 1: A, 2: A });
+        const r = await playGame(API, s, fX, fY, { 1: A, 2: A }, P2FAITH);
         games++; turnSum += r.turn; if (r.clock) clock++;
         if (r.winner === 1) p1++; else if (r.winner === 2) p2++; else draws++;
       }
@@ -81,11 +84,11 @@ async function runFactionStrat(Sa, Fa) {
   for (const Fo of FACTIONS) {
     for (let s = 1; s <= SEEDS_FAC; s++) {
       // siège 1 : acteur P1
-      let r = await playGame(API, s, Fa, Fo, { 1: Sa, 2: 'CONTROL' });
+      let r = await playGame(API, s, Fa, Fo, { 1: Sa, 2: 'CONTROL' }, P2FAITH);
       games++; turnSum += r.turn; if (r.clock) clock++;
       if (r.winner === 1) wins++; else if (r.winner == null || r.winner === 'both') draws++;
       // siège 2 : acteur P2
-      r = await playGame(API, s, Fo, Fa, { 1: 'CONTROL', 2: Sa });
+      r = await playGame(API, s, Fo, Fa, { 1: 'CONTROL', 2: Sa }, P2FAITH);
       games++; turnSum += r.turn; if (r.clock) clock++;
       if (r.winner === 2) wins++; else if (r.winner == null || r.winner === 'both') draws++;
     }
@@ -139,6 +142,7 @@ async function runFactionStrat(Sa, Fa) {
       totalGames: GAMES_PLAYED, seconds,
       faithWin: API.FAITH_WIN, turnCap: API.TURN_CAP,
       desecrateFaith: API.DESECRATE_FAITH,
+      p2StartFaith: P2FAITH == null ? API.getP2StartFaith() : P2FAITH,
     },
     stratMatrix, pairMeta, mirror, factionStrat,
   };
