@@ -3381,9 +3381,13 @@ async function aiMainPhase(p=2) {
   while (played && safety < 12) {
     safety++;
     played = false;
+    // BRIQUE 6 (L-1) : exclure les monstres impossibles à invoquer (terrain plein)
+    // pour ne pas boucler dessus et BLOQUER le jeu des dieux/sorts. Correction IA
+    // pure (aucun stat/coût/équilibrage touché).
+    const boardFull = P.field.length >= 6;
     const playable = P.hand
       .map((c, i) => ({ c, i, score: scoreCard(c, p) }))
-      .filter(x => x.c.cost <= P.gems)
+      .filter(x => x.c.cost <= P.gems && !(x.c.type === 'monster' && boardFull))
       .sort((a, b) => b.score - a.score);
 
     if (playable.length > 0 && P.gems > 0) {
