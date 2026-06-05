@@ -5978,6 +5978,13 @@ function arenaStartDraft() {
   if(screen) screen.classList.add('active');
   const maxEl = document.getElementById('draft-count-max');
   if(maxEl) maxEl.textContent = ARENA_DRAFT_PICKS;
+  // Bandeau d'identité : faction + dieu choisis (conservés toute la run).
+  const idEl = document.getElementById('draft-identity');
+  if(idEl && ARENA.god){
+    const pwName = (GOD_POWER_BY_ID[ARENA.god.godPower]||{}).name || '';
+    idEl.innerHTML = `<span style="color:${FACTION_COLOR[ARENA.faction]||'var(--gold)'}">${FE[ARENA.faction]||''} ${(ARENA.faction||'').toUpperCase()}</span>
+      <span class="di-sep">·</span><span class="di-god">${ARENA.god.godName||''}${pwName?` — ${pwName}`:''}</span>`;
+  }
   arenaRenderPick();
 }
 

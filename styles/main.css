@@ -1136,3 +1136,17 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
   background:rgba(255,255,255,.04);border:1px solid rgba(244,201,93,.25)}
 .ae-recap-row{display:flex;justify-content:space-between;gap:24px;font-family:'Spectral',serif;font-size:14px;color:var(--ink)}
 .ae-recap-lbl{font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:var(--gold);opacity:.75;text-transform:uppercase}
+
+/* ── ARENA : polish draft (identité + animation de distribution) ── */
+.draft-identity{display:flex;align-items:center;gap:8px;font-family:'Cinzel',serif;font-size:13px;letter-spacing:1px;
+  padding:4px 14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(244,201,93,.2);margin-bottom:2px}
+.draft-identity .di-sep{color:var(--ink2);opacity:.5}
+.draft-identity .di-god{color:var(--gold-bright);font-weight:600}
+.draft-picks .draft-card{animation:dcDeal .42s cubic-bezier(.2,.8,.3,1) backwards}
+.draft-picks .draft-card:nth-child(1){animation-delay:.00s}
+.draft-picks .draft-card:nth-child(2){animation-delay:.07s}
+.draft-picks .draft-card:nth-child(3){animation-delay:.14s}
+.draft-picks .draft-card:nth-child(4){animation-delay:.21s}
+@keyframes dcDeal{from{opacity:0;transform:translateY(34px) rotateX(18deg) scale(.92)}to{opacity:1;transform:none}}
+.draft-picks .draft-card.picked{animation:dcPick .2s ease forwards}
+@keyframes dcPick{to{transform:scale(.86);opacity:.2;filter:grayscale(.7)}}
