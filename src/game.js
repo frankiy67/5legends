@@ -5927,12 +5927,18 @@ function arenaSelectFaction() {
       <div class="fp-overlay"><span class="fp-name">${f.charAt(0).toUpperCase()+f.slice(1)}</span><span class="fp-style">${FE[f]||''}</span></div>
     </div>`).join('');
   grid.querySelectorAll('.fp').forEach(fp => {
+    const f = fp.dataset.f;
+    fp.addEventListener('mouseenter', () => updateBg('bg-arena-faction', f));
+    fp.addEventListener('mouseleave', () => updateBg('bg-arena-faction', ARENA.faction));
     fp.addEventListener('click', () => {
       if(typeof Audio5L!=='undefined') Audio5L.startMusic();
-      const f = fp.dataset.f;
       ARENA.faction = f;
+      grid.querySelectorAll('.fp').forEach(x => x.classList.remove('sel'));
+      fp.classList.add('sel');
+      updateBg('bg-arena-faction', f);
       screen.classList.remove('active');
-      // Réutilise l'écran de choix du dieu du mode normal.
+      // Réutilise l'écran de choix du dieu du mode normal (4 dieux × 4 pouvoirs).
+      // Le dieu+pouvoir est CONSERVÉ pour toute la run.
       showGodChoice(1, f, () => {
         ARENA.god = setupGod[1] ? { ...setupGod[1] } : randomGodAssign(f);
         setupGod = { 1:null, 2:null };
@@ -5941,6 +5947,7 @@ function arenaSelectFaction() {
     });
   });
   document.querySelectorAll('.setup-screen').forEach(s => s.classList.remove('active'));
+  updateBg('bg-arena-faction', null);
   screen.classList.add('active');
 }
 
