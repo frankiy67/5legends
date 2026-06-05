@@ -516,7 +516,7 @@ aztec:[
   {id:'CHALCHIUHTLICUE',n:'Chalchiuhtlicue',cost:2, cap:'god_search_spell',        txt:'Cherchez un sort dans votre deck et mettez-le en main.'},
   {id:'COATLICUE',      n:'Coatlicue',      cost:4, cap:'god_resurrect_any_grave', txt:"Invoquez un monstre depuis votre défausse. Bonus : Depuis n'importe quelle défausse."},
   {id:'COYOLXAUHQUI',   n:'Coyolxauhqui',  cost:3, cap:'god_all_opp_atk1',        txt:"N'importe quand : L'ATK de tous les monstres adverses passe à 1 jusqu'à votre prochain tour."},
-  {id:'EHECATL',        n:'Ehecatl',        cost:5, cap:'god_destroy_ms_bonus',    txt:"N'importe quand : Détruisez un monstre ou sort adverse. Bonus : Détruisez les 2."},
+  {id:'EHECATL',        n:'Ehecatl',        cost:4, cap:'god_destroy_ms_bonus',    txt:"N'importe quand : Détruisez un monstre adverse."},
   {id:'HUITZILOPOCHTLI',n:'Huitzilopochtli',cost:5, cap:'god_draw4_cheaper',       txt:"N'importe quand : Piochez 4 cartes. Coût réduit de 1 par monstre Maya en jeu."},
   {id:'MAYAHUEL',       n:'Mayahuel',       cost:1, cap:'god_5life_draw',           txt:"+1 Foi ; un de vos fidèles à genoux ne peut pas être profané jusqu'à votre prochain tour."},
   {id:'MICTLANTECUHTLI',n:'Mictlantecuhtli',cost:2,cap:'god_equip_sacrifice_next', txt:"Équipez à un monstre adverse : il est sacrifié au début du prochain tour de son propriétaire."},
@@ -525,7 +525,7 @@ aztec:[
   {id:'TLALTECUHTLI_S', n:'Tlaltecuhtli',   cost:2, cap:'fd_cancel_spell',         txt:'Face caché permanent : Le prochain sort lancé est annulé.'},
   {id:'TONATIUH',       n:'Tonatiuh',       cost:2, cap:'god_reveal_discard_spell', txt:"L'adversaire révèle sa main. Choisissez un sort : il le défausse. Sinon, piochez 1."},
   {id:'XIPE_TOTEC',     n:'Xipe Totec',     cost:3, cap:'god_freeze_attacks',      txt:"Les monstres adverses ne peuvent pas attaquer lors du prochain tour adverse."},
-  {id:'XIUHTECUHTLI',   n:'Xiuhtecuhtli',   cost:5, cap:'god_redirect_attack',     txt:"Annulez l'attaque d'un monstre adverse ciblant un allié. Il attaque un autre monstre adverse."},
+  {id:'XIUHTECUHTLI',   n:'Xiuhtecuhtli',   cost:4, cap:'god_redirect_attack',     txt:"Annulez l'attaque d'un monstre adverse ciblant un allié. Il attaque un autre monstre adverse."},
 ]};;
 
 
@@ -3555,6 +3555,9 @@ function scoreCard(c, p) {
     let score = 3;
     const oppMaxAtk  = oppField.length > 0 ? Math.max(...oppField.map(m=>m.cAtk)) : 0;
     const myMaxAtk   = myField.length  > 0 ? Math.max(...myField.map(m=>m.cAtk))  : 0;
+    const sameFac    = myField.filter(m => m.faction === P.faction).length;
+    const damagedAllies = myField.filter(m => m.cDef < (m.def||0)).length;
+    const handLow    = P.hand.length < 3;
 
     if(cap.includes('destroy') || cap.includes('thor') || cap.includes('cancel')) {
       score += oppField.length > 0 ? 4 + oppMaxAtk * 0.4 : 0;
@@ -3589,6 +3592,33 @@ function scoreCard(c, p) {
       else score += oppField.length > myLive ? 7 : (oppField.length === myLive ? 3 : 0);
     }
     if(cap.includes('cancel_attack')) score += 4;
+
+    // ── BRIQUE 6C (Phase 5) : scoring des dieux jusqu'ici sous-évalués. Beaucoup
+    // de caps (god_draft6, god_copy_bonus, god_tokens22_faction, god_equip_*,
+    // god_equalize_board_hand, god_sacrifice_opp_draw2…) n'étaient reconnues par
+    // AUCUNE règle (les anciens tests visaient des noms de cap périmés : 'odin',
+    // 'thor', 'osiris'…) → base 3 → jamais jouées malgré 70-90 % de victoire. ──
+    // Avantage de cartes (draft / scry / recherche / récup / pioches conditionnelles)
+    if(/draft|scrye|search|recover|swap_hands|draw_per_faction|draw4_cheaper|draw2_free|draw_if_ally|draw3_discard/.test(cap))
+      score += 4 + (handLow ? 2 : 0) + (cap.includes('per_faction') ? sameFac * 1.5 : 0);
+    if(cap.includes('tokens22_faction')) score += 3 + sameFac * 2;                       // Set
+    if(cap.includes('tokens_protect'))   score += 5 + (myField.length <= 1 ? 2 : 0);      // Déméter
+    if(cap.includes('copy_bonus'))       score += myField.length > 0 ? 4 + myMaxAtk * 0.4 : -2; // Anubis
+    if(cap.includes('equip'))            score += cap.includes('sacrifice_next')          // Mictlantecuhtli → ennemi
+                                            ? (oppField.length > 0 ? 6 : -4)
+                                            : (myField.length > 0 ? 5 : -4);              // Ullr/Vali/Sekhmet/Artémis/Aphrodite/Hermès
+    if(cap.includes('dmg5_all') || cap.includes('destroy_low_all'))
+      score += oppField.length > 0 ? 2 + oppField.length : -3;                            // Tlaloc/Zeus
+    if(/dmg3_or_6|force_fight|redirect_attack|all_opp_atk1|freeze/.test(cap))
+      score += oppField.length > 0 ? 4 : -3;                                              // Kagutsuchi/Ra/Xiuhtecuhtli/Coyolxauhqui/Xipe
+    if(cap.includes('heal_all'))         score += damagedAllies * 2;                      // Susanoo
+    if(cap.includes('double_atk') || cap.includes('atk5_buff'))
+      score += myField.length > 0 ? 4 + myMaxAtk * 0.3 : -3;                              // Athéna/Sarutahiko
+    if(cap.includes('swap_monsters'))    score += (oppField.length > 0 && myField.length > 0) ? 5 : -3; // Dionysos
+    if(cap.includes('equalize'))         score += oppField.length > myField.length ? 4 + (oppField.length - myField.length) : -2; // Odin
+    if(cap.includes('discard_per_faction')) score += 3 + sameFac;                         // Hadès
+    if(cap.includes('5life_3faction'))   score += sameFac >= 3 ? 9 : -2;                  // Idunn (gratuit, +2 Foi)
+    if(cap.includes('sacrifice_opp'))    score += oppField.length > 0 ? 3 : -3;           // Thor
 
     // General: gods with no valid targets are worthless
     const needsTarget = ['minus','destroy','steal','sleep','buff','blank','blind','bewitch','sandup','force','thor'];
