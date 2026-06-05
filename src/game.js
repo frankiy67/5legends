@@ -5768,6 +5768,12 @@ document.getElementById('start-btn').addEventListener('click', () => {
 (function(){
   const b = document.getElementById('arena-launch');
   if(b) b.addEventListener('click', () => { if(typeof Audio5L!=='undefined') Audio5L.startMusic(); arenaLaunchRun(); });
+  const next = document.getElementById('ab-continue');
+  if(next) next.addEventListener('click', () => {
+    if(typeof Audio5L!=='undefined') Audio5L.startMusic();
+    const scr = document.getElementById('arena-between'); if(scr) scr.style.display='none';
+    arenaStartMatch();
+  });
 })();
 
 document.getElementById('mull-confirm').addEventListener('click', confirmMulligan);
@@ -6108,13 +6114,22 @@ function arenaLaunchRun() {
 
 // Adversaire du match courant : faction aléatoire, deck faction standard, dieu+
 // pouvoir aléatoire, profil IA selon le nombre de victoires (difficulté).
-function arenaStartMatch() {
-  ARENA.matchNum++;
-  ARENA._matchOver = false;
+// Tire un adversaire (faction + dieu + profil selon les victoires courantes).
+function arenaRollOpponent() {
   const oppFaction = FACTIONS[Math.floor(rng()*FACTIONS.length)];
   const oppGod = randomGodAssign(oppFaction);
   const profile = arenaOppProfile(ARENA.wins);
-  ARENA.opp = { faction: oppFaction, god: oppGod, profile };
+  return { faction: oppFaction, god: oppGod, profile };
+}
+
+function arenaStartMatch() {
+  ARENA.matchNum++;
+  ARENA._matchOver = false;
+  // Utilise l'adversaire pré-tiré (annoncé sur l'écran « Match suivant ») sinon roll.
+  const opp = ARENA._nextOpp || arenaRollOpponent();
+  ARENA._nextOpp = null;
+  const oppFaction = opp.faction, oppGod = opp.god, profile = opp.profile;
+  ARENA.opp = opp;
 
   // Bascule vers la vue de jeu, masque les écrans de setup/arène.
   document.querySelectorAll('.setup-screen').forEach(s => s.classList.remove('active'));
@@ -6163,14 +6178,62 @@ function arenaOnMatchEnd(winner) {
   }, 900);
 }
 
-// ── PHASE 7 — écrans entre matchs / fin (placeholders ; polis en Phase 7) ──
+// ── PHASE 7 — ÉCRANS ENTRE MATCHS / FIN ──────────────────────────────────
 function arenaShowBetween(playerWon, winner) {
-  arenaStartMatch();   // Phase 7 : insère l'écran « Match suivant ». Pour l'instant : enchaîne.
+  const scr = document.getElementById('arena-between');
+  if(!scr){ arenaStartMatch(); return; }
+  // Pré-tire le prochain adversaire pour l'annoncer.
+  ARENA._nextOpp = arenaRollOpponent();
+  const opp = ARENA._nextOpp;
+  const resEl = document.getElementById('ab-result');
+  if(resEl){
+    const isDraw = winner == null;
+    resEl.textContent = playerWon ? 'VICTOIRE' : (isDraw ? 'NUL — DÉFAITE' : 'DÉFAITE');
+    resEl.className = 'ab-result ' + (playerWon ? 'win' : 'loss');
+  }
+  const scoreEl = document.getElementById('ab-score');
+  if(scoreEl) scoreEl.innerHTML = `<span class="ab-w">${ARENA.wins}</span> V&nbsp;&nbsp;—&nbsp;&nbsp;<span class="ab-l">${ARENA.losses}</span> D`;
+  const nextEl = document.getElementById('ab-next');
+  if(nextEl){
+    const tier = ARENA.wins<=3 ? 'Initié' : (ARENA.wins<=7 ? 'Aguerri' : 'Légendaire');
+    const pwName = (GOD_POWER_BY_ID[opp.god.godPower]||{}).name || '';
+    nextEl.innerHTML = `<span class="ab-next-lbl">Prochain adversaire</span>
+      <span class="ab-next-opp" style="color:${FACTION_COLOR[opp.faction]||'var(--gold)'}">${FE[opp.faction]||''} ${(opp.faction||'').toUpperCase()}</span>
+      <span class="ab-next-god">${opp.god.godName||''}${pwName?` · ${pwName}`:''}</span>
+      <span class="ab-next-tier">Palier ${tier}</span>`;
+  }
+  Audio5L && Audio5L.sfx && (playerWon ? Audio5L.sfx.victory && Audio5L.sfx.victory() : Audio5L.sfx.defeat && Audio5L.sfx.defeat());
+  scr.style.display = 'flex';
 }
+
 function arenaShowEnd() {
   const champ = ARENA.wins >= ARENA_WINS_GOAL;
-  alert(champ ? `🏆 CHAMPION ! ${ARENA.wins}V / ${ARENA.losses}D` : `☠️ ÉLIMINÉ — ${ARENA.wins}V / ${ARENA.losses}D`);
-  location.reload();
+  const scr = document.getElementById('arena-end');
+  if(!scr){ location.reload(); return; }
+  scr.classList.toggle('champion', champ);
+  scr.classList.toggle('eliminated', !champ);
+  const icon = document.getElementById('ae-icon'); if(icon) icon.textContent = champ ? '🏆' : '☠️';
+  const title = document.getElementById('ae-title'); if(title) title.textContent = champ ? 'CHAMPION' : 'ÉLIMINÉ';
+  const sub = document.getElementById('ae-sub');
+  if(sub) sub.textContent = champ
+    ? `${ARENA.wins} victoires consécutives jusqu'à l'Ascension`
+    : `La run s'achève à ${ARENA.wins} victoire${ARENA.wins>1?'s':''} / ${ARENA.losses} défaites`;
+  // Récap faction / dieu / deck
+  const recap = document.getElementById('ae-recap');
+  if(recap){
+    const pwName = (GOD_POWER_BY_ID[(ARENA.god||{}).godPower]||{}).name || '';
+    const byF = {}; FACTIONS.forEach(f=>byF[f]=0);
+    (ARENA.deck||[]).forEach(c=>{ byF[c.faction]=(byF[c.faction]||0)+1; });
+    const facLine = FACTIONS.filter(f=>byF[f]>0)
+      .map(f=>`<span style="color:${FACTION_COLOR[f]}">${FE[f]} ${byF[f]}</span>`).join('&nbsp;&nbsp;');
+    recap.innerHTML = `<div class="ae-recap-row"><span class="ae-recap-lbl">Panthéon</span>
+        <span style="color:${FACTION_COLOR[ARENA.faction]||'var(--gold)'}">${FE[ARENA.faction]||''} ${(ARENA.faction||'').toUpperCase()}</span></div>
+      <div class="ae-recap-row"><span class="ae-recap-lbl">Dieu</span><span>${(ARENA.god||{}).godName||''}${pwName?` · ${pwName}`:''}</span></div>
+      <div class="ae-recap-row"><span class="ae-recap-lbl">Score</span><span><b style="color:#7be084">${ARENA.wins}V</b> / <b style="color:#e8736a">${ARENA.losses}D</b> · ${ARENA.matchNum} matchs</span></div>
+      <div class="ae-recap-row"><span class="ae-recap-lbl">Deck</span><span>${facLine}</span></div>`;
+  }
+  Audio5L && Audio5L.sfx && (champ ? Audio5L.sfx.victory && Audio5L.sfx.victory() : Audio5L.sfx.defeat && Audio5L.sfx.defeat());
+  scr.style.display = 'flex';
 }
 
 // Étape 6 : Test automatique des images
