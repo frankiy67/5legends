@@ -5373,8 +5373,8 @@ function onFieldClick(p,i) {
     const hasHurry=(m.cap||'').includes('hurry');
     if(P.summoned.has(i)&&!hasHurry){ addLog(`${m.n} summoned this turn — can't attack`); return; }
     if(m.sanded){ addLog(`${m.n} is sanded!`); return; }
-    // ASCENSION v2 (UI flèches directes) : au clic, la créature se surligne et des
-    // flèches pointent vers chaque cible ennemie + l'icône 🙏 Prier (bas-centre).
+    // ASCENSION v4 (UI) : au clic, mini-menu ⚔️ Attaquer / 🙏 Prier au-dessus de
+    // la créature (cf. startCombatChoice → enterAttackTargeting pour le ciblage).
     startCombatChoice(cp, i);
   }
 }
@@ -5520,10 +5520,15 @@ function enterAttackTargeting(p, i) {
   }
   addLog(`${m.n} attaque — clique une cible ennemie.`, 'event');
 
-  // Clic ailleurs → annule (différé pour ne pas capter un clic-cible avant doAttack).
+  // Clic ailleurs → annule. MAIS un clic sur une cible ennemie surlignée doit
+  // ATTAQUER (résolu par onFieldClick → resolveTarget → doAttack), donc on ne
+  // l'annule PAS ici. Pas de setTimeout : la course « cancel avant click »
+  // effaçait G.targeting avant doAttack (bug : l'attaque ne partait pas).
   _combatChoiceOutside = (e) => {
-    setTimeout(() => { if(G && G.targeting && G.targeting.combatChoice) cancelCombatChoice(); }, 0);
+    if(e.target && e.target.closest && e.target.closest('.valid-target-dmg')) return; // cible → laisse attaquer
+    cancelCombatChoice();
   };
+  // Ajout différé pour ne pas capter le mousedown du bouton « Attaquer » courant.
   setTimeout(() => { if(_combatChoiceOutside) document.addEventListener('mousedown', _combatChoiceOutside, true); }, 0);
 }
 
