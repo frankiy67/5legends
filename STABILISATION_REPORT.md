@@ -184,3 +184,72 @@ Tests scriptés tous verts (cycles 16, desecrate 14, god_powers 28, market 16).
   nouveaux handlers (Phase 3/5) — à faire par passes prudentes + re-mesure.
 - norse 55.5% : un cran au-dessus de la cible ; envisager un ajustement de son
   économie de Foi (plutôt que d'autres nerfs de stats à rendement décroissant).
+
+---
+
+# BRIQUE 6C — Phases 3-6 (synergies, identité, dieux, UI) · `feat-gameplay-v2`
+
+Suite de 6B. Boucle autonome : chaque passe commitée, vérifiée (≥500 parties
+0 crash), win rates re-mesurés (`tools/check.js`, harnais consolidé crash +
+winrate + cartes mortes ajouté cette session).
+
+## Bilan par phase
+
+### Phase 3 — Synergies intra-faction
+5 synergies ancrées dans l'identité de chaque faction, **toutes liées à la Foi/
+Ascension** (principe #1) :
+- **Greek — Phalange sacrée** (prière, ≥2 grecs → +1 Foi ; +1 de plus si Égide).
+- **Norse — Endurance** (le fidèle à genoux +1 DEF perm ; résilience).
+- **Egyptian — Connaissance** (prière avec ≥3 égyptiens → pioche 1, 1×/tour).
+- **Yokai — Ruse** (la prière galvanise un autre yokai : +2 ATK ce tour) + **Kappa**
+  tribal `passive_yokai_buff` rendu **fonctionnel** (était inerte) → +1/+1 aux yokai.
+- **Aztec — Sacrifice** (mort d'un aztèque → +1 ATK aux autres ; combat, Nuit, rituel).
+
+### Phase 4 — Simplification & identité (anti-Hearthstone)
+- **Oracle de Delphes** refondu : « réordonne » inerte (0 % joué) → **Divination**
+  (révèle 3, met 1 en main, +1 Foi). 0 % → ~85 % des miroirs grecs.
+- **Audit des mots-clés** : tous conservés ; identité Foi/Ascension confirmée
+  (Rapide = prier à l'entrée, Protection/Égide en 2 paliers, Ferveur, Malédiction).
+  Aucun clone Hearthstone nu ; pas d'injection de Foi (aurait cassé l'équilibre).
+
+### Phase 5 — Dieux impactants
+- **Cause racine** : `scoreCard(god)` testait des **noms de cap périmés**
+  (`'odin'`, `'thor'`, `'osiris'`…) → ~25 dieux forts (Khonsu, Anubis, Set, Déméter,
+  Odin, Thor, les 7 « Équipez »…) tombaient au score 3, jamais joués malgré
+  70-93 % de victoire. **Scoring recâblé sur les vraies caps** → dieux joués
+  **10-21 % par faction** (avant : nombreux 0-8 %).
+- Dial-down anti-norse des dieux de contrôle ; buff aztèque (Ehecatl, Xiuhtecuhtli
+  c5→c4). ⚑ Les clauses « Bonus : … » de nombreux dieux ne sont pas implémentées
+  (documenté ; système non recâblé, hors scope).
+
+### Phase 6 — Polish UI/CSS (analyse de code)
+UI déjà très animée. Ajouts ciblés : **halo de Foi à la prière** + aura persistante
+sur les fidèles à genoux ; **lisibilité stats up/down** (dégâts de combat et
+Malédiction enfin visibles) ; **achat au marché animé** (glisse vers la main).
+Tout cosmétique, gated hors simulation.
+
+### Phase 7 — Fine-tuning norse (53.5 → 52.0)
+Réduction des **gains de Foi indirects** norse (principe « Foi plutôt que stats ») :
+Idunn c0 +2→+1 Foi (donnait 2/16 de l'Ascension gratuits en mono-norse) ; synergie
+de prière norse +2→+1 DEF.
+
+## Run final de stabilité (1000 parties, sièges équilibrés)
+```
+CRASHES 0 | NON-TERM 0
+Win rates : norse 52.8 / egyptian 51.7 / greek 50.7 / yokai 47.3 / aztec 47.3
+SPREAD 5.5 pts — toutes les factions en 45-55%.
+```
+Audit (1200 parties) : 0 crash, 0 cap non gérée, 171/171 cartes illustrées (aucune
+illustration retirée), 0 écriture PV vestigiale, 0 non-terminaison.
+
+**Progression du spread : 24 (départ 6B) → 9.1 (fin 6B) → 8.0 (départ 6C) → 5.5 (fin 6C).**
+
+## Restant / pistes futures
+- **Cartes mortes** restantes (<8 % pose) : 7 dieux situationnels/chers (Hestia,
+  Héra, Ra, Thoth, Khonsu, Héphaïstos, Izanami). Acceptables (jouées par à-coups) ;
+  refonte fine possible si besoin de variété.
+- **Système « Bonus » des dieux** : les clauses « Bonus : … » (texte) ne sont pas
+  câblées. Implémenter un déclencheur (p.ex. Foi/coût) ferait sentir les dieux encore
+  plus puissants — passe future, à mesurer (risque d'équilibre).
+- **yokai / aztec** (47.3 %) : bas de fourchette mais en cible. Marge pour un léger
+  coup de pouce si l'on vise un spread < 5.

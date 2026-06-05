@@ -65,3 +65,10 @@ changement et pouvoir revert. Les **décisions de design majeures** sont marqué
   - **Achat au marché** : `flyMarketToHand()` — la carte achetée glisse du marché vers la main (clone animé, entièrement défensif).
 - CSS mort : non supprimé (rendu non vérifiable → risque de retirer des classes ajoutées dynamiquement ; conservé par prudence).
 - Sim/équilibrage inchangés (toutes les additions sont cosmétiques et gated hors `mode==='sim'`).
+
+## Bilan de session 6C
+- **Run final : 1000 parties, 0 crash, 0 non-terminaison.**
+- Win rates : norse 52.8 / egyptian 51.7 / greek 50.7 / yokai 47.3 / aztec 47.3 — **spread 5.5 pts** (toutes en 45-55 %).
+- Progression du spread : 24 → 9.1 (fin 6B) → 8.0 (départ 6C) → **5.5** (fin 6C).
+- Audit : 0 crash / 0 cap non gérée / 171 cartes illustrées (aucune retirée) / 0 PV vestigial.
+- Phases 3 (synergies), 4 (Oracle + audit mots-clés), 5 (dieux jouables), 6 (UI), 7 (norse) livrées.
