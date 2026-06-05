@@ -1278,7 +1278,32 @@ function aiCheckMarket(p) {
 function humanBuyMarket(idx) {
   const p = G.cp;
   if(aiControls(p)) return;
-  if(buyFromMarket(p, idx)) { Audio5L.sfx.select && Audio5L.sfx.select(); }
+  // BRIQUE 6C (Phase 6) : capture l'élément acheté AVANT le re-render pour
+  // l'animation « glisse vers la main ».
+  const srcEl = document.querySelector(`.mk-buy[data-i="${idx}"]`);
+  const cardEl = srcEl && srcEl.closest ? srcEl.closest('.mk-card') : null;
+  if(buyFromMarket(p, idx)) { Audio5L.sfx.select && Audio5L.sfx.select(); flyMarketToHand(cardEl); }
+}
+
+// Clone fantôme de la carte achetée qui glisse du marché vers la main du joueur.
+// Pur cosmétique, entièrement défensif (no-op si DOM/coordonnées indisponibles).
+function flyMarketToHand(srcEl) {
+  if(!srcEl || !srcEl.getBoundingClientRect) return;
+  const r = srcEl.getBoundingClientRect();
+  if(!r || !r.width) return;
+  let tx = (typeof window!=='undefined'?window.innerWidth:1280)/2, ty = (typeof window!=='undefined'?window.innerHeight:800) - 70;
+  const handEl = document.getElementById('hand-cards');
+  if(handEl && handEl.getBoundingClientRect){ const hr = handEl.getBoundingClientRect(); if(hr && hr.width){ tx = hr.left + hr.width/2; ty = hr.top + hr.height/2; } }
+  const clone = srcEl.cloneNode(true);
+  clone.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;`+
+    `margin:0;pointer-events:none;z-index:600;border-radius:10px;box-shadow:0 0 22px rgba(244,201,93,.8);`+
+    `transition:transform .55s cubic-bezier(.5,0,.4,1),opacity .55s ease;`;
+  document.body.appendChild(clone);
+  requestAnimationFrame(() => {
+    clone.style.transform = `translate(${tx-r.left-r.width/2}px,${ty-r.top-r.height/2}px) scale(.32) rotate(-8deg)`;
+    clone.style.opacity = '0.15';
+  });
+  setTimeout(() => clone.remove(), 600);
 }
 
 // ── BRIQUE 5 : rendu du panneau Marché (gauche) ───────────────────────────
@@ -4021,6 +4046,22 @@ function screenShake(big) {
   setTimeout(() => g.classList.remove('screen-shake','screen-shake-big'), big ? 500 : 350);
 }
 
+// BRIQUE 6C (Phase 6) : halo de Foi quand un fidèle prie (aura dorée brève
+// + 🙏 qui s'élève). Pur cosmétique ; ignoré en simulation (DOM stubbé).
+function showPrayHalo(p, idx) {
+  const el = document.querySelector(`[data-player="${p}"][data-idx="${idx}"]`);
+  if(!el || !el.getBoundingClientRect) return;
+  const r = el.getBoundingClientRect();
+  if(!r || !r.width) return;
+  const halo = document.createElement('div');
+  halo.className = 'pray-halo';
+  halo.style.cssText = `position:fixed;left:${r.left+r.width/2-26}px;top:${r.top+r.height/2-26}px;`+
+    `width:52px;height:52px;pointer-events:none;z-index:480;`;
+  halo.innerHTML = `<span class="pray-halo-ring"></span><span class="pray-halo-glyph">🙏</span>`;
+  document.body.appendChild(halo);
+  setTimeout(() => halo.remove(), 900);
+}
+
 // UX #4: Shake animation on a field card element
 function shakeCard(p, idx) {
   const el = document.querySelector(`[data-player="${p}"][data-idx="${idx}"]`);
@@ -4949,7 +4990,14 @@ function renderField(p) {
           ${m.cost!=null&&m.cost!==''?`<div class="fc-cost">${m.cost}</div>`:''}
           <div class="fc-rarity"></div>
         </div>
-        ${m.type==='monster'?`<div class="fc-atk${z?' boosted':''}">${m.cAtk}</div><div class="fc-def${z?' boosted':''}">${m.cDef}</div>`:''}
+        ${m.type==='monster'?(()=>{
+          // BRIQUE 6C (Phase 6) : lisibilité buffs/debuffs. `up` = stat au-dessus
+          // de la base (cycle, Kappa, sacrifice…), `down` = en-dessous (Malédiction,
+          // dégâts de combat). z = surbrillance de cycle (temporaire).
+          const aCls = (m.cAtk>(m.atk||0)||z)?' up':(m.cAtk<(m.atk||0)?' down':'');
+          const dCls = m.cDef>(m.def||0)?' up':(m.cDef<(m.def||0)?' down':'');
+          return `<div class="fc-atk${aCls}">${m.cAtk}</div><div class="fc-def${dCls}">${m.cDef}</div>`;
+        })():''}
       `;
     }
     // ── Bouton RITUEL pour monstres aztèques compatibles ────────
@@ -5248,6 +5296,7 @@ function doPray(p, i) {
   bumpStat(p, 'prayers');
   if (G.aiStats && G.aiStats[p] && G.aiStats[p].firstPrayTurn == null) G.aiStats[p].firstPrayTurn = G.turn;
   addLog(`🙏 ${m.n} prie — ${P.supremeGod} canalise +${gain} Foi (${P.faith}/${FAITH_WIN})`, 'special');
+  if(G && G.mode !== 'sim') showPrayHalo(p, i);   // BRIQUE 6C (Phase 6) : halo de Foi
   // BRIQUE 6C (Phase 3) : synergie intra-faction déclenchée par la prière.
   applyPrayerSynergy(p, i, m);
 }

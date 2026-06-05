@@ -420,8 +420,12 @@ body{
 .fc-atk::before{content:'⚔';position:absolute;font-size:8px;top:-7px;left:50%;transform:translateX(-50%);opacity:.7;text-shadow:0 1px 2px #000}
 .fc-def::before{content:'🛡';position:absolute;font-size:8px;top:-7px;left:50%;transform:translateX(-50%);opacity:.7;text-shadow:0 1px 2px #000}
 /* stats boostées (Zénith / Kappa) → vert + glow */
-.fc-atk.boosted,.fc-def.boosted{background:radial-gradient(circle at 38% 30%,#b6ffce,#3ad672 45%,#0a6030 100%)!important;
+.fc-atk.boosted,.fc-def.boosted,.fc-atk.up,.fc-def.up{background:radial-gradient(circle at 38% 30%,#b6ffce,#3ad672 45%,#0a6030 100%)!important;
   box-shadow:inset 0 1px 3px rgba(200,255,210,.7),0 0 12px rgba(78,255,138,.8),0 0 0 2px rgba(0,40,15,.4)!important;color:#062a12}
+/* stat affaiblie (Malédiction / dégâts) : désaturée + anneau sombre + ▼ */
+.fc-atk.down,.fc-def.down{background:radial-gradient(circle at 38% 30%,#9a8a8a,#5e4a4a 45%,#2a1c1c 100%)!important;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.6),0 0 8px rgba(120,40,40,.6)!important;color:#ffd6d6;filter:saturate(.6)}
+.fc-atk.down::after,.fc-def.down::after{content:'▼';position:absolute;font-size:7px;bottom:-6px;left:50%;transform:translateX(-50%);color:#ff8a8a;opacity:.85}
 
 /* ── ÉTATS DE CARTE ── */
 .fcard.can-atk .fc-frame{background:linear-gradient(150deg,#ffd089,#f08040 30%,#c84418 65%,#7a1500);
@@ -516,6 +520,17 @@ body{
   box-shadow:inset 0 0 10px rgba(199,125,255,.55),0 0 6px rgba(199,125,255,.4)!important}
 .fcard.kneeling::before{content:'🙏';position:absolute;top:-9px;left:50%;transform:translateX(-50%);
   z-index:9;font-size:17px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.9));pointer-events:none}
+/* aura de Foi persistante, douce, sur le fidèle à genoux */
+.fcard.kneeling .fc-frame::after{content:'';position:absolute;inset:-3px;border-radius:inherit;
+  pointer-events:none;z-index:-1;animation:kneelAura 2.6s ease-in-out infinite}
+@keyframes kneelAura{0%,100%{box-shadow:0 0 8px rgba(199,125,255,.35)}50%{box-shadow:0 0 18px rgba(199,125,255,.7)}}
+/* BRIQUE 6C (Phase 6) : halo de Foi bref au moment de la prière (showPrayHalo) */
+.pray-halo .pray-halo-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,225,138,.9);
+  box-shadow:0 0 18px rgba(244,201,93,.85),inset 0 0 14px rgba(255,225,138,.6);animation:prayHaloRing .9s ease-out forwards}
+.pray-halo .pray-halo-glyph{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);font-size:22px;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,.9));animation:prayHaloGlyph .9s ease-out forwards}
+@keyframes prayHaloRing{0%{transform:scale(.4);opacity:0}25%{opacity:1}100%{transform:scale(1.5);opacity:0}}
+@keyframes prayHaloGlyph{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}30%{opacity:1}100%{transform:translate(-50%,-150%) scale(1);opacity:0}}
 
 /* ──────────────────────────────────────────────────────────────────
    9. MAIN DU JOUEUR — éventail + preview

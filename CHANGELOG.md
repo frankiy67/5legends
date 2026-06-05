@@ -56,3 +56,12 @@ changement et pouvoir revert. Les **décisions de design majeures** sont marqué
 - **Idunn** (c0, norse) : +2 → **+1 Foi**. C'était le principal gain de Foi INDIRECT norse (2/16 de l'Ascension gratuits en mono-légende), moteur de l'avantage structurel. Conforme au principe « réduire la Foi indirecte plutôt que les stats ».
 - **Synergie de prière norse (Endurance)** : +2 → **+1 DEF** permanent au fidèle à genoux. Le +2 protégeait trop les moteurs de Foi norse de la profanation (avantage structurel indirect).
 - **Mesure** (1500 parties, 0 crash) : egyptian 52.8 / norse 52.0 / greek 51.3 / yokai 47.7 / aztec 46.0 — **spread 6.8 pts**, toutes en 45-55 %. norse ramené dans sa cible 50-52. (baseline session 8.0 / brique 6B 9.1.)
+
+### Phase 6 — Polish UI/CSS (analyse de code, rendu non visible)
+- **Constat** : l'UI était déjà très animée (summon `card-summon`, mort `card-death`, dégâts `dmg-flash`+shake+float-dmg, dieu `godBurst`, cycle `cycle-transition`+`medallionFlash`, gemmes, sommeil, zénith…). Couleurs de faction définies (`--yokai/norse/egyptian/greek/aztec`). Fidèle à genoux : badge 🙏 + bordure « Foi » ; maudit : badge `.cursed` ; marché : panneau coulissant.
+- **Ajouts (les manques réels) :**
+  - **Halo de Foi à la prière** : `showPrayHalo()` — anneau doré + 🙏 qui s'élève au moment où un fidèle prie (gated hors simulation). Plus **aura de Foi persistante** douce sur les fidèles à genoux (`kneelAura`).
+  - **Lisibilité buffs/debuffs** : stats `fc-atk`/`fc-def` colorées `up` (vert, au-dessus de la base : cycle, Kappa, sacrifice…) / `down` (gris désaturé + ▼, en-dessous : Malédiction, dégâts de combat). Avant, seul le buff de cycle (`boosted`) était signalé ; les dégâts/Malédiction étaient invisibles.
+  - **Achat au marché** : `flyMarketToHand()` — la carte achetée glisse du marché vers la main (clone animé, entièrement défensif).
+- CSS mort : non supprimé (rendu non vérifiable → risque de retirer des classes ajoutées dynamiquement ; conservé par prudence).
+- Sim/équilibrage inchangés (toutes les additions sont cosmétiques et gated hors `mode==='sim'`).
