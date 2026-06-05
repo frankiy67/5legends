@@ -32,3 +32,15 @@ changement et pouvoir revert. Les **décisions de design majeures** sont marqué
   - **Yokai tribal — Kappa** : aura `passive_yokai_buff` rendue FONCTIONNELLE (était inerte : seulement scorée par l'IA, jamais appliquée). À l'entrée, tes Yokai présents +1/+1 ; chaque Yokai entrant ensuite +1/+1 tant que Kappa vit.
   - **Aztec sacrifice** (`handleDeath` + `executeRitual`) : quand un vrai aztèque allié meurt (combat, Nuit, rituel, AoE), tes autres aztèques gagnent +1 ATK permanent. Le rituel déclenche désormais aussi ce bonus. Risque/récompense, all-in.
   - **Mesure** (1500 parties, 0 crash) : norse 53.2 / egyptian 51.2 / greek 49.8 / yokai 48.7 / aztec 47.2 — **spread 6.0 pts** (baseline 8.0, toutes en 45-55%). 1ʳᵉ itération (greek prière Égide seule, + prière aztèque) avait creusé greek à 42% → phalange ≥2 grecs + retrait prière aztèque = correction.
+
+### Phase 4 — Simplification & identité (anti-Hearthstone)
+- **Oracle de Delphes refondu** (était 0 % joué) : `oracle_3` passe de « réordonne les 3 prochaines cartes » (inerte côté IA, sans impact board) à **DIVINATION** : révèle les 3 prochaines cartes, en met **1 en main** (l'IA prend la meilleure via `scoreCard`), **+1 Foi** (prophétie grecque → Ascension). Score IA ajouté (`+6/+8`). Modal humain réécrit en « pick-one ». Mesure : 104 résolutions / 120 miroirs grecs (vs 0). Greek stable à 50.7 %.
+- `tools/check.js` : suit aussi les sorts (`Player N plays: X!`) pour mesurer l'Oracle.
+- **Audit des mots-clés** (⚑ DESIGN — conclusion : ENRICHIR sans casser l'équilibre 45-55 %). Chaque mot-clé actif a été vérifié pour son lien Foi/Ascension et son éventuel clone Hearthstone :
+  - **Ferveur** (10 cartes) → +1 Foi quand elle frappe une créature. Lien Ascension direct. CONSERVÉ.
+  - **Égide** (2) → protège les fidèles à genoux de la profanation. Lien Foi fort. CONSERVÉ.
+  - **Rapide** (11) ≈ Charge HS, MAIS twist Ascension réel : une créature Rapide peut **prier le tour où elle entre** (`canPray` L5148) → accélérateur d'Ascension, absent de HS. CONSERVÉ (pas de Foi brute ajoutée : aurait déséquilibré norse/aztec).
+  - **Protection** (10) ≈ Provocation HS, mais conçue en **2 paliers** avec Égide (Protection = bouclier de corps ; Égide = bouclier de Foi anti-profanation). Identité de structure. CONSERVÉ.
+  - **Malédiction** (10) → −1 ATK permanent en combat (fonctionnel depuis Phase 1). Pas un clone HS exact. CONSERVÉ.
+  - **Endurance** (10) / **Double attaque** (10) → mots-clés de stats/résilience, intuitifs, sans doublon. CONSERVÉS.
+  - **Décision** : aucun mot-clé n'est un clone HS « nu » ; injecter de la Foi dans Rapide/Endurance (comme suggéré) aurait re-creusé le spread durement acquis (Phase 3). Priorité au principe #7 (équilibre). Aucun doublon à fusionner.

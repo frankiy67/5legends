@@ -509,7 +509,7 @@ greek:[
   {id:'HESTIA',     n:'Hestia',     cost:4, cap:'god_3shield_attacks',      txt:"Invoque le Foyer Sacré 0/5 (Égide) : protège tes fidèles à genoux tant qu'il vit."},
   {id:'POSEIDON',   n:'Poséidon',   cost:4, cap:'god_cancel_spell_draw',    txt:"N'importe quand : Annulez un sort et piochez. Bonus : Annulez aussi un monstre."},
   {id:'ZEUS',       n:'Zeus',       cost:6, cap:'god_destroy_low_all',      txt:'Détruisez tous les monstres de DEF ≤5. Bonus : Détruisez tous les monstres.'},
-  {id:'ORACLE_DELPHES', n:'Oracle de Delphes', cost:2, type:'spell', cap:'oracle_3', txt:'Regardez les 3 prochaines cartes de votre deck. Réordonnez-les.'},
+  {id:'ORACLE_DELPHES', n:'Oracle de Delphes', cost:2, type:'spell', cap:'oracle_3', txt:'Divination : révèle les 3 prochaines cartes de ton deck, mets-en 1 en main. +1 Foi.'},
 ],
 aztec:[
   {id:'CENTEOTL',       n:'Centeotl',       cost:3, cap:'god_death_draw_cost4',    txt:'Permanent (1×/tour) : Si un allié meurt, piochez 1 carte en payant 4 PV.'},
@@ -2899,31 +2899,47 @@ registerEffect('spell', cap => cap==='spell_cancel', ctx => {
     addLog(`${c.n} — ${entry.card.n} COUNTERED!`,'special');
   } else { addLog(`${c.n} — Nothing to counter`,'special'); }
 });
-registerEffect('spell', cap => cap==='oracle_3', async ctx => { await showOracleModal(ctx.p); });
+// BRIQUE 6C (Phase 4) — ORACLE DE DELPHES refondu : DIVINATION. Révèle les 3
+// prochaines cartes, en met 1 en main (l'IA prend la meilleure), +1 Foi (la
+// prophétie grecque nourrit l'Ascension). Avant : « réordonne » inerte côté IA
+// (0 % joué). Maintenant : sélection de carte (avantage réel) + Foi.
+registerEffect('spell', cap => cap==='oracle_3', async ctx => {
+  const P = G.players[ctx.p];
+  await showOracleModal(ctx.p);
+  P.faith = (P.faith||0)+1;
+  addLog(`🔮 Oracle de Delphes — la prophétie élève la Foi : +1 (${P.faith}/${FAITH_WIN})`,'special');
+});
 
 async function applySpellEffect(c, p) {
   // Dispatch composable des effets de sort (cf. moteur d'effets, Event 'spell').
   await runEffects('spell', { c, p, opp: p===1?2:1, cap: c.cap||'' });
 }
 
-// ── Oracle de Delphes — UI modal ─────────────────────────────
+// ── Oracle de Delphes — DIVINATION (Phase 4) ─────────────────────────────
+// Révèle les 3 prochaines cartes du deck ; le joueur (ou l'IA) en met UNE en
+// main, les autres restent au-dessus du deck dans l'ordre révélé.
 async function showOracleModal(p) {
   const P = G.players[p];
   const cards = P.deck.slice(0, 3);
-  if(cards.length === 0) { addLog('Oracle — deck vide!','event'); return; }
+  if(cards.length === 0) { addLog('🔮 Oracle — deck vide!','event'); return; }
 
-  // AI: do nothing (keep order)
+  // Met la carte d'indice `pick` en main ; le reste reste sur le deck (ordre révélé).
+  const resolvePick = (pick) => {
+    const taken = P.deck.splice(pick, 1)[0];
+    P.hand.push(taken);
+    addLog(`🔮 Oracle — ${taken.n} arraché au destin (en main).`,'buff');
+  };
+
+  // IA : prend la carte au meilleur score (avantage de carte réel).
   if(aiControls(p)) {
-    addLog('Oracle — IA garde l\'ordre du deck.','event');
+    let bestI = 0, bestS = -Infinity;
+    cards.forEach((c,i)=>{ const s = scoreCard(c, p); if(s>bestS){ bestS=s; bestI=i; } });
+    resolvePick(bestI);
     return;
   }
 
-  addLog('Oracle — Choisissez l\'ordre des 3 prochaines cartes.','event');
-
+  addLog('🔮 Oracle — Choisissez une carte à prendre en main.','event');
   return new Promise(resolve => {
-    let order = [...cards];
-
-    // Create modal dynamically
     let modal = document.getElementById('oracle-modal');
     if(!modal) {
       modal = document.createElement('div');
@@ -2931,58 +2947,30 @@ async function showOracleModal(p) {
       modal.className = 'oracle-modal';
       document.body.appendChild(modal);
     }
-
-    const render = () => {
-      modal.innerHTML = `
-        <h3 style="color:#ffd700;margin:0 0 8px">🔮 Oracle de Delphes</h3>
-        <p style="font-size:12px;color:#aaa;margin:0 0 12px">Réordonnez les 3 prochaines cartes (cliquez pour monter)</p>
-        <div id="oracle-cards" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-          ${order.map((card,i) => `
-            <div class="oracle-card" data-idx="${i}" style="
-              background:rgba(255,255,255,0.07);border:1px solid rgba(200,164,74,0.4);
-              border-radius:8px;padding:8px 12px;cursor:pointer;min-width:80px;text-align:center;
-              font-size:11px;color:#fff">
-              <div style="font-size:18px">${card.type==='monster'?'🐉':card.type==='spell'?'✨':'⚡'}</div>
-              <div style="font-weight:bold;font-size:10px;margin:4px 0">${card.n}</div>
-              <div style="color:#888;font-size:9px">coût ${card.cost}</div>
-              <div style="color:#aaa;margin-top:4px">
-                ${i>0?'<span style="font-size:14px;cursor:pointer" data-up="'+i+'">⬆</span>':''}
-                ${i<order.length-1?'<span style="font-size:14px;cursor:pointer" data-down="'+i+'">⬇</span>':''}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-        <button id="oracle-confirm" style="
-          margin-top:16px;padding:8px 20px;background:linear-gradient(135deg,#1a472a,#2d6a4f);
-          color:#ffd700;border:1px solid rgba(200,164,74,0.5);border-radius:6px;
-          font-size:13px;font-weight:bold;cursor:pointer">✅ Confirmer</button>
-      `;
-
-      modal.querySelectorAll('[data-up]').forEach(btn => {
-        btn.addEventListener('click', e => {
-          const i = parseInt(btn.dataset.up);
-          [order[i-1], order[i]] = [order[i], order[i-1]];
-          render();
-        });
-      });
-      modal.querySelectorAll('[data-down]').forEach(btn => {
-        btn.addEventListener('click', e => {
-          const i = parseInt(btn.dataset.down);
-          [order[i], order[i+1]] = [order[i+1], order[i]];
-          render();
-        });
-      });
-      document.getElementById('oracle-confirm').addEventListener('click', () => {
-        // Put ordered cards back on top of deck
-        P.deck.splice(0, order.length, ...order);
-        addLog(`Oracle — Ordre confirmé: ${order.map(c=>c.n).join(', ')}`, 'event');
+    modal.innerHTML = `
+      <h3 style="color:#ffd700;margin:0 0 8px">🔮 Oracle de Delphes</h3>
+      <p style="font-size:12px;color:#aaa;margin:0 0 12px">Divination — cliquez la carte à mettre en main (+1 Foi)</p>
+      <div id="oracle-cards" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        ${cards.map((card,i) => `
+          <div class="oracle-card" data-pick="${i}" style="
+            background:rgba(255,255,255,0.07);border:1px solid rgba(200,164,74,0.4);
+            border-radius:8px;padding:12px;cursor:pointer;min-width:88px;text-align:center;
+            font-size:11px;color:#fff">
+            <div style="font-size:20px">${card.type==='monster'?'🐉':card.type==='spell'?'✨':'⚡'}</div>
+            <div style="font-weight:bold;font-size:11px;margin:6px 0">${card.n}</div>
+            <div style="color:#888;font-size:9px">coût ${card.cost}${card.type==='monster'?` · ${card.atk}⚔/${card.def}🛡`:''}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    modal.querySelectorAll('[data-pick]').forEach(el => {
+      el.addEventListener('click', () => {
+        resolvePick(parseInt(el.dataset.pick));
         modal.style.display = 'none';
         resolve();
       });
-    };
-
+    });
     modal.style.display = 'flex';
-    render();
   });
 }
 
@@ -3619,6 +3607,9 @@ function scoreCard(c, p) {
   }
   if(cap.includes('cancel') && oppField.length > 0) score += 5;
   if(cap.includes('draw3'))   score += P.hand.length < 3 ? 5 : 2;
+  // Oracle de Delphes : divination (carte en main) + 1 Foi → toujours utile,
+  // davantage si peu de cartes en main. Cap à 2 gems = bon tempo.
+  if(cap.includes('oracle')) score += 6 + (P.hand.length < 3 ? 2 : 0) + (P.deck.length > 0 ? 0 : -6);
 
   return (score + profileCardBonus(c, p)) * urgency;
 }

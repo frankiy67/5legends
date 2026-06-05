@@ -43,6 +43,8 @@ function bumpCard(n, won) { (card[n] || (card[n] = { played: 0, wonWith: 0 })); 
       let mm = e.msg.match(/Player (\d) summons (.+?) \(/);
       if (mm) { plays[+mm[1]].add(mm[2]); continue; }
       mm = e.msg.match(/Player (\d) plays God: (.+?)!/);
+      if (mm) { plays[+mm[1]].add(mm[2]); continue; }
+      mm = e.msg.match(/Player (\d) plays: (.+?)!/);   // sorts (Oracle…)
       if (mm) plays[+mm[1]].add(mm[2]);
     }
     for (const p of [1, 2]) for (const n of plays[p]) bumpCard(n, r.winner === p);
