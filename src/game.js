@@ -4440,9 +4440,9 @@ function stopTargeting() {
   });
   const hintEl = document.getElementById('targeting-hint');
   if(hintEl) hintEl.style.display='none';
-  // Choix de combat (flèches directes) : retire l'icône 🙏 et le listener associé.
-  const pc = document.getElementById('pray-choice');
-  if(pc) pc.remove();
+  // Choix de combat : retire le mini-menu ⚔️/🙏 et le listener « clic ailleurs ».
+  const cm = document.getElementById('combat-menu');
+  if(cm) cm.remove();
   if(typeof _combatChoiceOutside !== 'undefined' && _combatChoiceOutside) {
     document.removeEventListener('mousedown', _combatChoiceOutside, true);
     _combatChoiceOutside = null;
@@ -4543,9 +4543,14 @@ document.addEventListener('keydown', e=>{
     if(G.inReaction && window._resolveReaction) window._resolveReaction();
     renderAll();
   }
+  // ESC : fermer le mini-menu ⚔️/🙏 (phase menu, sans ciblage actif).
+  else if(e.key==='Escape' && document.getElementById('combat-menu')) {
+    cancelCombatChoice();
+  }
 });
 document.addEventListener('contextmenu', e=>{
   if(G && G.targeting) { e.preventDefault(); G.selAtk=null; stopTargeting(); renderAll(); }
+  else if(document.getElementById('combat-menu')) { e.preventDefault(); cancelCombatChoice(); }
 });
 
 // Override showTargetModal to use arrow targeting instead
@@ -5374,15 +5379,15 @@ function onFieldClick(p,i) {
   }
 }
 
-// ── ASCENSION (C2/UI) — v3 : CHOIX DE COMBAT PAR FLÈCHES DIRECTES ──────────
-// 100% UI (aucune logique de jeu modifiée). Au clic sur une créature prête, elle
-// se surligne et des flèches statiques pointent vers chaque cible ennemie
-// ciblable (surlignées) + une icône 🙏 Prier en bas-centre (surlignée, flèche
-// dorée plus douce). Clic cible ennemie → attaque (doAttack) ; clic 🙏 → prière
-// (prayWith) ; clic ailleurs / ESC / clic droit → annule.
+// ── ASCENSION (C2/UI) — v4 : MINI-MENU CONTEXTUEL ⚔️ / 🙏 ──────────────────
+// 100% UI (aucune logique de jeu modifiée). Au clic sur une créature prête, un
+// petit menu [⚔️ Attaquer] [🙏 Prier] apparaît JUSTE AU-DESSUS d'elle (fallback
+// en dessous si haut d'écran). « Attaquer » entre en ciblage (flèches vers les
+// ennemis ciblables) → clic ennemi = doAttack. « Prier » prie immédiatement
+// (prayWith). Clic ailleurs / ESC / clic droit → annule.
 // État de sélection UI hors de G (jamais sérialisé, jamais lu par la simulation).
 let uiSelected = null;          // { p, i } de la créature sélectionnée, ou null.
-let _combatChoiceOutside = null; // listener « clic ailleurs » (différé)
+let _combatChoiceOutside = null; // listener « clic ailleurs »
 
 function setSelectedHighlight(sel) {
   // Manipule directement la classe .selected (pas de renderAll → pas de course DOM).
@@ -5407,12 +5412,21 @@ function combatTargetAllowed(oppP, m) {
   return true;
 }
 
-// Ferme le choix de combat — toute la purge (icône 🙏, surlignage, flèches,
-// ciblage, listener) est centralisée dans stopTargeting (idempotent).
-function cancelCombatChoice() {
-  if(G) stopTargeting();
+// Retire le mini-menu et le listener « clic ailleurs » (sans toucher au ciblage).
+function removeCombatMenu() {
+  const menu = document.getElementById('combat-menu');
+  if(menu) menu.remove();
+  if(_combatChoiceOutside) { document.removeEventListener('mousedown', _combatChoiceOutside, true); _combatChoiceOutside = null; }
 }
 
+// Ferme tout le choix de combat (menu + ciblage + surlignage). Idempotent :
+// stopTargeting centralise la purge (menu, classes, flèches, listener).
+function cancelCombatChoice() {
+  if(G) stopTargeting();
+  else removeCombatMenu();
+}
+
+// ÉTAPE 1 — mini-menu contextuel au-dessus de la créature.
 function startCombatChoice(p, i) {
   cancelCombatChoice();
   const P = G.players[p];
@@ -5420,65 +5434,101 @@ function startCombatChoice(p, i) {
   if(!m) return;
   const opp = p===1?2:1;
   const OP = G.players[opp];
-  // Cibles d'attaque valides (créatures adverses, hors agenouillés protégés/Égide
-  // et hors non-Protect si Taunt). 🙏 Prier proposé si la prière est légale.
-  const targets = OP.field
-    .map((x,idx)=>({x,idx}))
-    .filter(o => o.x && !o.x.faceDown && combatTargetAllowed(opp, o.x));
+  const hasAttackTarget = OP.field.some((x)=> x && !x.faceDown && combatTargetAllowed(opp, x));
   const canPrayNow = canPray(p, i);
-  if(targets.length === 0 && !canPrayNow) return;  // rien à faire
+  if(!hasAttackTarget && !canPrayNow) return;  // rien à faire
 
   hideCardPreview();
   uiSelected = { p, i };
   setSelectedHighlight(uiSelected);
 
-  // Ciblage en mode attaque (la résolution réutilise resolveTarget/doAttack).
+  const menu = document.createElement('div');
+  menu.id = 'combat-menu';
+  let html = '';
+  if(hasAttackTarget) html += `<button class="cm-btn cm-attack" data-act="attack">⚔️ Attaquer</button>`;
+  if(canPrayNow)      html += `<button class="cm-btn cm-pray" data-act="pray">🙏 Prier</button>`;
+  menu.innerHTML = html;
+  document.body.appendChild(menu);
+
+  const atkBtn = menu.querySelector('.cm-attack');
+  if(atkBtn) atkBtn.onclick = (e) => { e.stopPropagation(); removeCombatMenu(); enterAttackTargeting(p, i); };
+  const prayBtn = menu.querySelector('.cm-pray');
+  if(prayBtn) prayBtn.onclick = (e) => { e.stopPropagation(); cancelCombatChoice(); prayWith(p, i); };
+
+  // Position : juste au-dessus de la carte (fallback en dessous si haut d'écran).
+  const cardEl = document.querySelector(`[data-player="${p}"][data-idx="${i}"]`);
+  positionCombatMenu(menu, cardEl);
+
+  // Clic ailleurs (hors menu) → annule.
+  _combatChoiceOutside = (e) => {
+    const mn = document.getElementById('combat-menu');
+    if(mn && !mn.contains(e.target)) cancelCombatChoice();
+  };
+  setTimeout(() => { if(_combatChoiceOutside) document.addEventListener('mousedown', _combatChoiceOutside, true); }, 0);
+}
+
+// Place le mini-menu au-dessus de la carte (centré), fallback en dessous, clampé.
+function positionCombatMenu(menu, cardEl) {
+  const m = 8, vw = window.innerWidth, vh = window.innerHeight;
+  const w = menu.offsetWidth || 150, h = menu.offsetHeight || 40;
+  let x, y;
+  if(cardEl && cardEl.getBoundingClientRect) {
+    const r = cardEl.getBoundingClientRect();
+    x = r.left + r.width/2 - w/2;
+    y = r.top - h - m;              // au-dessus
+    if(y < m) y = r.bottom + m;     // fallback en dessous
+  } else { x = (vw-w)/2; y = (vh-h)/2; }
+  x = Math.max(m, Math.min(x, vw-w-m));
+  y = Math.max(m, Math.min(y, vh-h-m));
+  menu.style.left = x + 'px';
+  menu.style.top  = y + 'px';
+}
+
+// ÉTAPE 2 — après « Attaquer » : ciblage par flèches vers les ennemis valides.
+function enterAttackTargeting(p, i) {
+  const P = G.players[p];
+  const m = P && P.field[i];
+  if(!m) return;
+  const opp = p===1?2:1;
+  const OP = G.players[opp];
+  const targets = OP.field
+    .map((x,idx)=>({x,idx}))
+    .filter(o => o.x && !o.x.faceDown && combatTargetAllowed(opp, o.x));
+  if(targets.length === 0) { cancelCombatChoice(); return; }
+
+  uiSelected = { p, i };
+  setSelectedHighlight(uiSelected);
+
+  // Ciblage en mode attaque (résolution via resolveTarget/doAttack — inchangée).
   G.targeting = { mode:'attack', p, idx:i, attacker:m, opp, combatChoice:true };
   document.body.classList.add('targeting');
 
-  // Surligne les cibles ennemies (contour rouge/doré via .valid-target-dmg).
   const targetEls = [];
   targets.forEach(o => {
     const el = document.querySelector(`[data-player="${opp}"][data-idx="${o.idx}"]`);
     if(el) { el.classList.add('valid-target-dmg'); targetEls.push(el); }
   });
 
-  // Icône 🙏 Prier (bas-centre), surlignée, cliquable → prière (logique inchangée).
-  let prayEl = null;
-  if(canPrayNow) {
-    prayEl = document.createElement('div');
-    prayEl.id = 'pray-choice';
-    prayEl.innerHTML = `<span class="pc-glyph">🙏</span><span class="pc-label">Prier<span class="pc-sub">+1 Foi</span></span>`;
-    document.body.appendChild(prayEl);
-    prayEl.onclick = (e) => { e.stopPropagation(); cancelCombatChoice(); prayWith(p, i); };
-  }
-
-  // Position de départ (centre de la créature) + dessin des flèches statiques.
   const atkEl = document.querySelector(`[data-player="${p}"][data-idx="${i}"]`);
   arrowStart = atkEl ? getElCenter(atkEl) : { x: window.innerWidth/2, y: window.innerHeight/2 };
-  const facRgb = FACTION_RGB[P.faction] || '243,156,18';
-  drawCombatArrows(arrowStart, targetEls, prayEl, facRgb);
+  drawCombatArrows(arrowStart, targetEls, FACTION_RGB[P.faction] || '243,156,18');
 
   const hint = document.getElementById('targeting-hint');
   if(hint) {
     hint.style.display = 'block';
-    hint.innerHTML = `⚔ <b>${m.n}</b> — clique une cible ${canPrayNow?'ou 🙏 Prier ':''}· <span style="color:#888">ESC pour annuler</span>`;
+    hint.innerHTML = `⚔ <b>${m.n}</b> — clique une cible ennemie · <span style="color:#888">ESC pour annuler</span>`;
   }
+  addLog(`${m.n} attaque — clique une cible ennemie.`, 'event');
 
-  addLog(`${m.n} prêt — clique une cible${canPrayNow?' ou 🙏 Prier':''}.`, 'event');
-
-  // Clic ailleurs → annule (différé pour ne pas capter le clic d'ouverture).
+  // Clic ailleurs → annule (différé pour ne pas capter un clic-cible avant doAttack).
   _combatChoiceOutside = (e) => {
-    // Si la cible/🙏 est cliquée, leurs handlers (onFieldClick/onclick) résolvent
-    // et nettoient avant ; ici on n'annule que si le choix est encore actif.
     setTimeout(() => { if(G && G.targeting && G.targeting.combatChoice) cancelCombatChoice(); }, 0);
   };
   setTimeout(() => { if(_combatChoiceOutside) document.addEventListener('mousedown', _combatChoiceOutside, true); }, 0);
 }
 
-// Dessine des flèches STATIQUES : une par cible ennemie (couleur de faction) et
-// une flèche dorée plus douce vers l'icône 🙏 Prier. Pur cosmétique.
-function drawCombatArrows(from, targetEls, prayEl, facRgb) {
+// Dessine des flèches STATIQUES : une par cible ennemie (couleur de faction).
+function drawCombatArrows(from, targetEls, facRgb) {
   const canvas = document.getElementById('arrow-canvas');
   if(!canvas) return;
   canvas.style.display = 'block';
@@ -5487,7 +5537,6 @@ function drawCombatArrows(from, targetEls, prayEl, facRgb) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
   targetEls.forEach(el => drawArrow(ctx, from, getElCenter(el), facRgb));
-  if(prayEl) drawArrow(ctx, from, getElCenter(prayEl), '244,201,93'); // prière : doré doux
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -5712,8 +5761,8 @@ function cancelTargeting(){
   if(hint) hint.style.display='none';
   const canvas=document.getElementById('arrow-canvas');
   if(canvas){ canvas.style.display='none'; }
-  // Choix de combat : retire l'icône 🙏 et le listener « clic ailleurs ».
-  const pc=document.getElementById('pray-choice'); if(pc) pc.remove();
+  // Choix de combat : retire le mini-menu ⚔️/🙏 et le listener « clic ailleurs ».
+  const cm=document.getElementById('combat-menu'); if(cm) cm.remove();
   if(typeof _combatChoiceOutside!=='undefined' && _combatChoiceOutside){ document.removeEventListener('mousedown',_combatChoiceOutside,true); _combatChoiceOutside=null; }
   uiSelected=null;
   renderAll();
