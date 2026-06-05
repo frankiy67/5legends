@@ -737,6 +737,9 @@ function initGame(f1, f2, mode, opts) {
     // BRIQUE 7 : p1 joue le deck custom drafté s'il existe ; sinon deck faction.
     // L'IA (p2) garde toujours son deck faction standard.
     const deck = (p===1 && customDeck) ? buildCustomDeck(customDeck) : buildDeck(f);
+    // BRIQUE 7 : en Arena (customDeck), main de départ compensée (cf. setArenaStart).
+    // Sans customDeck → comportement normal inchangé (p1=4, p2=5).
+    const handN = customDeck ? (p===1 ? ARENA_PLAYER_HAND : ARENA_OPP_HAND) : (p===1?4:5);
     G.players[p] = {
       id: p,
       faction: f,
@@ -744,7 +747,7 @@ function initGame(f1, f2, mode, opts) {
       maxGems: 1,
       gems: 1,
       field: [],
-      hand: deck.splice(0, p===1?4:5),
+      hand: deck.splice(0, handN),
       deck,
       graveyard: [],
       attacked: new Set(),
@@ -753,7 +756,8 @@ function initGame(f1, f2, mode, opts) {
       balderActive: false,
       // ASCENSION (C1) : jauge de Foi (inerte en C1) + Dieu Suprême de la faction.
       // Pièce de Foi du 2e joueur : J1=0, J2=P2_START_FAITH. Affectation silencieuse.
-      faith: p===1 ? 0 : P2_START_FAITH,
+      // BRIQUE 7 : en Arena (customDeck), Foi de départ compensée (cf. setArenaStart).
+      faith: customDeck ? (p===1 ? ARENA_PLAYER_FAITH : ARENA_OPP_FAITH) : (p===1 ? 0 : P2_START_FAITH),
       supremeGod: SUPREME_GODS[f] || 'Dieu Suprême',
       // BRIQUE 4 : pouvoir de dieu. Choix UI (setupGod) sinon aléatoire (sim/IA).
       god: null, godName: '', godPower: null, godUsedThisTurn: false,
@@ -764,7 +768,12 @@ function initGame(f1, f2, mode, opts) {
   }
   setupGod = { 1:null, 2:null }; // consommé
   G.market = initMarket();   // BRIQUE 5 : marché commun de 5 cartes (pool complet)
-  G.activeTurn = 1; // Player 1 starts
+  G.activeTurn = 1; G.cp = 1; // Player 1 starts (défaut)
+  // BRIQUE 7 (Phase 9) : en Arena (customDeck), l'ADVERSAIRE (p2) joue en PREMIER.
+  // Le joueur (p1) hérite ainsi de l'avantage structurel du 2ᵉ joueur (réactif),
+  // décisif dans cette course à la Foi → la run devient gagnable. Mesuré : winrate
+  // joueur vs CONTROL ~26%→68% en passant 1er→2ᵉ. Mode normal inchangé.
+  if (customDeck) { G.cp = 2; G.activeTurn = 2; }
   addLog('⚔ Battle begins!', 'event');
   applyBattlefieldArt(f1, f2);
   // MULLIGAN : en sim (golden) on démarre direct (aucune consommation RNG
@@ -783,6 +792,9 @@ function beginPlay() {
   // aiTurn qui s'en charge ; beginPlay n'est pas appelé).
   if(!aiControls(G.cp)) beginCycle(G.cp);
   renderAll();
+  // BRIQUE 7 : si le joueur qui commence est l'IA (Arena = adversaire en 1er),
+  // déclenche son tour. (En pve normal, cp=1 humain → ne se déclenche pas.)
+  if(G.mode==='pve' && aiControls(G.cp)) setTimeout(aiTurn, 600);
 }
 
 // ── MULLIGAN ─────────────────────────────────────────────────────────────
@@ -5855,6 +5867,19 @@ function showBigPreview(card) {
 // ══════════════════════════════════════════════════════════════════════════
 const ARENA_WINS_GOAL = 12;
 const ARENA_LOSSES_MAX = 3;
+// Compensation de départ en Arena (le joueur p1 joue en premier mais part avec
+// une main et un jeton de Foi : sans cela la run est imperdable côté adversaire).
+// Tunables (sweep via setters) — n'affectent QUE les matchs avec customDeck, donc
+// le mode normal reste byte-identique. Calibrés en Phase 9.
+let ARENA_PLAYER_HAND = 5, ARENA_OPP_HAND = 4;
+let ARENA_PLAYER_FAITH = 2, ARENA_OPP_FAITH = 0;
+// Poids du bonus de faction choisie dans le draft IA (sweepable en Phase 9).
+let ARENA_FACTION_BONUS = 50;
+function setArenaFactionBonus(v) { if (v != null) ARENA_FACTION_BONUS = v; }
+function setArenaStart(ph, oh, pf, of) {
+  if (ph != null) ARENA_PLAYER_HAND = ph; if (oh != null) ARENA_OPP_HAND = oh;
+  if (pf != null) ARENA_PLAYER_FAITH = pf; if (of != null) ARENA_OPP_FAITH = of;
+}
 const ARENA_DECK_SIZE = 40;
 const ARENA_DRAFT_PICKS = 40;
 const ARENA_PICK_SIZE = 4;
@@ -5862,7 +5887,9 @@ const ARENA_PICK_SIZE = 4;
 // ── DRAFT (Phase 3) — logique partagée UI (Phase 5) + sim (arena_sim.js) ──
 // Tire ARENA_PICK_SIZE cartes DISTINCTES du pool complet (pas de doublon DANS
 // un même pick ; doublons ENTRE picks autorisés). Utilise le RNG seedé.
-function arenaDraw4(pool) {
+// Phase 9 : si chosenFaction est fourni, GARANTIT ≥1 carte de cette faction par
+// pick → permet de drafter un deck cohérent (synergies tribales) → run gagnable.
+function arenaDraw4(pool, chosenFaction) {
   const picks = [], used = new Set();
   let guard = 0;
   while (picks.length < ARENA_PICK_SIZE && guard < 2000) {
@@ -5871,6 +5898,14 @@ function arenaDraw4(pool) {
     if (used.has(c.id)) continue;
     used.add(c.id);
     picks.push(c);
+  }
+  // Garantie ≥1 carte de la faction choisie : si absente, remplace une carte.
+  if (chosenFaction && !picks.some(c => c.faction === chosenFaction)) {
+    const facPool = pool.filter(c => c.faction === chosenFaction && !used.has(c.id));
+    if (facPool.length) {
+      const repl = facPool[Math.floor(rng() * facPool.length)];
+      picks[Math.floor(rng() * picks.length)] = repl;
+    }
   }
   return picks;
 }
@@ -5886,7 +5921,10 @@ function arenaCardValue(c, chosenFaction) {
   if (/hurry/.test(cap)) v += 1;
   if (/curse/.test(cap)) v += 1;
   if (/entry|exit|combat|token|draw|search|wipe|destroy|copy|revive|reclaim|dmg/.test(cap)) v += 1;
-  if (c.faction === chosenFaction) v += 3;                        // bonus faction choisie
+  // Bonus faction choisie : volontairement FORT pour que le draft IA construise un
+  // deck cohérent (synergies tribales). Le draft humain reste libre — ce bonus ne
+  // pilote que l'IA de simulation et la suggestion. (Phase 9.)
+  if (c.faction === chosenFaction) v += ARENA_FACTION_BONUS;
   return v;
 }
 // Choix IA : indice de la meilleure carte parmi les options.
@@ -5900,7 +5938,7 @@ function arenaAIDraft(chosenFaction) {
   const pool = buildCardPool();
   const deck = [];
   for (let i = 0; i < ARENA_DRAFT_PICKS; i++) {
-    const opts = arenaDraw4(pool);
+    const opts = arenaDraw4(pool, chosenFaction);
     deck.push({ ...opts[arenaAIPick(opts, chosenFaction)] });
   }
   return deck;
@@ -6027,7 +6065,7 @@ function arenaCardHTML(c, idx) {
 
 function arenaRenderPick() {
   if(ARENA.deck.length >= ARENA_DRAFT_PICKS) { arenaRenderSummary(); return; }
-  const opts = arenaDraw4(ARENA._pool);
+  const opts = arenaDraw4(ARENA._pool, ARENA.faction);
   ARENA._currentPick = opts;
   const cur = document.getElementById('draft-count-cur'); if(cur) cur.textContent = ARENA.deck.length;
   const fill = document.getElementById('draft-bar-fill'); if(fill) fill.style.width = (100*ARENA.deck.length/ARENA_DRAFT_PICKS)+'%';

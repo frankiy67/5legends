@@ -18,8 +18,17 @@ const API = loadGameCustom([
   'FACTIONS', 'GOD_POWERS', 'randomGodAssign', 'factionGods',
   'FAITH_WIN', 'TURN_CAP', 'rng',
   'buildCardPool', 'arenaAIDraft', 'arenaOppProfile', 'arenaCardValue',
-  'ARENA_WINS_GOAL', 'ARENA_LOSSES_MAX',
+  'ARENA_WINS_GOAL', 'ARENA_LOSSES_MAX', 'setArenaStart',
 ]);
+
+// Compensation de départ Arena (cf. setArenaStart). Sweepable via env :
+// ARENA_PH (main joueur), ARENA_OH (main adv), ARENA_PF (Foi joueur), ARENA_OF (Foi adv).
+const _envN = (k, d) => (process.env[k] != null ? parseInt(process.env[k], 10) : d);
+const ARENA_PH = _envN('ARENA_PH', null), ARENA_OH = _envN('ARENA_OH', null);
+const ARENA_PF = _envN('ARENA_PF', null), ARENA_OF = _envN('ARENA_OF', null);
+if (API.setArenaStart && (ARENA_PH != null || ARENA_OH != null || ARENA_PF != null || ARENA_OF != null)) {
+  API.setArenaStart(ARENA_PH, ARENA_OH, ARENA_PF, ARENA_OF);
+}
 
 const WINS_GOAL = API.ARENA_WINS_GOAL || 12;
 const LOSSES_MAX = API.ARENA_LOSSES_MAX || 3;
