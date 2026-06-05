@@ -5843,6 +5843,61 @@ const ARENA_DECK_SIZE = 40;
 const ARENA_DRAFT_PICKS = 40;
 const ARENA_PICK_SIZE = 4;
 
+// ── DRAFT (Phase 3) — logique partagée UI (Phase 5) + sim (arena_sim.js) ──
+// Tire ARENA_PICK_SIZE cartes DISTINCTES du pool complet (pas de doublon DANS
+// un même pick ; doublons ENTRE picks autorisés). Utilise le RNG seedé.
+function arenaDraw4(pool) {
+  const picks = [], used = new Set();
+  let guard = 0;
+  while (picks.length < ARENA_PICK_SIZE && guard < 2000) {
+    guard++;
+    const c = pool[Math.floor(rng() * pool.length)];
+    if (used.has(c.id)) continue;
+    used.add(c.id);
+    picks.push(c);
+  }
+  return picks;
+}
+// Heuristique de valeur d'une carte pour le draft IA : ATK+DEF + bonus mot-clé/
+// effet, + bonus si la carte appartient à la faction choisie (favorise synergies).
+function arenaCardValue(c, chosenFaction) {
+  let v = (c.atk || 0) + (c.def || 0);
+  const cap = c.cap || '';
+  if (c.type === 'god') v += 5;                                   // effet de dieu = fort
+  if (/fervor/.test(cap)) v += 3;                                 // Foi = condition de victoire
+  if (/\bhit\b/.test(cap)) v += 2;                                // double attaque
+  if (/protect|endure|egide/.test(cap)) v += 2;                  // résilience / structure
+  if (/hurry/.test(cap)) v += 1;
+  if (/curse/.test(cap)) v += 1;
+  if (/entry|exit|combat|token|draw|search|wipe|destroy|copy|revive|reclaim|dmg/.test(cap)) v += 1;
+  if (c.faction === chosenFaction) v += 3;                        // bonus faction choisie
+  return v;
+}
+// Choix IA : indice de la meilleure carte parmi les options.
+function arenaAIPick(options, chosenFaction) {
+  let best = 0, bv = -Infinity;
+  options.forEach((c, i) => { const v = arenaCardValue(c, chosenFaction); if (v > bv) { bv = v; best = i; } });
+  return best;
+}
+// Draft IA complet : ARENA_DRAFT_PICKS picks → tableau de templates.
+function arenaAIDraft(chosenFaction) {
+  const pool = buildCardPool();
+  const deck = [];
+  for (let i = 0; i < ARENA_DRAFT_PICKS; i++) {
+    const opts = arenaDraw4(pool);
+    deck.push({ ...opts[arenaAIPick(opts, chosenFaction)] });
+  }
+  return deck;
+}
+// Profil IA adverse selon le NOMBRE DE VICTOIRES (difficulté croissante).
+function arenaOppProfile(wins) {
+  let set;
+  if (wins <= 3) set = ['CONTROL'];
+  else if (wins <= 7) set = ['CONTROL', 'RUSH', 'GUARD'];
+  else set = ['RUSH', 'GUARD', 'RAID', 'CONTROL'];
+  return set[Math.floor(rng() * set.length)];
+}
+
 // Entrée du flux Arena (depuis l'écran de mode). Construit un état de run vierge,
 // puis lance la sélection de faction → dieu (Phase 4). Le draft (Phase 5) et la
 // boucle de matchs (Phase 6) suivent.
