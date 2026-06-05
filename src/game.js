@@ -324,7 +324,7 @@ yokai:[
   {id:'NINGYO',     n:'Ningyo',     atk:1,def:2,cost:1,rarity:'common',  cap:'attack_draw',             txt:'Attaque : piochez 1 carte.'},
   {id:'MUJNINA',    n:'Mujnina',    atk:3,def:2,cost:2,rarity:'common',  cap:'fervor',                    txt:"Ferveur : +1 Foi quand elle inflige des dégâts à une créature (1×/tour)."},
   {id:'TANUKI',     n:'Tanuki',     atk:3,def:3,cost:2,rarity:'common',  cap:'exit_search_3def',        txt:'Sortie : Cherchez un monstre DEF ≤3 dans votre deck.'},
-  {id:'KAPPA',      n:'Kappa',      atk:5,def:5,cost:4,rarity:'common',  cap:'passive_yokai_buff',      txt:'Toujours : vos autres monstres Yokai gagnent +1/+1.'},
+  {id:'KAPPA',      n:'Kappa',      atk:5,def:5,cost:4,rarity:'common',  cap:'passive_yokai_buff',      txt:'Meute : tes Yokai présents gagnent +1/+1, et chaque Yokai entrant tant que Kappa vit.'},
   {id:'KEUKEGEN',   n:'Keukegen',   atk:4,def:6,cost:5,rarity:'common',  cap:'exit_copy_killer',        txt:'Sortie : Invoquez une copie du monstre qui vous a détruit.'},
   {id:'BAKU',       n:'Baku',       atk:6,def:6,cost:6,rarity:'common',  cap:'entry_sleep',             txt:'Entrée : Placez un monstre adverse face caché (Sommeil 2 tours).'},
   // SEMI-RARES x2
@@ -1427,6 +1427,8 @@ function doEndTurn() {
   // (P1) : reset du flag Ferveur (1×/tour) et de la protection Sanctuaire (Mayahuel).
   NP.field.forEach(m => { if(m) { m.kneeling = false; m._fervor = false; m._sanctuary = false; } });
   NP.godUsedThisTurn = false;   // BRIQUE 4 : pouvoir de dieu réutilisable au nouveau tour
+  NP._egyptPrayerDraw = false;  // BRIQUE 6C : synergie de prière (1×/tour) réarmée
+  NP._aztecPrayerFaith = false;
   G.actions = 1;
   // Auto-draw
   if(NP.deck.length > 0) { NP.hand.push(NP.deck.shift()); Audio5L.sfx.draw(); }
@@ -1716,6 +1718,14 @@ registerEffect('passive', (cap, ctx) => G.players[ctx.p].field.some((x,j)=>x&&j!
   m.cAtk++; m.cDef++;
   addLog(`Centaure — ${m.n} entre avec +1/+1!`,'buff');
 });
+// BRIQUE 6C (Phase 3) — KAPPA (passive_yokai_buff) : synergie tribale yokai.
+// Tant qu'un Kappa allié est en jeu, chaque NOUVEAU monstre Yokai entre avec
+// +1/+1 permanent (cf. effet d'entrée de Kappa pour les yokai déjà présents).
+registerEffect('passive', (cap, ctx) => ctx.m.faction==='yokai' && G.players[ctx.p].field.some((x,j)=>x&&j!==ctx.idx&&!x.faceDown&&(x.cap||'').includes('passive_yokai_buff')), ctx => {
+  const { m } = ctx;
+  m.cAtk++; m.cDef++; m.atk=(m.atk||0)+1; m.def=(m.def||0)+1;
+  addLog(`🐢 Kappa — ${m.n} rejoint la meute Yokai (+1/+1)!`,'buff');
+});
 registerEffect('passive', (cap, ctx) => G.players[ctx.p].faction==='norse' && (G.ragnarok||0)>=5, ctx => {
   // Ragnarök: if Norse player and counter >= 5, entering monster gets +3/+3 + endure
   const { m } = ctx;
@@ -1793,6 +1803,13 @@ registerCombat('preStrike', (cap, ctx) => (ctx.atk.cap||'').includes('splash_adj
 });
 
 // ── Registre des effets d'ENTRÉE ([Entrée] / battlecry) ────────────────
+// BRIQUE 6C (Phase 3) — KAPPA : à son entrée, les Yokai alliés DÉJÀ présents
+// gagnent +1/+1 permanent (les suivants sont pris par le hook passif ci-dessus).
+registerEffect('entry', cap => cap.includes('passive_yokai_buff'), ctx => {
+  const P = G.players[ctx.p]; let n=0;
+  P.field.forEach((x,j)=>{ if(x && j!==ctx.idx && !x.faceDown && x.faction==='yokai'){ x.cAtk++; x.cDef++; x.atk=(x.atk||0)+1; x.def=(x.def||0)+1; n++; } });
+  if(n) addLog(`🐢 Kappa — ${n} Yokai allié(s) renforcé(s) (+1/+1).`,'buff');
+});
 registerEffect('entry', cap => cap.includes('entry_dmg5_all'), async ctx => {
   const { p, opp, idx, m, cap } = ctx;
   // Typhon: 5 dmg to ALL other monsters in play
@@ -2176,6 +2193,15 @@ async function handleDeath(p, m) {
     const OPP = G.players[opp];
     OPP.faith = (OPP.faith || 0) + DESECRATE_FAITH;
     addLog(`⛧ Profanation — ${m.n} (à genoux) tué : +${DESECRATE_FAITH} Foi pour P${opp} (${OPP.faith}/${FAITH_WIN})`,'special');
+  }
+
+  // ── BRIQUE 6C (Phase 3) : SACRIFICE AZTÈQUE — quand un vrai aztèque allié
+  // meurt réellement (combat, sacrifice de Nuit, rituel, AoE…), tes autres
+  // aztèques gagnent +1 ATK permanent. Récompense l'all-in/risque-récompense.
+  // Exclut les jetons (coût 0) pour éviter les boucles mort→jeton→mort.
+  if(P.faction==='aztec' && m.faction==='aztec' && (m.cost||0)>0) {
+    let n=0; P.field.forEach(x=>{ if(x && x!==m && !x.faceDown && x.faction==='aztec'){ x.cAtk=(x.cAtk||0)+1; x.atk=(x.atk||0)+1; n++; } });
+    if(n) addLog(`🗡️ Sacrifice aztèque — le sang nourrit ${n} aztèque(s) (+1 ATK).`,'buff');
   }
 
   checkFaceDownTrigger(opp,'ally_dies',m,p);
@@ -4940,6 +4966,13 @@ async function executeRitual(p, cardIdx, sacrificeIdx) {
   P.field.splice(sacrificeIdx, 1);
   P.graveyard.push(sacrifice);
 
+  // BRIQUE 6C (Phase 3) : le sacrifice rituel nourrit aussi la synergie aztèque
+  // (cf. handleDeath) — les autres aztèques gagnent +1 ATK.
+  if(P.faction==='aztec' && sacrifice.faction==='aztec' && (sacrifice.cost||0)>0) {
+    let n=0; P.field.forEach(x=>{ if(x && !x.faceDown && x.faction==='aztec'){ x.cAtk=(x.cAtk||0)+1; x.atk=(x.atk||0)+1; n++; } });
+    if(n) addLog(`🗡️ Sacrifice aztèque — le sang du rituel renforce ${n} aztèque(s) (+1 ATK).`,'buff');
+  }
+
   const cap = ritualCard.cap||'';
   const opp = p===1?2:1;
 
@@ -5125,6 +5158,54 @@ function canPray(p, i) {
   return true;
 }
 
+// ── BRIQUE 6C (Phase 3) : SYNERGIES INTRA-FACTION DE PRIÈRE ──────────────
+// Quand une créature s'agenouille pour prier, elle déclenche la synergie de
+// prière de sa légende. Chaque synergie est ancrée dans l'identité de la
+// faction et récompense le mono-deck (conditions de présence). La prière étant
+// le cœur de l'Ascension, ces synergies touchent toutes le système de Foi.
+function applyPrayerSynergy(p, i, m) {
+  const P = G.players[p];
+  switch (m.faction) {
+    case 'greek': {
+      // Phalange sacrée : la prière grecque en formation (≥2 autres grecs en
+      // jeu) canalise +1 Foi bonus. +1 Foi SUPPLÉMENTAIRE si un gardien Égide
+      // veille (Égide + prière + formation = identité grecque). Structure.
+      const others = P.field.filter((x,j)=> x && j!==i && !x.faceDown && x.faction==='greek').length;
+      if(others>=2) {
+        P.faith=(P.faith||0)+1;
+        const egide = P.field.some((x,j)=> x && j!==i && !x.faceDown && !x.asleep && !x.kneeling && (x.cap||'').includes('egide'));
+        if(egide) P.faith=(P.faith||0)+1;
+        addLog(`🏛️ Phalange sacrée — formation ${egide?'+ Égide ':''}: +${egide?2:1} Foi (${P.faith}/${FAITH_WIN})`,'special');
+      }
+      break;
+    }
+    case 'norse': {
+      // Endurance : le fidèle norse à genoux se renforce (+2 DEF permanent) —
+      // un mur dur à profaner. Résilience.
+      m.cDef += 2; m.def = (m.def||0)+2;
+      addLog(`🛡️ Endurance norse — ${m.n} prie et s'endurcit (+2 DEF → ${m.cDef}🛡).`,'buff');
+      break;
+    }
+    case 'egyptian': {
+      // Connaissance : si tu contrôles ≥3 autres égyptiens, la prière fait
+      // piocher (savoir/cycles). 1×/tour.
+      const others = P.field.filter((x,j)=> x && j!==i && !x.faceDown && x.faction==='egyptian').length;
+      if(others>=3 && !P._egyptPrayerDraw) { P._egyptPrayerDraw=true; drawCard(p); addLog(`📜 Connaissance — la prière révèle un savoir : pioche 1 carte.`,'buff'); }
+      break;
+    }
+    case 'yokai': {
+      // Ruse : la prière yokai galvanise un autre yokai non agenouillé
+      // (+2 ATK ce tour) — manipulation/esprit.
+      const ally = P.field.find((x,j)=> x && j!==i && !x.faceDown && !x.kneeling && x.faction==='yokai');
+      if(ally) { ally.cAtk=(ally.cAtk||0)+2; ally._cycleAtk=(ally._cycleAtk||0)+2; addLog(`🦊 Ruse yokai — ${ally.n} galvanisé : +2 ATK ce tour.`,'buff'); }
+      break;
+    }
+    // aztec : pas de synergie de prière — l'identité aztèque passe par le
+    // SACRIFICE (cf. handleDeath / executeRitual : mort d'un aztèque → +1 ATK
+    // aux autres aztèques). Donner aussi une synergie de prière déséquilibrait.
+  }
+}
+
 // Mutation pure : +1 Foi VERROUILLÉE immédiatement, la créature s'agenouille et
 // a consommé son action. (Tuer un agenouillé ne retire rien : la Foi est déjà au
 // Dieu Suprême, pas sur la créature.)
@@ -5141,6 +5222,8 @@ function doPray(p, i) {
   bumpStat(p, 'prayers');
   if (G.aiStats && G.aiStats[p] && G.aiStats[p].firstPrayTurn == null) G.aiStats[p].firstPrayTurn = G.turn;
   addLog(`🙏 ${m.n} prie — ${P.supremeGod} canalise +${gain} Foi (${P.faith}/${FAITH_WIN})`, 'special');
+  // BRIQUE 6C (Phase 3) : synergie intra-faction déclenchée par la prière.
+  applyPrayerSynergy(p, i, m);
 }
 
 // Action déclenchée par le joueur humain (bouton 🙏).
