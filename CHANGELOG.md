@@ -51,3 +51,8 @@ changement et pouvoir revert. Les **décisions de design majeures** sont marqué
 - **Dial-down anti-norse** : scores des dieux de contrôle norse (Odin `equalize`, Thor `sacrifice_opp`, AoE) réduits pour limiter l'inflation norse causée par le meilleur jeu des dieux.
 - **Buff dieux faibles aztèques** (aide la faction la plus basse + corrige des effets faibles) : **Ehecatl** c5→c4, **Xiuhtecuhtli** c5→c4. ⚑ DESIGN : les clauses « Bonus : … » de nombreux dieux (Ehecatl « détruisez les 2 », Anubis « au choix des terrains »…) ne sont **pas implémentées** (effet de base seul). Texte d'Ehecatl corrigé pour ne plus promettre le bonus. (Système de Bonus non recâblé : hors scope, risque d'équilibre.)
 - **Mesure** (1500 parties, 0 crash) : norse 53.5 / egyptian 51.8 / greek 51.2 / yokai 48.0 / aztec 45.5 — spread 8.0 pts, toutes en 45-55 %. (Le scoring des dieux coûte ~2 pts de spread vs Phase 4 ; reste l'avantage structurel norse, traité en Phase 7.)
+
+### Phase 7 — Fine-tuning norse (53.5 → 52.0)
+- **Idunn** (c0, norse) : +2 → **+1 Foi**. C'était le principal gain de Foi INDIRECT norse (2/16 de l'Ascension gratuits en mono-légende), moteur de l'avantage structurel. Conforme au principe « réduire la Foi indirecte plutôt que les stats ».
+- **Synergie de prière norse (Endurance)** : +2 → **+1 DEF** permanent au fidèle à genoux. Le +2 protégeait trop les moteurs de Foi norse de la profanation (avantage structurel indirect).
+- **Mesure** (1500 parties, 0 crash) : egyptian 52.8 / norse 52.0 / greek 51.3 / yokai 47.7 / aztec 46.0 — **spread 6.8 pts**, toutes en 45-55 %. norse ramené dans sa cible 50-52. (baseline session 8.0 / brique 6B 9.1.)

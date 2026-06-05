@@ -469,7 +469,7 @@ norse:[
   {id:'FRIGG',      n:'Frigg',      cost:3, cap:'god_cancel_ms',            txt:"N'importe quand : Annulez un monstre ou sort adverse. Bonus : Annulez aussi une capacité."},
   {id:'HEIMDALL',   n:'Heimdall',   cost:4, cap:'god_recover_1or2',         txt:'Retournez 1 carte de défausse en main. Bonus : Choisissez monstre + sort.'},
   {id:'HODER',      n:'Hoder',      cost:2, cap:'god_search2_cost2',        txt:'Cherchez jusqu\'à 2 monstres de coût ≤2 dans votre deck.'},
-  {id:'IDUNN',      n:'Idunn',      cost:0, cap:'god_5life_3faction',       txt:"Si vous contrôlez 3 créatures de la même légende : +2 Foi."},
+  {id:'IDUNN',      n:'Idunn',      cost:0, cap:'god_5life_3faction',       txt:"Si vous contrôlez 3 créatures de la même légende : +1 Foi."},
   {id:'LOKI',       n:'Loki',       cost:3, cap:'god_discard2_random',      txt:"L'adversaire défausse 2 cartes au hasard."},
   {id:'ODIN',       n:'Odin',       cost:5, cap:'god_equalize_board_hand',  txt:'Le joueur avec le plus de monstres sacrifie jusqu\'à égalité. Bonus : pareil pour la main.'},
   {id:'THOR',       n:'Thor',       cost:5, cap:'god_sacrifice_opp_draw2',  txt:'L\'adversaire sacrifie son monstre le plus fort. Vous piochez 2 cartes.'},
@@ -2535,7 +2535,11 @@ GOD_EFFECTS["god_5life_3faction"] = (ctx) => { const {c,p,opp,cap}=ctx;
     const factionCounts = {};
     G.players[p].field.filter(m=>m&&!m.faceDown).forEach(m=>{ factionCounts[m.faction]=(factionCounts[m.faction]||0)+1; });
     const has3 = Object.values(factionCounts).some(n=>n>=3);
-    if(has3) { G.players[p].faith=(G.players[p].faith||0)+2; addLog(`🔥 ${c.n} — 3 fidèles de même légende : +2 Foi (${G.players[p].faith}/${FAITH_WIN})`,'special'); }
+    // BRIQUE 6C (Phase 7) : +2 → +1 Foi. Idunn (c0, norse) était le principal
+    // gain de Foi INDIRECT norse (2/16 de l'Ascension gratuits en mono-légende),
+    // moteur de l'avantage structurel norse. Trim conforme au principe « réduire
+    // la Foi indirecte plutôt que les stats ».
+    if(has3) { G.players[p].faith=(G.players[p].faith||0)+1; addLog(`🔥 ${c.n} — 3 fidèles de même légende : +1 Foi (${G.players[p].faith}/${FAITH_WIN})`,'special'); }
     else { addLog(`${c.n} — Condition non remplie`,'special'); G.players[p].hand.push(c); G.players[p].gems+=c.cost; return 'noDiscard'; }
   };
 GOD_EFFECTS["god_cancel_ms_cap"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('cancel_ms',p,false); };
@@ -3617,7 +3621,7 @@ function scoreCard(c, p) {
     if(cap.includes('swap_monsters'))    score += (oppField.length > 0 && myField.length > 0) ? 5 : -3; // Dionysos
     if(cap.includes('equalize'))         score += oppField.length > myField.length ? 4 + (oppField.length - myField.length) : -2; // Odin
     if(cap.includes('discard_per_faction')) score += 3 + sameFac;                         // Hadès
-    if(cap.includes('5life_3faction'))   score += sameFac >= 3 ? 9 : -2;                  // Idunn (gratuit, +2 Foi)
+    if(cap.includes('5life_3faction'))   score += sameFac >= 3 ? 9 : -2;                  // Idunn (gratuit, +1 Foi)
     if(cap.includes('sacrifice_opp'))    score += oppField.length > 0 ? 3 : -3;           // Thor
 
     // General: gods with no valid targets are worthless
@@ -5201,10 +5205,11 @@ function applyPrayerSynergy(p, i, m) {
       break;
     }
     case 'norse': {
-      // Endurance : le fidèle norse à genoux se renforce (+2 DEF permanent) —
-      // un mur dur à profaner. Résilience.
-      m.cDef += 2; m.def = (m.def||0)+2;
-      addLog(`🛡️ Endurance norse — ${m.n} prie et s'endurcit (+2 DEF → ${m.cDef}🛡).`,'buff');
+      // Endurance : le fidèle norse à genoux se renforce (+1 DEF permanent) —
+      // un mur dur à profaner. Résilience. (Phase 7 : +2→+1, le +2 protégeait
+      // trop les moteurs de Foi norse → avantage structurel.)
+      m.cDef += 1; m.def = (m.def||0)+1;
+      addLog(`🛡️ Endurance norse — ${m.n} prie et s'endurcit (+1 DEF → ${m.cDef}🛡).`,'buff');
       break;
     }
     case 'egyptian': {
