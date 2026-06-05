@@ -35,6 +35,29 @@
     </div>
   </div>
 
+  <!-- ── ÉCRAN MODE : Combat rapide / Arena ─────────── -->
+  <div id="setup-mode" class="setup-screen">
+    <div class="title-bg"></div>
+    <div class="title-vignette"></div>
+    <div class="setup-screen-content mode-content">
+      <div class="logo">5 LEGENDS</div>
+      <div class="logo-sub">Choisis ton épreuve</div>
+      <div class="mode-grid">
+        <button class="mode-card mode-quick" id="mode-quick">
+          <span class="mode-ico">⚔️</span>
+          <span class="mode-name">COMBAT RAPIDE</span>
+          <span class="mode-desc">Un duel unique. Choisis ta faction, ton dieu, et affronte un adversaire.</span>
+        </button>
+        <button class="mode-card mode-arena" id="mode-arena">
+          <span class="mode-ico">🏟️</span>
+          <span class="mode-name">ARENA</span>
+          <span class="mode-desc">Draft 40 cartes parmi tous les panthéons. Enchaîne les duels jusqu'à <b>12 victoires</b> ou <b>3 défaites</b>.</span>
+        </button>
+      </div>
+      <div class="title-foot">🦊 Yokai&nbsp;&nbsp;·&nbsp;&nbsp;⚡ Norse&nbsp;&nbsp;·&nbsp;&nbsp;🏺 Egyptian&nbsp;&nbsp;·&nbsp;&nbsp;🏛 Greek&nbsp;&nbsp;·&nbsp;&nbsp;🌞 Aztec</div>
+    </div>
+  </div>
+
   <!-- ── ÉCRAN 1 : PLAYER 1 ─────────────────── -->
   <div id="setup-p1" class="setup-screen">
     <div class="setup-screen-bg" id="bg-p1"></div>
@@ -121,6 +144,19 @@
         <span class="setup-player-hint">Choisis ton dieu — son pouvoir sera activable 2💎, 1×/tour</span>
       </div>
       <div class="god-choice-grid" id="god-choices"></div>
+    </div>
+  </div>
+
+  <!-- ── BRIQUE 7 (ARENA) : ÉCRAN FACTION ─────────── -->
+  <div id="arena-faction" class="setup-screen">
+    <div class="setup-screen-bg" id="bg-arena-faction"></div>
+    <div class="setup-screen-content">
+      <div class="logo">🏟️ ARENA</div>
+      <div class="setup-player-title">
+        <span class="setup-player-num">Ton panthéon</span>
+        <span class="setup-player-hint">Choisis ta faction — elle fixe ton identité et tes options de dieu (le draft reste universel)</span>
+      </div>
+      <div class="fp-grid-full" id="arena-faction-grid"></div>
     </div>
   </div>
 

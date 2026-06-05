@@ -689,6 +689,11 @@ const SUPREME_GODS = {
 // BRIQUE 4 : choix de dieu/pouvoir issus de l'UI de setup, consommés par initGame.
 let setupGod = { 1: null, 2: null };
 
+// BRIQUE 7 — MODE ARENA. État de run en mémoire (null = mode normal Combat rapide).
+// { faction, god:{godId,godName,godPower}, deck:[40 templates], wins, losses,
+//   matchNum, opp:{faction,god} }. Voir la section « MODE ARENA » en fin de fichier.
+let ARENA = null;
+
 function initGame(f1, f2, mode) {
   G = {
     mode, // 'pvp' or 'pve' (p2 is AI)
@@ -5625,12 +5630,29 @@ function updateBg(bgId, faction) {
   bg.className = 'setup-screen-bg' + (faction ? ' ' + faction : '');
 }
 
-// ── ÉCRAN 0 : Titre → lancement ──────────────────────────────────
+// ── ÉCRAN 0 : Titre → sélection du mode ──────────────────────────
 document.getElementById('btn-play').addEventListener('click', () => {
   Audio5L.startMusic();
   document.getElementById('setup-title').classList.remove('active');
-  document.getElementById('setup-p1').classList.add('active');
+  document.getElementById('setup-mode').classList.add('active');
 });
+
+// ── ÉCRAN MODE : Combat rapide / Arena ───────────────────────────
+(function(){
+  const quick = document.getElementById('mode-quick');
+  const arena = document.getElementById('mode-arena');
+  if(quick) quick.addEventListener('click', () => {
+    Audio5L.startMusic();
+    ARENA = null;                         // mode normal : aucun deck custom
+    document.getElementById('setup-mode').classList.remove('active');
+    document.getElementById('setup-p1').classList.add('active');
+  });
+  if(arena) arena.addEventListener('click', () => {
+    Audio5L.startMusic();
+    document.getElementById('setup-mode').classList.remove('active');
+    arenaStart();                         // nouveau flux (Phases 4-7)
+  });
+})();
 
 // ── ÉCRAN 1 : Player 1 ───────────────────────────────────────────
 document.querySelectorAll('.fp[data-p="1"]').forEach(fp => {
@@ -5789,6 +5811,72 @@ function showBigPreview(card) {
   if (card.txt) info.push('<em style="color:var(--text2)">' + card.txt + '</em>');
   document.getElementById('big-preview-info').innerHTML = info.join('<br>');
   overlay.style.display = 'flex';
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// BRIQUE 7 — MODE ARENA
+// Draft de 40 cartes (tous panthéons), puis enchaînement de duels contre des IA
+// jusqu'à 12 victoires (CHAMPION) ou 3 défaites (ÉLIMINÉ). État en mémoire (un
+// reload de page perd la run — acceptable v1). Le mode normal (Combat rapide)
+// est INCHANGÉ : ARENA reste null tant qu'on n'entre pas dans ce flux.
+// ══════════════════════════════════════════════════════════════════════════
+const ARENA_WINS_GOAL = 12;
+const ARENA_LOSSES_MAX = 3;
+const ARENA_DECK_SIZE = 40;
+const ARENA_DRAFT_PICKS = 40;
+const ARENA_PICK_SIZE = 4;
+
+// Entrée du flux Arena (depuis l'écran de mode). Construit un état de run vierge,
+// puis lance la sélection de faction → dieu (Phase 4). Le draft (Phase 5) et la
+// boucle de matchs (Phase 6) suivent.
+function arenaStart() {
+  ARENA = {
+    faction: null,
+    god: null,            // { godId, godName, godPower }
+    deck: null,           // [40 templates] rempli par le draft
+    wins: 0,
+    losses: 0,
+    matchNum: 0,
+    opp: null,            // { faction, god } du match courant
+  };
+  arenaSelectFaction();   // Phase 4
+}
+
+// ── PHASE 4 — Sélection FACTION puis DIEU+POUVOIR (conservés toute la run) ──
+// La faction donne l'identité visuelle + les 4 options de dieux ; elle N'IMPOSE
+// PAS le draft (qui pioche dans tous les panthéons).
+function arenaSelectFaction() {
+  const screen = document.getElementById('arena-faction');
+  const grid = document.getElementById('arena-faction-grid');
+  if(!screen || !grid) { console.warn('arena-faction screen manquant'); return; }
+  grid.innerHTML = FACTIONS.map(f => `
+    <div class="fp ${f}" data-f="${f}">
+      <div class="fp-bg-wrap"><img class="fp-bg" src="${FACTION_ART[f]||''}" alt="${f}"></div>
+      <div class="fp-overlay"><span class="fp-name">${f.charAt(0).toUpperCase()+f.slice(1)}</span><span class="fp-style">${FE[f]||''}</span></div>
+    </div>`).join('');
+  grid.querySelectorAll('.fp').forEach(fp => {
+    fp.addEventListener('click', () => {
+      if(typeof Audio5L!=='undefined') Audio5L.startMusic();
+      const f = fp.dataset.f;
+      ARENA.faction = f;
+      screen.classList.remove('active');
+      // Réutilise l'écran de choix du dieu du mode normal.
+      showGodChoice(1, f, () => {
+        ARENA.god = setupGod[1] ? { ...setupGod[1] } : randomGodAssign(f);
+        setupGod = { 1:null, 2:null };
+        arenaStartDraft();   // Phase 5
+      });
+    });
+  });
+  document.querySelectorAll('.setup-screen').forEach(s => s.classList.remove('active'));
+  screen.classList.add('active');
+}
+
+// ── PHASE 5 — Le Draft (placeholder ; implémenté en Phase 5) ──
+function arenaStartDraft() {
+  // Implémenté en Phase 5. Pour l'instant : log + retour mode (ne casse rien).
+  console.log('[arena] faction=%s dieu=%o — draft à venir (Phase 5)', ARENA.faction, ARENA.god);
+  alert('🏟️ Faction et dieu choisis — le draft arrive (Phase 5).');
 }
 
 // Étape 6 : Test automatique des images
