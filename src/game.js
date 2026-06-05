@@ -3302,6 +3302,8 @@ function checkVictory() {
   // Plus de victoire/défaite par PV. ──
   for(let p=1;p<=2;p++) {
     if((G.players[p].faith||0) >= FAITH_WIN) {
+      // BRIQUE 7 : en Arena, le résultat alimente la run (pas l'écran victoire normal).
+      if(ARENA){ arenaOnMatchEnd(p); return; }
       const P=G.players[p];
       const w=p; // le joueur qui ascensionne gagne
       if(G.mode!=='pve' || w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
@@ -3317,6 +3319,8 @@ function checkVictory() {
   // PLUS de Foi gagne (égalité de Foi = match nul). PHASE A : plus de départage PV. ──
   if(G.turn > TURN_CAP) {
     const f1=G.players[1].faith||0, f2=G.players[2].faith||0;
+    // BRIQUE 7 : en Arena, l'horloge alimente la run (nul = défaite côté joueur).
+    if(ARENA){ arenaOnMatchEnd(f1===f2 ? null : (f1>f2?1:2)); return; }
     const titleEl=document.getElementById('vic-title');
     if(f1===f2) {
       titleEl.textContent = `Match nul — l'horloge céleste a sonné`;
@@ -6090,10 +6094,83 @@ function arenaRenderSummary() {
   }
 }
 
-// ── PHASE 6 — Lancer la run (placeholder ; implémenté en Phase 6) ──
+// ── PHASE 6 — LE RUN (matchs en séquence) ────────────────────────────────
+// Le joueur enchaîne des matchs avec son deck drafté + dieu fixe, jusqu'à
+// ARENA_WINS_GOAL victoires (CHAMPION) ou ARENA_LOSSES_MAX défaites (ÉLIMINÉ).
 function arenaLaunchRun() {
-  console.log('[arena] deck prêt (%d cartes) — run à venir (Phase 6)', (ARENA.deck||[]).length);
-  alert('🏟️ Deck prêt — la run arrive (Phase 6).');
+  if(!ARENA || !ARENA.deck || ARENA.deck.length !== ARENA_DECK_SIZE) {
+    console.warn('arenaLaunchRun: deck invalide', ARENA && ARENA.deck && ARENA.deck.length);
+    return;
+  }
+  ARENA.wins = 0; ARENA.losses = 0; ARENA.matchNum = 0;
+  arenaStartMatch();
+}
+
+// Adversaire du match courant : faction aléatoire, deck faction standard, dieu+
+// pouvoir aléatoire, profil IA selon le nombre de victoires (difficulté).
+function arenaStartMatch() {
+  ARENA.matchNum++;
+  ARENA._matchOver = false;
+  const oppFaction = FACTIONS[Math.floor(rng()*FACTIONS.length)];
+  const oppGod = randomGodAssign(oppFaction);
+  const profile = arenaOppProfile(ARENA.wins);
+  ARENA.opp = { faction: oppFaction, god: oppGod, profile };
+
+  // Bascule vers la vue de jeu, masque les écrans de setup/arène.
+  document.querySelectorAll('.setup-screen').forEach(s => s.classList.remove('active'));
+  const setupEl = document.getElementById('setup'); if(setupEl) setupEl.style.display = 'none';
+  const betweenEl = document.getElementById('arena-between'); if(betweenEl) betweenEl.style.display = 'none';
+  const gameEl = document.getElementById('game'); if(gameEl) gameEl.style.display = 'grid';
+
+  // Match FRAIS : initGame remélange le deck custom, distribue la main, Foi=0
+  // (p1), gems de départ. Le deck drafté (ARENA.deck) est PRÉSERVÉ (initGame en
+  // fait une copie newCard via buildCustomDeck).
+  setupGod[1] = { ...ARENA.god };       // dieu+pouvoir du joueur, conservé
+  setupGod[2] = { ...oppGod };          // dieu de l'adversaire (affiché)
+  initGame(ARENA.faction, oppFaction, 'pve', { customDeck: ARENA.deck });
+  setAIProfile(2, profile);             // difficulté de l'adversaire
+  setAIProfile(1, 'CONTROL');
+
+  arenaUpdateHUD();
+}
+
+// HUD en match : V/D + n° de match (coin sup., discret).
+function arenaUpdateHUD() {
+  const hud = document.getElementById('arena-hud');
+  if(!hud) return;
+  if(!ARENA) { hud.style.display = 'none'; return; }
+  hud.style.display = 'flex';
+  const m = document.getElementById('ah-match'); if(m) m.textContent = 'Match ' + ARENA.matchNum;
+  const w = document.getElementById('ah-w'); if(w) w.textContent = ARENA.wins;
+  const l = document.getElementById('ah-l'); if(l) l.textContent = ARENA.losses;
+}
+
+// Hook de fin de match (appelé depuis checkVictory quand ARENA est actif).
+// winner = 1 (joueur) | 2 (IA) | null (nul = compté comme défaite).
+function arenaOnMatchEnd(winner) {
+  if(!ARENA || ARENA._matchOver) return;
+  ARENA._matchOver = true;
+  const playerWon = (winner === 1);
+  if(playerWon) ARENA.wins++; else ARENA.losses++;
+  arenaUpdateHUD();
+  const runOver = ARENA.wins >= ARENA_WINS_GOAL || ARENA.losses >= ARENA_LOSSES_MAX;
+  // petite pause pour laisser voir le board final
+  setTimeout(() => {
+    const hud = document.getElementById('arena-hud'); if(hud) hud.style.display = 'none';
+    const gameEl = document.getElementById('game'); if(gameEl) gameEl.style.display = 'none';
+    if(runOver) arenaShowEnd();
+    else arenaShowBetween(playerWon, winner);
+  }, 900);
+}
+
+// ── PHASE 7 — écrans entre matchs / fin (placeholders ; polis en Phase 7) ──
+function arenaShowBetween(playerWon, winner) {
+  arenaStartMatch();   // Phase 7 : insère l'écran « Match suivant ». Pour l'instant : enchaîne.
+}
+function arenaShowEnd() {
+  const champ = ARENA.wins >= ARENA_WINS_GOAL;
+  alert(champ ? `🏆 CHAMPION ! ${ARENA.wins}V / ${ARENA.losses}D` : `☠️ ÉLIMINÉ — ${ARENA.wins}V / ${ARENA.losses}D`);
+  location.reload();
 }
 
 // Étape 6 : Test automatique des images

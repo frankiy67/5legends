@@ -297,6 +297,13 @@
     <div id="market-cards"></div>
   </div>
 
+  <!-- ── BRIQUE 7 (ARENA) : HUD V/D + n° de match (coin sup. gauche, discret) ── -->
+  <div id="arena-hud" style="display:none">
+    <span class="ah-match" id="ah-match">Match 1</span>
+    <span class="ah-score"><span class="ah-w" id="ah-w">0</span><span class="ah-sep">V</span><span class="ah-sep2">·</span><span class="ah-l" id="ah-l">0</span><span class="ah-sep">D</span></span>
+    <span class="ah-goal" id="ah-goal">12V / 3D</span>
+  </div>
+
   <!-- ── Journal de combat rétractable (slide depuis le bord droit) ── -->
   <button id="log-toggle" title="Journal de combat">📜</button>
   <div id="log-drawer">
@@ -369,6 +376,29 @@
     <div class="mull-help">Clique sur les cartes à remplacer, puis confirme.</div>
     <div id="mull-cards"></div>
     <button id="mull-confirm" class="play-btn">✔&nbsp;&nbsp;CONFIRMER</button>
+  </div>
+</div>
+
+<!-- ══ BRIQUE 7 (ARENA) : écran ENTRE MATCHS ══ -->
+<div id="arena-between" style="display:none">
+  <div class="ab-bg"></div>
+  <div class="ab-content">
+    <div class="ab-result" id="ab-result">VICTOIRE</div>
+    <div class="ab-score" id="ab-score">1 — 0</div>
+    <div class="ab-next" id="ab-next"></div>
+    <button id="ab-continue" class="play-btn">Match suivant&nbsp;&nbsp;→</button>
+  </div>
+</div>
+
+<!-- ══ BRIQUE 7 (ARENA) : écran FIN (champion / éliminé) ══ -->
+<div id="arena-end" style="display:none">
+  <div class="ae-bg" id="ae-bg"></div>
+  <div class="ae-content">
+    <div class="ae-icon" id="ae-icon">🏆</div>
+    <div class="ae-title" id="ae-title">CHAMPION</div>
+    <div class="ae-sub" id="ae-sub"></div>
+    <div class="ae-recap" id="ae-recap"></div>
+    <button id="ae-menu" class="play-btn" onclick="location.reload()">Retour au menu</button>
   </div>
 </div>
 
