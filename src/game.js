@@ -694,7 +694,22 @@ let setupGod = { 1: null, 2: null };
 //   matchNum, opp:{faction,god} }. Voir la section « MODE ARENA » en fin de fichier.
 let ARENA = null;
 
-function initGame(f1, f2, mode) {
+// BRIQUE 7 (ARENA) : construit un deck JOUEUR à partir d'un tableau de templates
+// (cartes multi-factions du draft). Chaque template porte déjà sa `faction` et son
+// `type` (via buildCardPool) → illustrations, mots-clés et synergies tribales par
+// carte restent corrects. Mélangé avec le RNG seedé (comme buildDeck).
+function buildCustomDeck(templates) {
+  const cards = (templates || []).map(t => newCard({
+    ...t,
+    type: t.type || (t.atk !== undefined ? 'monster' : 'god'),
+  }));
+  return shuffle(cards);
+}
+
+// opts.customDeck (BRIQUE 7) : si fourni → le JOUEUR (p1) joue ce deck custom.
+// L'IA garde TOUJOURS son deck faction standard. Absent → comportement inchangé.
+function initGame(f1, f2, mode, opts) {
+  const customDeck = opts && opts.customDeck;
   G = {
     mode, // 'pvp' or 'pve' (p2 is AI)
     turn: 1,
@@ -719,7 +734,9 @@ function initGame(f1, f2, mode) {
   };
   for(let p=1;p<=2;p++){
     const f = p===1?f1:f2;
-    const deck = buildDeck(f);
+    // BRIQUE 7 : p1 joue le deck custom drafté s'il existe ; sinon deck faction.
+    // L'IA (p2) garde toujours son deck faction standard.
+    const deck = (p===1 && customDeck) ? buildCustomDeck(customDeck) : buildDeck(f);
     G.players[p] = {
       id: p,
       faction: f,
