@@ -253,3 +253,51 @@ illustration retirée), 0 écriture PV vestigiale, 0 non-terminaison.
   plus puissants — passe future, à mesurer (risque d'équilibre).
 - **yokai / aztec** (47.3 %) : bas de fourchette mais en cible. Marge pour un léger
   coup de pouce si l'on vise un spread < 5.
+
+---
+
+# Brique 7 — MODE ARENA (`feat-gameplay-v2`)
+
+Objectif : livrer un **mode produit solo** (draft 40 cartes → run jusqu'à 12V/3D)
+**sans casser le mode normal** (Combat rapide). Méthode : additions gated
+(`customDeck` / `ARENA`) + vérification de non-régression après chaque phase
+(golden byte-identique 200 parties ; crashcheck 500 parties).
+
+## Garde-fous de non-régression
+- **Golden byte-identique** (`tools/golden.js` + `golden_check.js`) vérifié après
+  CHAQUE phase : 200 parties strictement identiques au baseline (capturé sur le
+  code de départ). Toutes les additions moteur sont gated `customDeck` → le chemin
+  du mode normal n'est jamais modifié.
+- **Crashcheck mode normal** (`tools/crashcheck.js`) : **500 parties, 0 crash,
+  0 non-terminaison**, distribution identique au baseline (P1:92 / P2:408).
+
+## Stabilité Arena
+- **`tools/arena_sim.js` — 100 runs** : **0 crash, 0 non-terminaison**, 100% des
+  runs concluent (12V CHAMPION ou 3D ÉLIMINÉ). Run moyenne **8.7 matchs**.
+- **`tools/test_custom_deck.js`** : 300 matchs deck custom **multi-faction** vs IA
+  faction, 0 crash, 5 factions présentes (illustrations/mots-clés/synergies OK).
+- **`tools/test_arena.js`** : assertions — draft = 40 cartes valides, arenaDraw4 =
+  4 distinctes + ≥1 faction choisie, paliers de difficulté corrects, run s'arrête
+  exactement à 12V/3D, compteur jamais dépassé, pool multi-faction (171). ✅ Tous.
+
+## Équilibrage (boucle diagnostic → fix → re-mesure)
+Le harnais a révélé un **champion rate de 0%** : le joueur Arena occupe le siège
+**1er joueur (p1)**, structurellement perdant (le 2ᵉ joueur gagne ~82% — avantage
+réactif décisif dans la course à la Foi). Correctifs (gated `customDeck`) :
+1. **Adversaire en premier** en Arena → winrate joueur vs CONTROL **26% → 68%**.
+2. **Draft ≥1 carte de la faction choisie/pick** → deck cohérent, synergies actives.
+3. Compensation de départ (main 5/4, Foi 2/0).
+
+**Verdict : objectif atteint.** Run gagnable et stable — 18% champion pour l'IA de
+simulation (cible de difficulté saine ; un humain dépasse l'IA), les 5 factions
+peuvent devenir championnes (11–31%). Aucune régression du mode normal.
+
+## Restant / pistes futures (Arena)
+- **Persistance** : la run vit en mémoire (un reload perd la run) — acceptable v1.
+- **Spread de faction Arena** (aztec 11 % ↔ norse 31 %) : reflète en partie les
+  win rates de faction de base ; un coup de pouce ciblé est possible si l'on veut
+  resserrer (non requis — toutes gagnables).
+- **Équilibrage de difficulté tardive** : les profils RUSH/GUARD/RAID sont moins
+  durs que CONTROL pour le joueur ; la montée 0-3→8-11 ajoute surtout de la variété.
+  Réordonner les paliers (facile→dur réel) est une piste si l'on veut une courbe
+  de difficulté strictement croissante.

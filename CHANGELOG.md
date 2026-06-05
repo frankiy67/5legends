@@ -72,3 +72,74 @@ changement et pouvoir revert. Les **décisions de design majeures** sont marqué
 - Progression du spread : 24 → 9.1 (fin 6B) → 8.0 (départ 6C) → **5.5** (fin 6C).
 - Audit : 0 crash / 0 cap non gérée / 171 cartes illustrées (aucune retirée) / 0 PV vestigial.
 - Phases 3 (synergies), 4 (Oracle + audit mots-clés), 5 (dieux jouables), 6 (UI), 7 (norse) livrées.
+
+# Brique 7 — MODE ARENA (`feat-gameplay-v2`)
+
+Mode produit solo : le joueur **drafte 40 cartes** (tous panthéons), choisit un
+**dieu+pouvoir**, puis enchaîne des duels contre des IA jusqu'à **12 victoires
+(CHAMPION)** ou **3 défaites (ÉLIMINÉ)**. Le mode normal (Combat rapide) reste
+**byte-identique** (toutes les additions Arena sont gated `customDeck`/`ARENA`).
+
+## Phase 1 — Écran de sélection de mode
+- Nouvel écran `#setup-mode` après le titre : `⚔️ COMBAT RAPIDE` (flux normal) /
+  `🏟️ ARENA` (nouveau flux). `ARENA=null` en mode normal → golden byte-identique.
+- `tools/crashcheck.js` : régression mode normal (N parties, profils mixtes).
+
+## Phase 2 — Support deck custom (fondation)
+- `initGame(f1,f2,mode,opts)` : `opts.customDeck` (40 cartes multi-faction). `p1`
+  joue ce deck ; **l'IA garde toujours son deck faction standard**. Sans opts →
+  inchangé. `buildCustomDeck` mappe les templates (faction/type/illustration par
+  carte préservés → synergies tribales OK). Test : 300 matchs deck multi-faction,
+  0 crash, 5 factions.
+
+## Phase 3 — Harnais sim + draft IA (outil de validation)
+- Draft IA partagé (`arenaDraw4`, `arenaCardValue` = ATK+DEF + mots-clés + bonus
+  faction, `arenaAIDraft`). `arenaOppProfile` : difficulté par nb de victoires.
+- `tools/arena_sim.js` : simule une run complète (draft → matchs → 12V/3D).
+
+## Phase 4 — Sélection faction + dieu
+- Écran faction Arena (identité visuelle, fond dynamique) → `showGodChoice` réutilisé.
+  Faction + dieu+pouvoir **conservés toute la run**. La faction n'impose pas le draft.
+
+## Phase 5 — Le Draft (UI humaine)
+- Boucle 40× : 4 cartes du pool complet (171, dieux inclus ; pas de doublon DANS
+  un pick). Illustration, nom, faction (couleur), stats, coût, mots-clés, effet.
+  Clic → deck, compteur + barre. Aperçu au survol (droite). Résumé : répartition
+  par panthéon (barres colorées), courbe de coût, liste. Bouton « Lancer la run ».
+
+## Phase 6 — Le Run (matchs en séquence)
+- Deck drafté + dieu fixe à chaque match. HUD V/D + n° de match en match. Adversaire
+  faction aléatoire (deck standard), dieu aléatoire, profil IA par paliers (0-3:CONTROL ;
+  4-7:{CONTROL,RUSH,GUARD} ; 8-11:{RUSH,GUARD,RAID,CONTROL}). Match frais (deck
+  remélangé, main, gems). Deck préservé entre matchs. Hook `checkVictory → arenaOnMatchEnd`.
+
+## Phase 7 — Écrans entre matchs + fin
+- Entre matchs : Victoire/Défaite + score + prochain adversaire (pré-tiré) + « Match
+  suivant ». Fin : CHAMPION (doré, halo animé) / ÉLIMINÉ (sobre) + récap panthéon/
+  dieu/score/deck + « Retour au menu ».
+
+## Phase 8 — UI & Polish
+- Draft : cartes grandes, bandeau d'identité, animation de distribution échelonnée,
+  animation de sélection, aperçu sticky. Résumé coloré. HUD discret. Transitions
+  thématiques (entre/fin).
+
+## Phase 9 — Équilibrage & stabilisation ⚑ DESIGN
+- **Diagnostic** : champion **0%**. Cause racine = le joueur Arena est le **1er
+  joueur (p1)**, structurellement perdant (le 2ᵉ joueur gagne ~82% en mode normal :
+  avantage réactif décisif dans la course à la Foi). Un deck mono-faction de qualité
+  ne suffit pas (winrate joueur ~25%).
+- **Correctifs** (tous gated `customDeck` → mode normal byte-identique) :
+  1. **L'adversaire joue en PREMIER en Arena** (`initGame` cp=2) → le joueur hérite
+     de l'avantage du 2ᵉ joueur. Mesuré : winrate vs CONTROL **26%→68%**.
+  2. **Draft ≥1 faction/pick** (`arenaDraw4` garantit une carte de la faction choisie)
+     → deck cohérent, synergies tribales actives (Phase 9.3).
+  3. Compensation de départ tunable (main 5/4, Foi 2/0 ; `setArenaStart`).
+- **Résultat (100 runs)** : 0 crash, 0 non-terminaison, **18% champion**, run
+  moyenne **8.7 matchs**, les 5 factions peuvent gagner (norse 31 / greek 26 /
+  egyptian 14 / yokai 13 / aztec 11 %). Difficulté saine : un humain réfléchi
+  (draft + jeu + mulligan + marché + timing du pouvoir) dépasse l'IA de simulation.
+- **Non-régression** : mode normal **500 parties 0 crash** (identique baseline 92/408),
+  golden **byte-identique** (200 parties) après chaque phase.
+- **Tests** : `tools/test_arena.js` (draft 40 valides, ≥1 faction/pick, paliers de
+  difficulté, arrêt exact 12V/3D, compteur), `tools/test_custom_deck.js`,
+  `tools/arena_sim.js`, `tools/arena_probe.js` (sonde winrate/siège).
