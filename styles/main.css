@@ -485,31 +485,35 @@ body{
 @keyframes pulse-ritual{from{box-shadow:0 0 4px #ff4500}to{box-shadow:0 0 14px #ff4500,0 0 4px #8b0000}}
 
 /* ── ASCENSION (C2/UI v2) : BARRE D'ACTION FIXE Guerre/Prière + à genoux ── */
-/* Barre FIXE en bas-centre, DÉCOUPLÉE du zoom de carte. z-index 600 > #card-preview
-   (500) → le zoom ne la recouvre JAMAIS. Toujours au même endroit, lisible. */
-#act-choice-bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:600;
-  display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:14px;
-  background:linear-gradient(160deg,rgba(26,21,48,.98),rgba(12,9,26,.98));
-  border:1px solid rgba(244,201,93,.4);box-shadow:0 14px 40px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.5);
-  animation:abIn .14s ease-out}
+/* @keyframes abIn — partagé par le dock de cycle et les prompts (Nuit/Tempête). */
 @keyframes abIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.ab-label{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold-bright);
-  letter-spacing:.5px;padding:0 6px 0 2px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Boutons partagés (.am-btn / .am-pray / .am-cancel) — utilisés par les prompts
+   interactifs de cycle (Nuit : Sacrifier/Passer ; Tempête : Annuler/Passer). */
 .am-btn{font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;
   padding:10px 16px;border-radius:9px;color:#fff;border:1.5px solid;display:flex;align-items:center;gap:6px;
   white-space:nowrap;transition:transform .12s,box-shadow .2s,filter .15s}
 .am-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
 .am-btn:active{transform:translateY(0)}
-.am-attack{background:radial-gradient(ellipse at 50% 25%,#7a1d12,#3a0d08);border-color:#ff6347;
-  box-shadow:0 0 14px rgba(255,90,60,.4)}
-.am-attack:hover{box-shadow:0 0 24px rgba(255,90,60,.7)}
 .am-pray{background:radial-gradient(ellipse at 50% 25%,#5a2080,#2a0e44);border-color:#c77dff;
   box-shadow:0 0 14px rgba(199,125,255,.45)}
 .am-pray:hover{box-shadow:0 0 24px rgba(199,125,255,.8)}
 .am-cancel{background:radial-gradient(ellipse at 50% 25%,#3a3550,#1c1830);border-color:#8a85a0;
   box-shadow:0 0 10px rgba(140,130,170,.3)}
 .am-cancel:hover{box-shadow:0 0 18px rgba(160,150,190,.55)}
-.am-sub{font-family:'Spectral',serif;font-size:9.5px;font-weight:600;color:var(--gold-bright);opacity:.9;margin-left:2px}
+
+/* CHANGEMENT 2 — icône 🙏 Prier (bas-centre) du choix de combat par flèches.
+   Surlignée (anneau doré pulsé) pour montrer qu'elle est cliquable. z-index 600
+   > #card-preview (500). Cible de la flèche dorée « prière ». */
+#pray-choice{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:600;cursor:pointer;
+  display:flex;align-items:center;gap:9px;padding:10px 20px;border-radius:14px;
+  background:radial-gradient(ellipse at 50% 20%,#2a356a,#0e1530);border:2px solid #ffd166;color:#fff;
+  box-shadow:0 0 22px rgba(255,209,102,.7),0 10px 30px rgba(0,0,0,.85);
+  animation:prayChoicePulse 1.1s ease-in-out infinite}
+#pray-choice:hover{filter:brightness(1.14)}
+#pray-choice .pc-glyph{font-size:23px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8))}
+#pray-choice .pc-label{display:flex;flex-direction:column;line-height:1.05;font-family:'Cinzel',serif;font-weight:700;font-size:14px;color:#ffe18a}
+#pray-choice .pc-sub{font-family:'Spectral',serif;font-size:10px;font-weight:600;color:#cfe3ff;opacity:.92}
+@keyframes prayChoicePulse{0%,100%{box-shadow:0 0 16px rgba(255,209,102,.55),0 10px 30px rgba(0,0,0,.85)}50%{box-shadow:0 0 32px rgba(255,209,102,.95),0 10px 30px rgba(0,0,0,.85)}}
 /* Créature sélectionnée (barre d'action ouverte) : léger soulèvement + anneau or. */
 .fcard.selected{transform:translateY(-10px) scale(1.05);z-index:18}
 .fcard.selected .fc-frame::before{border-color:var(--gold)!important;opacity:1!important;
