@@ -5760,6 +5760,12 @@ document.getElementById('start-btn').addEventListener('click', () => {
   else launch();
 });
 
+// BRIQUE 7 (ARENA) : bouton « Lancer la run » du résumé de deck.
+(function(){
+  const b = document.getElementById('arena-launch');
+  if(b) b.addEventListener('click', () => { if(typeof Audio5L!=='undefined') Audio5L.startMusic(); arenaLaunchRun(); });
+})();
+
 document.getElementById('mull-confirm').addEventListener('click', confirmMulligan);
 
 document.getElementById('btn-next').addEventListener('click',nextPhase);
@@ -5951,11 +5957,143 @@ function arenaSelectFaction() {
   screen.classList.add('active');
 }
 
-// ── PHASE 5 — Le Draft (placeholder ; implémenté en Phase 5) ──
+// ── PHASE 5 — LE DRAFT (UI humaine) ──────────────────────────────────────
+// Boucle 40× : 4 cartes du pool complet (toutes factions, dieux inclus ; pas de
+// doublon DANS un pick, doublons ENTRE picks OK). Clic → rejoint le deck.
 function arenaStartDraft() {
-  // Implémenté en Phase 5. Pour l'instant : log + retour mode (ne casse rien).
-  console.log('[arena] faction=%s dieu=%o — draft à venir (Phase 5)', ARENA.faction, ARENA.god);
-  alert('🏟️ Faction et dieu choisis — le draft arrive (Phase 5).');
+  ARENA.deck = [];
+  ARENA._pool = buildCardPool();
+  document.querySelectorAll('.setup-screen').forEach(s => s.classList.remove('active'));
+  const screen = document.getElementById('arena-draft');
+  if(screen) screen.classList.add('active');
+  const maxEl = document.getElementById('draft-count-max');
+  if(maxEl) maxEl.textContent = ARENA_DRAFT_PICKS;
+  arenaRenderPick();
+}
+
+// Badges de mots-clés courts dérivés de la cap (pour l'affichage de la carte).
+function arenaKeywords(c) {
+  const cap = c.cap || '', kw = [];
+  if(/fervor/.test(cap)) kw.push('Ferveur');
+  if(/\bhit\b/.test(cap)) kw.push('Double atk');
+  if(/egide/.test(cap)) kw.push('Égide');
+  if(/protect/.test(cap)) kw.push('Protection');
+  if(/endure/.test(cap)) kw.push('Endurance');
+  if(/hurry/.test(cap)) kw.push('Rapide');
+  if(/curse/.test(cap)) kw.push('Malédiction');
+  if(/^entry|_entry|^entry_/.test(cap) || /entry/.test(cap)) kw.push('Entrée');
+  if(/exit/.test(cap)) kw.push('Sortie');
+  if(/ritual/.test(cap)) kw.push('Rituel');
+  if(c.type === 'god') kw.unshift('Dieu');
+  return kw.slice(0, 4);
+}
+
+// HTML d'une carte de draft (illustration, nom, faction couleur, stats, coût,
+// mots-clés, effet).
+function arenaCardHTML(c, idx) {
+  const img = getCardImage(c.id || '');
+  const col = FACTION_COLOR[c.faction] || 'var(--gold)';
+  const isMonster = c.type === 'monster';
+  const kw = arenaKeywords(c).map(k => `<span class="dc-kw">${k}</span>`).join('');
+  const art = img
+    ? `<img src="${img}" alt="${c.n}" loading="lazy">`
+    : `<div class="art-placeholder"><span class="ap-icon">${c.type==='god'?'⚡':FE[c.faction]||'★'}</span><span class="ap-name">${c.n}</span></div>`;
+  return `<div class="draft-card" data-i="${idx}" data-faction="${c.faction}" style="--fcol:${col}">
+    <div class="dc-art">${art}<span class="dc-cost">${c.cost}💎</span></div>
+    <div class="dc-band">${c.n}</div>
+    <div class="dc-faction">${FE[c.faction]||''} ${(c.faction||'').toUpperCase()}${c.type==='god'?' · DIEU':''}</div>
+    ${isMonster ? `<div class="dc-stats"><span class="dc-atk">${c.atk}⚔</span><span class="dc-def">${c.def}🛡</span></div>` : `<div class="dc-stats dc-god">⚡ Pouvoir divin</div>`}
+    <div class="dc-kws">${kw}</div>
+    <div class="dc-txt">${c.txt || ''}</div>
+  </div>`;
+}
+
+function arenaRenderPick() {
+  if(ARENA.deck.length >= ARENA_DRAFT_PICKS) { arenaRenderSummary(); return; }
+  const opts = arenaDraw4(ARENA._pool);
+  ARENA._currentPick = opts;
+  const cur = document.getElementById('draft-count-cur'); if(cur) cur.textContent = ARENA.deck.length;
+  const fill = document.getElementById('draft-bar-fill'); if(fill) fill.style.width = (100*ARENA.deck.length/ARENA_DRAFT_PICKS)+'%';
+  const cont = document.getElementById('draft-picks');
+  if(cont){
+    cont.innerHTML = opts.map((c,i)=>arenaCardHTML(c,i)).join('');
+    cont.querySelectorAll('.draft-card').forEach(el=>{
+      const i = +el.dataset.i;
+      el.addEventListener('mouseenter', ()=>arenaShowPreview(opts[i]));
+      el.addEventListener('click', ()=>{ if(typeof Audio5L!=='undefined') Audio5L.sfx.draw&&Audio5L.sfx.draw(); arenaPick(i); });
+    });
+  }
+  // aperçu par défaut : la première carte
+  arenaShowPreview(opts[0]);
+}
+
+function arenaShowPreview(c) {
+  const box = document.getElementById('draft-preview');
+  if(!box || !c) return;
+  box.innerHTML = arenaCardHTML(c, -1).replace('draft-card', 'draft-card preview-card');
+}
+
+function arenaPick(i) {
+  const c = ARENA._currentPick && ARENA._currentPick[i];
+  if(!c) return;
+  ARENA.deck.push({ ...c });
+  // petite animation de sélection
+  const cont = document.getElementById('draft-picks');
+  const el = cont && cont.querySelector(`.draft-card[data-i="${i}"]`);
+  if(el){ el.classList.add('picked'); }
+  setTimeout(arenaRenderPick, 180);
+}
+
+// ── Résumé du deck : répartition factions, courbe de coût, liste ──
+function arenaRenderSummary() {
+  document.querySelectorAll('.setup-screen').forEach(s => s.classList.remove('active'));
+  const screen = document.getElementById('arena-summary');
+  if(screen) screen.classList.add('active');
+  const deck = ARENA.deck || [];
+
+  // Répartition par faction
+  const byF = {};
+  FACTIONS.forEach(f=>byF[f]=0);
+  deck.forEach(c=>{ byF[c.faction]=(byF[c.faction]||0)+1; });
+  const fEl = document.getElementById('summary-factions');
+  if(fEl){
+    fEl.innerHTML = FACTIONS.map(f=>{
+      const n=byF[f]||0, pct=Math.round(100*n/Math.max(1,deck.length));
+      return `<div class="sum-frow"><span class="sum-flabel">${FE[f]} ${f}</span>
+        <span class="sum-fbar"><span class="sum-ffill" style="width:${pct}%;background:${FACTION_COLOR[f]}"></span></span>
+        <span class="sum-fnum">${n}</span></div>`;
+    }).join('');
+  }
+
+  // Courbe de coût (0..8+)
+  const curve = {};
+  for(let k=0;k<=8;k++) curve[k]=0;
+  deck.forEach(c=>{ const k=Math.min(8, c.cost||0); curve[k]++; });
+  const maxC = Math.max(1, ...Object.values(curve));
+  const cEl = document.getElementById('summary-curve');
+  if(cEl){
+    cEl.innerHTML = `<div class="sum-curve">` + Object.keys(curve).map(k=>{
+      const h=Math.round(100*curve[k]/maxC);
+      return `<div class="sum-cbar"><span class="sum-cval">${curve[k]||''}</span><span class="sum-cfill" style="height:${h}%"></span><span class="sum-clabel">${k==8?'8+':k}</span></div>`;
+    }).join('') + `</div>`;
+  }
+
+  // Liste triée par coût puis nom
+  const lEl = document.getElementById('summary-list');
+  if(lEl){
+    const sorted = [...deck].sort((a,b)=>(a.cost-b.cost)||(a.n>b.n?1:-1));
+    lEl.innerHTML = sorted.map(c=>`<div class="sum-litem" style="border-left-color:${FACTION_COLOR[c.faction]||'#888'}">
+      <span class="sum-lcost">${c.cost}</span>
+      <span class="sum-lname">${c.n}</span>
+      <span class="sum-ltag">${c.type==='god'?'⚡':FE[c.faction]||''}</span>
+    </div>`).join('');
+  }
+}
+
+// ── PHASE 6 — Lancer la run (placeholder ; implémenté en Phase 6) ──
+function arenaLaunchRun() {
+  console.log('[arena] deck prêt (%d cartes) — run à venir (Phase 6)', (ARENA.deck||[]).length);
+  alert('🏟️ Deck prêt — la run arrive (Phase 6).');
 }
 
 // Étape 6 : Test automatique des images
