@@ -534,10 +534,17 @@ body{
    On NE touche PAS margin-left (sinon tous les voisins se décalent → « ça saute »),
    et on n'utilise QUE transform (pas de reflow). Le gros zoom lisible est délégué
    au popup de preview (showCardPreview). */
-.hcard:hover.playable,.hcard:hover.anytime{transform:translateY(-44px) scale(1.28)!important;z-index:300!important;
+/* 7.4 (Balatro) : l'arc vit dans --arc-rot/--arc-y (posées par renderHand) —
+   le hover COMPOSE avec l'arc : lift 26px max, la carte reste sous le curseur,
+   les voisines s'écartent doucement, aucun re-render. */
+.hcard{transform:rotate(var(--arc-rot,0deg)) translateY(var(--arc-y,0px))}
+.hcard:hover.playable,.hcard:hover.anytime{
+  transform:rotate(0deg) translateY(calc(var(--arc-y,0px) - 26px)) scale(1.12)!important;z-index:300!important;
   transition:transform .12s ease-out,box-shadow .12s,filter .12s!important;
   box-shadow:var(--shadow-float),0 0 32px rgba(244,201,93,.6),inset 1px 1px 2px rgba(255,235,150,.6)!important;filter:brightness(1.08)}
-.hcard:hover.dim{transform:translateY(-30px) scale(1.18)!important;z-index:300!important;transition:transform .12s ease-out!important}
+.hcard:hover.dim{transform:rotate(0deg) translateY(calc(var(--arc-y,0px) - 18px)) scale(1.06)!important;z-index:300!important;transition:transform .12s ease-out!important}
+.hcard:hover + .hcard{transform:rotate(var(--arc-rot,0deg)) translateY(var(--arc-y,0px)) translateX(14px);transition:transform .14s ease-out}
+.hcard:has(+ .hcard:hover){transform:rotate(var(--arc-rot,0deg)) translateY(var(--arc-y,0px)) translateX(-14px);transition:transform .14s ease-out}
 /* le tilt 3D se neutralise pendant le preview agrandi pour rester lisible */
 .hcard:hover .hc-frame-inner{--rx:0deg!important;--ry:0deg!important}
 .hcard.anytime.playable{animation:hcard-anytime 1.5s ease-in-out infinite}
@@ -1042,3 +1049,84 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
   #tuto-popup{bottom:130px}
   .turn-bar{font-size:9px}
 }
+
+
+/* ══ Phase 7 — GAME FEEL ══ */
+/* 7.1 : intention IA */
+#ai-intent{position:fixed;z-index:80;display:none;align-items:center;gap:6px;padding:5px 12px;border-radius:16px;
+  font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--ink);
+  background:linear-gradient(160deg,rgba(40,20,40,.95),rgba(15,8,18,.97));border:1.5px solid rgba(199,125,255,.5);
+  box-shadow:0 4px 14px rgba(0,0,0,.5);animation:tutoIn .3s ease}
+.ai-intent-icon{font-size:15px}
+
+/* 7.2 : preview de combat */
+#combat-preview{position:fixed;z-index:520;display:none;min-width:200px;max-width:250px;padding:9px 12px;border-radius:10px;
+  font-family:'Spectral',serif;font-size:12px;line-height:1.5;color:var(--ink);
+  background:linear-gradient(165deg,rgba(20,16,40,.97),rgba(8,6,18,.98));border:1.5px solid var(--gold-deep);
+  box-shadow:0 8px 26px rgba(0,0,0,.7);pointer-events:none}
+#combat-preview .cp-dies{color:#ff7a70;font-weight:700}
+#combat-preview .cp-lives{color:#7be084}
+#combat-preview .cp-cancel{color:#9cc6ff;font-weight:700}
+#combat-preview .cp-uncertain{color:#f0a014;font-weight:700}
+#combat-preview .cp-dmg{color:#ff7a70;font-weight:800;font-size:14px}
+#combat-preview .cp-notes{color:var(--ink2);font-size:10.5px;margin-top:3px;border-top:1px solid rgba(244,201,93,.15);padding-top:3px}
+
+/* 7.3 : particules de mort */
+.death-particle{position:fixed;width:7px;height:7px;border-radius:50%;z-index:480;pointer-events:none;
+  animation:particleFly .8s ease-out forwards;box-shadow:0 0 8px currentColor}
+@keyframes particleFly{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--dx,30px),var(--dy,-60px)) scale(.3)}}
+.float-dmg{font-weight:900;font-family:'Cinzel',serif}
+
+/* 7.5 : fond du board suivant la phase du Cycle */
+#game[data-cycle-phase="aube"]{background:linear-gradient(180deg,#241a08 0%,#0d0a1a 45%,#1a1029 100%)}
+#game[data-cycle-phase="midi"]{background:linear-gradient(180deg,#26241c 0%,#14111f 45%,#1a1530 100%)}
+#game[data-cycle-phase="crepuscule"]{background:linear-gradient(180deg,#2a1408 0%,#160c1c 45%,#1a1029 100%)}
+#game[data-cycle-phase="nuit"]{background:linear-gradient(180deg,#0a1430 0%,#0a0c22 45%,#10142e 100%)}
+#game[data-cycle-phase="tenebres"]{background:linear-gradient(180deg,#1c0a2e 0%,#0e0618 45%,#180a28 100%)}
+#game{transition:background 1.2s ease}
+
+/* 7.5 : transition plein écran de phase */
+#cycle-transition-overlay{position:fixed;inset:0;z-index:8500;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 45%,rgba(20,16,40,.88),rgba(5,3,12,.94))}
+#cycle-transition-overlay.active{animation:ctoFade 1.35s ease-in-out forwards}
+@keyframes ctoFade{0%{opacity:0}18%{opacity:1}80%{opacity:1}100%{opacity:0}}
+.cto-inner{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;animation:ctoZoom 1.35s cubic-bezier(.2,1.2,.4,1)}
+@keyframes ctoZoom{from{transform:scale(.6);opacity:0}25%{transform:scale(1.05);opacity:1}to{transform:scale(1)}}
+.cto-icon{font-size:clamp(64px,10vw,110px);filter:drop-shadow(0 0 36px rgba(255,220,120,.7))}
+.cto-name{font-family:'Cinzel',serif;font-size:clamp(28px,4.5vw,52px);font-weight:900;letter-spacing:12px;color:var(--gold-bright);text-shadow:0 0 40px rgba(255,220,120,.5)}
+.cto-zen{font-family:'Cinzel',serif;font-size:14px;letter-spacing:3px;color:var(--ink2)}
+.cto-bonus{font-family:'Spectral',serif;font-size:14px;color:var(--gold);background:rgba(244,201,93,.1);border:1px solid var(--brd2);border-radius:10px;padding:6px 18px}
+#cycle-transition-overlay[data-phase="aube"] .cto-icon{filter:drop-shadow(0 0 40px rgba(255,190,80,.9))}
+#cycle-transition-overlay[data-phase="midi"] .cto-icon{filter:drop-shadow(0 0 40px rgba(255,255,230,.95))}
+#cycle-transition-overlay[data-phase="crepuscule"] .cto-icon{filter:drop-shadow(0 0 40px rgba(255,130,50,.9))}
+#cycle-transition-overlay[data-phase="nuit"] .cto-icon{filter:drop-shadow(0 0 40px rgba(90,155,255,.9))}
+#cycle-transition-overlay[data-phase="tenebres"] .cto-icon{filter:drop-shadow(0 0 40px rgba(199,125,255,.9))}
+
+/* 7.5 : médaillon enrichi (prochaines phases + bonus) */
+#divider-medallion{display:flex;flex-direction:column;align-items:center}
+#divider-next{display:flex;gap:4px;margin-top:2px}
+.div-next-icon{font-size:11px;opacity:.55;filter:grayscale(.4)}
+#divider-bonus{font-family:'Spectral',serif;font-size:9px;color:var(--gold);max-width:190px;text-align:center;opacity:.85;line-height:1.25;margin-top:2px;
+  background:rgba(5,4,14,.8);border-radius:8px;padding:2px 8px;border:1px solid var(--brd)}
+#divider-medallion.frozen{filter:saturate(.4) brightness(1.2);text-shadow:0 0 12px #9cd0ff}
+
+/* 7.6 : pendant le ciblage — cibles valides en glow vert, reste assombri à 60% */
+body.targeting .fcard:not(.valid-target):not(.valid-target-dmg):not(.atk-source){filter:brightness(.4) saturate(.5);transition:filter .2s}
+body.targeting .bf-landscape,body.targeting .hand-area{filter:brightness(.55);transition:filter .2s}
+.fcard.valid-target,.fcard.valid-target-dmg{filter:none!important;box-shadow:0 0 0 2.5px rgba(120,255,140,.9),0 0 22px rgba(120,255,140,.55)!important;animation:validPulse 1.1s ease-in-out infinite}
+@keyframes validPulse{0%,100%{box-shadow:0 0 0 2.5px rgba(120,255,140,.9),0 0 14px rgba(120,255,140,.4)}50%{box-shadow:0 0 0 3px rgba(120,255,140,1),0 0 30px rgba(120,255,140,.8)}}
+.pbar.targetable{box-shadow:0 0 0 2.5px rgba(120,255,140,.8),0 0 26px rgba(120,255,140,.5)!important;animation:validPulse 1.1s ease-in-out infinite}
+
+/* 7.7 : balance céleste */
+#celestial-balance{position:absolute;left:50%;top:50%;transform:translate(-130%,-50%);z-index:24;display:flex;align-items:center;gap:4px;pointer-events:none}
+#celestial-balance svg #cb-beam-g{transform-origin:60px 17px;transition:transform .7s cubic-bezier(.3,1.4,.5,1)}
+.cb-hp{font-family:'Cinzel',serif;font-size:11px;font-weight:800;text-shadow:0 1px 4px #000}
+.cb-hp1{color:#7be084}
+.cb-hp2{color:#ff8a82}
+
+/* 7.8 : toggle animations */
+#anim-toggle{position:fixed;bottom:14px;left:14px;z-index:90;width:38px;height:38px;border-radius:50%;cursor:pointer;
+  background:rgba(14,10,28,.9);border:1.5px solid var(--brd2);color:var(--gold);font-size:16px}
+#anim-toggle:hover{border-color:var(--gold)}
+body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{animation-duration:.001s!important;transition-duration:.001s!important}
+body.reduce-motion .death-particle,body.reduce-motion #cycle-transition-overlay{display:none!important}

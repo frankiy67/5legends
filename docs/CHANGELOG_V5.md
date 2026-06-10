@@ -190,3 +190,33 @@ yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** 
 - **6.5** Batterie complète : factions yokai 55,0 / norse 46,8 / egyptian 54,5 /
   greek 46,9 / aztec 46,9 ∈ [45,55] ✅ · P1 51,2 % ∈ [47,53] ✅ · 181/181 cartes OK ·
   Arena 0 crash · golden régénéré.
+
+## 7 — Game feel & lisibilité (Balatro / StS / LoR / HS / Inscryption)
+- **7.1** Intentions IA : badge sous le portrait adverse au début du tour IA
+  (🗡 attaque massive / offensive · ✨ gros effet en préparation · 🛡 développement),
+  déduit du même état que le plan d'aiTurn — jamais la carte exacte.
+- **7.2** Preview de combat (`predictCombat`, dry-run pur sans effet de bord) :
+  encart « X meurt · Y survit à N · [capacité] se déclenche » au survol de la cible ;
+  « résultat incertain » si aveuglement, piège face caché adverse ou Dernier Souffle à
+  dégâts. **`tools/test_preview.js` : 211/211 prédictions exactes** (les incertains sont
+  exclus par contrat). Le test a débusqué un vrai cas : Aphrodite (résurrection) désormais
+  prédit.
+- **7.3** Juice : nombres de dégâts qui grossissent avec la valeur, screen shake
+  proportionnel, particules CSS couleur faction à chaque mort, pitch des SFX indexé sur
+  les dégâts (graves = gros coups), SFX dédié de changement de Cycle.
+- **7.4** Main en arc refaite : arc en variables CSS (`--arc-rot/--arc-y`) — le survol
+  COMPOSE avec l'arc (lift 26 px, scale 1.12, ease-out 120 ms), voisines qui s'écartent
+  (`:has`), AUCUN re-render au survol, positions déterministes au clic.
+- **7.5** Cycle spectaculaire : fond du board en dégradé par phase (transition 1,2 s),
+  transition de phase plein écran 1,35 s (icône + nom + zénith + bonus, halo coloré par
+  phase) avec SFX, médaillon central : phase actuelle + 2 prochaines + bonus de zénith en
+  clair + état gelé 🧊.
+- **7.6** Drag-to-attack : flèche élastique épaisse (courbe quadratique qui pend), pointe
+  qui pulse en vert sur cible valide, cibles valides en glow vert pulsé, reste du board
+  assombri (brightness .4/.55), drag réel (mouseup sur cible) + clic-clic conservé.
+- **7.7** Balance céleste (SVG) au centre du board : plateaux rouge/vert qui penchent
+  selon le ratio de PV (transition élastique), chiffres ❤ lisibles à côté. Les orbes de
+  PV existants sont conservés (lisibilité).
+- **7.8** Toggle « réduire les animations » (coin bas-gauche) : coupe shake, particules,
+  transitions longues et overlay de phase (classe `body.reduce-motion`).
+- Golden STRICTEMENT IDENTIQUE (aucun impact logique) · 211/211 preview · 0 crash.

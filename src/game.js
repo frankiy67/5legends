@@ -151,7 +151,9 @@ const Audio5L = (() => {
     playGod:   () => { initCtx(); tone(220,'sine',0.5,0.35); tone(330,'sine',0.4,0.25,0.1); tone(440,'sine',0.35,0.2,0.2); tone(660,'sine',0.25,0.15,0.35); },
     playSpell: () => { initCtx(); tone(600,'sawtooth',0.08,0.25); tone(800,'sine',0.06,0.2,0.05); tone(1200,'sine',0.04,0.15,0.12); },
     attack:    () => { initCtx(); noise(0.06,0.6); tone(120,'sawtooth',0.15,0.4,0.05); },
-    damage:    () => { initCtx(); tone(80,'square',0.22,0.55); tone(55,'sine',0.18,0.4,0.08); noise(0.1,0.35,0.02); },
+    // 7.3 : pitch indexé sur la valeur des dégâts (graves = gros coups).
+    damage:    (amt=3) => { initCtx(); const f = Math.max(40, 110 - amt*7); tone(f,'square',0.22,Math.min(0.8,0.4+amt*0.04)); tone(f*0.7,'sine',0.18,0.4,0.08); noise(0.1,0.35,0.02); },
+    cycleShift:() => { initCtx(); tone(330,'sine',0.5,0.3); tone(440,'sine',0.45,0.28,0.15); tone(587,'sine',0.4,0.25,0.3); tone(880,'sine',0.6,0.2,0.45); noise(0.3,0.12,0.1); },
     death:     () => { initCtx(); tone(200,'sine',0.35,0.4); tone(150,'sine',0.3,0.35,0.1); tone(90,'square',0.25,0.25,0.22); noise(0.15,0.3,0.05); },
     victory:   () => { initCtx(); [0,0.15,0.3,0.5].forEach((d,i) => tone([523,659,784,1047][i],'sine',0.5,0.4,d)); },
     defeat:    () => { initCtx(); tone(300,'sine',0.6,0.4); tone(220,'sine',0.7,0.4,0.3); tone(150,'sine',0.9,0.4,0.7); },
@@ -181,7 +183,19 @@ const Audio5L = (() => {
            setMusicOn, setSfxOn, setMusicVol, setSfxVol, prefs, updatePrefUI };
 })();
 
+// 7.8 : toggle « réduire les animations » (accessibilité) — état en mémoire.
+let REDUCE_MOTION = false;
+function toggleReduceMotion() {
+  REDUCE_MOTION = !REDUCE_MOTION;
+  document.body.classList.toggle('reduce-motion', REDUCE_MOTION);
+  const b = document.getElementById('anim-toggle');
+  if(b) b.textContent = REDUCE_MOTION ? '🚫🎞' : '🎞';
+  if(b) b.title = REDUCE_MOTION ? 'Réactiver les animations' : 'Réduire les animations';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  const at = document.getElementById('anim-toggle');
+  if(at) at.addEventListener('click', toggleReduceMotion);
   // Force music on by default (clear stale localStorage)
   if (localStorage.getItem('5L_musicOn') === 'false') {
     localStorage.removeItem('5L_musicOn');
@@ -2112,6 +2126,7 @@ async function handleDeath(p, m) {
   // Death animation: find card in DOM and play card-death before removing
   const _dyingEl = document.querySelector(`[data-player="${p}"][data-idx="${idx}"]`);
   if(_dyingEl) {
+    spawnDeathParticles(_dyingEl, m.faction); // 7.3 : particules couleur faction
     _dyingEl.style.animation = 'card-death .38s ease-in forwards';
     _dyingEl.style.pointerEvents = 'none';
     await new Promise(r => setTimeout(r, 340));
@@ -2992,7 +3007,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
 
     if(targetIdx==='player') {
       // Direct attack
-      Audio5L.sfx.attack(); Audio5L.sfx.damage();
+      Audio5L.sfx.attack(); Audio5L.sfx.damage(atkVal);
       DP.hp -= atkVal;
       DP._dmgTakenTurn = true;
       flashDamage(document.getElementById(`p${targetP}-orb`));
@@ -3005,7 +3020,6 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       screenShake(atkVal >= 8);
       const orbEl = document.getElementById(`p${targetP}-orb`);
       showFloatDmg(atkVal, orbEl, '#ff4444');
-      Audio5L.sfx.damage();
       if(hasHeal) { Audio5L.sfx.heal(); AP.hp=Math.min(25,AP.hp+atkVal); addLog(`Heal — P${attackerP} +${atkVal} HP`,'heal'); showFloatHeal(atkVal, document.getElementById(`p${attackerP}-orb`)); }
     } else {
       let def = DP.field[targetIdx];
@@ -3239,6 +3253,132 @@ function checkFaceDownAthena(p, attacker, attackerP) {
   return null;
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// PREVIEW DE COMBAT (7.2, LoR Oracle's Eye) — dry-run PUR de la logique
+// de doAttack sur des copies : zéro mutation de G, zéro rendu, zéro audio.
+// Si une information cachée ou un aléa peut changer l'issue (dieu face
+// cachée adverse, attaquant aveuglé, Esquive disponible non encore brûlée
+// par CETTE attaque…), le résultat est marqué « incertain ».
+// ═══════════════════════════════════════════════════════════════════
+function predictCombat(attackerP, attackerIdx, targetP, targetIdx) {
+  const AP = G.players[attackerP], DP = G.players[targetP];
+  const atk0 = AP.field[attackerIdx];
+  if(!atk0) return null;
+  const res = { uncertain: false, notes: [], targetDies: false, attackerDies: false,
+                defLeft: null, atkLeft: null, dmgToPlayer: 0, cancelled: false };
+
+  // Aléa / info cachée → incertain
+  if(atk0.blinded) { res.uncertain = true; res.notes.push('attaquant aveuglé (cible aléatoire)'); }
+  if(DP.field.some(m => m && m.faceDown && m.type === 'god')) {
+    res.uncertain = true; res.notes.push('piège face caché adverse possible');
+  }
+
+  // Copies de travail
+  const atk = { ...atk0 };
+  let atkVal = atk.cAtk;
+  let hasHit = (atk.cap||'').includes('hit');
+  if((atk.cap||'').includes('fortress_payoff')) {
+    const walls = AP.field.filter(x => x && effProtect(x, attackerP)).length;
+    if(walls >= 2) { atkVal += 2; hasHit = true; res.notes.push('Forteresse +2 ATK & Frénésie'); }
+  }
+  if((atk.cap||'').includes('token_payoff_atk')) {
+    const toks = AP.field.filter(x => x && (String(x.id||'').includes('TOKEN') || ['RITUAL_TOK','ICE_TOKEN','DEMETER_TOK','BALDER_TOKEN'].includes(x.id))).length;
+    if(toks > 0) { atkVal += toks; res.notes.push(`Marée +${toks} ATK`); }
+  }
+
+  if(targetIdx === 'player') {
+    // Hestia côté défenseur ?
+    if(DP.field.some(x => x && (x.cap||'').includes('hestia_passive') && (x._hestiaShields||0) > 0)) {
+      res.cancelled = true; res.notes.push('Hestia annule l\'attaque'); return res;
+    }
+    res.dmgToPlayer = atkVal * (hasHit ? 2 : 1);
+    if(hasHit) res.notes.push('Frénésie : frappe deux fois');
+    if((atk.cap||'').includes('heal')) res.notes.push(`Offrande : +${res.dmgToPlayer} PV`);
+    return res;
+  }
+
+  const def0 = DP.field[targetIdx];
+  if(!def0) return null;
+  const def = { ...def0 };
+
+  // Annulations défensives certaines (info visible)
+  if(DP.field.some(x => x && (x.cap||'').includes('hestia_passive') && (x._hestiaShields||0) > 0)) {
+    res.cancelled = true; res.notes.push('Hestia annule l\'attaque'); return res;
+  }
+  if(def._vali > 0) { res.cancelled = true; res.notes.push('Vali annule l\'attaque (marqueur)'); return res; }
+  if((def.cap||'').includes('esquive') && !def.esquiveUsed) {
+    res.cancelled = true; res.notes.push('Esquive : l\'attaque rate'); return res;
+  }
+  if((atk.cap||'').includes('solo_destroy') && AP.field.filter((x,i2)=>x&&!x.faceDown&&i2!==attackerIdx).length===0) {
+    res.targetDies = true; res.notes.push('Destruction directe (seul allié)'); return res;
+  }
+
+  if(atk.sethEquipped) { def.cDef = Math.max(0, def.cDef - 2); res.notes.push('Seth : −2 boucliers'); }
+
+  const actualDmg = def.cursed ? def.cDef : atkVal;
+  if(def.cursed) res.notes.push('Malédiction : 1 coup = mort');
+  const retDmg = (def.cursed || def.asleep) ? 0 : def.cAtk;
+  if(def.asleep) res.notes.push('endormi : pas de riposte');
+  def.cDef -= actualDmg;
+  let atkDef = atk.cDef - retDmg;
+  if((def.cap||'').includes('riposte2') && !def.asleep) { atkDef -= 2; res.notes.push('Riposte : +2 dégâts subis'); }
+
+  // combat_dmg2 (Djinn)
+  if((atk.cap||'').includes('combat_dmg2') && def.cDef > 0) { def.cDef = Math.max(0, def.cDef - 2); res.notes.push('Djinn : +2 dégâts'); }
+
+  res.targetDies = def.cDef <= 0 && !((def.cap||'').includes('endure') && !def.endureUsed) && !def._equipAphrodite;
+  if(def.cDef <= 0 && def._equipAphrodite) res.notes.push('Aphrodite : la cible revient en jeu');
+  if(def.cDef <= 0 && (def.cap||'').includes('endure') && !def.endureUsed) res.notes.push('Immortel : survit avec 1🛡');
+  if(def.cDef <= 0 && (def.cap||'').includes('momie') && !def._momieUsed) { res.targetDies = false; res.notes.push('Momie : reviendra à l\'Aube'); }
+  res.attackerDies = atkDef <= 0 && !((atk.cap||'').includes('endure') && !atk.endureUsed) && !((atk.cap||'').includes('momie') && !atk._momieUsed) && !atk._equipAphrodite;
+  if(atkDef <= 0 && atk._equipAphrodite) res.notes.push('Aphrodite : l\'attaquant revient en jeu');
+  if(atkDef <= 0 && (atk.cap||'').includes('endure') && !atk.endureUsed) res.notes.push('Immortel (attaquant) : survit avec 1🛡');
+  if(atkDef <= 0 && (atk.cap||'').includes('momie') && !atk._momieUsed) res.notes.push('Momie (attaquant) : reviendra à l\'Aube');
+  // Dernier Souffle du défenseur : annoncé ; s'il inflige des dégâts,
+  // la survie de l'attaquant devient incertaine.
+  if(res.targetDies && /exit_/.test(def.cap||'')) {
+    res.notes.push('Dernier Souffle se déclenche');
+    if(/exit_dmg|exit_destroy/.test(def.cap||'')) { res.uncertain = true; res.notes.push('ses dégâts de mort peuvent toucher l\'attaquant'); }
+  }
+  res.defLeft = Math.max(0, def.cDef);
+  res.atkLeft = Math.max(0, atkDef);
+  if(hasHit && !res.attackerDies) res.notes.push('Frénésie : peut attaquer une 2e fois');
+  if((atk.cap||'').includes('heal')) res.notes.push(`Offrande : +${actualDmg} PV`);
+  return res;
+}
+
+// UI de la preview (encart près de la cible survolée)
+function showCombatPreview(targetP, targetIdx) {
+  if(!G || !G.targeting || G.targeting.mode !== 'attack') return;
+  const { p, idx, attacker } = G.targeting;
+  const pred = predictCombat(p, idx, targetP, targetIdx);
+  if(!pred) return;
+  let el = document.getElementById('combat-preview');
+  if(!el) { el = document.createElement('div'); el.id = 'combat-preview'; document.body.appendChild(el); }
+  let html = '';
+  if(pred.uncertain) html += `<div class="cp-uncertain">⚠️ Résultat incertain — ${pred.notes.join(' · ')}</div>`;
+  else if(pred.cancelled) html += `<div class="cp-cancel">🛡 ${pred.notes.join(' · ')}</div>`;
+  else if(targetIdx === 'player') html += `<div class="cp-dmg">💥 ${pred.dmgToPlayer} dégâts au joueur</div>${pred.notes.length?`<div class="cp-notes">${pred.notes.join(' · ')}</div>`:''}`;
+  else {
+    const def = G.players[targetP].field[targetIdx];
+    html += `<div class="${pred.targetDies?'cp-dies':'cp-lives'}">${def.n} ${pred.targetDies?'💀 meurt':`survit à ${Math.max(0,def.cDef - pred.defLeft)} (${pred.defLeft}🛡)`}</div>`;
+    html += `<div class="${pred.attackerDies?'cp-dies':'cp-lives'}">${attacker.n} ${pred.attackerDies?'💀 meurt':`survit (${pred.atkLeft}🛡)`}</div>`;
+    if(pred.notes.length) html += `<div class="cp-notes">${pred.notes.join(' · ')}</div>`;
+  }
+  el.innerHTML = html;
+  el.style.display = 'block';
+  const tEl = targetIdx==='player' ? document.getElementById(`p${targetP}-bar`) : document.querySelector(`[data-player="${targetP}"][data-idx="${targetIdx}"]`);
+  if(tEl) {
+    const r = tEl.getBoundingClientRect();
+    el.style.left = Math.min(window.innerWidth - 260, Math.max(8, r.left + r.width/2 - 120)) + 'px';
+    el.style.top = Math.max(8, r.top - el.offsetHeight - 10) + 'px';
+  }
+}
+function hideCombatPreview() {
+  const el = document.getElementById('combat-preview');
+  if(el) el.style.display = 'none';
+}
+
 // =====================================================
 // PICK TARGET (human interaction)
 // =====================================================
@@ -3347,11 +3487,37 @@ function resolveReaction() {
   if (window._resolveReaction) window._resolveReaction();
 }
 
+function showAIIntent(p) {
+  if(G.mode !== 'pve') return;
+  const P = G.players[p];
+  const opp = p===1?2:1;
+  const OP = G.players[opp];
+  // Catégorie déduite du même état que le plan d'aiTurn — jamais la carte exacte.
+  const attackers = P.field.filter((m,i) => m && !m.faceDown && !m.asleep && !m.sanded &&
+    (!P.summoned.has(i) || (m.cap||'').includes('hurry')));
+  const totalAtk = attackers.reduce((s2,m) => s2 + (m.cAtk||0), 0);
+  const oppHasProtect = OP.field.some(m => m && effProtect(m, opp) && !m.asleep);
+  const bigGod = P.hand.some(c => c.type==='god' && c.cost >= 4 && c.cost <= P.gems);
+  let icon, label;
+  if(!oppHasProtect && totalAtk >= OP.hp) { icon='🗡'; label='Attaque massive'; }
+  else if(bigGod) { icon='✨'; label='Gros effet en préparation'; }
+  else if(totalAtk >= 8) { icon='🗡'; label='Offensive'; }
+  else { icon='🛡'; label='Développement'; }
+  let el = document.getElementById('ai-intent');
+  if(!el) { el = document.createElement('div'); el.id = 'ai-intent'; document.body.appendChild(el); }
+  el.innerHTML = `<span class="ai-intent-icon">${icon}</span> ${label}`;
+  el.style.display = 'flex';
+  const bar = document.getElementById(`p${p}-bar`);
+  if(bar) { const r = bar.getBoundingClientRect(); el.style.left = (r.left + 60) + 'px'; el.style.top = (r.bottom + 4) + 'px'; }
+}
+function hideAIIntent() { const el = document.getElementById('ai-intent'); if(el) el.style.display = 'none'; }
+
 async function aiTurn(p=2) {
   if(!G||G.cp!==p||aiThinking) return;
   aiThinking=true;
 
   addLog(`── AI thinking... ──`,'phase');
+  showAIIntent(p); // 7.1 : badge d'intention (catégorie du plan)
   renderAll();
 
   // Main1 phase
@@ -3384,6 +3550,7 @@ async function aiTurn(p=2) {
   await delay(300);
 
   aiThinking=false;
+  hideAIIntent();
   doEndTurn();
 }
 
@@ -3955,10 +4122,31 @@ function showFloatDmg(amount, targetEl, color='#e74c3c') {
   el.className = 'float-dmg';
   el.textContent = '-' + amount;
   el.style.color = color;
+  // 7.3 (Balatro) : la taille du nombre grandit avec les dégâts.
+  el.style.fontSize = Math.min(58, 20 + amount * 3.2) + 'px';
   el.style.left = (r.left + r.width/2 - 15) + 'px';
   el.style.top = (r.top + r.height/2 - 15) + 'px';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1200);
+}
+
+// 7.3 : particules de mort aux couleurs de la faction (CSS pur).
+function spawnDeathParticles(el, faction) {
+  if(!el || document.body.classList.contains('reduce-motion')) return;
+  const r = el.getBoundingClientRect();
+  const col = FC[faction] || '#f4c95d';
+  for(let i = 0; i < 9; i++) {
+    const pt = document.createElement('div');
+    pt.className = 'death-particle';
+    pt.style.background = col;
+    pt.style.left = (r.left + r.width/2) + 'px';
+    pt.style.top = (r.top + r.height/2) + 'px';
+    pt.style.setProperty('--dx', (Math.random()*120 - 60).toFixed(0) + 'px');
+    pt.style.setProperty('--dy', (Math.random()*-90 - 20).toFixed(0) + 'px');
+    pt.style.animationDelay = (Math.random()*0.08).toFixed(2) + 's';
+    document.body.appendChild(pt);
+    setTimeout(() => pt.remove(), 900);
+  }
 }
 
 // Soin flottant +X vert (damageFloatAnim variante heal)
@@ -3977,7 +4165,7 @@ function showFloatHeal(amount, targetEl) {
 // Secousse d'écran (shakeScreenAnim) — gros coup
 function screenShake(big) {
   const g = document.getElementById('game');
-  if(!g) return;
+  if(!g || document.body.classList.contains('reduce-motion')) return;
   g.classList.remove('screen-shake','screen-shake-big');
   void g.offsetHeight;
   g.classList.add(big ? 'screen-shake-big' : 'screen-shake');
@@ -4330,6 +4518,7 @@ function resolvePlayerTarget(targetP) {
 
 function stopTargeting() {
   G.targeting = null;
+  hideCombatPreview();
   document.body.classList.remove('targeting');
   document.querySelectorAll('.valid-target,.valid-target-dmg,.targetable,.targeting-src,.atk-source').forEach(el=>{
     el.classList.remove('valid-target','valid-target-dmg','targetable','targeting-src','atk-source');
@@ -4365,48 +4554,66 @@ function stopArrow() {
 }
 
 function drawArrow(ctx, from, to) {
+  // 7.6 (Hearthstone) : flèche élastique ÉPAISSE — courbe quadratique qui
+  // s'affaisse selon la distance, pointe qui PULSE sur cible valide.
   const dx=to.x-from.x, dy=to.y-from.y;
   const len=Math.sqrt(dx*dx+dy*dy);
   if(len<20) return;
-  
-  const angle=Math.atan2(dy,dx);
-  const headLen=18;
-  
-  // Gradient color
+
+  const t = Date.now()/1000;
+  const overValid = !!(document.querySelector('.valid-target:hover,.valid-target-dmg:hover,.targetable:hover'));
+  const pulse = overValid ? (1 + 0.25*Math.sin(t*9)) : 1;
+  const sag = Math.min(70, len*0.18); // élasticité : la corde pend
+  const mx = (from.x+to.x)/2, my = (from.y+to.y)/2 + sag;
+
+  // Corps épais en dégradé
   const grad=ctx.createLinearGradient(from.x,from.y,to.x,to.y);
-  grad.addColorStop(0,'rgba(243,156,18,0.2)');
-  grad.addColorStop(1,'rgba(243,156,18,0.9)');
-  
-  // Shaft
+  grad.addColorStop(0,'rgba(243,156,18,0.25)');
+  grad.addColorStop(1, overValid ? 'rgba(120,255,140,0.95)' : 'rgba(243,156,18,0.95)');
   ctx.beginPath();
   ctx.moveTo(from.x,from.y);
-  ctx.lineTo(to.x-Math.cos(angle)*headLen*.7,to.y-Math.sin(angle)*headLen*.7);
+  ctx.quadraticCurveTo(mx,my,to.x,to.y);
   ctx.strokeStyle=grad;
-  ctx.lineWidth=3;
+  ctx.lineWidth=9;
   ctx.lineCap='round';
-  ctx.setLineDash([8,4]);
+  ctx.shadowColor = overValid ? 'rgba(120,255,140,.8)' : 'rgba(243,156,18,.6)';
+  ctx.shadowBlur = 14;
   ctx.stroke();
-  ctx.setLineDash([]);
-  
-  // Arrowhead
+  ctx.shadowBlur = 0;
+
+  // Pointe (orientée selon la tangente de la courbe)
+  const angle=Math.atan2(to.y-my, to.x-mx);
+  const headLen=26*pulse;
   ctx.beginPath();
   ctx.moveTo(to.x,to.y);
-  ctx.lineTo(to.x-headLen*Math.cos(angle-0.4),to.y-headLen*Math.sin(angle-0.4));
-  ctx.lineTo(to.x-headLen*Math.cos(angle+0.4),to.y-headLen*Math.sin(angle+0.4));
+  ctx.lineTo(to.x-headLen*Math.cos(angle-0.42),to.y-headLen*Math.sin(angle-0.42));
+  ctx.lineTo(to.x-headLen*0.55*Math.cos(angle),to.y-headLen*0.55*Math.sin(angle));
+  ctx.lineTo(to.x-headLen*Math.cos(angle+0.42),to.y-headLen*Math.sin(angle+0.42));
   ctx.closePath();
-  ctx.fillStyle='rgba(243,156,18,0.9)';
+  ctx.fillStyle = overValid ? 'rgba(120,255,140,0.95)' : 'rgba(243,156,18,0.95)';
   ctx.fill();
-  
-  // Glow circle at origin
+
+  // Origine
   ctx.beginPath();
-  ctx.arc(from.x,from.y,7,0,Math.PI*2);
-  ctx.fillStyle='rgba(243,156,18,0.5)';
+  ctx.arc(from.x,from.y,9,0,Math.PI*2);
+  ctx.fillStyle='rgba(243,156,18,0.55)';
   ctx.fill();
 }
 
 // Global mouse move for arrow
 document.addEventListener('mousemove', e=>{
   arrowMousePos = {x:e.clientX, y:e.clientY};
+});
+// 7.6 : drag-to-attack — relâcher sur une cible valide pendant le ciblage la résout.
+document.addEventListener('mouseup', e=>{
+  if(!G || !G.targeting || G.targeting.mode!=='attack') return;
+  const card = e.target.closest ? e.target.closest('.fcard') : null;
+  if(card && card.classList.contains('valid-target-dmg')) {
+    resolveTarget({type:'field', p:parseInt(card.dataset.player), i:parseInt(card.dataset.idx)});
+    return;
+  }
+  const bar = e.target.closest ? e.target.closest('.pbar.targetable') : null;
+  if(bar) resolvePlayerTarget(bar.id === 'p1-bar' ? 1 : 2);
 });
 
 // ESC / right-click to cancel targeting
@@ -4646,9 +4853,57 @@ function renderCycleBanner() {
   // Teinte du champ de bataille selon la phase
   const game = document.getElementById('game');
   if(game) game.dataset.cyclePhase = phaseName;
-  // Médaillon central
+  // Médaillon central (7.5) : phase actuelle + les 2 prochaines + bonus du zénith.
   const medIcon = document.getElementById('divider-medallion-icon');
   if(medIcon) medIcon.textContent = CYCLE_ICONS[phaseName];
+  const med = document.getElementById('divider-medallion');
+  if(med) {
+    let next = document.getElementById('divider-next');
+    if(!next) { next = document.createElement('div'); next.id = 'divider-next'; med.appendChild(next); }
+    const n1 = CYCLE_PHASES[(cur+1)%5], n2 = CYCLE_PHASES[(cur+2)%5];
+    next.innerHTML = `<span class="div-next-icon">${CYCLE_ICONS[n1]}</span><span class="div-next-icon">${CYCLE_ICONS[n2]}</span>`;
+    let bonus = document.getElementById('divider-bonus');
+    if(!bonus) { bonus = document.createElement('div'); bonus.id = 'divider-bonus'; med.appendChild(bonus); }
+    bonus.textContent = ZENITH_BONUS_TXT[zenFaction] || '';
+    med.classList.toggle('frozen', (G.cycleFrozen||0) > 0 || G.cycleLocked);
+  }
+  // 7.7 : balance céleste (penche selon le ratio de PV)
+  renderCelestialBalance();
+}
+
+// ── 7.7 : BALANCE CÉLESTE (Inscryption) — penche selon le ratio HP J1/J2 ──
+function renderCelestialBalance() {
+  if(!G) return;
+  let el = document.getElementById('celestial-balance');
+  if(!el) {
+    const host = document.getElementById('board-divider');
+    if(!host) return;
+    el = document.createElement('div');
+    el.id = 'celestial-balance';
+    el.innerHTML = `
+      <svg viewBox="0 0 120 56" width="120" height="56">
+        <g id="cb-beam-g">
+          <rect x="14" y="16" width="92" height="3" rx="1.5" fill="#c8a44a"/>
+          <line x1="22" y1="18" x2="22" y2="30" stroke="#c8a44a" stroke-width="2"/>
+          <line x1="98" y1="18" x2="98" y2="30" stroke="#c8a44a" stroke-width="2"/>
+          <path d="M12 30 Q22 42 32 30 Z" fill="rgba(231,76,60,.85)"/>
+          <path d="M88 30 Q98 42 108 30 Z" fill="rgba(46,204,113,.85)"/>
+        </g>
+        <polygon points="56,18 64,18 60,8" fill="#ffe9a8"/>
+        <rect x="58" y="18" width="4" height="30" fill="#8a6018"/>
+      </svg>
+      <span class="cb-hp cb-hp2" id="cb-hp2"></span>
+      <span class="cb-hp cb-hp1" id="cb-hp1"></span>`;
+    host.appendChild(el);
+  }
+  const hp1 = Math.max(0, G.players[1].hp), hp2 = Math.max(0, G.players[2].hp);
+  // penche du côté du joueur le plus FAIBLE (son plateau descend)
+  const tilt = Math.max(-14, Math.min(14, (hp1 - hp2) * 1.1));
+  const beam = el.querySelector('#cb-beam-g');
+  if(beam) beam.style.transform = `rotate(${(-tilt).toFixed(1)}deg)`;
+  const h1 = document.getElementById('cb-hp1'), h2 = document.getElementById('cb-hp2');
+  if(h1) h1.textContent = `❤${hp1}`;
+  if(h2) h2.textContent = `❤${hp2}`;
 }
 
 let _cycleAnimPending = false;
@@ -4659,6 +4914,20 @@ function scheduleCycleAnim() {
 function applyCycleAnim() {
   if(!_cycleAnimPending) return;
   _cycleAnimPending = false;
+  // 7.5 : animation plein écran 1,3 s + SFX dédié (sauf reduce-motion).
+  if(G && G.mode !== 'sim' && !document.body.classList.contains('reduce-motion')) {
+    const ph = CYCLE_PHASES[G.cycle % 5];
+    let ov = document.getElementById('cycle-transition-overlay');
+    if(!ov) { ov = document.createElement('div'); ov.id = 'cycle-transition-overlay'; document.body.appendChild(ov); }
+    ov.dataset.phase = ph;
+    ov.innerHTML = `<div class="cto-inner"><div class="cto-icon">${CYCLE_ICONS[ph]}</div>
+      <div class="cto-name">${CYCLE_NAMES[ph]}</div>
+      <div class="cto-zen">Zénith · ${ZENITH_LABEL[ZENITH_MAP[ph]]}</div>
+      <div class="cto-bonus">${ZENITH_BONUS_TXT[ZENITH_MAP[ph]]||''}</div></div>`;
+    ov.classList.remove('active'); void ov.offsetHeight; ov.classList.add('active');
+    setTimeout(() => ov.classList.remove('active'), 1350);
+    if(typeof Audio5L !== 'undefined' && Audio5L.sfx.cycleShift) Audio5L.sfx.cycleShift();
+  }
   const el = document.getElementById('cycle-banner');
   if(!el) return;
   el.classList.remove('cycle-transition');
@@ -4855,8 +5124,11 @@ function renderField(p) {
     div.dataset.faction=m.faction||P.faction;
     div.dataset.rarity=m.rarity||(m.type==='god'?'god':'common');
     div.dataset.type=m.type||'monster';
-    div.addEventListener('mouseenter',()=>showCardPreview(m,div));
-    div.addEventListener('mouseleave',()=>{ if(!G||!G.targeting) hideCardPreview(); });
+    div.addEventListener('mouseenter',()=>{
+      showCardPreview(m,div);
+      if(G && G.targeting && G.targeting.mode==='attack' && p===G.targeting.opp && !m.faceDown) showCombatPreview(p, i);
+    });
+    div.addEventListener('mouseleave',()=>{ if(!G||!G.targeting) hideCardPreview(); hideCombatPreview(); });
     div.addEventListener('contextmenu',(e)=>{ e.preventDefault(); showBigPreview(m); });
     div.addEventListener('dblclick',()=>showBigPreview(m));
     div.onclick=()=>onFieldClick(p,i);
@@ -5079,7 +5351,8 @@ function renderHand() {
     el.appendChild(div);
   });
 
-  // ── Arc layout (Hearthstone fan) ───────────────────────────────────
+  // ── Arc layout (7.4, Balatro) : variables CSS — le :hover compose avec
+  // l'arc sans re-render ni saut, les positions sont déterministes (index/n).
   const cards = [...el.children];
   const n = cards.length;
   if(n > 0) {
@@ -5087,9 +5360,9 @@ function renderHand() {
     cards.forEach((card, i) => {
       const t = n === 1 ? 0 : (i / (n-1)) * 2 - 1; // -1..+1
       const angle = t * maxAngle;
-      const yOff  = -(1 - t*t) * 6; // centre légèrement plus haut (plus accessible)
-      card.style.transform = `rotate(${angle}deg) translateY(${yOff}px)`;
-      card.style.transformOrigin = 'bottom center';
+      const yOff  = -(1 - t*t) * 6;
+      card.style.setProperty('--arc-rot', angle.toFixed(2) + 'deg');
+      card.style.setProperty('--arc-y', yOff.toFixed(1) + 'px');
       card.style.zIndex = String(Math.round((n+1)/2) - Math.abs(i - Math.floor((n-1)/2)));
       if(i > 0) card.style.marginLeft = n > 5 ? '-14px' : '-8px';
     });
