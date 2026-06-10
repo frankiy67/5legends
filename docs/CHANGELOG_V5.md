@@ -94,3 +94,14 @@ yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** 
   greek (Hippocampe, Cyclope −1).
 - **Validation finale Phase 1 (1000 parties)** : P1 **48,4 %** · yokai **50,8** · norse **47,5** ·
   egyptian **49,3** · greek **51,0** · aztec **51,5** — tous critères ✅ · 0 crash.
+
+## 2.1 / 2.2 — Suppression Sand Up · Esquive remplace le RNG binaire
+- Sand Up : 0 carte concernée (code mort supprimé). Flag `sanded` conservé pour
+  Xipe Totec (immobilisation de masse) et Golem (cooldown) — badge « Immobilisé ».
+- Bewitch : 0 carte concernée ; checks 50 % supprimés de l'IA.
+- **ESQUIVE** (nouvelle cap déterministe) : première attaque subie par phase du Cycle
+  rate ; recharge à chaque changement de phase ; badge 💨 ; portée par Sirènes
+  (ex-coinflip_defense 50 %).
+- Validation (2.3) : 171/171 caps avec handler, couverture 171/171, factions
+  yokai 50,8 / norse 47,3 / egyptian 49,3 / greek 51,3 / aztec 51,5, P1 48,0 % (1000),
+  0 crash. Impact carte convertie (Sirènes/greek) : +0,3 pt ∈ ±3 ✅.

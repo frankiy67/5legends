@@ -59,3 +59,8 @@ When an Endure monster would die, it instead returns to the field with 1 Shield 
 
 ### Cursed
 A cursed monster dies from any single point of damage.
+
+### Esquive (Dodge)
+The first attack this monster receives during each Celestial Cycle phase **misses**.
+The dodge recharges every time the Cycle changes phase. A 💨 badge shows while the
+dodge is available. (Deterministic replacement of the old 50% coin-flip defense.)

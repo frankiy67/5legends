@@ -396,7 +396,7 @@ egyptian:[
 ],
 greek:[
   // NON-RARES x3
-  {id:'SIRENES',    n:'Sirènes',    atk:3,def:1,cost:1,rarity:'common',  cap:'coinflip_defense',        txt:'Quand attaqué : pile = attaque annulée.'},
+  {id:'SIRENES',    n:'Sirènes',    atk:3,def:1,cost:1,rarity:'common',  cap:'esquive',                 txt:'Esquive : la première attaque subie à chaque phase du Cycle rate.'},
   {id:'PEGASE',     n:'Pégase',     atk:4,def:4,cost:2,rarity:'common',  cap:'hurry_heal',              txt:'Rapide + Vie.'},
   {id:'HIPPOCAMPE', n:'Hippocampe', atk:4,def:3,cost:3,rarity:'common',  cap:'start_filter',            txt:'Début de tour : Défaussez 1 carte pour en piocher 1.'},
   {id:'SATYRE',     n:'Satyre',     atk:5,def:4,cost:4,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
@@ -571,6 +571,7 @@ function newCard(template) {
     cAtk: template.atk || 0,
     cDef: template.def || 0,
     endureUsed: false,
+    esquiveUsed: false,
     cursed: false,
     asleep: false,
     sanded: false,
@@ -932,7 +933,11 @@ function doEndTurn() {
     G.turn++;
     const prevCycle = G.cycle;
     G.cycle = (G.cycle + 1) % 5;
-    if(G.cycle !== prevCycle) scheduleCycleAnim();
+    if(G.cycle !== prevCycle) {
+      scheduleCycleAnim();
+      // ESQUIVE (2.2) : recharge à chaque changement de phase du Cycle.
+      [1,2].forEach(pl => G.players[pl].field.forEach(m => { if(m) m.esquiveUsed = false; }));
+    }
   }
   G.phase='Main1';
   G.selAtk=null;
@@ -1257,20 +1262,20 @@ registerCombat('preStrike', (cap, ctx) => (ctx.atk.cap||'').includes('solo_destr
     }
   }
 });
-// coinflip_defense (SIRENES): le défenseur tire à pile/face, pile = annulé → abort.
+// ESQUIVE (2.2, remplace l'ex-coinflip_defense 50%) : DÉTERMINISTE — la
+// première attaque subie par ce monstre à chaque phase du Cycle Céleste rate.
+// Le compteur (esquiveUsed) est réinitialisé à chaque changement de phase du
+// Cycle (cf. doEndTurn). Badge 💨 tant que l'esquive est disponible.
 registerCombat('preStrike', (cap, ctx) => {
   if(typeof ctx.targetIdx!=='number') return false;
   const def0 = ctx.DP.field[ctx.targetIdx];
-  return !!(def0 && (def0.cap||'').includes('coinflip_defense'));
+  return !!(def0 && (def0.cap||'').includes('esquive') && !def0.esquiveUsed);
 }, ctx => {
   const { AP, DP, attackerIdx, targetIdx } = ctx;
   const def0 = DP.field[targetIdx];
-  if(rng()<0.5) {
-    addLog(`${def0.n} — Coin flip: ANNULÉ!`,'special');
-    AP.attacked.add(attackerIdx); renderAll(); return 'abort';
-  } else {
-    addLog(`${def0.n} — Coin flip: combat normal.`,'event');
-  }
+  def0.esquiveUsed = true;
+  addLog(`💨 ${def0.n} — ESQUIVE ! L'attaque rate (recharge au prochain changement de Cycle).`,'special');
+  AP.attacked.add(attackerIdx); renderAll(); return 'abort';
 });
 // splash_adjacent (JÖRMUNGANDR): demi-ATK aux monstres adjacents (jamais d'abort).
 registerCombat('preStrike', (cap, ctx) => (ctx.atk.cap||'').includes('splash_adjacent') && typeof ctx.targetIdx==='number', ctx => {
@@ -1344,7 +1349,6 @@ registerEffect('entry', cap => cap.includes('entry_curse2'), async ctx => {
   let cnt=0;
   for(const x of oppField) { if(cnt<2){ x.cursed=true; cnt++; addLog(`${x.n} CURSED!`,'debuff'); } }
 });
-registerEffect('entry', cap => cap.includes('entry_sandup'), async ctx => { await pickTarget('sandup', ctx.p, true); });
 registerEffect('entry', cap => cap.includes('entry_shield_all'), async ctx => {
   eachAllyExclSelf(ctx, x => { x.cDef++; });
   addLog(`${ctx.m.n} — +1 shield all allies`,'buff');
@@ -1357,7 +1361,6 @@ registerEffect('entry', cap => cap.includes('entry_buff_atk'), async ctx => {
   eachAllyExclSelf(ctx, x => { x.cAtk++; });
   addLog(`${ctx.m.n} — +1 ATK all allies`,'buff');
 });
-registerEffect('entry', cap => cap.includes('entry_bewitch'), async ctx => { await pickTarget('bewitch', ctx.p, true); });
 registerEffect('entry', cap => cap.includes('entry_freeplay2'), async ctx => {
   const { p, m } = ctx;
   const pi = G.players[p].hand.findIndex(c=>c.type==='monster'&&c.cost<=2);
@@ -1532,8 +1535,6 @@ registerEffect('exit', cap => cap.includes('exit_destroy'), async ctx => { await
 registerEffect('exit', cap => cap.includes('exit_blind'), async ctx => { await pickTarget('blind', ctx.p, false); });
 registerEffect('exit', cap => cap.includes('exit_curse'), async ctx => { await pickTarget('curse', ctx.p, false); });
 registerEffect('exit', cap => cap.includes('exit_draw'), ctx => { drawCard(ctx.p); addLog(`${ctx.m.n} Exit — Draw 1`,'buff'); });
-registerEffect('exit', cap => cap.includes('exit_sandup'), async ctx => { await pickTarget('sandup', ctx.p, false); });
-registerEffect('exit', cap => cap.includes('exit_bewitch'), async ctx => { await pickTarget('bewitch', ctx.p, false); });
 registerEffect('exit', cap => cap.includes('exit_copy'), ctx => {
   const { p, m } = ctx;
   const P = G.players[p];
@@ -2877,8 +2878,6 @@ function scoreCard(c, p) {
     if(cap.includes('entry_curse2')  && oppField.length === 1) score += 4;
     if(cap.includes('entry_dmg3'))   score += (oppField.length > 0 ? 5 : (oppHP <= 3 ? 8 : 2));
     if(cap.includes('entry_blind')   && oppField.length > 0) score += 3;
-    if(cap.includes('entry_sandup')  && oppField.length > 0) score += 4;
-    if(cap.includes('entry_bewitch') && oppField.length > 0) score += 4;
     if(cap.includes('entry_buff11')  && myField.length > 0)  score += myField.length * 1.8;
     if(cap.includes('entry_buff_atk')&& myField.length > 0)  score += myField.length * 1.2;
     if(cap.includes('entry_shield_all') && myField.length > 0) score += myField.length;
@@ -2909,7 +2908,7 @@ function scoreCard(c, p) {
   if(cap.includes('exit_self_sleep_return')) score += 2;
   if(cap.includes('endure_cooldown')||cap.includes('alt_attack'))       score += 2;
   if(cap.includes('entry_draw_per_ally') && myField.length > 0) score += myField.length * 2.5;
-  if(cap.includes('coinflip_defense')||cap.includes('coinflip_defend'))  score += 2;
+  if(cap.includes('esquive'))          score += 3; // esquive déterministe = vraie valeur défensive
   if(cap.includes('start_filter'))     score += 2;
   if(cap.includes('passive_entry_buff11') && myField.length > 0) score += myField.length * 2;
   if(cap.includes('entry_copy_any'))   score += 4;
@@ -2969,8 +2968,6 @@ function scoreCard(c, p) {
       score += oppField.length > 0 ? 5 : -3;
     }
     if(cap.includes('blind_draw') && oppField.length > 0) score += 4;
-    if(cap.includes('bewitch_draw') && oppField.length > 0) score += 5;
-    if(cap.includes('sandup') && oppField.length > 0)  score += 4;
     if(cap.includes('balder') && myField.length > 1)   score += 4;
     if(cap.includes('osiris') && P.field.length <= 2)  score += 7;
     if(cap.includes('odin'))  score += (board < -1 ? 7 : 2);
@@ -2989,7 +2986,7 @@ function scoreCard(c, p) {
     if(cap.includes('cancel_attack')) score += 4;
 
     // General: gods with no valid targets are worthless
-    const needsTarget = ['minus','destroy','steal','sleep','buff','blank','blind','bewitch','sandup','force','thor'];
+    const needsTarget = ['minus','destroy','steal','sleep','buff','blank','blind','force','thor'];
     const hasTarget = oppField.length > 0 || myField.length > 0;
     if(!hasTarget && needsTarget.some(k => cap.includes(k))) score = Math.max(score - 4, 0);
 
@@ -3032,7 +3029,6 @@ async function aiCombatPhase(p=2) {
     addLog('🎯 AI détecte une victoire — tout en face !', 'special');
     for(const {m,i} of attackers) {
       if(!G.players[p].field[i]) continue;
-      if(m.bewitched && rng() < 0.5) { P.attacked.add(i); continue; }
       addLog(`${m.n} attaque le joueur directement !`, 'dmg');
       renderAll();
       await waitForPlayerAck(m, 'attack');
@@ -3050,7 +3046,6 @@ async function aiCombatPhase(p=2) {
   if(oppAlive.length === 0) {
     for(const {m,i} of getAttackers()) {
       if(!G.players[p].field[i]) continue;
-      if(m.bewitched && rng() < 0.5) { P.attacked.add(i); continue; }
       addLog(`${m.n} attaque directement (terrain adverse vide) !`, 'dmg');
       renderAll();
       await waitForPlayerAck(m, 'attack');
@@ -3074,14 +3069,6 @@ async function aiCombatPhase(p=2) {
   for(const {m,i} of sorted) {
     if(!G.players[p].field[i]) continue;
     if(G.players[p].attacked.has(i)) continue;
-
-    if(m.bewitched) {
-      if(rng() < 0.5) {
-        addLog(`${m.n} envoûté — rate son attaque !`, 'debuff');
-        P.attacked.add(i);
-        continue;
-      }
-    }
 
     const target = pickAITarget(opp, p);
     if(target === null) break;
@@ -3171,7 +3158,7 @@ function aiPickTarget(type, p, card) {
   const oppField=G.players[opp].field.filter(m=>m&&!m.faceDown);
   const ownField=G.players[p].field.filter(m=>m&&!m.faceDown);
 
-  if(type==='sleep'||type==='sandup'||type==='blank11'||type==='destroy'||type==='curse'||type==='bewitch'||type==='minus3'||type==='minus2') {
+  if(type==='sleep'||type==='blank11'||type==='destroy'||type==='curse'||type==='minus3'||type==='minus2') {
     if(oppField.length>0) {
       // target highest atk
       const best=oppField.reduce((a,b)=>a.cAtk>b.cAtk?a:b);
@@ -3305,10 +3292,10 @@ const ABILITY_GLOSSARY = {
   exit:        {icon:"💀", name:"Exit",        desc:"Triggered when this monster is destroyed or dies"},
   anytime:     {icon:"⚡", name:"Anytime",     desc:"Can be played at any time, even during the opponent turn"},
   face_down:   {icon:"🂠", name:"Face Down",   desc:"Enters the field hidden — flips when trigger condition is met"},
-  sand:        {icon:"⏳", name:"Sanded",      desc:"Cannot attack next turn"},
+  sand:        {icon:"⏳", name:"Immobilisé",  desc:"Ne peut pas attaquer au prochain tour"},
   sleep:       {icon:"💤", name:"Sleep",       desc:"Face down and untouchable — wakes up 2 opponent turns later"},
   curse:       {icon:"💀", name:"Cursed",      desc:"Only 1 damage is enough to destroy this monster"},
-  bewitch:     {icon:"🌀", name:"Bewitched",   desc:"Must flip a coin before attacking — tails means no attack — Garantied if target sleeps and yokai faction"},
+  esquive:     {icon:"💨", name:"Esquive",     desc:"La première attaque subie à chaque phase du Cycle Céleste rate"},
   blind:       {icon:"👁",  name:"Blinded",    desc:"Next attack hits a random target instead of the chosen one"},
 };
 
@@ -3331,7 +3318,7 @@ function getAbilityBadges(card) {
   if(card.sanded) add('sand');
   if(card.asleep) add('sleep');
   if(card.cursed) add('curse');
-  if(card.bewitched) add('bewitch');
+  if((card.cap||'').includes('esquive') && !card.esquiveUsed) add('esquive');
   if(card.blinded) add('blind');
 
   return badges;
@@ -3762,7 +3749,7 @@ function showTargetModal(type, p, opp) {
 }
 
 function targetTitle(type) {
-  const map={sleep:'Put to sleep',sandup:'Sand up (cant attack)',bewitch:'Bewitch',blind:'Blind',curse:'Curse',minus3:'-3 Shield',minus2:'-2 Shield',blank11:'→ 1/1 blank',destroy:'Destroy',buff3:'+3/+3 target',equip_seth:'Equip Seth',equip_return:'Equip Izanami',steal:'Steal',copy:'Copy Monster',force_attack:'Force to attack',swap:'Swap Monster',spell4dmg:'4 Damage target',redirect:'Redirect attack'};
+  const map={sleep:'Put to sleep',blind:'Blind',curse:'Curse',minus3:'-3 Shield',minus2:'-2 Shield',blank11:'→ 1/1 blank',destroy:'Destroy',buff3:'+3/+3 target',equip_seth:'Equip Seth',equip_return:'Equip Izanami',steal:'Steal',copy:'Copy Monster',force_attack:'Force to attack',swap:'Swap Monster',spell4dmg:'4 Damage target',redirect:'Redirect attack'};
   return map[type]||type;
 }
 
@@ -3773,14 +3760,6 @@ async function applyTargetEffect(type, fromP, idx, card) {
   const opp=fromP;
 
   if(type==='sleep') { m.faceDown=true; m.asleep=true; m.sleepTurns=2; addLog(`${m.n} put to sleep!`,'debuff'); }
-  else if(type==='sandup') { m.sanded=true; addLog(`${m.n} sanded — can't attack`,'debuff'); }
-  else if(type==='bewitch') {
-    m.bewitched=true;
-    if(m.asleep && (G.players[p].faction==='yokai')) {
-      addLog(`✨ COMBO Sommeil+Envoûtement — Vol garanti!`,'special');
-    }
-    addLog(`${m.n} bewitched — must flip coin to attack`,'debuff');
-  }
   else if(type==='blind') { m.blinded=true; addLog(`${m.n} blinded — next attack random`,'debuff'); }
   else if(type==='curse') { m.cursed=true; addLog(`${m.n} CURSED — 1 dmg = death!`,'debuff'); }
   else if(type==='minus3') { m.cDef=Math.max(0,m.cDef-3); addLog(`${m.n} −3 shield → ${m.cDef}`,'dmg'); if(m.cDef<=0) await handleDeath(fromP,m); }
@@ -4110,7 +4089,7 @@ function renderField(p) {
       if(m.cursed)        statuses.push('<span class="st cursed">CURSED</span>');
       if(m.asleep)        statuses.push('<span class="st asleep">😴</span>');
       if(m.sanded)        statuses.push('<span class="st sanded">⏳</span>');
-      if(m.bewitched)     statuses.push('<span class="st bewitch">🌀</span>');
+      if((m.cap||'').includes('esquive') && !m.esquiveUsed) statuses.push('<span class="st esquive" title="Esquive disponible">💨</span>');
       if(m.sethEquipped)  statuses.push('<span class="st seth">SETH</span>');
       if(m.izanamiEquipped)statuses.push('<span class="st izanami">IZA</span>');
 

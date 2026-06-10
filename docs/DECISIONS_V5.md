@@ -19,3 +19,21 @@ alternative écartée : nerfs de stats supplémentaires sur ~8 monstres norse ·
 norse restait à 65 % après 2 itérations de stats — le moteur Ragnarök (déclenché par
 toute mort de monstre en partie norse) était le contributeur dominant, le toucher est
 plus chirurgical que dénaturer les statlines · ⚠️ à relire par Frank
+
+**[2.1]** SAND UP : aucune carte du pool actuel (171) n'utilisait `entry_sandup` /
+`exit_sandup` / `god_sandup2_draw` / `spell_dmg4_sand` — le tableau de remplacement
+ancien→nouveau est donc VIDE ; suppression des chemins morts (handlers entry/exit,
+scoring IA, cibles, applyTargetEffect) · alternative écartée : conserver le code mort ·
+pourquoi : la capacité avait déjà disparu des données au commit « 70 dieux », il ne
+restait que du code orphelin · NB : le flag runtime `sanded` est CONSERVÉ (utilisé par
+Xipe Totec god_freeze_attacks et le cooldown du Golem), badge renommé « Immobilisé » ·
+⚠️ à relire par Frank
+
+**[2.2]** BEWITCH : également absent des données (le flag `bewitched` n'était posé par
+aucune carte) ; le vrai porteur du problème « 50 % de rater = RNG binaire » était
+`coinflip_defense` (Sirènes). Conversion : Sirènes → ESQUIVE déterministe (« la première
+attaque subie à chaque phase du Cycle rate », compteur reset au changement de phase,
+badge 💨) ; suppression des checks bewitched 50 % dans aiCombatPhase · alternative
+écartée : garder le coin-flip des Sirènes · pourquoi : même mécanique RNG binaire que
+Bewitch, l'esprit de la tâche s'applique · impact mesuré : greek 51,0 % → 51,3 % (±3 ✅) ·
+⚠️ à relire par Frank
