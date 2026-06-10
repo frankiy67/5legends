@@ -137,3 +137,20 @@ yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** 
 - P1 **51,7 %** sur 1000 (pioche bonus T2 de P2 retirée — voir DECISIONS).
 - Factions : yokai 50,5 / norse 52,5 / egyptian 52,8 / greek 48,3 / aztec 46,0 — toutes ∈ [45, 55] ✅.
 - 181 cartes, 181/181 caps avec handler, couverture sim 181/181, 0 crash. Golden régénéré (P1 107/P2 93).
+
+## 4 — MODE ARENA (draft + run Slay the Spire + boss)
+- **4.1** Draft porté de feat-gameplay-v2 : 40 picks de 1 carte sur 4, pool complet
+  multi-factions, garantie ≥1 carte de la faction choisie par pick ; deck custom côté
+  joueur via `initGame(..., {customDeck})`. PAS de marché, PAS de pouvoirs divins.
+- **4.2** Carte de run : 6 nœuds à 2-3 options (Combat = 1 pick · Élite = IA +1
+  difficulté, 2 picks · Sanctuaire = +5 HP de run OU retrait d'1 carte) + Boss.
+  HP de run 25, duel perdu = −10, 0 = ÉLIMINÉ.
+- **4.3** 5 boss à règles cassées annoncées à l'écran : Zeus (Cycle +1 chaque tour),
+  Anubis (1ᵉʳ monstre IA détruit par tour revient), Odin (2 murs Protect 0/4),
+  Quetzalcoatl (tout a Endurance), Amaterasu (Cycle figé sur Nuit). Boss final tiré
+  hors faction du joueur.
+- **4.4** Écran-titre : « ⚔ ARENA (recommandé) » / « 🎴 PARTIE LIBRE ».
+- **4.5** `tools/test_arena.js` — 100 runs simulées : **505 duels, 0 crash,
+  durée moyenne 9,3 tours ≤ 12 ✅**, 25 % de runs championnes (IA pilote).
+- Golden master STRICTEMENT IDENTIQUE après l'Arena (vérifié par golden_check) :
+  zéro impact sur le jeu normal.

@@ -30,7 +30,10 @@
     <div class="setup-screen-content title-content">
       <div class="title-logo">5&nbsp;LEGENDS</div>
       <div class="title-sub">Tactical Card Battle</div>
-      <button id="btn-play" class="play-btn">▶&nbsp;&nbsp;JOUER</button>
+      <div class="title-btns">
+        <button id="btn-arena" class="play-btn arena">⚔&nbsp;&nbsp;ARENA&nbsp;<span class="btn-reco">(recommandé)</span></button>
+        <button id="btn-play" class="play-btn">🎴&nbsp;&nbsp;PARTIE LIBRE</button>
+      </div>
       <div class="title-foot">🦊 Yokai&nbsp;&nbsp;·&nbsp;&nbsp;⚡ Norse&nbsp;&nbsp;·&nbsp;&nbsp;🏺 Egyptian&nbsp;&nbsp;·&nbsp;&nbsp;🏛 Greek&nbsp;&nbsp;·&nbsp;&nbsp;🌞 Aztec</div>
     </div>
   </div>
@@ -111,6 +114,60 @@
     </div>
   </div>
 
+
+  <!-- ── ARENA : SÉLECTION DE FACTION ─────────── -->
+  <div id="arena-faction" class="setup-screen">
+    <div class="setup-screen-bg" id="bg-arena-faction"></div>
+    <div class="setup-screen-content">
+      <div class="logo">5 LEGENDS</div>
+      <div class="logo-sub">Arena — Draft & Run</div>
+      <div class="setup-player-title">
+        <span class="setup-player-num">ARENA</span>
+        <span class="setup-player-hint">Choisis ton panthéon (identité de ta run)</span>
+      </div>
+      <div class="fp-grid-full" id="arena-faction-grid"></div>
+    </div>
+  </div>
+
+  <!-- ── ARENA : DRAFT (40 picks de 1 sur 4) ──── -->
+  <div id="arena-draft" class="setup-screen">
+    <div class="setup-screen-bg"></div>
+    <div class="setup-screen-content draft-content">
+      <div class="draft-head">
+        <div class="draft-title">LE DRAFT</div>
+        <div id="draft-identity"></div>
+        <div class="draft-progress">
+          <div class="draft-count"><span id="draft-count-cur">0</span> / <span id="draft-count-max">40</span></div>
+          <div class="draft-bar"><div id="draft-bar-fill"></div></div>
+        </div>
+        <div class="draft-hint">Choisis 1 carte sur 4 — clique pour l'ajouter à ton deck</div>
+      </div>
+      <div id="draft-picks"></div>
+    </div>
+  </div>
+
+  <!-- ── ARENA : CARTE DE RUN (Slay the Spire) ── -->
+  <div id="arena-map" class="setup-screen">
+    <div class="setup-screen-bg"></div>
+    <div class="setup-screen-content">
+      <div class="draft-title">LA RUN</div>
+      <div id="am-hp"></div>
+      <div id="am-progress"></div>
+      <div class="draft-hint">Choisis ta prochaine étape</div>
+      <div id="am-options"></div>
+    </div>
+  </div>
+
+  <!-- ── ARENA : SANCTUAIRE ─────────────────────── -->
+  <div id="arena-sanctuary" class="setup-screen">
+    <div class="setup-screen-bg"></div>
+    <div class="setup-screen-content">
+      <div class="draft-title">⛩️ SANCTUAIRE</div>
+      <div class="draft-hint">Soigne tes HP de run, OU retire 1 carte de ton deck (clique-la)</div>
+      <button id="as-heal" class="play-btn"></button>
+      <div id="as-cards"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -272,6 +329,27 @@
     <div class="mull-help">Clique sur les cartes à remplacer, puis confirme.</div>
     <div id="mull-cards"></div>
     <button id="mull-confirm" class="play-btn">✔&nbsp;&nbsp;CONFIRMER</button>
+  </div>
+</div>
+
+<!-- ARENA : HUD de run en match -->
+<div id="arena-hud" style="display:none">
+  <span class="ah-match" id="ah-match"></span>
+  <span class="ah-sep2">·</span>
+  <span id="ah-runhp" class="ah-runhp"></span>
+  <span class="ah-sep2">·</span>
+  <span class="ah-score"><span class="ah-w" id="ah-w">0</span><span class="ah-sep2">/</span><span class="ah-l" id="ah-l">0</span></span>
+</div>
+
+<!-- ARENA : ÉCRAN DE FIN -->
+<div id="arena-end">
+  <div class="ae-bg"></div>
+  <div class="ae-content">
+    <div class="ae-icon" id="ae-icon">🏆</div>
+    <div class="ae-title" id="ae-title">CHAMPION</div>
+    <div class="ae-sub" id="ae-sub"></div>
+    <div class="ae-recap" id="ae-recap"></div>
+    <button id="ae-replay" class="play-btn">⚔ Nouvelle run</button>
   </div>
 </div>
 

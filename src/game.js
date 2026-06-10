@@ -629,7 +629,24 @@ function shuffle(a) {
   return r;
 }
 
-function initGame(f1, f2, mode) {
+// ARENA (4.x) : construit un deck joueur depuis des templates draftés
+// (cartes multi-factions). Chaque template porte déjà sa faction.
+function buildCustomDeck(templates) {
+  const cards = (templates || []).map(t => newCard({
+    ...t,
+    type: t.type || (t.atk !== undefined ? 'monster' : 'god'),
+  }));
+  return shuffle(cards);
+}
+
+// opts (ARENA 4.x) :
+//   customDeck : le joueur 1 joue ce deck drafté (l'IA garde son deck faction)
+//   difficulty : 0 facile (IA main 4, pas de coin) · 1 normal · 2 élite/boss (main 6)
+//   boss       : id de règle cassée ('zeus'|'anubis'|'odin'|'quetzalcoatl'|'amaterasu')
+function initGame(f1, f2, mode, opts) {
+  const customDeck = opts && opts.customDeck;
+  const difficulty = (opts && opts.difficulty != null) ? opts.difficulty : 1;
+  const boss = opts && opts.boss;
   G = {
     mode, // 'pvp' or 'pve' (p2 is AI)
     turn: 1,
@@ -650,10 +667,14 @@ function initGame(f1, f2, mode) {
     ragnarok: 0,  // Counter: Norse bonus at 5
     cycle: 0,     // Cycle Céleste — 0=aube … 4=ténèbres
     cycleFrozen: 0, // tours de gel du Cycle restants (3.2)
+    bossRule: boss || null,  // règle cassée du boss d'Arena (4.3)
+    cycleLocked: false,      // Amaterasu : Cycle figé tout le duel
   };
   for(let p=1;p<=2;p++){
     const f = p===1?f1:f2;
-    const deck = buildDeck(f);
+    const deck = (p===1 && customDeck) ? buildCustomDeck(customDeck) : buildDeck(f);
+    // Taille de main de l'IA selon la difficulté d'Arena (1 = équilibre standard).
+    const oppHand = difficulty <= 0 ? 4 : (difficulty >= 2 ? 6 : 5);
     G.players[p] = {
       id: p,
       faction: f,
@@ -661,7 +682,7 @@ function initGame(f1, f2, mode) {
       maxGems: 1,
       gems: 1,
       field: [],
-      hand: deck.splice(0, p===1?4:5),
+      hand: deck.splice(0, p===1?4:oppHand),
       deck,
       graveyard: [],
       attacked: new Set(),
@@ -670,11 +691,26 @@ function initGame(f1, f2, mode) {
       balderActive: false,
       // FIX 1.1 : compensation « Coin » — P2 (qui subit le tempo du 1ᵉʳ
       // joueur) reçoit 1 gem TEMPORAIRE à son 1ᵉʳ tour (consommé par doEndTurn).
-      _coinGem: p === 2 ? 1 : 0, _coinTurns: p === 2 ? 1 : 0, _bonusDrawTurn: 0,
+      _coinGem: (p === 2 && difficulty >= 1) ? 1 : 0, _coinTurns: (p === 2 && difficulty >= 1) ? 1 : 0, _bonusDrawTurn: 0,
     };
   }
   G.activeTurn = 1; // Player 1 starts
   addLog('⚔ Battle begins!', 'event');
+  // ── BOSS D'ARENA (4.3) : règles cassées, annoncées à l'écran ──
+  if(G.bossRule) {
+    const B = ARENA_BOSS_DEFS[G.bossRule];
+    if(B) {
+      addLog(`👑 BOSS — ${B.name} : ${B.ruleTxt}`, 'special');
+      if(G.bossRule === 'odin') {
+        for(let k=0;k<2;k++) {
+          const w = newCard({id:'ODIN_WALL', n:'Mur d\'Odin', atk:0, def:4, cost:0, type:'monster', cap:'protect', txt:'Protection', rarity:'common', faction:'norse'});
+          w.cAtk=0; w.cDef=4; G.players[2].field.push(w);
+        }
+      }
+      if(G.bossRule === 'amaterasu') { G.cycle = 3; G.cycleLocked = true; } // figé sur Nuit
+      if(mode !== 'sim') showBossAnnounce(B);
+    }
+  }
   applyBattlefieldArt(f1, f2);
   // MULLIGAN (1.3) : aussi en mode 'sim' pour que le golden master reste
   // représentatif du vrai flow de jeu (l'IA mulligane les deux camps).
@@ -847,6 +883,7 @@ const FACTION_PHASE_IDX = {egyptian:0, greek:1, aztec:2, yokai:3, norse:4};
 // tous les effets « au changement de phase » (anim, recharge Esquive,
 // recharge Endurance aztèque au Crépuscule).
 function setCyclePhase(newCycle, srcLabel) {
+  if(G.cycleLocked) { addLog('🌙 Le Cycle est verrouillé sur la Nuit (Amaterasu).','special'); return; }
   const prev = G.cycle % 5;
   G.cycle = ((newCycle % 5) + 5) % 5;
   if((G.cycle % 5) === prev) return;
@@ -1077,10 +1114,17 @@ function doEndTurn() {
   const prev = G.cp;
   G.cp = G.cp===1?2:1;
   G.activeTurn = G.cp; // track whose actual turn it is
-  if(G.cp===1) {
+  G._anubisUsedTurn = false; // BOSS Anubis (4.3) : 1 retour par tour
+  if(G.bossRule === 'zeus') {
+    // BOSS Zeus : le Cycle avance d'1 phase à CHAQUE tour (pas chaque ronde).
+    setCyclePhase(G.cycle + 1, 'Zeus');
+    if(G.cp===1) G.turn++;
+  } else if(G.cp===1) {
     G.turn++;
     // CYCLE (3.2) : gel éventuel (Heh, Horae), sinon avance d'une phase.
-    if((G.cycleFrozen||0) > 0) {
+    if(G.cycleLocked) {
+      // Amaterasu : le Cycle reste figé sur la Nuit tout le duel.
+    } else if((G.cycleFrozen||0) > 0) {
       G.cycleFrozen--;
       addLog(`🧊 Le Cycle Céleste est figé (${G.cycleFrozen+1>1?G.cycleFrozen+' tour(s) restant(s)':'dernier tour'}).`,'special');
     } else {
@@ -1310,6 +1354,10 @@ async function playMonster(c, p) {
   const m = newCard({...c});
   m.cAtk=c.atk; m.cDef=c.def;
   m._newCard=true;
+  // BOSS Quetzalcoatl (4.3) : tous les monstres du boss ont Endurance.
+  if(G.bossRule === 'quetzalcoatl' && p === 2 && !(m.cap||'').includes('endure')) {
+    m.cap = ((m.cap||'') + ' endure').trim();
+  }
   P.field.push(m);
   const idx = P.field.length-1;
   P.summoned.add(idx);
@@ -1864,6 +1912,15 @@ async function handleDeath(p, m) {
     addLog(`✨ ${m.n} — Réincarnation! Retourne dans le deck avec +3/+3.`,'event');
     // Remove from field before exit, skip graveyard
     P.field.splice(idx,1); reindexSets(P,idx,true); return;
+  }
+
+  // BOSS Anubis (4.3) : le premier monstre IA détruit chaque tour revient en jeu.
+  if(G.bossRule === 'anubis' && p === 2 && !G._anubisUsedTurn && m.type === 'monster') {
+    G._anubisUsedTurn = true;
+    m.cAtk = m.atk; m.cDef = m.def;
+    m.cursed = false; m.asleep = false; m.faceDown = false; m.endureUsed = false;
+    addLog(`⚰️ ANUBIS — ${m.n} refuse la mort et revient en jeu !`, 'special');
+    return;
   }
 
   Audio5L.sfx.death();
@@ -2883,6 +2940,8 @@ function checkVictory() {
   for(let p=1;p<=2;p++) {
     if(G.players[p].hp<=0) {
       const w=p===1?2:1;
+      // ARENA (4.2) : le résultat alimente la run, pas l'écran de victoire normal.
+      if(ARENA) { arenaOnDuelEnd(w); return; }
       if(w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
       const localWin = (G.mode==='pve') ? (w===1) : true; // en PvP, le gagnant est "victorieux"
       const titleEl=document.getElementById('vic-title');
@@ -4775,6 +4834,464 @@ function showBigPreview(card) {
   document.getElementById('big-preview-info').innerHTML = info.join('<br>');
   overlay.style.display = 'flex';
 }
+
+
+// ══════════════════════════════════════════════════════════════════════════
+// MODE ARENA (Phase 4) — porté de feat-gameplay-v2 (draft 40 cartes, pick 1/4,
+// difficulté IA progressive) et adapté v5 : PAS de marché, PAS de pouvoirs
+// divins. Structure de run façon Slay the Spire : 6 nœuds à embranchements
+// (Combat / Élite / Sanctuaire) + 1 Boss à règle cassée. HP de run persistants
+// (25 ; duel perdu = −10 ; 0 = run terminée). État en mémoire uniquement.
+// ══════════════════════════════════════════════════════════════════════════
+let ARENA = null;
+let CARD_POOL = null;
+
+const ARENA_DECK_SIZE   = 40;
+const ARENA_PICK_SIZE   = 4;
+const ARENA_RUN_HP      = 25;
+const ARENA_LOSS_DMG    = 10;
+const ARENA_NODES       = 6;   // + 1 boss = 7 duels max
+const ARENA_SANCT_HEAL  = 5;
+
+// Boss à règles cassées (4.3) — 1 par faction ; boss final tiré HORS faction joueur.
+const ARENA_BOSS_DEFS = {
+  zeus:        { name:'ZEUS',          faction:'greek',    ruleTxt:'Le Cycle Céleste avance d\'une phase CHAQUE tour.' },
+  anubis:      { name:'ANUBIS',        faction:'egyptian', ruleTxt:'Le premier monstre du boss détruit chaque tour revient en jeu.' },
+  odin:        { name:'ODIN',          faction:'norse',    ruleTxt:'Le boss commence avec 2 murs Protection 0/4 en jeu.' },
+  quetzalcoatl:{ name:'QUETZALCOATL',  faction:'aztec',    ruleTxt:'Tous les monstres du boss ont Endurance.' },
+  amaterasu:   { name:'AMATERASU',     faction:'yokai',    ruleTxt:'Le Cycle Céleste est figé sur la NUIT pendant tout le duel.' },
+};
+
+function showBossAnnounce(B) {
+  let el = document.getElementById('boss-announce');
+  if(!el) {
+    el = document.createElement('div');
+    el.id = 'boss-announce';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = `<div class="boss-an-inner"><div class="boss-an-crown">👑</div>
+    <div class="boss-an-name">${B.name}</div>
+    <div class="boss-an-rule">${B.ruleTxt}</div></div>`;
+  el.style.display = 'flex';
+  setTimeout(() => { el.style.display = 'none'; }, 3200);
+}
+
+// ── Pool complet & draft ─────────────────────────────────────────────────
+function buildCardPool() {
+  if(CARD_POOL) return CARD_POOL;
+  const pool = [];
+  for(const f of FACTIONS) {
+    for(const m of (MONSTERS[f]||[])) pool.push({...m, type:'monster', faction:f});
+    for(const g of (GODS[f]||[]))     pool.push({...g, type:g.type||'god', faction:f});
+  }
+  CARD_POOL = pool;
+  return pool;
+}
+
+// Tire ARENA_PICK_SIZE cartes DISTINCTES (doublons entre picks OK). Garantit
+// ≥1 carte de la faction choisie par pick (deck cohérent → run gagnable).
+function arenaDraw4(pool, chosenFaction) {
+  const picks = [], used = new Set();
+  let guard = 0;
+  while (picks.length < ARENA_PICK_SIZE && guard < 2000) {
+    guard++;
+    const c = pool[Math.floor(rng() * pool.length)];
+    if (used.has(c.id)) continue;
+    used.add(c.id);
+    picks.push(c);
+  }
+  if (chosenFaction && !picks.some(c => c.faction === chosenFaction)) {
+    const facPool = pool.filter(c => c.faction === chosenFaction && !used.has(c.id));
+    if (facPool.length) {
+      const repl = facPool[Math.floor(rng() * facPool.length)];
+      picks[Math.floor(rng() * picks.length)] = repl;
+    }
+  }
+  return picks;
+}
+
+// Valeur d'une carte pour le draft IA (stats + mots-clés + bonus faction choisie).
+let ARENA_FACTION_BONUS = 50;
+function arenaCardValue(c, chosenFaction) {
+  let v = (c.atk || 0) + (c.def || 0);
+  const cap = c.cap || '';
+  if (c.type === 'god') v += 5;
+  if (/\bhit\b/.test(cap)) v += 2;
+  if (/protect|endure/.test(cap)) v += 2;
+  if (/hurry/.test(cap)) v += 1;
+  if (/curse/.test(cap)) v += 1;
+  if (/cycle_/.test(cap)) v += 2;            // manipulation du temps = flexible
+  if (/entry|exit|combat|token|draw|search|wipe|destroy|copy|revive|reclaim|dmg/.test(cap)) v += 1;
+  if (c.faction === chosenFaction) v += ARENA_FACTION_BONUS;
+  return v;
+}
+function arenaAIPick(options, chosenFaction) {
+  let best = 0, bv = -Infinity;
+  options.forEach((c, i) => { const v = arenaCardValue(c, chosenFaction); if (v > bv) { bv = v; best = i; } });
+  return best;
+}
+function arenaAIDraft(chosenFaction, nPicks) {
+  const pool = buildCardPool();
+  const deck = [];
+  for (let i = 0; i < (nPicks || ARENA_DECK_SIZE); i++) {
+    const opts = arenaDraw4(pool, chosenFaction);
+    deck.push({ ...opts[arenaAIPick(opts, chosenFaction)] });
+  }
+  return deck;
+}
+
+// ── Carte de run (4.2, Slay the Spire) ───────────────────────────────────
+// Génère 6 nœuds de 2-3 options + le boss. Le boss est tiré hors faction joueur.
+function arenaGenMap(playerFaction) {
+  const map = [];
+  for(let i = 1; i <= ARENA_NODES; i++) {
+    const opts = ['combat'];
+    if(rng() < 0.55 || i === 3) opts.push('elite');
+    if(rng() < 0.55 || i === 2 || i === 5) opts.push('sanctuaire');
+    map.push(opts.slice(0, 3));
+  }
+  const bossIds = Object.keys(ARENA_BOSS_DEFS).filter(b => ARENA_BOSS_DEFS[b].faction !== playerFaction);
+  map.push(['boss:' + bossIds[Math.floor(rng() * bossIds.length)]]);
+  return map;
+}
+
+// Difficulté d'un duel selon la progression (0 facile · 1 normal · 2 élite/boss).
+function arenaNodeDifficulty(nodeIdx, kind) {
+  if(kind === 'boss') return 2;
+  let d = nodeIdx <= 2 ? 0 : 1;
+  if(kind === 'elite') d += 1;
+  return Math.min(2, d);
+}
+
+function arenaStart() {
+  ARENA = {
+    faction: null,
+    deck: null,
+    runHP: ARENA_RUN_HP,
+    node: 0,            // index du prochain nœud (0-based ; ARENA_NODES = boss)
+    map: null,
+    wins: 0, losses: 0,
+    _pendingPicks: 0,
+  };
+  arenaSelectFaction();
+}
+
+// ── Sélection de faction (réutilise le pattern .fp du setup) ─────────────
+function arenaSelectFaction() {
+  document.querySelectorAll('.setup-screen').forEach(sc => sc.classList.remove('active'));
+  const screen = document.getElementById('arena-faction');
+  const grid = document.getElementById('arena-faction-grid');
+  if(!screen || !grid) return;
+  grid.innerHTML = FACTIONS.map(f => `
+    <div class="fp ${f}" data-f="${f}">
+      <div class="fp-bg-wrap"><img class="fp-bg" src="${FACTION_ART[f]||''}" alt="${f}"></div>
+      <div class="fp-overlay"><span class="fp-name">${f.charAt(0).toUpperCase()+f.slice(1)}</span><span class="fp-style">${FE[f]||''}</span></div>
+    </div>`).join('');
+  grid.querySelectorAll('.fp').forEach(fp => {
+    fp.addEventListener('click', () => {
+      if(typeof Audio5L!=='undefined') Audio5L.startMusic();
+      ARENA.faction = fp.dataset.f;
+      arenaStartDraft();
+    });
+  });
+  screen.classList.add('active');
+}
+
+// ── Draft humain : 40 picks de 1 carte sur 4 ────────────────────────────
+function arenaStartDraft() {
+  ARENA.deck = [];
+  ARENA._pool = buildCardPool();
+  document.querySelectorAll('.setup-screen').forEach(sc => sc.classList.remove('active'));
+  const screen = document.getElementById('arena-draft');
+  if(screen) screen.classList.add('active');
+  const maxEl = document.getElementById('draft-count-max');
+  if(maxEl) maxEl.textContent = ARENA_DECK_SIZE;
+  const idEl = document.getElementById('draft-identity');
+  if(idEl) idEl.innerHTML = `<span style="color:${FC[ARENA.faction]||'var(--gold)'}">${FE[ARENA.faction]||''} ${(ARENA.faction||'').toUpperCase()}</span>`;
+  arenaRenderPick();
+}
+
+function arenaKeywords(c) {
+  const cap = c.cap || '', kw = [];
+  if(/\bhit\b/.test(cap)) kw.push('Double atk');
+  if(/protect/.test(cap)) kw.push('Protection');
+  if(/endure/.test(cap)) kw.push('Endurance');
+  if(/hurry/.test(cap)) kw.push('Rapide');
+  if(/curse/.test(cap)) kw.push('Malédiction');
+  if(/esquive/.test(cap)) kw.push('Esquive');
+  if(/cycle_/.test(cap)) kw.push('Temps');
+  if(/entry/.test(cap)) kw.push('Entrée');
+  if(/exit/.test(cap)) kw.push('Sortie');
+  if(/ritual/.test(cap)) kw.push('Rituel');
+  if(c.type === 'god') kw.unshift('Dieu');
+  return kw.slice(0, 4);
+}
+
+function arenaCardHTML(c, idx) {
+  const img = getCardImage(c.id || '');
+  const col = FC[c.faction] || 'var(--gold)';
+  const isMonster = c.type === 'monster';
+  const kw = arenaKeywords(c).map(k => `<span class="dc-kw">${k}</span>`).join('');
+  const art = img
+    ? `<img src="${img}" alt="${c.n}" loading="lazy">`
+    : `<div class="art-placeholder"><span class="ap-icon">${c.type==='god'?'⚡':FE[c.faction]||'★'}</span><span class="ap-name">${c.n}</span><span class="ap-soon">illustration à venir</span></div>`;
+  return `<div class="draft-card" data-i="${idx}" data-faction="${c.faction}" style="--fcol:${col}">
+    <div class="dc-art">${art}<span class="dc-cost">${c.cost}💎</span></div>
+    <div class="dc-band">${c.n}</div>
+    <div class="dc-faction">${FE[c.faction]||''} ${(c.faction||'').toUpperCase()}${c.type==='god'?' · DIEU':''}</div>
+    ${isMonster ? `<div class="dc-stats"><span class="dc-atk">${c.atk}⚔</span><span class="dc-def">${c.def}🛡</span></div>` : `<div class="dc-stats dc-god">⚡ Pouvoir divin</div>`}
+    <div class="dc-kws">${kw}</div>
+    <div class="dc-txt">${c.txt || ''}</div>
+  </div>`;
+}
+
+function arenaRenderPick() {
+  if(ARENA.deck.length >= ARENA_DECK_SIZE) {
+    // Draft terminé → génère la carte de run et l'affiche.
+    ARENA.map = arenaGenMap(ARENA.faction);
+    arenaShowMap();
+    return;
+  }
+  const opts = arenaDraw4(ARENA._pool, ARENA.faction);
+  ARENA._currentPick = opts;
+  const cur = document.getElementById('draft-count-cur'); if(cur) cur.textContent = ARENA.deck.length;
+  const fill = document.getElementById('draft-bar-fill'); if(fill) fill.style.width = (100*ARENA.deck.length/ARENA_DECK_SIZE)+'%';
+  const cont = document.getElementById('draft-picks');
+  if(cont){
+    cont.innerHTML = opts.map((c,i)=>arenaCardHTML(c,i)).join('');
+    cont.querySelectorAll('.draft-card').forEach(el=>{
+      const i = +el.dataset.i;
+      el.addEventListener('click', ()=>{ if(typeof Audio5L!=='undefined' && Audio5L.sfx.draw) Audio5L.sfx.draw(); arenaPick(i); });
+    });
+  }
+}
+
+function arenaPick(i) {
+  const c = ARENA._currentPick && ARENA._currentPick[i];
+  if(!c) return;
+  ARENA.deck.push({ ...c });
+  // Picks de récompense en cours de run (1 après Combat, 2 après Élite)
+  if(ARENA._pendingPicks > 0) {
+    ARENA._pendingPicks--;
+    if(ARENA._pendingPicks > 0) { arenaRenderReward(); return; }
+    arenaShowMap(); return;
+  }
+  const cont = document.getElementById('draft-picks');
+  const el = cont && cont.querySelector(`.draft-card[data-i="${i}"]`);
+  if(el){ el.classList.add('picked'); }
+  setTimeout(arenaRenderPick, 160);
+}
+
+// ── Carte de run : écran de choix du prochain nœud ──────────────────────
+function arenaShowMap() {
+  document.querySelectorAll('.setup-screen').forEach(sc => sc.classList.remove('active'));
+  ['arena-between','arena-end'].forEach(id => { const e=document.getElementById(id); if(e) e.style.display='none'; });
+  const setupEl = document.getElementById('setup'); if(setupEl) setupEl.style.display = '';
+  const gameEl = document.getElementById('game'); if(gameEl) gameEl.style.display = 'none';
+  const screen = document.getElementById('arena-map');
+  if(!screen) return;
+  screen.classList.add('active');
+
+  const hpEl = document.getElementById('am-hp');
+  if(hpEl) hpEl.innerHTML = `❤️ <b>${ARENA.runHP}</b> / ${ARENA_RUN_HP} HP de run`;
+  const progEl = document.getElementById('am-progress');
+  if(progEl) {
+    progEl.innerHTML = ARENA.map.map((node, i) => {
+      const isBoss = node[0].startsWith('boss:');
+      const cls = i < ARENA.node ? 'done' : i === ARENA.node ? 'cur' : '';
+      return `<span class="am-node ${cls} ${isBoss?'boss':''}">${isBoss?'👑':(i+1)}</span>`;
+    }).join('<span class="am-link"></span>');
+  }
+
+  const node = ARENA.map[ARENA.node];
+  const optsEl = document.getElementById('am-options');
+  if(!optsEl) return;
+  const OPT_DEFS = {
+    combat:     { icon:'⚔️', name:'COMBAT',     desc:'Adversaire normal · récompense : 1 carte (pick 1 sur 4)' },
+    elite:      { icon:'💀', name:'ÉLITE',      desc:'IA +1 difficulté · récompense : 2 cartes' },
+    sanctuaire: { icon:'⛩️', name:'SANCTUAIRE', desc:`Soigne ${ARENA_SANCT_HEAL} HP de run OU retire 1 carte du deck` },
+  };
+  optsEl.innerHTML = node.map(opt => {
+    if(opt.startsWith('boss:')) {
+      const B = ARENA_BOSS_DEFS[opt.slice(5)];
+      return `<div class="am-opt boss" data-opt="${opt}">
+        <div class="am-opt-icon">👑</div><div class="am-opt-name">BOSS — ${B.name}</div>
+        <div class="am-opt-desc">${B.ruleTxt}</div></div>`;
+    }
+    const D = OPT_DEFS[opt];
+    return `<div class="am-opt ${opt}" data-opt="${opt}">
+      <div class="am-opt-icon">${D.icon}</div><div class="am-opt-name">${D.name}</div>
+      <div class="am-opt-desc">${D.desc}</div></div>`;
+  }).join('');
+  optsEl.querySelectorAll('.am-opt').forEach(el => {
+    el.addEventListener('click', () => arenaChooseNode(el.dataset.opt));
+  });
+}
+
+function arenaChooseNode(opt) {
+  if(opt === 'sanctuaire') { arenaShowSanctuary(); return; }
+  const kind = opt.startsWith('boss:') ? 'boss' : opt;
+  const boss = opt.startsWith('boss:') ? opt.slice(5) : null;
+  arenaStartDuel(kind, boss);
+}
+
+// ── Sanctuaire : soin OU retrait d'une carte ─────────────────────────────
+function arenaShowSanctuary() {
+  document.querySelectorAll('.setup-screen').forEach(sc => sc.classList.remove('active'));
+  const screen = document.getElementById('arena-sanctuary');
+  if(!screen) return;
+  screen.classList.add('active');
+  const healBtn = document.getElementById('as-heal');
+  if(healBtn) {
+    healBtn.textContent = `💚 Soigner ${ARENA_SANCT_HEAL} HP de run (${ARENA.runHP}/${ARENA_RUN_HP})`;
+    healBtn.onclick = () => {
+      ARENA.runHP = Math.min(ARENA_RUN_HP, ARENA.runHP + ARENA_SANCT_HEAL);
+      addLog('⛩️ Sanctuaire — HP de run soignés.','heal');
+      arenaAdvanceNode();
+    };
+  }
+  const listEl = document.getElementById('as-cards');
+  if(listEl) {
+    const sorted = ARENA.deck.map((c,i)=>({c,i})).sort((a,b)=>(a.c.cost-b.c.cost)||(a.c.n>b.c.n?1:-1));
+    listEl.innerHTML = sorted.map(({c,i}) => `<div class="sum-litem as-removable" data-i="${i}" style="border-left-color:${FC[c.faction]||'#888'}">
+      <span class="sum-lcost">${c.cost}</span><span class="sum-lname">${c.n}</span>
+      <span class="sum-ltag">${c.type==='god'?'⚡':FE[c.faction]||''}</span></div>`).join('');
+    listEl.querySelectorAll('.as-removable').forEach(el => {
+      el.addEventListener('click', () => {
+        const i = +el.dataset.i;
+        const removed = ARENA.deck.splice(i, 1)[0];
+        addLog(`⛩️ Sanctuaire — ${removed ? removed.n : 'carte'} retirée du deck.`,'event');
+        arenaAdvanceNode();
+      });
+    });
+  }
+}
+
+function arenaAdvanceNode() {
+  ARENA.node++;
+  arenaShowMap();
+}
+
+// ── Duel ─────────────────────────────────────────────────────────────────
+function arenaStartDuel(kind, boss) {
+  ARENA._duelKind = kind;
+  const difficulty = arenaNodeDifficulty(ARENA.node + 1, kind);
+  const oppFaction = boss
+    ? ARENA_BOSS_DEFS[boss].faction
+    : FACTIONS[Math.floor(rng() * FACTIONS.length)];
+
+  document.querySelectorAll('.setup-screen').forEach(sc => sc.classList.remove('active'));
+  const setupEl = document.getElementById('setup'); if(setupEl) setupEl.style.display = 'none';
+  const gameEl = document.getElementById('game'); if(gameEl) gameEl.style.display = 'grid';
+
+  initGame(ARENA.faction, oppFaction, 'pve', { customDeck: ARENA.deck, difficulty, boss });
+  arenaUpdateHUD();
+}
+
+function arenaUpdateHUD() {
+  const hud = document.getElementById('arena-hud');
+  if(!hud) return;
+  if(!ARENA) { hud.style.display = 'none'; return; }
+  hud.style.display = 'flex';
+  const m = document.getElementById('ah-match');
+  if(m) m.textContent = ARENA.node >= ARENA_NODES ? 'BOSS' : `Nœud ${ARENA.node + 1}/${ARENA_NODES + 1}`;
+  const hp = document.getElementById('ah-runhp'); if(hp) hp.textContent = `❤️ ${ARENA.runHP}`;
+  const w = document.getElementById('ah-w'); if(w) w.textContent = ARENA.wins;
+  const l = document.getElementById('ah-l'); if(l) l.textContent = ARENA.losses;
+}
+
+// Fin de duel (hook depuis checkVictory). winner = 1 (joueur) | 2 (IA).
+function arenaOnDuelEnd(winner) {
+  if(!ARENA || ARENA._duelOver) return;
+  ARENA._duelOver = true;
+  const playerWon = winner === 1;
+  const wasBoss = ARENA._duelKind === 'boss';
+  if(playerWon) ARENA.wins++;
+  else { ARENA.losses++; ARENA.runHP -= ARENA_LOSS_DMG; }
+  arenaUpdateHUD();
+
+  setTimeout(() => {
+    ARENA._duelOver = false;
+    const hud = document.getElementById('arena-hud'); if(hud) hud.style.display = 'none';
+    const gameEl = document.getElementById('game'); if(gameEl) gameEl.style.display = 'none';
+    const setupEl = document.getElementById('setup'); if(setupEl) setupEl.style.display = '';
+
+    if(ARENA.runHP <= 0) { arenaShowEnd(false); return; }       // run terminée
+    if(wasBoss && playerWon) { arenaShowEnd(true); return; }     // CHAMPION
+    if(wasBoss && !playerWon) { arenaShowMap(); return; }        // retente le boss (HP de run en moins)
+
+    if(playerWon) {
+      // Récompense : 1 pick (combat) ou 2 picks (élite), puis nœud suivant.
+      ARENA._pendingPicks = ARENA._duelKind === 'elite' ? 2 : 1;
+      ARENA.node++;
+      arenaRenderReward();
+    } else {
+      arenaAdvanceNode();
+    }
+  }, 1100);
+}
+
+// Récompense post-duel : pick 1 sur 4 (réutilise l'écran de draft).
+function arenaRenderReward() {
+  document.querySelectorAll('.setup-screen').forEach(sc => sc.classList.remove('active'));
+  const screen = document.getElementById('arena-draft');
+  if(screen) screen.classList.add('active');
+  const idEl = document.getElementById('draft-identity');
+  if(idEl) idEl.innerHTML = `<span style="color:var(--gold-bright)">🎁 RÉCOMPENSE — choisis ${ARENA._pendingPicks} carte${ARENA._pendingPicks>1?'s':''}</span>`;
+  const cur = document.getElementById('draft-count-cur'); if(cur) cur.textContent = ARENA.deck.length;
+  const maxEl = document.getElementById('draft-count-max'); if(maxEl) maxEl.textContent = ARENA.deck.length + ARENA._pendingPicks;
+  const fill = document.getElementById('draft-bar-fill'); if(fill) fill.style.width = '100%';
+  const opts = arenaDraw4(buildCardPool(), ARENA.faction);
+  ARENA._currentPick = opts;
+  const cont = document.getElementById('draft-picks');
+  if(cont){
+    cont.innerHTML = opts.map((c,i)=>arenaCardHTML(c,i)).join('');
+    cont.querySelectorAll('.draft-card').forEach(el=>{
+      const i = +el.dataset.i;
+      el.addEventListener('click', ()=>arenaPick(i));
+    });
+  }
+}
+
+// ── Fin de run ───────────────────────────────────────────────────────────
+function arenaShowEnd(champion) {
+  document.querySelectorAll('.setup-screen').forEach(sc => sc.classList.remove('active'));
+  const scr = document.getElementById('arena-end');
+  if(!scr){ location.reload(); return; }
+  scr.classList.toggle('champion', champion);
+  scr.classList.toggle('eliminated', !champion);
+  const icon = document.getElementById('ae-icon'); if(icon) icon.textContent = champion ? '🏆' : '☠️';
+  const title = document.getElementById('ae-title'); if(title) title.textContent = champion ? 'CHAMPION' : 'ÉLIMINÉ';
+  const sub = document.getElementById('ae-sub');
+  if(sub) sub.textContent = champion
+    ? `Le Boss est tombé — ${ARENA.wins} victoires, ${ARENA.losses} défaite${ARENA.losses>1?'s':''}.`
+    : `La run s'achève : ${ARENA.wins} victoire${ARENA.wins>1?'s':''} / ${ARENA.losses} défaites.`;
+  const recap = document.getElementById('ae-recap');
+  if(recap){
+    const byF = {}; FACTIONS.forEach(f=>byF[f]=0);
+    (ARENA.deck||[]).forEach(c=>{ byF[c.faction]=(byF[c.faction]||0)+1; });
+    const facLine = FACTIONS.filter(f=>byF[f]>0)
+      .map(f=>`<span style="color:${FC[f]}">${FE[f]} ${byF[f]}</span>`).join('&nbsp;&nbsp;');
+    recap.innerHTML = `<div class="ae-recap-row"><span class="ae-recap-lbl">Panthéon</span>
+        <span style="color:${FC[ARENA.faction]||'var(--gold)'}">${FE[ARENA.faction]||''} ${(ARENA.faction||'').toUpperCase()}</span></div>
+      <div class="ae-recap-row"><span class="ae-recap-lbl">Score</span><span><b style="color:#7be084">${ARENA.wins}V</b> / <b style="color:#e8736a">${ARENA.losses}D</b></span></div>
+      <div class="ae-recap-row"><span class="ae-recap-lbl">Deck final</span><span>${facLine}</span></div>`;
+  }
+  if(typeof Audio5L!=='undefined' && Audio5L.sfx) (champion ? Audio5L.sfx.victory() : Audio5L.sfx.defeat());
+  scr.style.display = 'flex';
+  const replay = document.getElementById('ae-replay');
+  if(replay) replay.onclick = () => location.reload();
+}
+
+// ── Branchements écran-titre (4.4) ───────────────────────────────────────
+(function(){
+  const bArena = document.getElementById('btn-arena');
+  if(bArena) bArena.addEventListener('click', () => {
+    if(typeof Audio5L!=='undefined') Audio5L.startMusic();
+    document.getElementById('setup-title').classList.remove('active');
+    arenaStart();
+  });
+})();
 
 // Étape 6 : Test automatique des images
 function testImages() {

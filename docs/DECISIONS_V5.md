@@ -56,3 +56,21 @@ d'opportunité est de révéler/consommer le piège · ⚠️ à relire par Fran
 **[3.3]** Compensation P2 réduite après Phase 3 : la pioche bonus T2 est SUPPRIMÉE
 (les cartes temporelles + zéniths ont avantagé P2 : P1 était tombé à 45,1 %) ;
 reste main 5/4 + coin +1 gem T1 → P1 51,7 % sur 1000 · ⚠️ à relire par Frank
+
+**[4.1]** Arena PORTÉE (réécriture adaptée) plutôt que cherry-pickée commit par commit ·
+alternative écartée : `git cherry-pick` des 9 commits Arena de feat-gameplay-v2 ·
+pourquoi : leur game.js intègre le système de Foi/marché/pouvoirs divins (hors périmètre)
+dans chaque fonction touchée — les conflits auraient réintroduit du code hors périmètre ;
+le draft (40 picks 1/4, garantie ≥1 carte de faction, valeur IA), les écrans et le HUD
+sont repris de la branche et adaptés aux phases 1-3 (mulligan, zéniths, cartes
+temporelles fonctionnent en Arena) · ⚠️ à relire par Frank
+
+**[4.2]** Difficulté IA progressive modélisée par les ressources de départ de l'IA
+(d0 : main 4 sans coin · d1 : main 5 + coin = équilibre standard · d2 : main 6 + coin) ·
+alternative écartée : profils IA multi-stratégies de feat-ai-multistrat · pourquoi :
+hors périmètre du cherry-pick Arena, et l'équilibre v5 est calibré sur l'IA actuelle ·
+⚠️ à relire par Frank
+
+**[4.2]** Boss perdu = −10 HP de run et on RETENTE le boss (la carte ne progresse pas) ;
+duel normal perdu = −10 HP et on avance au nœud suivant · pourquoi : éviter le
+soft-lock d'une run qui ne peut ni avancer ni finir · ⚠️ à relire par Frank
