@@ -837,6 +837,69 @@ function isZenith(m) {
   return m.faction === getZenithFaction();
 }
 
+// ── ZÉNITHS ASYMÉTRIQUES (3.1) — bonus signature par faction ──────
+const ZENITH_BONUS_TXT = {
+  egyptian: 'Aube : vos jetons entrent avec +1/+1 et Élan',
+  greek:    'Midi : vos dieux face cachée sont déclenchables (clic)',
+  aztec:    "Crépuscule : l'Endurance de vos monstres se recharge",
+  yokai:    'Nuit : Sommeil +1 tour · dormeurs adverses ciblables',
+  norse:    'Ténèbres : tous vos monstres gagnent Protection',
+};
+// Protection effective : cap protect OU zénith norse (Ténèbres) pour les monstres norse.
+function effProtect(m, ownerP) {
+  if(!m || m.faceDown) return false;
+  if((m.cap||'').includes('protect')) return true;
+  return getZenithFaction() === 'norse' && G.players[ownerP] && G.players[ownerP].faction === 'norse';
+}
+// Zénith yokai (Nuit) : les monstres endormis ADVERSES deviennent ciblables.
+function canTargetSleeping(attackerP) {
+  return getZenithFaction() === 'yokai' && G.players[attackerP] && G.players[attackerP].faction === 'yokai';
+}
+// Zénith égyptien (Aube) : les jetons invoqués gagnent +1/+1 et Élan (hurry).
+function zenithTokenBoost(p, tok) {
+  if(getZenithFaction() === 'egyptian' && G.players[p] && G.players[p].faction === 'egyptian') {
+    tok.cAtk++; tok.cDef++; tok.atk = (tok.atk||0)+1; tok.def = (tok.def||0)+1;
+    if(!(tok.cap||'').includes('hurry')) tok.cap = ((tok.cap||'') + ' hurry').trim();
+    addLog(`🌅 Zénith — ${tok.n} entre avec +1/+1 et Élan !`,'buff');
+  }
+  return tok;
+}
+// Zénith grec (Midi) : déclenchement manuel des dieux face cachée.
+function canManualTriggerFD(p) {
+  return getZenithFaction() === 'greek' && G.players[p] && G.players[p].faction === 'greek';
+}
+async function manualTriggerFaceDown(p, i) {
+  const P = G.players[p];
+  const m = P.field[i];
+  if(!m || !m.faceDown || m.type !== 'god') return;
+  m.faceDown = false;
+  addLog(`☀️ Zénith grec — ${m.n} déclenché manuellement !`, 'special');
+  const cap = m.cap || '';
+  if(cap === 'fd_draw3_no_dmg') { drawCard(p); drawCard(p); drawCard(p); addLog(`${m.n} — Pioche 3 !`, 'buff'); }
+  else if(cap === 'fd_destroy_attacker' || cap === 'fd_cancel_monster') { await pickTarget('destroy', p, false); }
+  else if(cap === 'fd_copy_monster') { await pickTarget('copy', p, false); }
+  else if(cap === 'fd_resurrect') {
+    const grave = P.graveyard.filter(c => c.type === 'monster');
+    if(grave.length > 0 && P.field.length < 6) {
+      const res = grave[grave.length - 1];
+      P.graveyard.splice(P.graveyard.lastIndexOf(res), 1);
+      res.cAtk = res.atk; res.cDef = res.def; res.endureUsed = false; res.cursed = false;
+      P.field.push(res);
+      addLog(`${m.n} — ${res.n} ressuscité !`, 'special');
+    }
+  }
+  else if(cap === 'fd_blocker' || cap === 'fd_blocker_23') {
+    if(P.field.length < 6) {
+      const t = newCard({id:'BLK', n:'Blocker', atk:2, def:3, cost:0, type:'monster', cap:'protect', txt:'Protect', faction:P.faction});
+      t.cAtk = 2; t.cDef = 3; P.field.push(t);
+    }
+  }
+  const idx = P.field.indexOf(m);
+  if(idx >= 0) { P.field.splice(idx, 1); reindexSets(P, idx, true); }
+  P.graveyard.push(m);
+  renderAll();
+}
+
 function nextPhase() { advancePhase(); }
 
 function advancePhase() {
@@ -937,6 +1000,19 @@ function doEndTurn() {
       scheduleCycleAnim();
       // ESQUIVE (2.2) : recharge à chaque changement de phase du Cycle.
       [1,2].forEach(pl => G.players[pl].field.forEach(m => { if(m) m.esquiveUsed = false; }));
+      // ZÉNITH AZTEC (3.1) — Crépuscule : l'Endurance se recharge.
+      if(CYCLE_PHASES[G.cycle % 5] === 'crepuscule') {
+        [1,2].forEach(pl => {
+          if(G.players[pl].faction !== 'aztec') return;
+          G.players[pl].field.forEach(m => {
+            if(m && m.endureUsed) {
+              m.endureUsed = false;
+              if(!(m.cap||'').includes('endure')) m.cap = ((m.cap||'') + ' endure').trim();
+              addLog(`🌆 Zénith — ${m.n} peut endurer à nouveau !`,'buff');
+            }
+          });
+        });
+      }
     }
   }
   G.phase='Main1';
@@ -991,7 +1067,7 @@ function doEndTurn() {
       const toSpawn = Math.min(2, 6 - tokenCount);
       for(let t=0;t<toSpawn&&newP.field.length<6;t++) {
         const tk=newCard({id:'TOKEN11',n:'Jeton 1/1',atk:1,def:1,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:newP.faction});
-        tk.cAtk=1;tk.cDef=1; newP.field.push(tk);
+        tk.cAtk=1;tk.cDef=1; zenithTokenBoost(G.cp, tk); newP.field.push(tk);
       }
       if(toSpawn>0) addLog(`${m.n} — ${toSpawn} jeton(s) 1/1!`,'event');
     }
@@ -1441,7 +1517,7 @@ registerEffect('entry', cap => cap.includes('token_copies_graveyard') || cap.inc
   for(const gm of picked) {
     if(G.players[p].field.length<6) {
       const tok = newCard({...gm, atk:1, def:1, cost:0, cap:'', txt:'(jeton copie 1/1)'});
-      tok.cAtk=1; tok.cDef=1;
+      tok.cAtk=1; tok.cDef=1; zenithTokenBoost(p, tok);
       G.players[p].field.push(tok);
     }
   }
@@ -2164,7 +2240,7 @@ GOD_EFFECTS["god_tokens22_faction"] = (ctx) => { const {c,p,opp,cap}=ctx;
     myField3.forEach(()=>{
       if(G.players[p].field.length<6) {
         const tok3=newCard({id:'TOKEN22',n:'Jeton 2/2',atk:2,def:2,cost:0,type:'monster',cap:'',txt:'',rarity:'common',faction:G.players[p].faction});
-        tok3.cAtk=2; tok3.cDef=2; G.players[p].field.push(tok3);
+        tok3.cAtk=2; tok3.cDef=2; zenithTokenBoost(p, tok3); G.players[p].field.push(tok3);
       }
     });
     addLog(`${c.n} — ${myField3.length} jeton(s) 2/2!`,'event');
@@ -2440,7 +2516,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   const atk = AP.field[attackerIdx];
   if(!atk) return;
 
-  const atkVal = atk.cAtk + (isZenith(atk) ? 1 : 0);
+  const atkVal = atk.cAtk; // (3.1) plus de +1/+1 universel au zénith
   const hasHit = (atk.cap||'').includes('hit');
   const hasHeal = (atk.cap||'').includes('heal');
   // Capacités de combat pré-frappe composables (solo_destroy, coinflip_defense,
@@ -2514,7 +2590,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       // cursed defender: 1 dmg = death
       const actualDmg = def.cursed ? def.cDef : atkVal;
       def.cDef -= actualDmg;
-      const retDmg = def.cursed ? 0 : retVal;
+      const retDmg = (def.cursed || def.asleep) ? 0 : retVal; // un dormeur ne riposte pas
       atk.cDef -= retDmg;
 
       Audio5L.sfx.attack();
@@ -2547,8 +2623,8 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
         }
       }
 
-      if(def.cDef <= -(isZenith(def) ? 1 : 0)) await handleDeath(targetP, def);
-      if(atk.cDef <= -(isZenith(atk) ? 1 : 0)) await handleDeath(attackerP, atk);
+      if(def.cDef <= 0) await handleDeath(targetP, def);
+      if(atk.cDef <= 0) await handleDeath(attackerP, atk);
     }
   };
 
@@ -2814,6 +2890,14 @@ async function aiTurn(p=2) {
 
 async function aiMainPhase(p=2) {
   const P = G.players[p];
+  // ZÉNITH GREC (3.1) : l'IA déclenche manuellement ses dieux face cachée
+  // (toujours rentable : l'effet est immédiat et la carte est déjà payée).
+  if(canManualTriggerFD(p)) {
+    for(let i=P.field.length-1; i>=0; i--) {
+      const fd = P.field[i];
+      if(fd && fd.faceDown && fd.type==='god' && !fd.asleep) await manualTriggerFaceDown(p, i);
+    }
+  }
   let played = true;
 
   let safety = 0;
@@ -3022,7 +3106,7 @@ async function aiCombatPhase(p=2) {
 
   // ── PRE-COMBAT LETHAL CHECK ──────────────────────────────────────
   const attackers = getAttackers();
-  const oppHasProtect = OP.field.some(m => m && (m.cap||'').includes('protect') && !m.faceDown && !m.asleep);
+  const oppHasProtect = OP.field.some(m => m && effProtect(m, opp) && !m.asleep);
   const totalAtk = attackers.reduce((s,{m}) => s + (m.cAtk||0), 0);
 
   if(!oppHasProtect && totalAtk >= OP.hp) {
@@ -3098,8 +3182,8 @@ function pickAITarget(targetP, attackerP=2) {
     .map((m,i) => ({m,i}))
     .filter(({m,i}) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
 
-  const alive = TP.field.map((m,i)=>({m,i})).filter(x => x.m && !x.m.faceDown && !x.m.asleep);
-  const hasProtect = alive.some(x => (x.m.cap||'').includes('protect'));
+  const alive = TP.field.map((m,i)=>({m,i})).filter(x => x.m && (!x.m.faceDown || (x.m.asleep && canTargetSleeping(attackerP))));
+  const hasProtect = alive.some(x => effProtect(x.m, targetP));
 
   // ── LETHAL CHECK: can remaining attackers kill the player? ──────
   const totalRemainingAtk = myAttackers.reduce((s,{m}) => s + (m.cAtk||0), 0);
@@ -3110,7 +3194,7 @@ function pickAITarget(targetP, attackerP=2) {
 
   // ── Must attack Protect first ───────────────────────────────────
   if(hasProtect) {
-    const prot = alive.find(x => (x.m.cap||'').includes('protect'));
+    const prot = alive.find(x => effProtect(x.m, targetP));
     return prot ? prot.i : (alive.length ? alive[0].i : 'player');
   }
 
@@ -3423,13 +3507,13 @@ function startAttackTargeting(attacker, p, idx) {
 
   // Mark valid targets
   document.body.classList.add('targeting');
-  const hasProtect = OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep);
+  const hasProtect = OP.field.some(m=>m&&effProtect(m,opp)&&!m.asleep);
   
   // Mark opponent field cards
   document.querySelectorAll(`[data-player="${opp}"]`).forEach(el => {
     const mi = parseInt(el.dataset.idx);
     const m = OP.field[mi];
-    if(m && !m.faceDown) el.classList.add('valid-target-dmg');
+    if(m && (!m.faceDown || (m.asleep && canTargetSleeping(p)))) el.classList.add('valid-target-dmg');
   });
 
   // Mark player HP bar as target (if no protect)
@@ -3759,7 +3843,11 @@ async function applyTargetEffect(type, fromP, idx, card) {
   const p=pendingAction?.p||G.cp;
   const opp=fromP;
 
-  if(type==='sleep') { m.faceDown=true; m.asleep=true; m.sleepTurns=2; addLog(`${m.n} put to sleep!`,'debuff'); }
+  if(type==='sleep') {
+    const dur = (getZenithFaction()==='yokai' && G.players[p] && G.players[p].faction==='yokai') ? 3 : 2; // zénith Nuit (3.1)
+    m.faceDown=true; m.asleep=true; m.sleepTurns=dur;
+    addLog(`${m.n} put to sleep (${dur}t)!`,'debuff');
+  }
   else if(type==='blind') { m.blinded=true; addLog(`${m.n} blinded — next attack random`,'debuff'); }
   else if(type==='curse') { m.cursed=true; addLog(`${m.n} CURSED — 1 dmg = death!`,'debuff'); }
   else if(type==='minus3') { m.cDef=Math.max(0,m.cDef-3); addLog(`${m.n} −3 shield → ${m.cDef}`,'dmg'); if(m.cDef<=0) await handleDeath(fromP,m); }
@@ -3838,7 +3926,7 @@ function renderCycleBanner() {
   el.style.setProperty('--zen', zenCol);
   el.innerHTML = `
     <div class="cycle-phases">${iconsHTML}</div>
-    <div class="cycle-zenith" data-zen="${zenFaction}">ZÉNITH · <strong style="color:${zenCol};text-shadow:0 0 10px ${zenCol}">${ZENITH_LABEL[zenFaction]}</strong><span class="cycle-bonus">+1/+1</span></div>`;
+    <div class="cycle-zenith" data-zen="${zenFaction}">ZÉNITH · <strong style="color:${zenCol};text-shadow:0 0 10px ${zenCol}">${ZENITH_LABEL[zenFaction]}</strong><span class="cycle-bonus">${ZENITH_BONUS_TXT[zenFaction]||''}</span></div>`;
 
   // Teinte du champ de bataille selon la phase
   const game = document.getElementById('game');
@@ -3898,7 +3986,7 @@ function renderAll() {
   if(G.targeting && G.targeting.mode==='attack') {
     const opp=G.targeting.opp;
     const OP=G.players[opp];
-    const hasProtect=OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep);
+    const hasProtect=OP.field.some(m=>m&&effProtect(m,opp)&&!m.asleep);
     if(!hasProtect) {
       const bar=document.getElementById(`p${opp}-bar`);
       if(bar) bar.classList.add('targetable');
@@ -3993,7 +4081,7 @@ function renderPassiveIndicators(p) {
   if((G.ragnarok||0)>0 && P.faction==='norse') indicators.push(`⚡ RAGNARÖK: ${G.ragnarok}/5`);
   // Zenith indicator
   const zFaction = getZenithFaction();
-  if(P.faction === zFaction) indicators.push(`🌌 ZÉNITH — vos monstres +1/+1`);
+  if(P.faction === zFaction) indicators.push(`🌌 ZÉNITH — ${ZENITH_BONUS_TXT[zFaction]}`);
   el.innerHTML = indicators.map(i=>`<span class="passive-indicator">${i}</span>`).join('');
 }
 
@@ -4114,7 +4202,7 @@ function renderField(p) {
           ${m.cost!=null&&m.cost!==''?`<div class="fc-cost">${m.cost}</div>`:''}
           <div class="fc-rarity"></div>
         </div>
-        ${m.type==='monster'?`<div class="fc-atk${z?' boosted':''}">${m.cAtk+(z?1:0)}</div><div class="fc-def${z?' boosted':''}">${m.cDef+(z?1:0)}</div>`:''}
+        ${m.type==='monster'?`<div class="fc-atk${z?' boosted':''}">${m.cAtk}</div><div class="fc-def${z?' boosted':''}">${m.cDef}</div>`:''}
       `;
     }
     // ── Bouton RITUEL pour monstres aztèques compatibles ────────
@@ -4336,6 +4424,11 @@ function onFieldClick(p,i) {
   if(G.targeting){ resolveTarget({type:'field',p,i}); return; }
   if(G.mode==='pve'&&G.cp===2) return;
   const cp=G.cp;
+  // ZÉNITH GREC (3.1) : clic sur son dieu face caché en Main → déclenchement manuel.
+  if(p===cp && (G.phase==='Main1'||G.phase==='Main2') && canManualTriggerFD(cp)) {
+    const fd = G.players[cp].field[i];
+    if(fd && fd.faceDown && fd.type==='god' && !fd.asleep) { manualTriggerFaceDown(cp, i); return; }
+  }
   if(p===cp&&G.phase==='Combat'){
     const P=G.players[cp];
     const m=P.field[i];
@@ -4361,7 +4454,7 @@ function showAtkModal(attacker) {
   body.innerHTML='';
 
   const OP=G.players[opp];
-  const hasProtect=OP.field.some(m=>m&&(m.cap||'').includes('protect')&&!m.faceDown&&!m.asleep);
+  const hasProtect=OP.field.some(m=>m&&effProtect(m,opp)&&!m.asleep);
 
   // Direct attack option
   const divP=document.createElement('div');
@@ -4389,7 +4482,7 @@ function showAtkModal(attacker) {
   // Monster targets
   OP.field.forEach((m,i)=>{
     if(!m||m.faceDown) return;
-    const blocked=hasProtect&&!(m.cap||'').includes('protect');
+    const blocked=hasProtect&&!effProtect(m,opp);
     const div=document.createElement('div');
     div.className=`tgt-item${blocked?' blocked':''}`;
     const img=IMGS[m.id]?`<img src="${IMGS[m.id]}" alt="">`:'';
