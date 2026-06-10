@@ -66,6 +66,19 @@ Cards are defined as plain JavaScript objects in `index.html` (MONSTERS, GODS, S
 | `fd_destroy_attacker` | Face Down: destroy next attacker |
 | `fd_resurrect` | Face Down: resurrect on ally death |
 | `esquive` | First attack received each Cycle phase misses (recharges on phase change) |
+| `eclipse_buff` | +1/+1 each Cycle phase change |
+| `prophete` | Always considered at zenith |
+| `sacrifice_gems` | Sacrifice this monster: +2 gems |
+| `reveil_buff` | When a monster wakes from Sleep: +2/+2, draw 1 |
+| `entry_self_sleep` | Enters asleep (1 turn) |
+| `momie` | First death: face down, rises at next Aube |
+| `ragnarok_growing` | During Ténèbres: growing AoE each turn |
+| `entry_oracle` | Look at top of opponent's deck; draw 1 if god |
+| `trap_payoff` | Your face-down god revealed → 2 dmg to enemy player |
+| `token_payoff_atk` | +1 ATK per allied token (combat) |
+| `altar_payoff` | +1/+1 when an ally dies |
+| `fortress_payoff` | ≥2 Remparts → +2 ATK and Frénésie |
+| `riposte2` | Deals 2 damage to any attacker |
 | `entry_cycle_advance1` / `entry_cycle_delay1` | Entry: advance / delay the Celestial Cycle by 1 phase |
 | `entry_cycle_freeze1` | Entry: freeze the Cycle for 1 turn |
 | `entry_cycle_prophecy` | Entry: look at the next 3 phases, choose the next one |

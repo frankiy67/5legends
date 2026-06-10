@@ -322,137 +322,137 @@ const MONSTERS = {
 yokai:[
   // NON-RARES x3
   {id:'NINGYO',     n:'Ningyo',     atk:2,def:2,cost:1,rarity:'common',  cap:'attack_draw',             txt:'Attaque : piochez 1 carte.'},
-  {id:'MUJNINA',    n:'Mujnina',    atk:3,def:3,cost:2,rarity:'common',  cap:'heal',                    txt:'Vie : les dégâts soignent votre joueur.'},
-  {id:'TANUKI',     n:'Tanuki',     atk:4,def:3,cost:2,rarity:'common',  cap:'exit_search_3def',        txt:'Sortie : Cherchez un monstre DEF ≤3 dans votre deck.'},
-  {id:'KAPPA',      n:'Kappa',      atk:5,def:5,cost:4,rarity:'common',  cap:'passive_yokai_buff',      txt:'Toujours : vos autres monstres Yokai gagnent +1/+1.'},
-  {id:'KEUKEGEN',   n:'Keukegen',   atk:5,def:6,cost:5,rarity:'common',  cap:'exit_copy_killer',        txt:'Sortie : Invoquez une copie du monstre qui vous a détruit.'},
-  {id:'BAKU',       n:'Baku',       atk:6,def:6,cost:6,rarity:'common',  cap:'entry_sleep',             txt:'Entrée : Placez un monstre adverse face caché (Sommeil 2 tours).'},
+  {id:'MUJNINA',    n:'Mujnina',    atk:2,def:4,cost:2,rarity:'common',  cap:'reveil_buff',             txt:'Réveil : quand un monstre se réveille du Sommeil, Mujnina gagne +2/+2 et vous piochez 1.'},
+  {id:'TANUKI',     n:'Tanuki',     atk:4,def:3,cost:2,rarity:'common',  cap:'exit_search_3def',        txt:'Dernier Souffle : Cherchez un monstre DEF ≤3 dans votre deck.'},
+  {id:'KAPPA',      n:'Kappa',      atk:5,def:4,cost:4,rarity:'common',  cap:'passive_yokai_buff',      txt:'Toujours : vos autres monstres Yokai gagnent +1/+1.'},
+  {id:'KEUKEGEN',   n:'Keukegen',   atk:5,def:6,cost:5,rarity:'common',  cap:'exit_copy_killer',        txt:'Dernier Souffle : Invoquez une copie du monstre qui vous a détruit.'},
+  {id:'BAKU',       n:'Baku',       atk:6,def:6,cost:6,rarity:'common',  cap:'entry_sleep',             txt:'Éveil : Placez un monstre adverse face caché (Sommeil 2 tours).'},
   // SEMI-RARES x2
-  {id:'KITSUNE',    n:'Kitsune',    atk:2,def:1,cost:1,rarity:'uncommon',cap:'hurry',                   txt:'Rapide.'},
-  {id:'ONIKUMA',    n:'Onikuma',    atk:2,def:4,cost:2,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
-  {id:'BAKENEKO',   n:'Bakeneko',   atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_copy_ally',         txt:'Entrée : Bakeneko copie un allié.'},
-  {id:'NUE',        n:'Nue',        atk:3,def:6,cost:4,rarity:'uncommon',cap:'curse_endure',            txt:'Malédiction + Endurance.'},
-  {id:'KARURA',     n:'Karura',     atk:6,def:5,cost:5,rarity:'uncommon',cap:'entry_dmg4',              txt:'Entrée : 4 dégâts à une cible.'},
-  {id:'INUGAMI',    n:'Inugami',    atk:3,def:9,cost:6,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
-  {id:'ONI',        n:'Oni',        atk:5,def:9,cost:7,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
+  {id:'KITSUNE',    n:'Kitsune',    atk:2,def:1,cost:1,rarity:'uncommon',cap:'hurry',                   txt:'Élan.'},
+  {id:'ONIKUMA',    n:'Onikuma',    atk:2,def:4,cost:2,rarity:'uncommon',cap:'protect',                 txt:'Rempart.'},
+  {id:'BAKENEKO',   n:'Bakeneko',   atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_copy_ally',         txt:'Éveil : Bakeneko copie un allié.'},
+  {id:'NUE',        n:'Nue',        atk:3,def:6,cost:4,rarity:'uncommon',cap:'curse_endure',            txt:'Malédiction + Immortel.'},
+  {id:'KARURA',     n:'Karura',     atk:6,def:5,cost:5,rarity:'uncommon',cap:'entry_dmg4',              txt:'Éveil : 4 dégâts à une cible.'},
+  {id:'INUGAMI',    n:'Inugami',    atk:3,def:9,cost:5,rarity:'uncommon',cap:'reveil_buff',             txt:'Réveil : quand un de vos monstres se réveille du Sommeil, Inugami gagne +2/+2 et vous piochez 1.'},
+  {id:'ONI',        n:'Oni',        atk:8,def:9,cost:5,rarity:'uncommon',cap:'entry_self_sleep',        txt:'Éveil : Oni entre endormi (Sommeil 1 tour). Un colosse qui rêve…'},
   {id:'RAIJU',      n:'Raiju',      atk:8,def:8,cost:8,rarity:'uncommon',cap:'solo_destroy',            txt:'Seul allié : détruit la cible sans combat.'},
   // RARES x1
-  {id:'TOKI_ONNA',  n:'Toki-Onna',  atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_cycle_delay1',      txt:"Entrée : retarde le Cycle Céleste d'une phase."},
-  {id:'TSUCHINOKO', n:'Tsuchinoko', atk:5,def:4,cost:3,rarity:'rare',    cap:'curse_endure',            txt:'Malédiction + Endurance.'},
-  {id:'TSUCHIGUMO', n:'Tsuchigumo', atk:6,def:7,cost:4,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
-  {id:'USHI-ONI',   n:'Ushi-Oni',   atk:6,def:7,cost:5,rarity:'rare',    cap:'exit_dmg3_all',           txt:'Sortie : 3 dégâts à tous les monstres adverses.'},
-  {id:'AKKOROKAMUI',n:'Akkorokamui',atk:8,def:8,cost:6,rarity:'rare',    cap:'reincarnation',           txt:'1ère mort : mélangé dans le deck avec +3/+3 permanents.'},
-  {id:'RYUU',       n:'Ryuu',       atk:7,def:9,cost:7,rarity:'rare',    cap:'heal',                    txt:'Vie.'},
-  {id:'NAMAZU',     n:'Namazu',     atk:7,def:10,cost:8,rarity:'rare',   cap:'hurry',                   txt:'Rapide.'},
+  {id:'TOKI_ONNA',  n:'Toki-Onna',  atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_cycle_delay1',      txt:"Éveil : retarde le Cycle Céleste d'une phase."},
+  {id:'TSUCHINOKO', n:'Tsuchinoko', atk:5,def:4,cost:3,rarity:'rare',    cap:'curse_endure',            txt:'Malédiction + Immortel.'},
+  {id:'TSUCHIGUMO', n:'Tsuchigumo', atk:6,def:7,cost:4,rarity:'rare',    cap:'protect',                 txt:'Rempart.'},
+  {id:'USHI-ONI',   n:'Ushi-Oni',   atk:6,def:7,cost:5,rarity:'rare',    cap:'exit_dmg3_all',           txt:'Dernier Souffle : 3 dégâts à tous les monstres adverses.'},
+  {id:'AKKOROKAMUI',n:'Akkorokamui',atk:8,def:7,cost:6,rarity:'rare',    cap:'reincarnation',           txt:'1ère mort : mélangé dans le deck avec +3/+3 permanents.'},
+  {id:'RYUU',       n:'Ryuu',       atk:7,def:9,cost:7,rarity:'rare',    cap:'entry_sleep heal',        txt:'Éveil : endort un monstre adverse. Offrande.'},
+  {id:'NAMAZU',     n:'Namazu',     atk:7,def:10,cost:8,rarity:'rare',   cap:'hurry',                   txt:'Élan.'},
 ],
 norse:[
   // NON-RARES x3
-  {id:'RATATOSK',   n:'Ratatosk',   atk:1,def:2,cost:1,rarity:'common',  cap:'entry_search_ratatosk',   txt:'Entrée : Cherchez un Ratatosk dans votre deck.'},
+  {id:'RATATOSK',   n:'Ratatosk',   atk:1,def:2,cost:1,rarity:'common',  cap:'entry_search_ratatosk',   txt:'Éveil : Cherchez un Ratatosk dans votre deck.'},
   {id:'HUGINN',     n:'Huginn',     atk:2,def:1,cost:3,rarity:'common',  cap:'start_draw',              txt:'Début de tour : Piochez 1 carte.'},
-  {id:'DRAUGR',     n:'Draugr',     atk:3,def:2,cost:3,rarity:'common',  cap:'endure',                  txt:'Endurance.'},
-  {id:'EITRI',      n:'Eitri',      atk:3,def:5,cost:4,rarity:'common',  cap:'combat_recycle_dmg2',     txt:'Combat : replacez 2 monstres de défausse sous le deck, puis 2 dégâts.'},
-  {id:'LJOSALFAR',  n:'Ljosalfar',  atk:6,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Vie.'},
-  {id:'DOKKALFAR',  n:'Dokkalfar',  atk:6,def:6,cost:6,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
+  {id:'DRAUGR',     n:'Draugr',     atk:3,def:2,cost:3,rarity:'common',  cap:'endure',                  txt:'Immortel.'},
+  {id:'EITRI',      n:'Eitri',      atk:3,def:5,cost:4,rarity:'common',  cap:'protect',                 txt:'Rempart. Le forgeron dresse ses murailles.'},
+  {id:'LJOSALFAR',  n:'Ljosalfar',  atk:6,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Offrande.'},
+  {id:'DOKKALFAR',  n:'Dokkalfar',  atk:5,def:7,cost:5,rarity:'common',  cap:'fortress_payoff',         txt:'Forteresse : tant que vous contrôlez ≥2 Remparts, +2 ATK et Frénésie.'},
   // SEMI-RARES x2
   {id:'EIKTHYRNIR', n:'Eikthyrnir', atk:1,def:2,cost:2,rarity:'uncommon',cap:'passive_adj_buff21',      txt:'Toujours : adjacents gagnent +2 ATK / +1 DEF.'},
-  {id:'LANDVAETTIR',n:'Landvaettir',atk:4,def:2,cost:2,rarity:'uncommon',cap:'heal',                    txt:'Vie.'},
-  {id:'TANNGRISNIR',n:'Tanngrisnir',atk:4,def:2,cost:3,rarity:'uncommon',cap:'endure_hurry',            txt:'Endurance + Rapide.'},
-  {id:'SLEIPNIR',   n:'Sleipnir',   atk:6,def:2,cost:4,rarity:'uncommon',cap:'hurry',                   txt:'Rapide.'},
-  {id:'HILDISVINI', n:'Hildisvini', atk:3,def:7,cost:5,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
-  {id:'JOTUNN',     n:'Jotunn',     atk:6,def:6,cost:6,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
-  {id:'IDI',        n:'Idi',        atk:7,def:9,cost:7,rarity:'uncommon',cap:'exit_search_3def',       txt:'Sortie : Cherchez un monstre DEF ≤3 dans votre deck.'},
-  {id:'FENRIR',     n:'Fenrir',     atk:6,def:9,cost:8,rarity:'uncommon',cap:'curse',                  txt:'Malédiction.'},
+  {id:'LANDVAETTIR',n:'Landvaettir',atk:4,def:2,cost:2,rarity:'uncommon',cap:'heal',                    txt:'Offrande.'},
+  {id:'TANNGRISNIR',n:'Tanngrisnir',atk:4,def:2,cost:3,rarity:'uncommon',cap:'endure_hurry',            txt:'Immortel + Élan.'},
+  {id:'SLEIPNIR',   n:'Sleipnir',   atk:6,def:2,cost:4,rarity:'uncommon',cap:'hurry',                   txt:'Élan.'},
+  {id:'HILDISVINI', n:'Hildisvini', atk:3,def:7,cost:5,rarity:'uncommon',cap:'fortress_payoff',         txt:'Forteresse : tant que vous contrôlez ≥2 Remparts, +2 ATK et Frénésie.'},
+  {id:'JOTUNN',     n:'Jotunn',     atk:6,def:6,cost:5,rarity:'uncommon',cap:'protect',                 txt:'Rempart.'},
+  {id:'IDI',        n:'Idi',        atk:7,def:9,cost:7,rarity:'uncommon',cap:'exit_search_3def',       txt:'Dernier Souffle : Cherchez un monstre DEF ≤3 dans votre deck.'},
+  {id:'FENRIR',     n:'Fenrir',     atk:6,def:9,cost:8,rarity:'uncommon',cap:'ragnarok_growing',       txt:'Ragnarök : pendant les Ténèbres, inflige X dégâts à tous les monstres adverses au début de votre tour. X augmente de 1 à chaque déclenchement.'},
   // RARES x1
   {id:'URD',        n:'Urd',        atk:3,def:4,cost:4,rarity:'uncommon',cap:'exit_cycle_delay1',       txt:"Mort : retarde le Cycle Céleste d'une phase."},
-  {id:'NIDDHOG',    n:'Niddhog',    atk:3,def:4,cost:3,rarity:'rare',    cap:'hit',                     txt:'Double attaque.'},
-  {id:'GARM',       n:'Garm',       atk:5,def:4,cost:4,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
+  {id:'NIDDHOG',    n:'Niddhog',    atk:3,def:5,cost:3,rarity:'rare',    cap:'protect fortress_payoff', txt:'Rempart. Forteresse : tant que vous contrôlez ≥2 Remparts, +2 ATK et Frénésie.'},
+  {id:'GARM',       n:'Garm',       atk:5,def:6,cost:4,rarity:'rare',    cap:'protect riposte2',        txt:'Rempart. Riposte : inflige 2 dégâts à tout attaquant.'},
   {id:'JORMUNGANDR',n:'Jörmungandr',atk:4,def:7,cost:5,rarity:'rare',   cap:'splash_adjacent',         txt:'Inflige ATK×0.5 dégâts aux monstres adjacents à la cible.'},
-  {id:'KRAKEN',     n:'Kraken',     atk:11,def:2,cost:7,rarity:'rare',   cap:'entry_tokens4',           txt:'Entrée : Invoquez 4 jetons 1/1.'},
+  {id:'KRAKEN',     n:'Kraken',     atk:11,def:2,cost:7,rarity:'rare',   cap:'entry_tokens4',           txt:'Éveil : Invoquez 4 jetons 1/1.'},
   {id:'YMIR',       n:'Ymir',       atk:8,def:8,cost:7,rarity:'rare',    cap:'token_per_dmg',           txt:'Toujours : jeton 1/1 par dégât reçu en combat.'},
-  {id:'SURT',       n:'Surt',       atk:8,def:9,cost:8,rarity:'rare',   cap:'entry_wipe',              txt:'Entrée : Détruit TOUT (sauf Surt). Déclenche les effets Sortie.'},
+  {id:'SURT',       n:'Surt',       atk:8,def:9,cost:8,rarity:'rare',   cap:'entry_wipe',              txt:'Éveil : Détruit TOUT (sauf Surt). Déclenche les effets Sortie.'},
 ],
 egyptian:[
   // NON-RARES x3
   {id:'ABTU',       n:'Abtu',       atk:2,def:2,cost:1,rarity:'common',  cap:'end_draw',                txt:'Fin de tour : Piochez 1 carte.'},
   {id:'MEDJED',     n:'Medjed',     atk:2,def:3,cost:2,rarity:'common',  cap:'start_tokens2',           txt:'Début de tour : Invoquez 2 jetons 1/1 (max 6 sur terrain).'},
-  {id:'MOMIE',      n:'Momie',      atk:4,def:3,cost:3,rarity:'common',  cap:'endure',                  txt:'Endurance.'},
+  {id:'MOMIE',      n:'Momie',      atk:4,def:3,cost:3,rarity:'common',  cap:'momie',                   txt:'Momie : à sa première mort, revient face cachée et se relève à l\'Aube suivante.'},
   {id:'SHA',        n:'Sha',        atk:4,def:3,cost:4,rarity:'common',  cap:'recycle_return',          txt:'Mort : placez 2 monstres de défausse sous le deck, Sha retourne en main.'},
-  {id:'APIS',       n:'Apis',       atk:5,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Vie.'},
-  {id:'BENOU',      n:'Benou',      atk:7,def:6,cost:7,rarity:'common',  cap:'hurry_entry_revive',      txt:'Rapide. Entrée : Ressuscite un allié DEF ≥3 depuis la défausse.'},
+  {id:'APIS',       n:'Apis',       atk:5,def:4,cost:5,rarity:'common',  cap:'heal',                    txt:'Offrande.'},
+  {id:'BENOU',      n:'Benou',      atk:7,def:6,cost:7,rarity:'common',  cap:'hurry_entry_revive',      txt:'Élan. Éveil : Ressuscite un allié DEF ≥3 depuis la défausse.'},
   // SEMI-RARES x2
-  {id:'SPHINX',     n:'Sphinx',     atk:3,def:4,cost:2,rarity:'uncommon',cap:'protect',                 txt:'Protection.'},
-  {id:'CRIOSPHINX', n:'Criosphinx', atk:4,def:2,cost:2,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
-  {id:'HIERACOSPHINX',n:'Hieracosphinx',atk:3,def:5,cost:3,rarity:'uncommon',cap:'hit',                txt:'Double attaque.'},
+  {id:'SPHINX',     n:'Sphinx',     atk:3,def:4,cost:2,rarity:'uncommon',cap:'protect',                 txt:'Rempart.'},
+  {id:'CRIOSPHINX', n:'Criosphinx', atk:4,def:2,cost:2,rarity:'uncommon',cap:'heal',                   txt:'Offrande.'},
+  {id:'HIERACOSPHINX',n:'Hieracosphinx',atk:3,def:5,cost:3,rarity:'uncommon',cap:'eclipse_buff',       txt:'Éclipse : gagne +1/+1 à chaque changement de phase du Cycle Céleste.'},
   {id:'AANI',       n:'Aani',       atk:4,def:5,cost:4,rarity:'uncommon',cap:'temp_steal_hurry',        txt:'Mort : volez un monstre adverse (Rapide) jusquà fin de tour.'},
-  {id:'BABAI',      n:'Babaï',      atk:7,def:4,cost:5,rarity:'uncommon',cap:'token_copies_graveyard',  txt:'Entrée : jetons 1/1 copies de 2 monstres en défausse (sans ETB/sortie).'},
-  {id:'MANTICORE',  n:'Manticore',  atk:4,def:8,cost:6,rarity:'uncommon',cap:'hit',                    txt:'Double attaque.'},
-  {id:'GRIFFON',    n:'Griffon',    atk:8,def:7,cost:7,rarity:'uncommon',cap:'hurry_exit_heal4',        txt:'Rapide. Sortie : +4 PV.'},
+  {id:'BABAI',      n:'Babaï',      atk:6,def:4,cost:5,rarity:'uncommon',cap:'token_copies_graveyard',  txt:'Éveil : jetons 1/1 copies de 2 monstres en défausse (sans ETB/sortie).'},
+  {id:'MANTICORE',  n:'Manticore',  atk:4,def:8,cost:6,rarity:'uncommon',cap:'token_payoff_atk',       txt:'Marée : +1 ATK en combat par jeton allié en jeu.'},
+  {id:'GRIFFON',    n:'Griffon',    atk:8,def:7,cost:7,rarity:'uncommon',cap:'hurry_exit_heal4',        txt:'Élan. Dernier Souffle : +4 PV.'},
   {id:'SERPOPARD',  n:'Serpopard',  atk:4,def:12,cost:8,rarity:'uncommon',cap:'curse',                  txt:'Malédiction.'},
   // RARES x1
-  {id:'SESHAT',     n:'Seshat',     atk:2,def:2,cost:3,rarity:'uncommon',cap:'entry_cycle_prophecy',    txt:'Entrée : Prophétie — regardez les 3 prochaines phases du Cycle et choisissez la suivante.'},
+  {id:'SESHAT',     n:'Seshat',     atk:2,def:2,cost:3,rarity:'uncommon',cap:'entry_cycle_prophecy',    txt:'Éveil : Prophétie — regardez les 3 prochaines phases du Cycle et choisissez la suivante.'},
   {id:'EFRIT',      n:'Efrit',      atk:4,def:5,cost:3,rarity:'rare',    cap:'end_heal_ally',           txt:'Fin de tour : Soignez totalement un monstre allié ciblé.'},
   {id:'DJINN',      n:'Djinn',      atk:6,def:6,cost:4,rarity:'rare',    cap:'combat_dmg2',             txt:'Combat : 2 dégâts supplémentaires à la cible.'},
-  {id:'URAEUS',     n:'Uraeus',     atk:7,def:5,cost:5,rarity:'rare',    cap:'curse_protect',           txt:'Malédiction + Protection.'},
+  {id:'URAEUS',     n:'Uraeus',     atk:7,def:5,cost:5,rarity:'rare',    cap:'curse_protect',           txt:'Malédiction + Rempart.'},
   {id:'ROKH',       n:'Rokh',       atk:5,def:9,cost:6,rarity:'rare',    cap:'exit_self_sleep',         txt:'Mort : Rokh reste en jeu face caché 2 tours puis revient.'},
-  {id:'GOLEM',      n:'Golem',      atk:11,def:7,cost:8,rarity:'rare',   cap:'endure_cooldown',         txt:'Endurance. Après avoir attaqué, ne peut plus attaquer le tour suivant.'},
-  {id:'LEVIATHAN',  n:'Léviathan',  atk:9,def:10,cost:8,rarity:'rare',  cap:'entry_draw_per_ally',     txt:'Entrée : Piochez 1 carte par allié (max 3).'},
+  {id:'GOLEM',      n:'Golem',      atk:11,def:7,cost:8,rarity:'rare',   cap:'endure_cooldown',         txt:'Immortel. Après avoir attaqué, ne peut plus attaquer le tour suivant.'},
+  {id:'LEVIATHAN',  n:'Léviathan',  atk:9,def:10,cost:8,rarity:'rare',  cap:'entry_draw_per_ally',     txt:'Éveil : Piochez 1 carte par allié (max 3).'},
 ],
 greek:[
   // NON-RARES x3
   {id:'SIRENES',    n:'Sirènes',    atk:3,def:1,cost:1,rarity:'common',  cap:'esquive',                 txt:'Esquive : la première attaque subie à chaque phase du Cycle rate.'},
-  {id:'PEGASE',     n:'Pégase',     atk:4,def:4,cost:2,rarity:'common',  cap:'hurry_heal',              txt:'Rapide + Vie.'},
-  {id:'HIPPOCAMPE', n:'Hippocampe', atk:4,def:3,cost:3,rarity:'common',  cap:'start_filter',            txt:'Début de tour : Défaussez 1 carte pour en piocher 1.'},
-  {id:'SATYRE',     n:'Satyre',     atk:5,def:4,cost:4,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
-  {id:'HARPIE',     n:'Harpie',     atk:6,def:5,cost:5,rarity:'common',  cap:'hurry_exit_dmg3',         txt:'Rapide. Sortie : 3 dégâts à une cible.'},
+  {id:'PEGASE',     n:'Pégase',     atk:3,def:4,cost:2,rarity:'common',  cap:'hurry trap_payoff',       txt:'Élan. Toile : quand un de vos dieux face cachée se révèle, 2 dégâts au joueur adverse.'},
+  {id:'HIPPOCAMPE', n:'Hippocampe', atk:2,def:5,cost:2,rarity:'common',  cap:'trap_payoff',             txt:'Toile : quand un de vos dieux face cachée se révèle, 2 dégâts au joueur adverse.'},
+  {id:'SATYRE',     n:'Satyre',     atk:4,def:5,cost:3,rarity:'common',  cap:'trap_payoff',             txt:'Toile : quand un de vos dieux face cachée se révèle, 2 dégâts au joueur adverse.'},
+  {id:'HARPIE',     n:'Harpie',     atk:6,def:5,cost:5,rarity:'common',  cap:'hurry_exit_dmg3',         txt:'Élan. Dernier Souffle : 3 dégâts à une cible.'},
   {id:'CENTAURE',   n:'Centaure',   atk:8,def:4,cost:6,rarity:'common',  cap:'passive_entry_buff11',    txt:'Toujours : chaque allié entrant gagne +1/+1.'},
   // SEMI-RARES x2
-  {id:'CHIMERE',    n:'Chimère',    atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_copy_field',        txt:'Entrée : copie tout monstre visible.'},
-  {id:'PYTHON',     n:'Python',     atk:3,def:3,cost:2,rarity:'uncommon',cap:'curse',                   txt:'Malédiction.'},
-  {id:'LION_NEMEE', n:'Lion de Némée',atk:4,def:4,cost:3,rarity:'uncommon',cap:'heal',                  txt:'Vie.'},
-  {id:'OPHIOTAURUS',n:'Ophiotaurus',atk:6,def:5,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
+  {id:'CHIMERE',    n:'Chimère',    atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_copy_field',        txt:'Éveil : copie tout monstre visible.'},
+  {id:'PYTHON',     n:'Python',     atk:3,def:3,cost:2,rarity:'uncommon',cap:'entry_oracle',            txt:'Oracle — Éveil : regardez le dessus du deck adverse ; si c\'est un dieu, piochez 1.'},
+  {id:'LION_NEMEE', n:'Lion de Némée',atk:4,def:4,cost:3,rarity:'uncommon',cap:'prophete heal',         txt:'Prophète : toujours considéré à son zénith. Offrande.'},
+  {id:'OPHIOTAURUS',n:'Ophiotaurus',atk:6,def:5,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Immortel.'},
   {id:'SCYLLA',     n:'Scylla',     atk:5,def:7,cost:5,rarity:'uncommon',cap:'entry_draw_per_greek',    txt:'Ce tour : chaque grec joué DEF ≤5 fait piocher 1 carte.'},
-  {id:'GORGONE',    n:'Gorgone',    atk:8,def:7,cost:6,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
-  {id:'CYCLOPE',    n:'Cyclope',    atk:6,def:9,cost:7,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
-  {id:'ECHIDNA',    n:'Echidna',    atk:10,def:6,cost:7,rarity:'uncommon',cap:'entry_reclaim',          txt:'Entrée : Récupérez 1 monstre de votre défausse en main.'},
+  {id:'GORGONE',    n:'Gorgone',    atk:8,def:7,cost:6,rarity:'uncommon',cap:'endure',                  txt:'Immortel.'},
+  {id:'CYCLOPE',    n:'Cyclope',    atk:6,def:9,cost:7,rarity:'uncommon',cap:'hit',                     txt:'Frénésie (attaque deux fois).'},
+  {id:'ECHIDNA',    n:'Echidna',    atk:10,def:6,cost:7,rarity:'uncommon',cap:'entry_reclaim',          txt:'Éveil : Récupérez 1 monstre de votre défausse en main.'},
   // RARES x1
-  {id:'HORAE',      n:'Horae',      atk:2,def:3,cost:3,rarity:'uncommon',cap:'entry_cycle_freeze1',     txt:'Entrée : fige le Cycle Céleste pendant 1 tour.'},
-  {id:'CERBERE',    n:'Cerbère',    atk:3,def:6,cost:3,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
-  {id:'MINOTAURE',  n:'Minotaure',  atk:5,def:6,cost:4,rarity:'rare',   cap:'protect_hit',             txt:'Protection + Double attaque.'},
+  {id:'HORAE',      n:'Horae',      atk:2,def:3,cost:3,rarity:'uncommon',cap:'entry_cycle_freeze1',     txt:'Éveil : fige le Cycle Céleste pendant 1 tour.'},
+  {id:'CERBERE',    n:'Cerbère',    atk:3,def:6,cost:3,rarity:'rare',    cap:'protect',                 txt:'Rempart.'},
+  {id:'MINOTAURE',  n:'Minotaure',  atk:5,def:6,cost:4,rarity:'rare',   cap:'protect_hit',             txt:'Rempart + Frénésie.'},
   {id:'LADON',      n:'Ladon',      atk:8,def:5,cost:5,rarity:'rare',    cap:'copy_on_attack',          txt:'Attaque : invoquez une copie (sans cap) du monstre attaqué.'},
-  {id:'HYDRE',      n:'Hydre',      atk:3,def:5,cost:5,rarity:'rare',    cap:'entry_token_per_greek',   txt:'Entrée : jeton Hydre 3/5 par monstre grec allié en jeu.'},
+  {id:'HYDRE',      n:'Hydre',      atk:3,def:5,cost:5,rarity:'rare',    cap:'entry_token_per_greek',   txt:'Éveil : jeton Hydre 3/5 par monstre grec allié en jeu.'},
   {id:'CHARYBDE',   n:'Charybde',   atk:11,def:6,cost:7,rarity:'rare',  cap:'start_coinflip_destroy',  txt:'Début de tour : pile = détruisez un monstre adverse.'},
-  {id:'TYPHON',     n:'Typhon',     atk:10,def:8,cost:8,rarity:'rare',  cap:'entry_dmg5_all',          txt:'Entrée : 5 dégâts à tous les autres monstres en jeu.'},
+  {id:'TYPHON',     n:'Typhon',     atk:10,def:8,cost:8,rarity:'rare',  cap:'entry_dmg5_all',          txt:'Éveil : 5 dégâts à tous les autres monstres en jeu.'},
 ],
 aztec:[
   // NON-RARES x3
-  {id:'CAMAZOTZ',   n:'Camazotz',   atk:2,def:2,cost:1,rarity:'common',  cap:'curse',                   txt:'Malédiction.'},
-  {id:'CHANEQUE',   n:'Chaneque',   atk:3,def:3,cost:2,rarity:'common',  cap:'heal',                    txt:'Vie.'},
-  {id:'CEUYATL',    n:'Ceuyatl',    atk:4,def:4,cost:3,rarity:'common',  cap:'exit_search_3atk',        txt:'Sortie : Cherchez un monstre ATK ≤3 dans votre deck.'},
-  {id:'CUETZPALIN', n:'Cuetzpalin', atk:4,def:5,cost:4,rarity:'common',  cap:'protect',                 txt:'Protection.'},
+  {id:'CAMAZOTZ',   n:'Camazotz',   atk:2,def:2,cost:1,rarity:'common',  cap:'altar_payoff',            txt:'Autel : gagne +1/+1 permanent quand un allié meurt.'},
+  {id:'CHANEQUE',   n:'Chaneque',   atk:3,def:3,cost:2,rarity:'common',  cap:'heal',                    txt:'Offrande.'},
+  {id:'CEUYATL',    n:'Ceuyatl',    atk:4,def:4,cost:3,rarity:'common',  cap:'exit_search_3atk',        txt:'Dernier Souffle : Cherchez un monstre ATK ≤3 dans votre deck.'},
+  {id:'CUETZPALIN', n:'Cuetzpalin', atk:4,def:5,cost:4,rarity:'common',  cap:'protect',                 txt:'Rempart.'},
   {id:'TEUZAUHTOTOTL',n:'Teuzauhtototl',atk:7,def:6,cost:5,rarity:'common',cap:'oracle_dmg3',           txt:'Début de tour : regardez le dessus du deck. Sous le deck → 3 dmg à soi-même.'},
-  {id:'CHULLACHAKI',n:'Chullachaki',atk:8,def:5,cost:6,rarity:'common',  cap:'hurry',                   txt:'Rapide.'},
+  {id:'CHULLACHAKI',n:'Chullachaki',atk:8,def:5,cost:6,rarity:'common',  cap:'hurry',                   txt:'Élan.'},
   // SEMI-RARES x2
-  {id:'AHUIZOTL',   n:'Ahuizotl',   atk:2,def:4,cost:2,rarity:'uncommon',cap:'curse',                   txt:'Malédiction.'},
-  {id:'KAQKOJ',     n:'Kaqkoj',     atk:3,def:1,cost:2,rarity:'uncommon',cap:'reveal_play_free',        txt:'Révèle 3 cartes, adversaire choisit: vous jouez gratuitement.'},
-  {id:'OCELOTL',    n:'Ocelotl',    atk:5,def:2,cost:3,rarity:'uncommon',cap:'copy_ally_def',           txt:'Entrée : Ocelotl copie la DEF dun allié.'},
-  {id:'TZI',        n:'Tzi',        atk:4,def:7,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Endurance.'},
-  {id:'CHOHIX',     n:'Chohix',     atk:8,def:5,cost:5,rarity:'uncommon',cap:'death_token22 ritual_tokens3', txt:'Toujours : jeton 2/2 par mort alliée. Rituel : 3 jetons 2/2 Rapide.'},
-  {id:'NAGUAL',     n:'Nagual',     atk:4,def:8,cost:6,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
+  {id:'AHUIZOTL',   n:'Ahuizotl',   atk:2,def:4,cost:2,rarity:'uncommon',cap:'sacrifice_gems',          txt:'Sacrifice : sacrifiez ce monstre pour gagner 2 gems (pendant vos phases principales).'},
+  {id:'KAQKOJ',     n:'Kaqkoj',     atk:3,def:2,cost:2,rarity:'uncommon',cap:'reveal_play_free',        txt:'Révèle 3 cartes, adversaire choisit: vous jouez gratuitement.'},
+  {id:'OCELOTL',    n:'Ocelotl',    atk:6,def:2,cost:3,rarity:'uncommon',cap:'copy_ally_def',           txt:'Éveil : Ocelotl copie la DEF dun allié.'},
+  {id:'TZI',        n:'Tzi',        atk:5,def:7,cost:4,rarity:'uncommon',cap:'endure',                  txt:'Immortel.'},
+  {id:'CHOHIX',     n:'Chohix',     atk:8,def:6,cost:5,rarity:'uncommon',cap:'death_token22 ritual_tokens3', txt:'Toujours : jeton 2/2 par mort alliée. Rituel : 3 jetons 2/2 Rapide.'},
+  {id:'NAGUAL',     n:'Nagual',     atk:4,def:8,cost:6,rarity:'uncommon',cap:'hit',                     txt:'Frénésie (attaque deux fois).'},
   {id:'OTOMITL',    n:'Otomitl',    atk:7,def:9,cost:7,rarity:'uncommon',cap:'passive_empty_hand_buff', txt:'Toujours : si main vide, alliés +2 ATK /+1 DEF.'},
-  {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:9,def:9,cost:8,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
+  {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:9,def:9,cost:7,rarity:'uncommon',cap:'heal',                   txt:'Offrande.'},
   // RARES x1
-  {id:'XOLOTL',     n:'Xolotl',     atk:4,def:3,cost:3,rarity:'uncommon',cap:'entry_cycle_advance1',    txt:"Entrée : avance le Cycle Céleste d'une phase."},
-  {id:'QUETZAL',    n:'Quetzal',    atk:4,def:3,cost:4,rarity:'rare',    cap:'passive_all_hurry',       txt:'Toujours : tous vos monstres aztèques ont Rapide.'},
-  {id:'CIPACTLI',   n:'Cipactli',   atk:4,def:7,cost:4,rarity:'rare',    cap:'entry_reclaim_spell',     txt:'Entrée : Récupérez un sort/dieu de votre défausse en main.'},
-  {id:'IZCAQLLI',   n:'Izcaqlli',   atk:6,def:8,cost:5,rarity:'rare',    cap:'protect_endure',          txt:'Protection + Endurance.'},
-  {id:'IZCOALT',    n:'Izcoalt',    atk:6,def:6,cost:6,rarity:'rare',    cap:'entry_destroy_catchup',   txt:'Entrée : Si vos PV ≤60, détruisez un monstre adverse.'},
-  {id:'HUAY_CHIVO', n:'Huay Chivo', atk:5,def:12,cost:8,rarity:'rare',  cap:'hit',                     txt:'Double attaque.'},
-  {id:'TLALTECUHTLI',n:'Tlaltecuhtli',atk:8,def:6,cost:6,rarity:'rare', cap:'entry_token_copies_2 ritual_wipe5', txt:'Entrée : jetons 1/1 copies de 2 alliés. Rituel : 5 dégâts à tous les monstres adverses.'},
+  {id:'XOLOTL',     n:'Xolotl',     atk:4,def:3,cost:3,rarity:'uncommon',cap:'entry_cycle_advance1',    txt:"Éveil : avance le Cycle Céleste d'une phase."},
+  {id:'QUETZAL',    n:'Quetzal',    atk:4,def:3,cost:4,rarity:'rare',    cap:'passive_all_hurry',       txt:'Toujours : tous vos monstres aztèques ont Élan.'},
+  {id:'CIPACTLI',   n:'Cipactli',   atk:4,def:7,cost:4,rarity:'rare',    cap:'entry_reclaim_spell',     txt:'Éveil : Récupérez un sort/dieu de votre défausse en main.'},
+  {id:'IZCAQLLI',   n:'Izcaqlli',   atk:6,def:8,cost:5,rarity:'rare',    cap:'protect_endure',          txt:'Rempart + Immortel.'},
+  {id:'IZCOALT',    n:'Izcoalt',    atk:6,def:6,cost:6,rarity:'rare',    cap:'entry_destroy_catchup',   txt:'Éveil : Si vos PV ≤60, détruisez un monstre adverse.'},
+  {id:'HUAY_CHIVO', n:'Huay Chivo', atk:5,def:12,cost:8,rarity:'rare',  cap:'hit',                     txt:'Frénésie (attaque deux fois).'},
+  {id:'TLALTECUHTLI',n:'Tlaltecuhtli',atk:8,def:6,cost:6,rarity:'rare', cap:'entry_token_copies_2 ritual_wipe5', txt:'Éveil : jetons 1/1 copies de 2 alliés. Rituel : 5 dégâts à tous les monstres adverses.'},
 ]};
 
 const GODS = {
 yokai:[
-  {id:'AMATERASU',  n:'Amaterasu',  cost:4, cap:'god_cancel_m_steal',      txt:"N'importe quand : Annulez un monstre adverse et invoquez-le sur votre terrain."},
+  {id:'AMATERASU',  n:'Amaterasu',  cost:3, cap:'god_cancel_m_steal',      txt:"N'importe quand : Annulez un monstre adverse et invoquez-le sur votre terrain."},
   {id:'EBISU',      n:'Ebisu',      cost:3, cap:'god_scrye4_draw',          txt:'Regardez les 4 premières cartes de votre deck, réorganisez-les, piochez 1.'},
   {id:'FUJIN',      n:'Fujin',      cost:3, cap:'fd_blocker_23',            txt:'Face caché permanent : Le prochain monstre adverse attaquant un allié attaque à la place un jeton 2/3.'},
   {id:'HACHIMAN',   n:'Hachiman',   cost:3, cap:'fd_destroy_attacker',      txt:'Face caché permanent : Quand un monstre adverse attaque, détruisez-le.'},
@@ -460,10 +460,10 @@ yokai:[
   {id:'IZANAMI',    n:'Izanami',    cost:3, cap:'god_discard_hand_monster', txt:"L'adversaire révèle sa main. Choisissez un monstre : il le défausse."},
   {id:'KAGUTSUCHI', n:'Kagutsuchi', cost:3, cap:'god_dmg3_or_6',           txt:"N'importe quand : Infligez 3 dégâts. Bonus : 6 dégâts."},
   {id:'OMAIKANE',   n:'Omaikane',   cost:4, cap:'god_swap_hands',           txt:'Chacun défausse sa main et pioche le même nombre. Bonus : pioche autant que la plus grande main.'},
-  {id:'RAIJIN',     n:'Raijin',     cost:4, cap:'god_redirect_to_monster',  txt:"N'importe quand : Annulez l'attaque d'un monstre qui attaquait votre joueur. Il attaque un monstre adverse."},
+  {id:'RAIJIN',     n:'Raijin',     cost:3, cap:'god_redirect_to_monster',  txt:"N'importe quand : Annulez l'attaque d'un monstre qui attaquait votre joueur. Il attaque un monstre adverse."},
   {id:'RYUJIN',     n:'Ryujin',     cost:3, cap:'god_draft4',               txt:"Choisissez 4 cartes de votre deck. L'adversaire en choisit une pour votre main. Le reste en défausse."},
   {id:'SARUTAHIKO', n:'Sarutahiko', cost:3, cap:'god_atk5_buff',            txt:"N'importe quand : Un monstre allié gagne +5 ATK jusqu'à la fin du tour."},
-  {id:'SUSANOO',    n:'Susanoo',    cost:3, cap:'god_heal_all',             txt:'Soignez les DEF originales de tous vos monstres.'},
+  {id:'SUSANOO',    n:'Susanoo',    cost:2, cap:'god_heal_all',             txt:'Soignez les DEF originales de tous vos monstres.'},
   {id:'TENJIN',     n:'Tenjin',     cost:1, cap:'god_dmg3',                 txt:'Infligez 3 dégâts à une cible.'},
   {id:'TSUKUYOMI',  n:'Tsukuyomi',  cost:4, cap:'god_resurrect2',           txt:'Retournez jusqu\'à 2 monstres de coût ≤5 de votre défausse dans votre main.'},
   {id:'KAGUYA',     n:'Kaguya',     cost:3, cap:'god_cycle_choose',         txt:'Choisissez la prochaine phase du Cycle Céleste.'},
@@ -477,7 +477,7 @@ norse:[
   {id:'HODER',      n:'Hoder',      cost:2, cap:'god_search2_cost2',        txt:'Cherchez jusqu\'à 2 monstres de coût ≤2 dans votre deck.'},
   {id:'IDUNN',      n:'Idunn',      cost:0, cap:'god_5life_3faction',       txt:"N'importe quand : Si 3 monstres de même légende alliés, gagnez 5 PV et piochez 1."},
   {id:'LOKI',       n:'Loki',       cost:3, cap:'god_discard2_random',      txt:"L'adversaire défausse 2 cartes au hasard."},
-  {id:'ODIN',       n:'Odin',       cost:5, cap:'god_equalize_board_hand',  txt:'Le joueur avec le plus de monstres sacrifie jusqu\'à égalité. Bonus : pareil pour la main.'},
+  {id:'ODIN',       n:'Odin',       cost:4, cap:'god_equalize_board_hand',  txt:'Le joueur avec le plus de monstres sacrifie jusqu\'à égalité. Bonus : pareil pour la main.'},
   {id:'THOR',       n:'Thor',       cost:5, cap:'god_sacrifice_opp_draw2',  txt:'L\'adversaire sacrifie son monstre le plus fort. Vous piochez 2 cartes.'},
   {id:'TYR',        n:'Tyr',        cost:4, cap:'god_sacrifice_ms',         txt:"L'adversaire sacrifie un monstre. Bonus : Et sacrifie un sort en jeu."},
   {id:'ULLR',       n:'Ullr',       cost:5, cap:'god_equip_draw_attack',    txt:'Équipez à un monstre. Chaque fois qu\'il attaque, piochez une carte.'},
@@ -487,16 +487,16 @@ norse:[
 ],
 egyptian:[
   {id:'AMUNRA',     n:'Amun-Ra',    cost:2, cap:'god_swap_hand_field',      txt:'Échangez un monstre de votre main avec un monstre en jeu de même légende.'},
-  {id:'ANUBIS',     n:'Anubis',     cost:4, cap:'god_copy_bonus',           txt:'Invoquez un jeton copie d\'un monstre sur votre terrain. Bonus : au choix des terrains.'},
+  {id:'ANUBIS',     n:'Anubis',     cost:3, cap:'god_copy_bonus',           txt:'Invoquez un jeton copie d\'un monstre sur votre terrain. Bonus : au choix des terrains.'},
   {id:'BASTET',     n:'Bastet',     cost:2, cap:'god_draw2_free_if_solo',   txt:'Piochez 2 cartes. Bonus : Sort gratuit si vous ne contrôlez qu\'un seul monstre.'},
   {id:'GEB',        n:'Geb',        cost:2, cap:'god_draw_if_ally_dies',    txt:'Ce tour, si un monstre allié est détruit, piochez une carte.'},
   {id:'HORUS',      n:'Horus',      cost:3, cap:'god_sacrifice_search_plus1',txt:'Sacrifiez un monstre pour chercher un monstre de coût +1 et l\'invoquer gratuitement.'},
   {id:'ISIS',       n:'Isis',       cost:3, cap:'god_cancel_ms_cap',        txt:"N'importe quand : Annulez un monstre, une capacité ou un sort adverse."},
-  {id:'KHONSU',     n:'Khonsu',     cost:4, cap:'god_draft6',               txt:"Révélez 6 cartes du deck. L'adversaire les sépare en 2 tas. Vous choisissez un tas pour la main."},
+  {id:'KHONSU',     n:'Khonsu',     cost:3, cap:'god_draft6',               txt:"Révélez 6 cartes du deck. L'adversaire les sépare en 2 tas. Vous choisissez un tas pour la main."},
   {id:'OSIRIS',     n:'Osiris',     cost:3, cap:'god_cancel_attack_heal',   txt:"N'importe quand : Annulez une attaque. Gagnez des PV égaux à l'ATK du monstre."},
   {id:'PTAH',       n:'Ptah',       cost:3, cap:'fd_cancel_monster',        txt:'Face caché permanent : Le prochain monstre invoqué est annulé.'},
-  {id:'RA',         n:'Ra',         cost:5, cap:'god_force_fight',          txt:'Forcez 1 monstre adverse à attaquer un autre monstre adverse.'},
-  {id:'SEKHMET',    n:'Sekhmet',    cost:4, cap:'god_equip_discard_attack', txt:'Équipez à un monstre. Chaque fois qu\'il attaque, l\'adversaire se défausse d\'une carte.'},
+  {id:'RA',         n:'Ra',         cost:3, cap:'god_force_fight',          txt:'Forcez 1 monstre adverse à attaquer un autre monstre adverse.'},
+  {id:'SEKHMET',    n:'Sekhmet',    cost:3, cap:'god_equip_discard_attack', txt:'Équipez à un monstre. Chaque fois qu\'il attaque, l\'adversaire se défausse d\'une carte.'},
   {id:'SET',        n:'Set',        cost:5, cap:'god_tokens22_faction',     txt:'Invoquez un jeton 2/2 par monstre de la légende choisie. Bonus : sur les 2 terrains.'},
   {id:'SOBEK',      n:'Sobek',      cost:3, cap:'god_search_monster',       txt:'Cherchez un monstre dans votre deck et mettez-le en main.'},
   {id:'THOTH',      n:'Thoth',      cost:3, cap:'fd_copy_monster',          txt:'Face caché permanent : Quand l\'adversaire invoque un monstre, copiez-le.'},
@@ -505,18 +505,18 @@ egyptian:[
 greek:[
   {id:'APHRODITE',  n:'Aphrodite',  cost:3, cap:'god_equip_resurrect',      txt:'Équipez à un monstre. Quand il meurt, remettez-le en jeu avec ses DEF d\'origine.'},
   {id:'APOLLON',    n:'Apollon',    cost:3, cap:'god_draw3_discard2',       txt:"N'importe quand : Piochez 3 cartes et défaussez-en 2. Bonus : défaussez-en 1 seule."},
-  {id:'ARES',       n:'Arès',       cost:2, cap:'god_halve_atk',            txt:"N'importe quand : Divisez par 2 l'ATK d'un monstre ciblé jusqu'à la fin du tour."},
-  {id:'ARTHEMIS',   n:'Artémis',    cost:4, cap:'god_equip_bounce_attack',  txt:'Équipez à un monstre. Chaque fois qu\'il attaque, renvoyez un monstre adverse en main.'},
+  {id:'ARES',       n:'Arès',       cost:2, cap:'fd_cancel_spell',          txt:'Face caché permanent : le prochain dieu ou sort adverse est annulé.'},
+  {id:'ARTHEMIS',   n:'Artémis',    cost:3, cap:'god_equip_bounce_attack',  txt:'Équipez à un monstre. Chaque fois qu\'il attaque, renvoyez un monstre adverse en main.'},
   {id:'ATHENA',     n:'Athéna',     cost:2, cap:'god_double_atk',           txt:"N'importe quand : Doublez l'ATK d'un monstre allié jusqu'à la fin du tour."},
-  {id:'DEMETER',    n:'Déméter',    cost:5, cap:'god_tokens_protect',       txt:'Créez 4 jetons 0/2 Protection. Bonus : 2 jetons 2/2 Protection si seul monstre allié.'},
-  {id:'DIONYSOS',   n:'Dionysos',   cost:4, cap:'god_swap_monsters',        txt:'Échangez un monstre allié contre un monstre adverse de votre choix.'},
+  {id:'DEMETER',    n:'Déméter',    cost:3, cap:'god_tokens_protect',       txt:'Créez 4 jetons 0/2 Protection. Bonus : 2 jetons 2/2 Protection si seul monstre allié.'},
+  {id:'DIONYSOS',   n:'Dionysos',   cost:2, cap:'god_swap_monsters',        txt:'Échangez un monstre allié contre un monstre adverse de votre choix.'},
   {id:'HADES',      n:'Hadès',      cost:4, cap:'god_discard_per_faction',  txt:"Choisissez une légende. L'adversaire se défausse d'1 carte par monstre de cette légende sur votre terrain."},
-  {id:'HEPHAISTOS', n:'Héphaïstos', cost:3, cap:'god_bounce_1or2',         txt:"N'importe quand : Renvoyez 1 monstre adverse en main. Bonus : Renvoyez-en 2."},
-  {id:'HERA',       n:'Héra',       cost:4, cap:'fd_draw3_no_dmg',          txt:'Face caché permanent : Si votre joueur n\'a pas subi de dégâts ce tour, piochez 3 cartes.'},
+  {id:'HEPHAISTOS', n:'Héphaïstos', cost:2, cap:'fd_blocker',               txt:'Face caché permanent : quand un monstre adverse attaque, un Rempart 2/3 forgé encaisse le coup à sa place.'},
+  {id:'HERA',       n:'Héra',       cost:3, cap:'fd_draw3_no_dmg',          txt:'Face caché permanent : Si votre joueur n\'a pas subi de dégâts ce tour, piochez 3 cartes.'},
   {id:'HERMES',     n:'Hermès',     cost:2, cap:'god_equip_hurry_all',      txt:'Équipez à un monstre. Ce tour, tous vos monstres ont Rapide.'},
-  {id:'HESTIA',     n:'Hestia',     cost:4, cap:'god_3shield_attacks',      txt:'Permanent : 3 marqueurs. Chaque attaque adverse est annulée et retire 1 marqueur.'},
+  {id:'HESTIA',     n:'Hestia',     cost:3, cap:'god_3shield_attacks',      txt:'Permanent : 3 marqueurs. Chaque attaque adverse est annulée et retire 1 marqueur.'},
   {id:'POSEIDON',   n:'Poséidon',   cost:4, cap:'god_cancel_spell_draw',    txt:"N'importe quand : Annulez un sort et piochez. Bonus : Annulez aussi un monstre."},
-  {id:'ZEUS',       n:'Zeus',       cost:6, cap:'god_destroy_low_all',      txt:'Détruisez tous les monstres de DEF ≤5. Bonus : Détruisez tous les monstres.'},
+  {id:'ZEUS',       n:'Zeus',       cost:3, cap:'fd_minus4_all',            txt:'Face caché permanent : quand un monstre adverse est invoqué, la foudre frappe — −4 boucliers à TOUS les monstres.'},
   {id:'KAIROS',     n:'Kairos',     cost:2, cap:'god_cycle_advance1',       txt:"Avance le Cycle Céleste d'une phase."},
   {id:'ORACLE_DELPHES', n:'Oracle de Delphes', cost:2, type:'spell', cap:'oracle_3', txt:'Regardez les 3 prochaines cartes de votre deck. Réordonnez-les.'},
 ],
@@ -526,15 +526,15 @@ aztec:[
   {id:'COATLICUE',      n:'Coatlicue',      cost:4, cap:'god_resurrect_any_grave', txt:"Invoquez un monstre depuis votre défausse. Bonus : Depuis n'importe quelle défausse."},
   {id:'COYOLXAUHQUI',   n:'Coyolxauhqui',  cost:3, cap:'god_all_opp_atk1',        txt:"N'importe quand : L'ATK de tous les monstres adverses passe à 1 jusqu'à votre prochain tour."},
   {id:'EHECATL',        n:'Ehecatl',        cost:5, cap:'god_destroy_ms_bonus',    txt:"N'importe quand : Détruisez un monstre ou sort adverse. Bonus : Détruisez les 2."},
-  {id:'HUITZILOPOCHTLI',n:'Huitzilopochtli',cost:5, cap:'god_draw4_cheaper',       txt:"N'importe quand : Piochez 4 cartes. Coût réduit de 1 par monstre Maya en jeu."},
+  {id:'HUITZILOPOCHTLI',n:'Huitzilopochtli',cost:4, cap:'god_draw4_cheaper',       txt:"N'importe quand : Piochez 4 cartes. Coût réduit de 1 par monstre Maya en jeu."},
   {id:'MAYAHUEL',       n:'Mayahuel',       cost:1, cap:'god_5life_draw',           txt:'Gagnez 5 points de vie. Bonus : Piochez une carte.'},
   {id:'MICTLANTECUHTLI',n:'Mictlantecuhtli',cost:2,cap:'god_equip_sacrifice_next', txt:"Équipez à un monstre adverse : il est sacrifié au début du prochain tour de son propriétaire."},
   {id:'TEZCATLIPOCA',   n:'Tezcatlipoca',   cost:5, cap:'god_steal_spell_monster', txt:"N'importe quand : Annulez un sort adverse et mettez-le dans votre main. Bonus : Annulez un monstre."},
-  {id:'TLALOC',         n:'Tlaloc',         cost:5, cap:'god_dmg5_all',            txt:'Infligez 5 dégâts à tous les monstres en jeu.'},
+  {id:'TLALOC',         n:'Tlaloc',         cost:4, cap:'god_dmg5_all',            txt:'Infligez 5 dégâts à tous les monstres en jeu.'},
   {id:'TLALTECUHTLI_S', n:'Tlaltecuhtli',   cost:2, cap:'fd_cancel_spell',         txt:'Face caché permanent : Le prochain sort lancé est annulé.'},
   {id:'TONATIUH',       n:'Tonatiuh',       cost:2, cap:'god_reveal_discard_spell', txt:"L'adversaire révèle sa main. Choisissez un sort : il le défausse. Sinon, piochez 1."},
   {id:'XIPE_TOTEC',     n:'Xipe Totec',     cost:3, cap:'god_freeze_attacks',      txt:"Les monstres adverses ne peuvent pas attaquer lors du prochain tour adverse."},
-  {id:'XIUHTECUHTLI',   n:'Xiuhtecuhtli',   cost:5, cap:'god_redirect_attack',     txt:"Annulez l'attaque d'un monstre adverse ciblant un allié. Il attaque un autre monstre adverse."},
+  {id:'XIUHTECUHTLI',   n:'Xiuhtecuhtli',   cost:3, cap:'god_redirect_attack',     txt:"Annulez l'attaque d'un monstre adverse ciblant un allié. Il attaque un autre monstre adverse."},
   {id:'TONATIUH_R',     n:'Tonatiuh Renaissant', cost:2, cap:'god_cycle_random',   txt:'Relance le Cycle Céleste sur une phase aléatoire.'},
 ]};;
 
@@ -906,6 +906,23 @@ function setCyclePhase(newCycle, srcLabel) {
       });
     });
   }
+  // ÉCLIPSE (6.2) : +1/+1 à chaque changement de phase.
+  [1,2].forEach(pl => G.players[pl].field.forEach(m => {
+    if(m && !m.faceDown && (m.cap||'').includes('eclipse_buff')) {
+      m.cAtk++; m.cDef++;
+      addLog(`🌒 Éclipse — ${m.n} +1/+1 !`,'buff');
+    }
+  }));
+  // MOMIE (6.2) : se relève à l'Aube.
+  if(CYCLE_PHASES[G.cycle % 5] === 'aube') {
+    [1,2].forEach(pl => G.players[pl].field.forEach(m => {
+      if(m && m._mummyRest) {
+        m._mummyRest = false; m.faceDown = false;
+        m.cAtk = m.atk; m.cDef = m.def;
+        addLog(`🌅 ${m.n} se relève de son sarcophage !`,'special');
+      }
+    }));
+  }
   if(srcLabel) addLog(`🌌 ${srcLabel} — le Cycle passe à ${CYCLE_NAMES[CYCLE_PHASES[G.cycle % 5]]} !`,'special');
 }
 
@@ -959,6 +976,7 @@ function getZenithFaction() {
 }
 function isZenith(m) {
   if(!G || !m || !m.faction || m.faceDown) return false;
+  if((m.cap||'').includes('prophete')) return true; // PROPHÈTE (6.2)
   return m.faction === getZenithFaction();
 }
 
@@ -997,7 +1015,7 @@ async function manualTriggerFaceDown(p, i) {
   const P = G.players[p];
   const m = P.field[i];
   if(!m || !m.faceDown || m.type !== 'god') return;
-  m.faceDown = false;
+  m.faceDown = false; notifyTrapReveal(p);
   addLog(`☀️ Zénith grec — ${m.n} déclenché manuellement !`, 'special');
   const cap = m.cap || '';
   if(cap === 'fd_draw3_no_dmg') { drawCard(p); drawCard(p); drawCard(p); addLog(`${m.n} — Pioche 3 !`, 'buff'); }
@@ -1023,6 +1041,54 @@ async function manualTriggerFaceDown(p, i) {
   if(idx >= 0) { P.field.splice(idx, 1); reindexSets(P, idx, true); }
   P.graveyard.push(m);
   renderAll();
+}
+
+// ── HOOKS DE COMBO (6.2/6.4) ──────────────────────────────────────
+// Instrumentation : G._combo[faction] = true quand le combo signature se déclenche.
+function markCombo(faction) { if(G) { G._combo = G._combo || {}; G._combo[faction] = true; } }
+
+// RÉVEIL (yokai) : quand N'IMPORTE QUEL monstre se réveille du Sommeil
+// (le tien comme celui que tu as endormi), les porteurs de Réveil en profitent.
+function notifyWake(ownerP, waker) {
+  // Berceuse (6.4 yokai) : un colosse auto-endormi qui se réveille = combo exécuté
+  // (corps sur-staté payé moins cher contre un tour de sommeil).
+  if(waker && (waker.cap||'').includes('entry_self_sleep')) markCombo(G.players[ownerP].faction);
+  [1,2].forEach(pl => {
+    const P = G.players[pl];
+    P.field.forEach(al => {
+      if(al && !al.faceDown && (al.cap||'').includes('reveil_buff')) {
+        al.cAtk += 2; al.cDef += 2;
+        drawCard(pl);
+        addLog(`🌅 Réveil — ${al.n} +2/+2 et pioche 1 !`,'special');
+        markCombo(P.faction);
+      }
+    });
+  });
+}
+
+// TOILE (greek) : quand un dieu face cachée du joueur ownerP se révèle.
+function notifyTrapReveal(ownerP) {
+  const P = G.players[ownerP];
+  const opp = ownerP===1?2:1;
+  P.field.forEach(al => {
+    if(al && !al.faceDown && (al.cap||'').includes('trap_payoff')) {
+      G.players[opp].hp -= 2;
+      addLog(`🕸 Toile — ${al.n} : 2 dégâts au joueur adverse (❤${G.players[opp].hp}) !`,'special');
+      markCombo(P.faction);
+    }
+  });
+}
+
+// AUTEL (aztec) : quand un allié du joueur p meurt.
+function notifyAllyDeath(p, dead) {
+  const P = G.players[p];
+  P.field.forEach(al => {
+    if(al && al !== dead && !al.faceDown && (al.cap||'').includes('altar_payoff')) {
+      al.cAtk += 1; al.cDef += 1;
+      addLog(`🩸 Autel — ${al.n} +1/+1 !`,'special');
+      markCombo(P.faction);
+    }
+  });
 }
 
 function nextPhase() { advancePhase(); }
@@ -1083,6 +1149,20 @@ function doEndTurn() {
   const P = G.players[G.cp];
   const oppP = G.cp===1?2:1;
 
+  // HERA (6.3 fix — aucun trigger auto avant v5) : en fin de votre tour, si
+  // votre joueur n'a pas subi de dégâts ce tour, se révèle et pioche 3.
+  for(let hi=P.field.length-1; hi>=0; hi--) {
+    const hm = P.field[hi];
+    if(hm && hm.faceDown && hm.cap==='fd_draw3_no_dmg' && !P._dmgTakenTurn) {
+      hm.faceDown=false; notifyTrapReveal(G.cp);
+      drawCard(G.cp); drawCard(G.cp); drawCard(G.cp);
+      addLog(`👑 ${hm.n} se révèle — aucun dégât subi : pioche 3 !`,'special');
+      P.field.splice(hi,1); P.graveyard.push(hm); reindexSets(P,hi,true);
+      break;
+    }
+  }
+  P._dmgTakenTurn = false; // reset pour le prochain tour de ce joueur
+
   // ── End-of-turn caps for current player (before switching) ────
   P.field.forEach(m => {
     if(!m||m.faceDown) return;
@@ -1105,14 +1185,28 @@ function doEndTurn() {
     if(!m) return;
     if(m.sanded) m.sanded=false;
     if(m.buff3turn) { m.cAtk = Math.max(0,m.cAtk-3); m.cDef = Math.max(0,m.cDef-3); m.buff3turn=false; }
+    // 6.3 : buffs d'ATK temporaires (Athéna, Sarutahiko, Arès) expirent
+    if(m._tempAtk) { m.cAtk = Math.max(0, m.cAtk - m._tempAtk); m._tempAtk = 0; }
   });
+  // 6.3 : vols temporaires (Aani) — les monstres volés retournent chez leur propriétaire
+  for(let fi=P.field.length-1; fi>=0; fi--) {
+    const m = P.field[fi];
+    if(m && m._returnTo) {
+      P.field.splice(fi,1); reindexSets(P,fi,true);
+      if(m._tempHurry) { m.cap=(m.cap||'').replace(/\s*hurry/,''); m._tempHurry=false; }
+      const home=m._returnTo; m._returnTo=null;
+      if(G.players[home].field.length<6) G.players[home].field.push(m);
+      else G.players[home].graveyard.push(m);
+      addLog(`${m.n} retourne chez son propriétaire.`,'event');
+    }
+  }
   // Bug #5 fix: sleep counts down on OPPONENT's field at end of current player's turn
   // "wakes up 2 opponent's turns later" = after 2 turns of the player who put it to sleep
   G.players[oppP].field.forEach(m => {
     if(!m) return;
     if(m.asleep && m.sleepTurns>0) {
       m.sleepTurns--;
-      if(m.sleepTurns<=0) { m.asleep=false; m.faceDown=false; addLog(`${m.n} wakes up!`,'event'); }
+      if(m.sleepTurns<=0) { m.asleep=false; m.faceDown=false; addLog(`${m.n} wakes up!`,'event'); notifyWake(oppP, m); }
     }
   });
 
@@ -1120,6 +1214,7 @@ function doEndTurn() {
   G.cp = G.cp===1?2:1;
   G.activeTurn = G.cp; // track whose actual turn it is
   G._anubisUsedTurn = false; // BOSS Anubis (4.3) : 1 retour par tour
+  G.players[1]._centeotlUsedTurn = false; G.players[2]._centeotlUsedTurn = false;
   if(G.bossRule === 'zeus') {
     // BOSS Zeus : le Cycle avance d'1 phase à CHAQUE tour (pas chaque ronde).
     setCyclePhase(G.cycle + 1, 'Zeus');
@@ -1175,8 +1270,35 @@ function doEndTurn() {
   }
 
 
+  // MICTLANTECUHTLI (équip) : sacrifié au début du tour de son propriétaire.
+  {
+    const NP2 = G.players[G.cp];
+    for(let fi=NP2.field.length-1; fi>=0; fi--) {
+      const m = NP2.field[fi];
+      if(m && m._equipSacrifice) {
+        m._equipSacrifice=false;
+        addLog(`💀 Mictlantecuhtli — ${m.n} est sacrifié !`,'special');
+        handleDeath(G.cp, m);
+      }
+    }
+  }
+
   // ── Start-of-turn caps for new player ─────────────────────────
   const newP = G.players[G.cp];
+  // RAGNARÖK CROISSANT (6.2, FENRIR) : X dégâts à tous les adverses pendant les Ténèbres.
+  if(CYCLE_PHASES[G.cycle % 5] === 'tenebres') {
+    const oppRag = G.cp===1?2:1;
+    newP.field.forEach(m => {
+      if(!m || m.faceDown || !(m.cap||'').includes('ragnarok_growing')) return;
+      m._ragN = (m._ragN||0) + 1;
+      addLog(`🌑 RAGNARÖK — ${m.n} déchaîne la fin du monde : ${m._ragN} dégâts à tous les monstres adverses !`,'special');
+      markCombo(newP.faction);
+      G.players[oppRag].field.filter(x=>x&&!x.faceDown).forEach(x => {
+        x.cDef = Math.max(0, x.cDef - m._ragN);
+        if(x.cDef<=0) handleDeath(oppRag, x);
+      });
+    });
+  }
   newP.field.forEach(m => {
     if(!m||m.faceDown) return;
     const c = m.cap||'';
@@ -1348,7 +1470,7 @@ async function playMonster(c, p) {
   const aresIdx = G.players[opp].field.findIndex(m=>m&&m.faceDown&&m.cap==='fd_cancel_monster');
   if(aresIdx>=0) {
     const ares = G.players[opp].field[aresIdx];
-    ares.faceDown=false;
+    ares.faceDown=false; notifyTrapReveal(opp);
     G.players[opp].field.splice(aresIdx,1);
     G.players[opp].graveyard.push(ares);
     reindexSets(G.players[opp],aresIdx,true);
@@ -1512,15 +1634,21 @@ registerCombat('preStrike', (cap, ctx) => (ctx.atk.cap||'').includes('splash_adj
 // ── Registre des effets d'ENTRÉE ([Entrée] / battlecry) ────────────────
 registerEffect('entry', cap => cap.includes('entry_dmg5_all'), async ctx => {
   const { p, opp, idx, m, cap } = ctx;
-  // Typhon: 5 dmg to ALL other monsters in play
+  // Typhon (rework 6.1) : 5 dmg à tous les autres ; à Midi (zénith grec), épargne les vôtres.
+  const spare = getZenithFaction()==='greek' && G.players[p].faction==='greek';
   const allTargets5 = [];
-  for(let pl=1;pl<=2;pl++) G.players[pl].field.filter((x,j)=>x&&!x.faceDown&&!(pl===p&&j===idx)).forEach(x=>allTargets5.push({pl,x}));
+  for(let pl=1;pl<=2;pl++) {
+    if(spare && pl===p) continue;
+    G.players[pl].field.filter((x,j)=>x&&!x.faceDown&&!(pl===p&&j===idx)).forEach(x=>allTargets5.push({pl,x}));
+  }
   for(const {pl,x} of allTargets5) { x.cDef=Math.max(0,x.cDef-5); if(x.cDef<=0) await handleDeath(pl,x); }
   addLog(`${m.n} — 5 dégâts à tous!`,'dmg');
 });
 registerEffect('entry', cap => cap.includes('entry_dmg4') || cap.includes('entry_dmg3') && !cap.includes('entry_dmg5'), async ctx => {
   const { p, opp, idx, m, cap } = ctx;
-  const dmgAmt = cap.includes('entry_dmg4') ? 4 : 3;
+  // Rework 6.1 : +2 dégâts si la faction est à son zénith.
+  const zen = G.players[p].faction === getZenithFaction() ? 2 : 0;
+  const dmgAmt = (cap.includes('entry_dmg4') ? 4 : 3) + zen;
   const oppField = G.players[opp].field.filter(x=>x&&!x.faceDown);
   if(oppField.length>0) {
     const tgt = oppField.reduce((a,b)=> (a.cDef<=b.cDef?a:b));
@@ -1533,6 +1661,21 @@ registerEffect('entry', cap => cap.includes('entry_dmg4') || cap.includes('entry
   }
 });
 registerEffect('entry', cap => cap.includes('entry_sleep'), async ctx => { await pickTarget('sleep', ctx.p, true); });
+registerEffect('entry', cap => cap.includes('entry_self_sleep'), ctx => {
+  // ONI (6.2/6.4 Berceuse) : entre endormi 1 tour — payoff Réveil à son réveil.
+  const { m } = ctx;
+  m.faceDown = true; m.asleep = true; m.sleepTurns = 1;
+  addLog(`💤 ${m.n} entre endormi (1 tour)...`,'event');
+});
+registerEffect('entry', cap => cap.includes('entry_oracle'), ctx => {
+  // PYTHON (6.2 Oracle) : regarde le dessus du deck adverse, pioche si dieu.
+  const { p, opp, m } = ctx;
+  const top = G.players[opp].deck[0];
+  if(top) {
+    addLog(`🔮 ${m.n} — Oracle : le dessus du deck adverse est ${top.n}.`,'special');
+    if(top.type === 'god') { drawCard(p); addLog(`${m.n} — c'est un dieu : pioche 1 !`,'buff'); }
+  }
+});
 // ── Cartes temporelles (3.2) ──
 registerEffect('entry', cap => cap.includes('entry_cycle_advance1'), ctx => {
   setCyclePhase(G.cycle + 1, ctx.m.n);
@@ -1604,11 +1747,11 @@ registerEffect('entry', cap => cap.includes('entry_freespell2'), async ctx => {
 registerEffect('entry', cap => cap.includes('entry_draw_exit_draw'), ctx => { drawCard(ctx.p); addLog(`${ctx.m.n} — Draw 1`,'buff'); });
 registerEffect('entry', cap => cap.includes('entry_cancel'), async ctx => { await pickTarget('cancel_ms', ctx.p, true); });
 registerEffect('entry', cap => cap.includes('entry_copy_ally'), async ctx => {
-  const { p, idx } = ctx;
-  // Bakeneko: copy an allied monster
+  const { p, idx, m } = ctx;
+  // Bakeneko: copy an allied monster (la carte entrante reçoit la copie)
   const allies = G.players[p].field.filter((x,j) => x && j !== idx && !x.faceDown);
   if(allies.length > 0) {
-    await pickTarget('copy_ally', p, true);
+    await pickTarget('copy_ally', p, true, m);
   }
 });
 registerEffect('entry', cap => cap.includes('entry_search_ratatosk') || cap.includes('entry_search_self'), async ctx => {
@@ -1817,11 +1960,13 @@ registerEffect('exit', cap => cap.includes('exit_autocopy'), ctx => {
 registerEffect('exit', cap => cap.includes('exit_dmg3_all') || cap.includes('exit_dmg3_all_opp'), ctx => {
   const { p, m } = ctx;
   const opp3 = p===1?2:1;
+  // Rework 6.1 : 4 dégâts la Nuit (zénith yokai), 3 sinon.
+  const amt = (getZenithFaction()==='yokai' && G.players[p].faction==='yokai') ? 4 : 3;
   G.players[opp3].field.filter(x=>x&&!x.faceDown).forEach(async x=>{
-    x.cDef = Math.max(0, x.cDef-3);
+    x.cDef = Math.max(0, x.cDef-amt);
     if(x.cDef<=0) await handleDeath(opp3,x);
   });
-  addLog(`${m.n} Exit — 3 dégâts à tous les adverses!`,'dmg');
+  addLog(`${m.n} Exit — ${amt} dégâts à tous les adverses!`,'dmg');
 });
 registerEffect('exit', cap => cap.includes('exit_heal4'), ctx => {
   const { p, m } = ctx;
@@ -1895,6 +2040,33 @@ async function handleDeath(p, m) {
     return;
   }
 
+  // MOMIE (6.2) : première mort → reste face cachée, se relève à l'Aube.
+  if((m.cap||'').includes('momie') && !m._momieUsed) {
+    m._momieUsed = true;
+    m.faceDown = true; m.asleep = false; m._mummyRest = true;
+    m.cDef = 0; m.cursed = false;
+    addLog(`🪦 ${m.n} s'effondre en bandelettes... il se relèvera à l'Aube.`,'special');
+    markCombo(G.players[p].faction);
+    return;
+  }
+
+  // AUTEL (6.4 aztec) : les monstres Autel se nourrissent des morts alliées.
+  notifyAllyDeath(p, m);
+
+  // GEB (6.3 fix — jamais consommé avant v5) : pioche si un allié meurt ce tour.
+  if(G.players[p]._gebActive) {
+    G.players[p]._gebActive = false;
+    drawCard(p);
+    addLog('🏺 Geb — un allié est tombé : pioche 1 !','buff');
+  }
+  // CENTEOTL (6.3 fix — jamais consommé avant v5) : mort alliée → pioche contre 4 PV (1×/tour).
+  if(G.players[p]._centeotlActive && !G.players[p]._centeotlUsedTurn) {
+    G.players[p]._centeotlUsedTurn = true;
+    G.players[p].hp -= 4;
+    drawCard(p);
+    addLog(`🌽 Centeotl — pioche 1 contre 4 PV (❤${G.players[p].hp}).`,'event');
+  }
+
   // death_token22 (CHOHIX): spawn 2/2 token when ally dies
   if(m.id !== 'CHOHIX') {
     G.players[p].field.forEach(ally => {
@@ -1917,6 +2089,14 @@ async function handleDeath(p, m) {
     addLog(`✨ ${m.n} — Réincarnation! Retourne dans le deck avec +3/+3.`,'event');
     // Remove from field before exit, skip graveyard
     P.field.splice(idx,1); reindexSets(P,idx,true); return;
+  }
+
+  // APHRODITE (équip) : remise en jeu avec sa DEF d'origine (une fois).
+  if(m._equipAphrodite) {
+    m._equipAphrodite = false;
+    m.cDef = m.def; m.cAtk = m.atk;
+    addLog(`💞 Aphrodite — ${m.n} revient en jeu !`,'special');
+    return;
   }
 
   // BOSS Anubis (4.3) : le premier monstre IA détruit chaque tour revient en jeu.
@@ -1961,7 +2141,7 @@ function checkFaceDownTrigger(p, event, trigger, triggerPlayer) {
     if(!m||!m.faceDown||m.type!=='god') continue;
     
     if(event==='monster_entry' && m.cap==='fd_cancel_monster') {
-      m.faceDown=false;
+      m.faceDown=false; notifyTrapReveal(p);
       // cancel the trigger
       const tIdx = G.players[triggerPlayer].field.indexOf(trigger);
       if(tIdx>=0) {
@@ -1974,7 +2154,7 @@ function checkFaceDownTrigger(p, event, trigger, triggerPlayer) {
       break;
     }
     if(event==='monster_entry' && m.cap==='fd_copy_monster') {
-      m.faceDown=false;
+      m.faceDown=false; notifyTrapReveal(p);
       const copy = newCard({...trigger});
       copy.cAtk=trigger.atk; copy.cDef=trigger.def;
       if(P.field.length<6) { P.field.push(copy); addLog(`${m.n} activates — copies ${trigger.n}!`,'special'); }
@@ -1983,7 +2163,7 @@ function checkFaceDownTrigger(p, event, trigger, triggerPlayer) {
       break;
     }
     if(event==='monster_entry' && m.cap==='fd_minus4_all') {
-      m.faceDown=false;
+      m.faceDown=false; notifyTrapReveal(p);
       [1,2].forEach(pl=>G.players[pl].field.forEach(x=>{if(x){x.cDef=Math.max(0,x.cDef-4);}}));
       addLog(`${m.n} (Zeus) activates — −4 all shields!`,'special');
       checkAllDeaths();
@@ -1992,7 +2172,7 @@ function checkFaceDownTrigger(p, event, trigger, triggerPlayer) {
       break;
     }
     if(event==='ally_dies' && m.cap==='fd_resurrect') {
-      m.faceDown=false;
+      m.faceDown=false; notifyTrapReveal(p);
       const grave = P.graveyard.filter(c=>c.type==='monster');
       if(grave.length>0 && P.field.length<6) {
         const res = grave[grave.length-1];
@@ -2159,11 +2339,25 @@ GOD_EFFECTS["god_cancel_m_steal"] = (ctx) => { const {c,p,opp,cap}=ctx;
         G.players[p].field.push(s2);
         addLog(`${c.n} — ${stolen.n} annulé et invoqué sur votre terrain!`,'special');
       }
-    } else { addLog(`${c.n} — Rien à annuler`,'special'); }
+    } else {
+      // 6.3 fix : hors pile (cas le plus fréquent), Amaterasu endort le plus
+      // gros monstre adverse — la carte n'est plus jamais un no-op à 4 gems.
+      const live = G.players[opp].field.filter(x=>x&&!x.faceDown);
+      if(live.length) {
+        const big = live.reduce((a,b)=>a.cAtk>b.cAtk?a:b);
+        const dur = (getZenithFaction()==='yokai' && G.players[p].faction==='yokai') ? 3 : 2;
+        big.faceDown=true; big.asleep=true; big.sleepTurns=dur;
+        addLog(`${c.n} — ${big.n} plongé dans le Sommeil (${dur}t) !`,'special');
+      } else { addLog(`${c.n} — Rien à annuler`,'special'); }
+    }
   };
 GOD_EFFECTS["god_heal_all"] = (ctx) => { const {c,p,opp,cap}=ctx;
     G.players[p].field.forEach(m=>{ if(m&&!m.faceDown) { m.cDef=m.def; } });
-    addLog(`${c.n} — Tous les monstres soignés!`,'heal');
+    // Rework 6.1 : la Nuit (zénith yokai), soigne aussi +2 PV au joueur.
+    if(getZenithFaction()==='yokai' && G.players[p].faction==='yokai') {
+      G.players[p].hp=Math.min(25,G.players[p].hp+2);
+      addLog(`${c.n} — Tous les monstres soignés +2 PV (Nuit !)`,'heal');
+    } else addLog(`${c.n} — Tous les monstres soignés!`,'heal');
     Audio5L.sfx.heal();
   };
 GOD_EFFECTS["god_resurrect2"] = (ctx) => { const {c,p,opp,cap}=ctx;
@@ -2220,9 +2414,9 @@ GOD_EFFECTS["god_5life_3faction"] = (ctx) => { const {c,p,opp,cap}=ctx;
   };
 GOD_EFFECTS["god_cancel_ms_cap"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('cancel_ms',p,false); };
 GOD_EFFECTS["god_cancel_attack_heal"] = (ctx) => { const {c,p,opp,cap}=ctx;
-    // Osiris: cancel attack + heal
-    addLog(`${c.n} — Attaque annulée!`,'special');
-    // This is an anytime — handled when player uses it during reaction
+    // Osiris (6.3 fix) : hors fenêtre de réaction, gagne 3 PV (plus de no-op).
+    G.players[p].hp = Math.min(25, G.players[p].hp + 3);
+    addLog(`${c.n} — Bénédiction : +3 PV (❤${G.players[p].hp}).`,'heal');
   };
 GOD_EFFECTS["god_force_fight"] = async (ctx) => { const {c,p,opp,cap}=ctx;
     const oppField4 = G.players[opp].field.filter(x=>x&&!x.faceDown);
@@ -2232,6 +2426,12 @@ GOD_EFFECTS["god_force_fight"] = async (ctx) => { const {c,p,opp,cap}=ctx;
       victim.cDef = Math.max(0,victim.cDef-atker.cAtk);
       addLog(`${c.n} — ${atker.n}(${atker.cAtk}) forcé à attaquer ${victim.n}!`,'event');
       if(victim.cDef<=0) await handleDeath(opp,victim);
+    } else if(oppField4.length===1) {
+      // 6.3 fix : cible unique → le soleil de Râ la brûle (4 dégâts).
+      const v = oppField4[0];
+      v.cDef = Math.max(0, v.cDef-4);
+      addLog(`${c.n} — ${v.n} brûlé par le soleil (4 dégâts) !`,'dmg');
+      if(v.cDef<=0) await handleDeath(opp,v);
     }
   };
 GOD_EFFECTS["god_copy_bonus"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('copy',p,false); };
@@ -2254,8 +2454,11 @@ GOD_EFFECTS["god_bounce_1or2"] = async (ctx) => { const {c,p,opp,cap}=ctx; await
 GOD_EFFECTS["god_double_atk"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('buff_dbl_atk',p,false); };
 GOD_EFFECTS["god_destroy_ms_bonus"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('destroy',p,false); };
 GOD_EFFECTS["god_draw4_cheaper"] = (ctx) => { const {c,p,opp,cap}=ctx;
-    for(let i=0;i<4;i++) drawCard(p);
-    addLog(`${c.n} — Piochez 4!`,'buff');
+    // Rework 6.1 : pioche 3, +2 au Crépuscule (zénith aztec).
+    const dusk = getZenithFaction()==='aztec' && G.players[p].faction==='aztec';
+    const n = dusk ? 5 : 3;
+    for(let i=0;i<n;i++) drawCard(p);
+    addLog(`${c.n} — Piochez ${n}${dusk?' (Crépuscule !)':''}!`,'buff');
   };
 GOD_EFFECTS["god_steal_spell_monster"] = (ctx) => { const {c,p,opp,cap}=ctx;
     const stackAny = G.stack && G.stack[0];
@@ -2263,14 +2466,25 @@ GOD_EFFECTS["god_steal_spell_monster"] = (ctx) => { const {c,p,opp,cap}=ctx;
       G.stack=[];
       G.players[p].hand.push(stackAny.card);
       addLog(`${c.n} — ${stackAny.card.n} annulé et mis en main!`,'special');
-    } else { addLog(`${c.n} — Rien sur la pile`,'special'); }
+    } else {
+      // 6.3 fix : hors pile, le miroir fumant dérobe un dieu de la main adverse.
+      const gods = G.players[opp].hand.filter(x=>x.type==='god');
+      if(gods.length) {
+        const st = gods[Math.floor(rng()*gods.length)];
+        G.players[opp].hand.splice(G.players[opp].hand.indexOf(st),1);
+        G.players[p].hand.push(st);
+        addLog(`${c.n} — ${st.n} dérobé de la main adverse !`,'special');
+      } else { addLog(`${c.n} — Rien à dérober.`,'special'); }
+    }
   };
 GOD_EFFECTS["god_all_opp_atk1"] = (ctx) => { const {c,p,opp,cap}=ctx;
     G.players[opp].field.filter(m=>m&&!m.faceDown).forEach(m=>{ m._origAtk=m.cAtk; m.cAtk=1; m._atk1Until=G.turn+1; });
     addLog(`${c.n} — ATK adverses → 1!`,'event');
   };
 GOD_EFFECTS["god_5life_draw"] = (ctx) => { const {c,p,opp,cap}=ctx;
-    G.players[p].hp=Math.min(25,G.players[p].hp+5);
+    // Rework 6.1 : +8 PV au Crépuscule (zénith aztec), +5 sinon.
+    const dusk = getZenithFaction()==='aztec' && G.players[p].faction==='aztec';
+    G.players[p].hp=Math.min(25,G.players[p].hp+(dusk?8:5));
     drawCard(p);
     addLog(`${c.n} — +5 PV + Pioche!`,'heal');
     Audio5L.sfx.heal();
@@ -2296,8 +2510,14 @@ GOD_EFFECTS["god_swap_hands"] = (ctx) => { const {c,p,opp,cap}=ctx;
     addLog(`${c.n} — Échange de mains!`,'event');
   };
 GOD_EFFECTS["god_redirect_to_monster"] = (ctx) => { const {c,p,opp,cap}=ctx;
-    addLog(`${c.n} — Attaque redirigée vers un monstre adverse!`,'special');
-    // Handled during reaction window
+    // 6.3 fix : hors fenêtre de réaction, le tonnerre cloue le plus gros
+    // monstre adverse au sol (immobilisé ce tour) — plus jamais un no-op.
+    const live = G.players[opp].field.filter(x=>x&&!x.faceDown);
+    if(live.length) {
+      const big = live.reduce((a,b)=>a.cAtk>b.cAtk?a:b);
+      big.sanded = true;
+      addLog(`${c.n} — ${big.n} foudroyé : immobilisé ce tour !`,'special');
+    } else addLog(`${c.n} — Aucune cible.`,'special');
   };
 GOD_EFFECTS["god_draft4"] = (ctx) => { const {c,p,opp,cap}=ctx;
     const P5 = G.players[p];
@@ -2330,7 +2550,9 @@ GOD_EFFECTS["god_search2_cost2"] = (ctx) => { const {c,p,opp,cap}=ctx;
     addLog(`${c.n} — ${found3.length} monstre(s) cherché(s)!`,'event');
   };
 GOD_EFFECTS["god_discard2_random"] = (ctx) => { const {c,p,opp,cap}=ctx;
-    for(let i=0;i<2&&G.players[opp].hand.length>0;i++) {
+    // Rework 6.1 : aux Ténèbres (zénith norse), défausse 3 au lieu de 2.
+    const nDisc = (getZenithFaction()==='norse' && G.players[p].faction==='norse') ? 3 : 2;
+    for(let i=0;i<nDisc&&G.players[opp].hand.length>0;i++) {
       const ri=Math.floor(rng()*G.players[opp].hand.length);
       const disc2=G.players[opp].hand.splice(ri,1)[0];
       G.players[opp].graveyard.push(disc2);
@@ -2358,8 +2580,11 @@ GOD_EFFECTS["god_swap_hand_field"] = (ctx) => { const {c,p,opp,cap}=ctx;
     }
   };
 GOD_EFFECTS["god_draw2_free_if_solo"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    // Rework 6.1 : pioche 2, +1 à l'Aube (zénith égyptien).
     drawCard(p); drawCard(p);
-    addLog(`${c.n} — Piochez 2!`,'buff');
+    const dawn = getZenithFaction()==='egyptian' && G.players[p].faction==='egyptian';
+    if(dawn) { drawCard(p); addLog(`${c.n} — Piochez 3 (Aube !)`,'buff'); }
+    else addLog(`${c.n} — Piochez 2!`,'buff');
   };
 GOD_EFFECTS["god_draw_if_ally_dies"] = (ctx) => { const {c,p,opp,cap}=ctx;
     G.players[p]._gebActive = true;
@@ -2408,12 +2633,19 @@ GOD_EFFECTS["god_search_monster"] = (ctx) => { const {c,p,opp,cap}=ctx;
     }
   };
 GOD_EFFECTS["god_equip_resurrect"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('equip_resurrect', p, false, c); return 'noDiscard'; };
-GOD_EFFECTS["god_draw3_discard2"] = (ctx) => { const {c,p,opp,cap}=ctx; drawCard(p); drawCard(p); drawCard(p); while(G.players[p].hand.length>7) G.players[p].graveyard.push(G.players[p].hand.pop()); addLog(`${c.n} — Pioche 3, défausse 2!`,'buff'); };
+GOD_EFFECTS["god_draw3_discard2"] = (ctx) => { const {c,p,opp,cap}=ctx;
+    // Rework 6.1 : pioche 3 ; défausse 2 (1 seule à Midi, zénith grec).
+    drawCard(p); drawCard(p); drawCard(p);
+    const midi = getZenithFaction()==='greek' && G.players[p].faction==='greek';
+    const limit = midi ? 8 : 7;
+    while(G.players[p].hand.length>limit) G.players[p].graveyard.push(G.players[p].hand.pop());
+    addLog(`${c.n} — Pioche 3${midi?' (Midi : défausse réduite)':''}!`,'buff');
+  };
 GOD_EFFECTS["god_halve_atk"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('halve_atk', p, false); };
 GOD_EFFECTS["god_equip_bounce_attack"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('equip_bounce', p, false, c); return 'noDiscard'; };
 GOD_EFFECTS["god_tokens_protect"] = (ctx) => { const {c,p,opp,cap}=ctx;
     const count2 = G.players[p].field.filter(x=>x).length === 0 ? 2 : 4;
-    const tokStats = G.players[p].field.filter(x=>x).length === 0 ? {a:2,d:2} : {a:0,d:2};
+    const tokStats = G.players[p].field.filter(x=>x).length === 0 ? {a:2,d:2} : {a:1,d:2};
     for(let i=0;i<count2&&G.players[p].field.length<6;i++) {
       const tok4=newCard({id:'DEMETER_TOK',n:`${tokStats.a}/${tokStats.d} Protection`,atk:tokStats.a,def:tokStats.d,cost:0,type:'monster',cap:'protect',txt:'Protection',rarity:'common',faction:G.players[p].faction});
       tok4.cAtk=tokStats.a; tok4.cDef=tokStats.d; G.players[p].field.push(tok4);
@@ -2467,11 +2699,16 @@ GOD_EFFECTS["god_resurrect_any_grave"] = (ctx) => { const {c,p,opp,cap}=ctx;
     }
   };
 GOD_EFFECTS["god_dmg5_all"] = (ctx) => { const {c,p,opp,cap}=ctx;
-    [1,2].forEach(pl=>G.players[pl].field.filter(x=>x&&!x.faceDown).forEach(async x=>{
-      x.cDef=Math.max(0,x.cDef-5);
-      if(x.cDef<=0) await handleDeath(pl,x);
-    }));
-    addLog(`${c.n} — 5 dégâts à tous les monstres!`,'dmg');
+    // Rework 6.1 : au Crépuscule (zénith aztec), le déluge épargne vos monstres.
+    const spareMine = getZenithFaction()==='aztec' && G.players[p].faction==='aztec';
+    [1,2].forEach(pl=>{
+      if(spareMine && pl===p) return;
+      G.players[pl].field.filter(x=>x&&!x.faceDown).forEach(async x=>{
+        x.cDef=Math.max(0,x.cDef-5);
+        if(x.cDef<=0) await handleDeath(pl,x);
+      });
+    });
+    addLog(`${c.n} — 5 dégâts à tous les monstres${spareMine?' ADVERSES (Crépuscule !)':''}!`,'dmg');
   };
 GOD_EFFECTS["god_equip_sacrifice_next"] = async (ctx) => { const {c,p,opp,cap}=ctx; await pickTarget('equip_sacrifice', p, false, c); return 'noDiscard'; };
 GOD_EFFECTS["god_reveal_discard_spell"] = (ctx) => { const {c,p,opp,cap}=ctx;
@@ -2522,6 +2759,24 @@ async function playGod(c, p) {
   const cap = c.cap||'';
   const opp = p===1?2:1;
 
+  // 6.3/6.4 fix : fd_cancel_spell n'interceptait que les 'spell' — or les dieux
+  // SONT les sorts de 5 Legends. Le piège annule désormais le prochain dieu
+  // adverse (sauf les pièges face cachée eux-mêmes).
+  if(!cap.startsWith('fd_')) {
+    const trapIdx = G.players[opp].field.findIndex(m=>m&&m.faceDown&&m.cap==='fd_cancel_spell');
+    if(trapIdx>=0) {
+      const trap = G.players[opp].field[trapIdx];
+      trap.faceDown=false; notifyTrapReveal(opp);
+      G.players[opp].field.splice(trapIdx,1);
+      G.players[opp].graveyard.push(trap);
+      reindexSets(G.players[opp],trapIdx,true);
+      addLog(`${trap.n} se révèle — ${c.n} ANNULÉ !`,'special');
+      G.players[p].graveyard.push(c);
+      renderAll();
+      return;
+    }
+  }
+
   if(cap.startsWith('fd_')) {
     // Face-down Greek god
     const m = newCard({...c, faceDown:true});
@@ -2560,7 +2815,7 @@ async function playSpell(c, p) {
   const apolloIdx = G.players[opp].field.findIndex(m=>m&&m.faceDown&&m.cap==='fd_cancel_spell');
   if(apolloIdx>=0) {
     const apollo = G.players[opp].field[apolloIdx];
-    apollo.faceDown=false;
+    apollo.faceDown=false; notifyTrapReveal(opp);
     G.players[opp].field.splice(apolloIdx,1);
     G.players[opp].graveyard.push(apollo);
     reindexSets(G.players[opp],apolloIdx,true);
@@ -2696,8 +2951,18 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   const atk = AP.field[attackerIdx];
   if(!atk) return;
 
-  const atkVal = atk.cAtk; // (3.1) plus de +1/+1 universel au zénith
-  const hasHit = (atk.cap||'').includes('hit');
+  let atkVal = atk.cAtk; // (3.1) plus de +1/+1 universel au zénith
+  let hasHit = (atk.cap||'').includes('hit');
+  // FORTERESSE (6.4 norse) : ≥2 Remparts alliés → +2 ATK et Frénésie.
+  if((atk.cap||'').includes('fortress_payoff')) {
+    const walls = AP.field.filter(x => x && effProtect(x, attackerP)).length;
+    if(walls >= 2) { atkVal += 2; hasHit = true; markCombo(AP.faction); addLog(`🏰 Forteresse — ${atk.n} +2 ATK et Frénésie !`,'special'); }
+  }
+  // MARÉE (6.4 egyptian) : +1 ATK par jeton allié.
+  if((atk.cap||'').includes('token_payoff_atk')) {
+    const toks = AP.field.filter(x => x && (String(x.id||'').includes('TOKEN') || ['RITUAL_TOK','ICE_TOKEN','DEMETER_TOK','BALDER_TOKEN'].includes(x.id))).length;
+    if(toks > 0) { atkVal += toks; addLog(`🌊 Marée — ${atk.n} +${toks} ATK !`,'buff'); if(toks >= 2) markCombo(AP.faction); }
+  }
   const hasHeal = (atk.cap||'').includes('heal');
   // Capacités de combat pré-frappe composables (solo_destroy, coinflip_defense,
   // splash_adjacent). 'abort' annule l'attaque (RAIJU / SIRENES).
@@ -2729,6 +2994,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       // Direct attack
       Audio5L.sfx.attack(); Audio5L.sfx.damage();
       DP.hp -= atkVal;
+      DP._dmgTakenTurn = true;
       flashDamage(document.getElementById(`p${targetP}-orb`));
       addLog(`${atk.n} attacks P${targetP} directly — ${atkVal} dmg (❤${DP.hp})`,'dmg');
       // Big flash + shake on direct damage
@@ -2744,6 +3010,31 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
     } else {
       let def = DP.field[targetIdx];
       if(!def) return;
+      // HESTIA (6.3 fix) : le jeton aux 3 boucliers annule toute attaque
+      // visant son camp et perd 1 marqueur (jamais consommé avant v5 !).
+      {
+        const hestia = DP.field.find(x => x && (x.cap||'').includes('hestia_passive') && (x._hestiaShields||0) > 0);
+        if(hestia) {
+          hestia._hestiaShields--;
+          addLog(`🏛 Hestia — attaque annulée ! (${hestia._hestiaShields} bouclier(s) restant(s))`,'special');
+          if(hestia._hestiaShields <= 0) {
+            const hi = DP.field.indexOf(hestia);
+            DP.field.splice(hi,1); DP.graveyard.push(hestia); reindexSets(DP,hi,true);
+            addLog('Hestia — boucliers épuisés, le foyer s\'éteint.','event');
+          }
+          AP.attacked.add(attackerIdx);
+          renderAll();
+          return;
+        }
+      }
+      // VALI (équip) : marqueurs anti-attaque — l'attaque est annulée.
+      if(def && def._vali > 0) {
+        def._vali--;
+        addLog(`🛡 Vali — attaque annulée ! (${def._vali} marqueur(s) restant(s))`,'special');
+        AP.attacked.add(attackerIdx);
+        renderAll();
+        return;
+      }
       // Check Seth equip
       if(atk.sethEquipped) {
         def.cDef = Math.max(0,def.cDef-2);
@@ -2803,6 +3094,13 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
         }
       }
 
+      // RIPOSTE (6.2, GARM) : le défenseur inflige 2 dégâts de plus à l'attaquant.
+      if((def.cap||'').includes('riposte2') && !def.asleep) {
+        atk.cDef -= 2;
+        addLog(`⚔️ Riposte — ${def.n} inflige 2 dégâts à ${atk.n} !`,'special');
+        const wallsR = DP.field.filter(x => x && effProtect(x, targetP)).length;
+        if(wallsR >= 2) markCombo(DP.faction); // Forteresse : mur qui riposte
+      }
       if(def.cDef <= 0) await handleDeath(targetP, def);
       if(atk.cDef <= 0) await handleDeath(attackerP, atk);
     }
@@ -2846,6 +3144,24 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   if((atk.cap||'').includes('attack_draw') && AP.field.includes(atk)) {
     drawCard(attackerP); addLog(`${atk.n} — Draw 1!`,'buff');
   }
+  // ── ULLR (équip) : pioche à chaque attaque
+  if(atk._equipUllr && AP.field.includes(atk)) { drawCard(attackerP); addLog(`Ullr — pioche !`,'buff'); }
+  // ── SEKHMET (équip) : l'adversaire défausse à chaque attaque
+  if(atk._equipSekhmet && AP.field.includes(atk) && DP.hand.length>0) {
+    const ri=Math.floor(rng()*DP.hand.length);
+    const disc=DP.hand.splice(ri,1)[0];
+    DP.graveyard.push(disc);
+    addLog(`Sekhmet — ${disc.n} défaussé !`,'event');
+  }
+  // ── ARTÉMIS (équip) : renvoie la cible survivante en main
+  if(atk._equipBounce && typeof targetIdx==='number') {
+    const defB = DP.field[targetIdx];
+    if(defB && defB.cDef>0) {
+      const bi=DP.field.indexOf(defB);
+      DP.field.splice(bi,1); DP.hand.push(defB); reindexSets(DP,bi,true);
+      addLog(`Artémis — ${defB.n} renvoyé en main !`,'event');
+    }
+  }
   // ── copy_on_attack (LADON): copy the attacked monster (without cap)
   if((atk.cap||'').includes('copy_on_attack') && AP.field.includes(atk) && typeof targetIdx==='number') {
     const copied = DP.field[targetIdx];
@@ -2887,7 +3203,7 @@ function checkFaceDownAthena(p, attacker, attackerP) {
     if(!m || !m.faceDown || m.type !== 'god') continue;
 
     if(m.cap === 'fd_destroy_attacker') {
-      m.faceDown = false;
+      m.faceDown = false; notifyTrapReveal(p);
       const ai = G.players[attackerP].field.indexOf(attacker);
       if(ai >= 0) {
         G.players[attackerP].field.splice(ai, 1);
@@ -2902,8 +3218,8 @@ function checkFaceDownAthena(p, attacker, attackerP) {
       return 'cancel';  // ← attack fully cancelled, skip damage
     }
 
-    if(m.cap === 'fd_blocker') {
-      m.faceDown = false;
+    if(m.cap === 'fd_blocker' || m.cap === 'fd_blocker_23') {
+      m.faceDown = false; notifyTrapReveal(p);
       addLog(`🛡 ${m.n} (Hephaistos) activates — 2/3 Protect blocker created!`, 'special');
       if(P.field.length < 6) {
         P.field.push({
@@ -3073,6 +3389,12 @@ async function aiTurn(p=2) {
 
 async function aiMainPhase(p=2) {
   const P = G.players[p];
+  // SACRIFICE (6.2 aztec) : l'IA sacrifie si ça débloque une carte plus forte.
+  const sacIdx = P.field.findIndex(m => m && !m.faceDown && (m.cap||'').includes('sacrifice_gems'));
+  if(sacIdx >= 0) {
+    const unlock = P.hand.some(c => c.cost > P.gems && c.cost <= P.gems + 2 && scoreCard(c, p) >= 12);
+    if(unlock) await executeSacrifice(p, sacIdx);
+  }
   // ZÉNITH GREC (3.1) : l'IA déclenche manuellement ses dieux face cachée
   // (toujours rentable : l'effet est immédiat et la carte est déjà payée).
   if(canManualTriggerFD(p)) {
@@ -3151,6 +3473,42 @@ function scoreCard(c, p) {
     if(cap.includes('entry_cancel')  && oppField.length > 0) score += 5;
     if(cap.includes('entry_draw'))   score += 2.5;
 
+    // ── Synergies de combo (6.4b) : enabler ↑ si payoff présent, et inversement ──
+    if(cap.includes('reveil_buff')) {
+      const sleepers = myField.filter(x=>x.asleep).length + P.field.filter(x=>x&&x.asleep).length;
+      const enablers = P.hand.filter(x=>(x.cap||'').includes('entry_self_sleep')||(x.cap||'').includes('entry_sleep')||(x.cap||'').includes('god_sleep')).length;
+      score += 2 + sleepers * 3 + enablers * 1.5;
+    }
+    if(cap.includes('entry_self_sleep')) {
+      const payoffs = myField.filter(x=>(x.cap||'').includes('reveil_buff')).length;
+      score += 3 + payoffs * 4; // gros corps sous-coûté + payoff Réveil
+    }
+    if(cap.includes('fortress_payoff')) {
+      const walls = myField.filter(x=>(x.cap||'').includes('protect')).length;
+      score += walls >= 2 ? 7 : walls * 2;
+    }
+    if(cap.includes('protect') && P.hand.some(x=>(x.cap||'').includes('fortress_payoff'))) score += 2;
+    if(cap.includes('token_payoff_atk')) {
+      const toks = myField.filter(x=>String(x.id||'').includes('TOKEN')).length;
+      score += 2 + toks * 1.5;
+    }
+    if(cap.includes('start_tokens2') && P.hand.some(x=>(x.cap||'').includes('token_payoff_atk'))) score += 3;
+    if(cap.includes('trap_payoff')) {
+      const traps = P.field.filter(x=>x&&x.faceDown&&x.type==='god').length;
+      score += 2 + traps * 3;
+    }
+    if(cap.includes('altar_payoff')) score += 2 + myField.length * 0.8;
+    if(cap.includes('sacrifice_gems')) score += 2;
+    if(cap.includes('eclipse_buff')) score += 3;
+    if(cap.includes('prophete')) score += 3;
+    if(cap.includes('riposte2')) score += 3;
+    if(cap.includes('ragnarok_growing')) {
+      const cur = G.cycle % 5;
+      score += cur === 4 ? 8 : (4 - cur); // proche des Ténèbres = mieux
+    }
+    if(cap.includes('momie')) score += 3;
+    if(cap.includes('entry_oracle')) score += 2;
+
     // Cartes temporelles (3.2) : valeur selon la distance à notre zénith
     if(cap.includes('cycle_')) {
       const myZen = FACTION_PHASE_IDX[P.faction];
@@ -3220,7 +3578,9 @@ function scoreCard(c, p) {
 
     // Face-down traps
     if(cap.startsWith('fd_')) {
-      if(fdCount >= 2) return -1;    // don't stack traps uselessly
+      const web = myField.filter(x=>(x.cap||'').includes('trap_payoff')).length;
+      if(fdCount >= 2) return -1 + web * 2; // don't stack traps uselessly (sauf Toile)
+      if(web > 0) return 11 + web * 3;      // Toile de pièges (6.4 greek)
       if(oppField.length === 0 && cap === 'fd_cancel_monster') return 8; // always good
       if(cap === 'fd_destroy_attacker') return 7;
       if(cap === 'fd_blocker')          return 6;
@@ -3243,6 +3603,7 @@ function scoreCard(c, p) {
     }
     if(cap.includes('sleep') && oppField.length > 0)  score += 6;
     if(cap.includes('buff3') && myField.length > 0)   score += 4 + myMaxAtk * 0.4;
+    if(cap.includes('double_atk')) score += (myMaxAtk >= 4 && oppField.length > 0) ? 5 : -4; // Athéna
     if(cap.includes('minus3') || cap.includes('minus2')) {
       score += oppField.length > 0 ? 5 : -3;
     }
@@ -3262,16 +3623,52 @@ function scoreCard(c, p) {
       else if(myLive <= 1 && oppField.length <= 1) score = 0; // even trade on tiny board
       else score += oppField.length > myLive ? 7 : (oppField.length === myLive ? 3 : 0);
     }
-    if(cap.includes('cancel_attack')) score += 4;
-    // Dieux temporels (3.2)
+    if(cap.includes('cancel_attack')) score += 1; // Osiris : fallback +3 PV modeste
+    // 6.3 : dieux de pioche — valorisés quand la main est vide
+    if(/draw2_free|draw3_discard|draw4_cheaper|scrye4|draft4|draft6|search2_cost2|search_monster|search_spell/.test(cap))
+      score += Math.max(0, 6 - P.hand.length) * 1.6;
+    // 6.3 : heal_all ne vaut que s'il y a des blessés
+    if(cap.includes('heal_all')) {
+      const wounded = myField.filter(m => m.cDef < m.def).length;
+      score += wounded * 3 - 4;
+    }
+    if(cap.includes('force_fight')) score += oppField.length >= 2 ? 5 : -5;
+    if(cap.includes('halve_atk')) score += oppMaxAtk >= 5 ? 5 : -3;
+    if(cap.includes('equip_hurry_all')) {
+      const fresh = myField.filter((m,i2) => P.summoned.has(P.field.indexOf(m))).length;
+      score += fresh >= 2 ? 6 : -4;
+    }
+    if(cap.includes('resurrect2') || cap.includes('recover')) {
+      score += Math.min(4, P.graveyard.filter(x=>x.type==='monster').length);
+    }
+    if(cap.includes('cancel_m_steal')) score += oppField.length > 0 ? 3 + oppMaxAtk*0.2 : -4; // Amaterasu fallback sommeil (modéré)
+    if(cap.includes('copy_bonus') && myField.length > 0) score += 3 + myMaxAtk*0.4; // Anubis
+    if(cap.includes('tokens22_faction')) {
+      const mine = myField.filter(m=>m.faction===P.faction).length;
+      score += mine * 2 + (P.hand.some(x=>(x.cap||'').includes('token_payoff_atk')) ? 2 : 0); // Set + Marée
+    }
+    if(cap.includes('3shield')) score += losing ? 7 : 3; // Hestia
+    if(cap.includes('dmg5_all')) score += oppField.length * 2.2 - myField.length * (getZenithFaction()==='aztec'&&P.faction==='aztec'?0:1.4); // Tlaloc
+    if(cap.includes('discard_per_faction')) score += myField.filter(m=>m.faction===P.faction).length * 1.6; // Hadès
+    if(cap.includes('sacrifice_search_plus1') && myField.length > 0) score += 4; // Horus
+    if(cap.includes('swap_hands')) score += Math.max(0,(OP.hand.length - P.hand.length)) * 2; // Omaikane
+    if(cap.includes('redirect_to_monster')) score += oppMaxAtk >= 5 ? 4 : 0; // Raijin
+    if(cap.includes('steal_spell_monster')) score += 4; // Tezcatlipoca (vol de dieu)
+    if(cap.includes('sacrifice_opp_draw2')) score += oppField.length > 0 ? 5 + oppMaxAtk*0.3 : 1; // Thor
+    if(cap.includes('freeze_attacks')) score += oppField.length * 1.5; // Xipe Totec
+    if(cap.includes('dmg3_or_6') || cap === 'god_dmg3') score += oppField.length > 0 ? 4 : (oppHP <= 5 ? 6 : 0);
+    if(cap.includes('equip_') && myField.length > 0) score += 2.5;
+    if(cap.includes('odin')) score -= (board >= -1 ? 4 : 0); // Odin : seulement très derrière
+    // Dieux temporels (3.2 / réglage 6.3 : inutiles sans board pour en profiter)
     if(cap.includes('cycle_')) {
       const myZen = FACTION_PHASE_IDX[P.faction];
       const cur = G.cycle % 5;
       const dist = ((myZen - cur) % 5 + 5) % 5;
-      if(cap.includes('advance1'))  score += (dist === 1 ? 8 : dist === 2 ? 4 : 0);
-      if(cap.includes('random'))    score += (cur === FACTION_PHASE_IDX[OP.faction] ? 5 : 0);
-      if(cap.includes('freeze'))    score += (dist === 0 ? 9 : 0);
-      if(cap.includes('prophecy') || cap.includes('choose')) score += (dist >= 1 && dist <= 3 ? 8 : 2);
+      const boardOK = myField.length > 0 ? 1 : 0.2;
+      if(cap.includes('advance1'))  score += (dist === 1 ? 6 : dist === 2 ? 3 : -4) * boardOK;
+      if(cap.includes('random'))    score += (cur === FACTION_PHASE_IDX[OP.faction] ? 5 : -1) * boardOK;
+      if(cap.includes('freeze'))    score += (dist === 0 ? 9 : -2) * boardOK;
+      if(cap.includes('prophecy') || cap.includes('choose')) score += ((dist >= 1 && dist <= 3 ? 8 : 0) * boardOK);
     }
 
     // General: gods with no valid targets are worthless
@@ -3447,7 +3844,37 @@ function aiPickTarget(type, p, card) {
   const oppField=G.players[opp].field.filter(m=>m&&!m.faceDown);
   const ownField=G.players[p].field.filter(m=>m&&!m.faceDown);
 
-  if(type==='sleep'||type==='blank11'||type==='destroy'||type==='curse'||type==='minus3'||type==='minus2') {
+  if(type==='dmg3'||type==='dmg3or6') {
+    // tue si possible le monstre adverse le plus précieux à portée, sinon le plus faible
+    if(oppField.length>0){
+      const caster=G.players[p];
+      const night=getZenithFaction()==='yokai'&&caster.faction==='yokai';
+      const amt=type==='dmg3or6'?(night?6:3):(night?5:3);
+      const killable=oppField.filter(x=>x.cDef<=amt);
+      const best=killable.length?killable.reduce((a,b)=>(a.cAtk+a.cDef)>(b.cAtk+b.cDef)?a:b):oppField.reduce((a,b)=>a.cDef<b.cDef?a:b);
+      applyTargetEffect(type,opp,G.players[opp].field.indexOf(best),card);
+    }
+  } else if(type==='halve_atk'||type==='bounce'||type==='equip_sacrifice'||type==='redirect') {
+    if(oppField.length>0){
+      const best=oppField.reduce((a,b)=>a.cAtk>b.cAtk?a:b);
+      applyTargetEffect(type,opp,G.players[opp].field.indexOf(best),card);
+    }
+  } else if(type==='buff_dbl_atk'||type==='buff_atk5'||type==='equip_draw_attack'||type==='equip_2shield'||type==='equip_discard_attack'||type==='equip_resurrect'||type==='equip_bounce') {
+    if(ownField.length>0){
+      const best=ownField.reduce((a,b)=>a.cAtk>b.cAtk?a:b);
+      applyTargetEffect(type,p,G.players[p].field.indexOf(best),card);
+    }
+  } else if(type==='copy_ally') {
+    if(ownField.length>0){
+      const best=ownField.reduce((a,b)=>(a.cAtk+a.cDef)>(b.cAtk+b.cDef)?a:b);
+      applyTargetEffect(type,p,G.players[p].field.indexOf(best),card);
+    }
+  } else if(type==='steal_hurry'||type==='cancel_ms') {
+    if(oppField.length>0){
+      const best=oppField.reduce((a,b)=>a.cAtk>b.cAtk?a:b);
+      applyTargetEffect(type,opp,G.players[opp].field.indexOf(best),card);
+    }
+  } else if(type==='sleep'||type==='blank11'||type==='destroy'||type==='curse'||type==='minus3'||type==='minus2') {
     if(oppField.length>0) {
       // target highest atk
       const best=oppField.reduce((a,b)=>a.cAtk>b.cAtk?a:b);
@@ -3572,20 +3999,20 @@ function shakeCard(p, idx) {
 // =====================================================
 // ── ABILITY GLOSSARY ──────────────────────────────────────────────────────
 const ABILITY_GLOSSARY = {
-  hurry:       {icon:"⚡", name:"Hurry",       desc:"Can attack the same turn it enters the field"},
-  protect:     {icon:"🛡", name:"Protect",     desc:"Opponent must attack this monster before any other target"},
-  hit:         {icon:"🎯", name:"Hit",         desc:"Can attack twice per combat phase"},
-  heal:        {icon:"💚", name:"Heal",        desc:"Every damage this monster deals restores your HP"},
-  endure:      {icon:"🔥", name:"Endure",      desc:"When it dies, returns with 1 shield and loses all abilities"},
-  entry:       {icon:"✨", name:"Entry",       desc:"Triggered when this monster enters the field"},
-  exit:        {icon:"💀", name:"Exit",        desc:"Triggered when this monster is destroyed or dies"},
-  anytime:     {icon:"⚡", name:"Anytime",     desc:"Can be played at any time, even during the opponent turn"},
-  face_down:   {icon:"🂠", name:"Face Down",   desc:"Enters the field hidden — flips when trigger condition is met"},
+  hurry:       {icon:"⚡", name:"Élan",        desc:"Peut attaquer le tour où il entre en jeu"},
+  protect:     {icon:"🛡", name:"Rempart",     desc:"L'adversaire doit détruire ce monstre avant toute autre cible"},
+  hit:         {icon:"🎯", name:"Frénésie",    desc:"Peut attaquer deux fois par phase de combat"},
+  heal:        {icon:"💚", name:"Offrande",    desc:"Chaque dégât infligé restaure vos PV"},
+  endure:      {icon:"🔥", name:"Immortel",    desc:"À sa mort, revient avec 1 bouclier et perd ses capacités"},
+  entry:       {icon:"✨", name:"Éveil",       desc:"Se déclenche quand ce monstre entre en jeu"},
+  exit:        {icon:"💀", name:"Dernier Souffle", desc:"Se déclenche quand ce monstre meurt"},
+  anytime:     {icon:"⚡", name:"Anytime",     desc:"Jouable à tout moment, même pendant le tour adverse"},
+  face_down:   {icon:"🂠", name:"Face cachée", desc:"Entre face cachée — se révèle quand sa condition se déclenche"},
   sand:        {icon:"⏳", name:"Immobilisé",  desc:"Ne peut pas attaquer au prochain tour"},
-  sleep:       {icon:"💤", name:"Sleep",       desc:"Face down and untouchable — wakes up 2 opponent turns later"},
-  curse:       {icon:"💀", name:"Cursed",      desc:"Only 1 damage is enough to destroy this monster"},
+  sleep:       {icon:"💤", name:"Sommeil",     desc:"Face cachée et intouchable — se réveille après 2 tours (3 au zénith yokai)"},
+  curse:       {icon:"💀", name:"Malédiction", desc:"Un seul point de dégât suffit à détruire ce monstre"},
   esquive:     {icon:"💨", name:"Esquive",     desc:"La première attaque subie à chaque phase du Cycle Céleste rate"},
-  blind:       {icon:"👁",  name:"Blinded",    desc:"Next attack hits a random target instead of the chosen one"},
+  blind:       {icon:"👁",  name:"Aveuglé",    desc:"Sa prochaine attaque touche une cible aléatoire"},
 };
 
 function getAbilityBadges(card) {
@@ -4100,6 +4527,88 @@ async function applyTargetEffect(type, fromP, idx, card) {
     addLog(`${m.n} cancelled and destroyed!`,'special');
     await handleDeath(fromP,m);
   }
+  // ── 6.3 : types autrefois NON GÉRÉS (dieux silencieusement morts) ──
+  else if(type==='dmg3'||type==='dmg3or6') {
+    // TENJIN / KAGUTSUCHI (rework 6.1) : dégâts renforcés la Nuit (zénith yokai)
+    const caster = G.players[p] || G.players[G.cp];
+    const night = getZenithFaction()==='yokai' && caster && caster.faction==='yokai';
+    const amt = type==='dmg3or6' ? (night ? 6 : 3) : (night ? 5 : 3);
+    m.cDef = Math.max(0, m.cDef - (m.cursed ? m.cDef : amt));
+    addLog(`⚡ ${amt} dégâts à ${m.n}${night?' (Nuit !)':''} → ${m.cDef}🛡`,'dmg');
+    if(m.cDef<=0) await handleDeath(fromP,m);
+  }
+  else if(type==='halve_atk') {
+    m._tempAtk = (m._tempAtk||0) + Math.ceil(m.cAtk/2);
+    m.cAtk = Math.floor(m.cAtk/2);
+    addLog(`${m.n} — ATK divisée par 2 (${m.cAtk}) jusqu'à la fin du tour`,'debuff');
+  }
+  else if(type==='bounce') {
+    const owner = G.players[fromP];
+    const bi = owner.field.indexOf(m);
+    if(bi>=0) { owner.field.splice(bi,1); owner.hand.push(m); reindexSets(owner,bi,true); addLog(`${m.n} renvoyé en main !`,'event'); }
+  }
+  else if(type==='buff_dbl_atk') {
+    // ATHENA (rework 6.1) : à Midi (zénith grec), +2 DEF en plus
+    m._tempAtk = (m._tempAtk||0) + m.cAtk;
+    m.cAtk *= 2;
+    const midi = getZenithFaction()==='greek' && G.players[p] && G.players[p].faction==='greek';
+    if(midi) { m.cDef += 2; addLog(`${m.n} — ATK doublée (${m.cAtk}) +2 DEF (Midi !)`,'buff'); }
+    else addLog(`${m.n} — ATK doublée (${m.cAtk}) jusqu'à la fin du tour`,'buff');
+  }
+  else if(type==='buff_atk5') {
+    // SARUTAHIKO (rework 6.1) : la Nuit, +2 DEF en plus
+    m._tempAtk = (m._tempAtk||0) + 5;
+    m.cAtk += 5;
+    const night = getZenithFaction()==='yokai' && G.players[p] && G.players[p].faction==='yokai';
+    if(night) { m.cDef += 2; addLog(`${m.n} — +5 ATK +2 DEF (Nuit !)`,'buff'); }
+    else addLog(`${m.n} — +5 ATK jusqu'à la fin du tour`,'buff');
+  }
+  else if(type==='steal_hurry') {
+    // AANI : vol temporaire avec Élan jusqu'à la fin du tour
+    const srcP=fromP, dstP=srcP===1?2:1;
+    if(G.players[dstP].field.length<6){
+      const si = G.players[srcP].field.indexOf(m);
+      if(si>=0){
+        G.players[srcP].field.splice(si,1);
+        reindexSets(G.players[srcP],si,true);
+        m._returnTo = srcP;
+        if(!(m.cap||'').includes('hurry')) { m.cap=((m.cap||'')+' hurry').trim(); m._tempHurry=true; }
+        G.players[dstP].field.push(m);
+        addLog(`${m.n} volé avec Élan jusqu'à la fin du tour !`,'special');
+      }
+    }
+  }
+  else if(type==='copy_ally') {
+    // BAKENEKO : copie un allié (stats + cap) sur la carte entrante
+    if(card){
+      Object.assign(card, {atk:m.atk, def:m.def, cAtk:m.cAtk, cDef:m.cDef, cap:m.cap, txt:`(copie de ${m.n})`});
+      addLog(`${card.n} copie ${m.n} !`,'event');
+    }
+  }
+  else if(type==='swap') {
+    // Échange le monstre adverse ciblé contre votre plus faible
+    const myP = fromP===1?2:1;
+    const mine = G.players[myP].field.filter(x=>x&&!x.faceDown);
+    if(mine.length>0){
+      const worst = mine.reduce((a,b)=>a.cAtk<b.cAtk?a:b);
+      const mi = G.players[myP].field.indexOf(worst);
+      const oi = G.players[fromP].field.indexOf(m);
+      G.players[myP].field.splice(mi,1,m);
+      G.players[fromP].field.splice(oi,1,worst);
+      addLog(`Échange : ${worst.n} ↔ ${m.n} !`,'event');
+    }
+  }
+  else if(type==='redirect') {
+    // Hors fenêtre de réaction : immobilise l'attaquant adverse le plus fort
+    m.sanded = true;
+    addLog(`${m.n} — attaque détournée, immobilisé ce tour !`,'debuff');
+  }
+  else if(type==='equip_draw_attack') { m._equipUllr=true; addLog(`Ullr équipé à ${m.n} — pioche à chaque attaque`,'event'); if(card) G.players[G.cp].graveyard.push(card); }
+  else if(type==='equip_2shield') { m._vali=2; addLog(`Vali équipé à ${m.n} — 2 marqueurs anti-attaque`,'event'); if(card) G.players[G.cp].graveyard.push(card); }
+  else if(type==='equip_discard_attack') { m._equipSekhmet=true; addLog(`Sekhmet équipé à ${m.n} — défausse adverse à chaque attaque`,'event'); if(card) G.players[G.cp].graveyard.push(card); }
+  else if(type==='equip_resurrect') { m._equipAphrodite=true; addLog(`Aphrodite équipée à ${m.n} — reviendra à sa mort`,'event'); if(card) G.players[G.cp].graveyard.push(card); }
+  else if(type==='equip_bounce') { m._equipBounce=true; addLog(`Artémis équipée à ${m.n} — renvoie sa cible en main`,'event'); if(card) G.players[G.cp].graveyard.push(card); }
+  else if(type==='equip_sacrifice') { m._equipSacrifice=true; addLog(`Mictlantecuhtli — ${m.n} sera sacrifié au début du tour de son propriétaire !`,'debuff'); if(card) G.players[G.cp].graveyard.push(card); }
 }
 
 // =====================================================
@@ -4411,6 +4920,18 @@ function renderField(p) {
         ${m.type==='monster'?`<div class="fc-atk${z?' boosted':''}">${m.cAtk}</div><div class="fc-def${z?' boosted':''}">${m.cDef}</div>`:''}
       `;
     }
+    // ── Bouton SACRIFICE (6.2 aztec) : +2 gems ──────────────────
+    if(isCurrent && (G.phase==='Main1'||G.phase==='Main2')
+       && (m.cap||'').includes('sacrifice_gems')
+       && !m.faceDown && !G.targeting && !G.ritualPending) {
+      const sacBtn = document.createElement('button');
+      sacBtn.className = 'btn-ritual';
+      sacBtn.textContent = '🩸 SACRIFIER (+2💎)';
+      sacBtn.style.cssText = 'display:block;width:100%;margin-top:4px;';
+      sacBtn.onclick = (e) => { e.stopPropagation(); executeSacrifice(p, i); };
+      div.appendChild(sacBtn);
+    }
+
     // ── Bouton RITUEL pour monstres aztèques compatibles ────────
     if(isCurrent && (G.phase==='Main1'||G.phase==='Main2')
        && (m.cap||'').match(/ritual_/)
@@ -4427,6 +4948,21 @@ function renderField(p) {
 
     el.appendChild(div);
   });
+}
+
+// SACRIFICE (6.2) : sacrifie le monstre, +2 gems ce tour.
+async function executeSacrifice(p, idx) {
+  const P = G.players[p];
+  const m = P.field[idx];
+  if(!m || !(m.cap||'').includes('sacrifice_gems')) return;
+  P.field.splice(idx, 1);
+  P.graveyard.push(m);
+  reindexSets(P, idx, true);
+  P.gems += 2;
+  addLog(`🩸 ${m.n} sacrifié — +2 gems !`,'special');
+  markCombo(P.faction);
+  notifyAllyDeath(p, m);
+  renderAll();
 }
 
 // ── Sacrifice Rituel ──────────────────────────────────────────
@@ -5052,15 +5588,15 @@ function arenaStartDraft() {
 
 function arenaKeywords(c) {
   const cap = c.cap || '', kw = [];
-  if(/\bhit\b/.test(cap)) kw.push('Double atk');
-  if(/protect/.test(cap)) kw.push('Protection');
-  if(/endure/.test(cap)) kw.push('Endurance');
-  if(/hurry/.test(cap)) kw.push('Rapide');
+  if(/\bhit\b/.test(cap)) kw.push('Frénésie');
+  if(/protect/.test(cap)) kw.push('Rempart');
+  if(/endure/.test(cap)) kw.push('Immortel');
+  if(/hurry/.test(cap)) kw.push('Élan');
   if(/curse/.test(cap)) kw.push('Malédiction');
   if(/esquive/.test(cap)) kw.push('Esquive');
   if(/cycle_/.test(cap)) kw.push('Temps');
-  if(/entry/.test(cap)) kw.push('Entrée');
-  if(/exit/.test(cap)) kw.push('Sortie');
+  if(/entry/.test(cap)) kw.push('Éveil');
+  if(/exit/.test(cap)) kw.push('Dernier Souffle');
   if(/ritual/.test(cap)) kw.push('Rituel');
   if(c.type === 'god') kw.unshift('Dieu');
   return kw.slice(0, 4);

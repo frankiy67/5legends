@@ -117,7 +117,9 @@ async function main() {
       maxTurn = Math.max(maxTurn, r.turns);
       if (r.error) { crash++; crashes++; }
       if (r.turns > TURN_LIMIT) { to++; timeouts++; }
-      if (r.winner === null || r.winner === 'both') { unf++; unfinished++; }
+      // Un double-KO ('both') est une fin PROPRE (morts simultanées sur AoE) —
+      // seul un null (vrai timeout sans vainqueur) compte comme inachevé.
+      if (r.winner === null) { unf++; unfinished++; }
       if (r.winner === 1 || r.winner === 2) {
         const winF = r.winner === 1 ? f1 : f2;
         if (winF === fa) w1++; else w2++;

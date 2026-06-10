@@ -74,6 +74,26 @@ Each faction has 2 cards that manipulate the Cycle: advance it, delay it, freeze
 (the Cycle does not advance while frozen), reroll it randomly, or **Prophétie**
 (look at the next 3 phases and choose which comes next).
 
+### Keywords (proprietary vocabulary)
+**Élan** (attack the turn it enters) · **Rempart** (must be destroyed before the player
+can be attacked) · **Frénésie** (attacks twice) · **Offrande** (damage dealt heals you) ·
+**Immortel** (survives its first death with 1 shield) · **Éveil** (on entry) ·
+**Dernier Souffle** (on death) · **Malédiction** (1 damage kills).
+
+### Unique abilities (6.2)
+- **Éclipse** : +1/+1 each time the Cycle changes phase.
+- **Prophète** : always considered at its zenith.
+- **Sacrifice** (aztec) : sacrifice this monster for +2 gems (button in Main phases).
+- **Réveil** (yokai) : when a monster wakes from Sleep, +2/+2 and draw 1.
+- **Momie** (egyptian) : first death → returns face down, rises at the next Aube.
+- **Ragnarök** (norse, Fenrir) : during Ténèbres, growing damage to all enemies each turn.
+- **Oracle** (greek) : on entry, look at the top of the opponent's deck; draw 1 if it's a god.
+- **Toile** (greek) : when one of your face-down gods is revealed, 2 damage to the enemy player.
+- **Marée** (egyptian) : +1 ATK per allied token in combat.
+- **Autel** (aztec) : permanent +1/+1 whenever an ally dies.
+- **Forteresse** (norse) : while you control ≥2 Remparts, +2 ATK and Frénésie.
+- **Riposte** (norse, Garm) : deals 2 damage to any attacker.
+
 ### Esquive (Dodge)
 The first attack this monster receives during each Celestial Cycle phase **misses**.
 The dodge recharges every time the Cycle changes phase. A 💨 badge shows while the

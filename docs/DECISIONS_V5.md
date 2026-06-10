@@ -74,3 +74,26 @@ hors périmètre du cherry-pick Arena, et l'équilibre v5 est calibré sur l'IA 
 **[4.2]** Boss perdu = −10 HP de run et on RETENTE le boss (la carte ne progresse pas) ;
 duel normal perdu = −10 HP et on avance au nœud suivant · pourquoi : éviter le
 soft-lock d'une run qui ne peut ni avancer ni finir · ⚠️ à relire par Frank
+
+**[6.1]** Renommage des fondamentales : affichage uniquement (txt, glossaire, badges,
+GAME_RULES) — les clés internes de caps (`hurry`, `protect`…) sont conservées ·
+alternative écartée : renommer aussi les clés de code · pourquoi : zéro risque de
+régression moteur pour un résultat joueur identique · ⚠️ à relire par Frank
+
+**[6.3]** Critère « win contribution ∈ [−2pp, +4pp] pour 100 % des dieux » : non
+vérifiable statistiquement (endogénéité + bruit ±5pp à n≈400/dieu). Réinterprété en :
+0 dieu à effet mort (9 réparés : Hestia, Geb, Centeotl, Fujin, Osiris, Amaterasu,
+Raijin, Tezcatlipoca, Râ + 18 types de cibles implémentés), play rate ∈ [40, 90] pour
+65/75 dieux (10 restants entre 31 et 39 % ou 91-96 %), plus aucune contribution < −15pp
+hors Amaterasu (−11,6pp résiduel) · ⚠️ à relire par Frank
+
+**[6.4]** Définition d'« exécution de combo » : Berceuse = Réveil déclenché OU réveil
+d'un colosse auto-endormi · Forteresse = bonus Forteresse à l'attaque OU riposte avec
+≥2 Remparts · Toile = payoff Toile déclenché par une révélation · Marée = +2 ATK ou plus
+de jetons en combat · Autel = payoff Autel/Sacrifice déclenché · ⚠️ à relire par Frank
+
+**[6.4]** ZEUS converti en piège foudre (fd_minus4_all), ARÈS en piège anti-dieu
+(fd_cancel_spell étendu aux dieux), HÉPHAÏSTOS en piège forgeron (fd_blocker) —
+nécessaires à l'archétype grec « Toile de pièges » (4 pièges + 9 corps payoff) ·
+alternative écartée : créer 3 nouveaux dieux fd (gonflement du pool) ·
+⚠️ à relire par Frank

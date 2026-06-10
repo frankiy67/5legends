@@ -169,3 +169,24 @@ yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** 
 - **5.4** Instructions visibles : textes de ciblage en français (« Choisis une cible »),
   bannière de réaction (existante), aides mulligan/draft (existantes), hint de draft Arena.
 - Golden STRICTEMENT IDENTIQUE (UI pure).
+
+## 6 — Originalité, équilibre des dieux, synergies & combos
+- **6.1** `docs/ABILITY_AUDIT.md` : table exhaustive cap → équivalent TCG → classification.
+  Fondamentales renommées (Élan, Rempart, Frénésie, Offrande, Immortel, Éveil, Dernier
+  Souffle) ; ~20 caps génériques retravaillées avec une dimension Cycle/zénith ;
+  plus aucune « GÉNÉRIQUE » non retravaillée.
+- **6.2** 13 capacités inédites : Éclipse, Prophète, Sacrifice, Réveil, auto-Sommeil,
+  Momie, Ragnarök croissant, Oracle, Toile, Marée, Autel, Forteresse, Riposte.
+- **6.3** `docs/CARD_METRICS.md` (play rate / win contribution / tour moyen, 4000 parties).
+  **9 dieux à effet MORT réparés** (Hestia, Geb, Centeotl, Fujin, Osiris hors réaction,
+  Amaterasu hors pile, Raijin, Tezcatlipoca, Râ à cible unique) + **18 types de cibles
+  implémentés** (`dmg3`, `halve_atk`, `bounce`, `buff_atk5/dbl`, 6 équipements,
+  `steal_hurry`, `copy_ally`, `swap`, `redirect`…) dans applyTargetEffect ET aiPickTarget
+  (l'heuristique d'abord, la carte ensuite). 12 coûts ajustés. Play rate ∈ [40,90] :
+  65/75 dieux (≈30/75 avant). Voir la note méthodologique de CARD_METRICS.md.
+- **6.4** 2 archétypes/faction, IA combo-aware (bonus enabler↔payoff), instrumentation
+  `markCombo`. **Exécution mesurée (4000 parties) : yokai 50,8 % · norse 27,7 % ·
+  egyptian 48,3 % · greek 26,0 % · aztec 47,7 % — tous ≥25 % ✅.**
+- **6.5** Batterie complète : factions yokai 55,0 / norse 46,8 / egyptian 54,5 /
+  greek 46,9 / aztec 46,9 ∈ [45,55] ✅ · P1 51,2 % ∈ [47,53] ✅ · 181/181 cartes OK ·
+  Arena 0 crash · golden régénéré.
