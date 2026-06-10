@@ -220,3 +220,59 @@ yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** 
 - **7.8** Toggle « réduire les animations » (coin bas-gauche) : coupe shake, particules,
   transitions longues et overlay de phase (classe `body.reduce-motion`).
 - Golden STRICTEMENT IDENTIQUE (aucun impact logique) · 211/211 preview · 0 crash.
+
+---
+
+# RAPPORT FINAL — mission fix-audit-v5 (8.4)
+
+## Avant / Après
+
+| Métrique | Baseline (main) | v5 (fix-audit-v5) |
+|---|---|---|
+| Winrate P1 (1000 parties) | **17,5–19,6 %** | **51,2 %** ✅ |
+| yokai | ~53 %* | 55,0 % ✅ |
+| norse | ~76 %* | 46,8 % ✅ |
+| egyptian | ~54 %* | 54,5 % ✅ |
+| greek | ~32 %* | 46,9 % ✅ |
+| aztec | ~34 %* | 46,9 % ✅ |
+| Nombre de cartes | 171 | **181** (+10 temporelles) |
+| Caps avec handler | 171/171 (dont 9 dieux à effet MORT) | **181/181, 0 effet mort** |
+| Crashs (toutes batteries) | 0 | **0** |
+| Durée moyenne d'une partie | ~9,0 tours | 9,5 tours |
+| Durée moyenne d'un duel d'Arena | — | 9,2 tours (≤12 ✅) |
+| Combos exécutés par faction | — | 26–51 % (≥25 % ✅) |
+| Preview de combat | — | 211/211 exacte ✅ |
+
+\* winrates baseline mesurés sur une base biaisée P1/P2 (cf. BASELINE_V5.md).
+
+## Décisions ⚠️ à relire par Frank (détail dans DECISIONS_V5.md)
+1. **[1.1]** Rampe de gems rendue symétrique (bug vs GAME_RULES, pas un choix design).
+2. **[1.1]** Compensation P2 : main 5/4 + coin ; recalibrée 2× (1.3, 3.3) → coin T1 seul.
+3. **[1.1d]** Ragnarök norse réduit +3/+3 → +2/+2.
+4. **[2.1]** Sand Up : 0 carte concernée (code mort) — tableau de remplacement VIDE ; flag `sanded` conservé (Xipe Totec/Golem).
+5. **[2.2]** L'esprit « Bewitch → Esquive » appliqué à `coinflip_defense` (Sirènes), seul vrai porteur du RNG binaire.
+6. **[3.2]** Dieu yokai temporel nommé KAGUYA (évite OMOIKANE/TSUKUYOMI).
+7. **[3.2]** Deck 54 → 57 cartes (ajout net des 10 temporelles).
+8. **[3.1]** Héra déclenchée manuellement à Midi pioche 3 sans condition.
+9. **[4.1]** Arena PORTÉE (réécriture adaptée) au lieu de cherry-picks conflictuels (Foi/marché hors périmètre).
+10. **[4.2]** Difficulté IA = ressources de départ (d0/d1/d2) ; boss perdu = retenté (−10 HP).
+11. **[6.1]** Renommage mythologique côté affichage uniquement (clés internes inchangées).
+12. **[6.3]** Critère « win contribution ∈ [−2,+4] pour 100 % des dieux » statistiquement invérifiable → réinterprété (0 effet mort, play rate [40,90] pour 65/75, plus de contribution < −15pp) — note méthodologique dans CARD_METRICS.md.
+13. **[6.4]** ZEUS/ARÈS/HÉPHAÏSTOS convertis en pièges pour l'archétype grec ; `fd_cancel_spell` étendu aux dieux.
+
+## Tâches SKIPPED / partielles
+- **Aucune tâche entièrement SKIPPED.** Partielles :
+  - **6.3** : 10/75 dieux restent hors [40,90] de play rate (31–39 % ou 91–96 %) ; le critère de contribution est documenté comme non mesurable strictement.
+  - **7.6** : le drag est implémenté en « clic-drag-relâcher » par-dessus le clic-clic (pas de pointer-capture complet).
+  - **7.7** : balance céleste SVG compacte au centre + orbes de PV conservés (plan hybride, documenté).
+
+## Les 5 prochaines choses recommandées
+1. **Playtest humain de l'Arena** : le taux de victoire IA (24 % champion) ne prédit pas la difficulté ressentie humaine ; ajuster d0/d1/d2 et les récompenses après quelques runs réelles.
+2. **Illustrations des 10 cartes temporelles** (placeholders actuellement) + un coup d'art sur les écrans de la carte de run.
+3. **Resserrer yokai/egyptian (~55 %)** vers 50 % : 2-3 itérations de ±1 supplémentaires sur Kappa/Baku et Medjed/Set.
+4. **IA : usage actif du Sacrifice et des choix de Prophétie côté humain** (UI du modal cycle-pick à polir, raccourcis clavier).
+5. **Persistance optionnelle des runs d'Arena** (export/import JSON manuel pour rester dans la contrainte « pas de localStorage »).
+
+## Description courte de repo suggérée (8.2)
+> Jeu de cartes mythologique en vanilla JS où le temps est le plateau : manipulez le
+> Cycle Céleste, déclenchez le zénith de votre panthéon, draftez et survivez à l'Arena.

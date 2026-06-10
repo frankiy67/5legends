@@ -98,3 +98,21 @@ can be attacked) · **Frénésie** (attacks twice) · **Offrande** (damage dealt
 The first attack this monster receives during each Celestial Cycle phase **misses**.
 The dodge recharges every time the Cycle changes phase. A 💨 badge shows while the
 dodge is available. (Deterministic replacement of the old 50% coin-flip defense.)
+
+
+## ARENA Mode (recommended)
+
+1. **Draft** : pick 1 card out of 4, 40 times — full multi-faction pool (each pick
+   guarantees at least 1 card of your chosen pantheon).
+2. **The Run** (Slay the Spire style) : 6 nodes with 2-3 branching options + 1 Boss.
+   - **Combat** : normal opponent — reward: 1 card pick (1 of 4)
+   - **Élite** : AI +1 difficulty — reward: 2 picks
+   - **Sanctuaire** : heal 5 run HP **or** remove 1 card from your deck
+3. **Run HP** : start at 25 ; a lost duel = −10 run HP ; 0 = the run ends.
+   A lost boss duel costs 10 HP but you may retry it.
+4. **Bosses with broken rules** (announced on screen, final boss drawn outside your faction):
+   - **Zeus** : the Celestial Cycle advances every turn
+   - **Anubis** : the boss's first destroyed monster each turn returns to play
+   - **Odin** : starts with two 0/4 Rempart walls
+   - **Quetzalcoatl** : all the boss's monsters have Immortel
+   - **Amaterasu** : the Cycle is locked on Nuit for the whole duel
