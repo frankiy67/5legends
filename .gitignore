@@ -23,3 +23,4 @@ _originaux/
 tools/node_modules/
 # NB: tools/golden_snapshot.json EST versionné (référence golden-master).
 #     Les snapshots candidats sont écrits dans /tmp, jamais dans le repo.
+5legends/

@@ -655,6 +655,9 @@ function initGame(f1, f2, mode) {
       summoned: new Set(),
       golems: [],
       balderActive: false,
+      // FIX 1.1 : compensation « Coin » — P2 (qui subit le tempo du 1ᵉʳ
+      // joueur) reçoit 1 gem TEMPORAIRE à son 1ᵉʳ tour (consommé par doEndTurn).
+      _coinGem: p === 2 ? 1 : 0,
     };
   }
   G.activeTurn = 1; // Player 1 starts
@@ -926,8 +929,13 @@ function doEndTurn() {
   G.selAtk=null;
 
   const NP = G.players[G.cp];
-  NP.maxGems = Math.min(10, (NP.maxGems || 0) + 1);
-  NP.gems = NP.maxGems;
+  // FIX 1.1 : courbe de gems SYMÉTRIQUE. L'ancien code incrémentait le joueur
+  // entrant à chaque changement de tour → P2 jouait toutes ses rondes avec
+  // +1 gem par rapport à P1 (courbe 2,3,4… contre 1,2,3…). Désormais le
+  // plafond de gems = numéro de ronde (G.turn) pour les deux joueurs.
+  NP.maxGems = Math.min(10, G.turn);
+  NP.gems = NP.maxGems + (NP._coinGem || 0);
+  NP._coinGem = 0;
   Audio5L.sfx.mana();
   NP.attacked = new Set();
   NP.summoned = new Set();
@@ -3070,7 +3078,9 @@ async function aiCombatPhase(p=2) {
     renderAll();
 
     await waitForPlayerAck(m, 'attack');
-    if(!G.players[2].field[i]) continue;
+    // FIX 1.1 : 'G.players[2]' codé en dur faisait sauter les attaques de P1
+    // (en sim) dès que le board adverse n'avait pas de monstre au même index.
+    if(!G.players[p].field[i]) continue;
 
     await doAttack(p, i, opp, target);
     renderAll();
