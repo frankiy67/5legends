@@ -18,7 +18,7 @@ const vm = require('vm');
 
 const ROOT = path.resolve(__dirname, '..');
 const GAME_SRC = path.join(ROOT, 'src', 'game.js');
-const GAMES_PER_MATCHUP = 10;
+const GAMES_PER_MATCHUP = parseInt(process.argv[2] || '10', 10);
 const TURN_LIMIT = 60;     // au-delà → timeout anormal
 const HARD_GUARD = 4000;
 
@@ -103,18 +103,28 @@ async function main() {
   const rows = [];
   let seed = 1;
   const t0 = Date.now();
-  for (const [f1, f2] of matchups) {
+  // Agrégat par faction (winrate toutes positions confondues).
+  const fWins = {}, fGames = {};
+  F.forEach(f => { fWins[f] = 0; fGames[f] = 0; });
+  for (const [fa, fb] of matchups) {
     let w1 = 0, w2 = 0, maxTurn = 0, crash = 0, to = 0, unf = 0;
     for (let g = 0; g < GAMES_PER_MATCHUP; g++) {
+      // Alternance des côtés pour neutraliser tout biais P1/P2 résiduel.
+      const swap = g % 2 === 1;
+      const [f1, f2] = swap ? [fb, fa] : [fa, fb];
       const r = await playOne(API, f1, f2, seed++);
       total++;
       maxTurn = Math.max(maxTurn, r.turns);
       if (r.error) { crash++; crashes++; }
       if (r.turns > TURN_LIMIT) { to++; timeouts++; }
       if (r.winner === null || r.winner === 'both') { unf++; unfinished++; }
-      if (r.winner === 1) w1++; else if (r.winner === 2) w2++;
+      if (r.winner === 1 || r.winner === 2) {
+        const winF = r.winner === 1 ? f1 : f2;
+        if (winF === fa) w1++; else w2++;
+        fWins[winF]++; fGames[fa]++; fGames[fb]++;
+      }
     }
-    rows.push({ m: `${f1} vs ${f2}`, w1, w2, maxTurn, crash, to, unf });
+    rows.push({ m: `${fa} vs ${fb}`, w1, w2, maxTurn, crash, to, unf });
   }
   const dt = ((Date.now() - t0) / 1000).toFixed(1);
 
@@ -135,6 +145,13 @@ async function main() {
   console.log(`  Timeouts (>${TURN_LIMIT} tours) : ${timeouts}`);
   console.log(`  Parties inachevées ... : ${unfinished}`);
   console.log(`  Durée ................ : ${dt}s`);
+  console.log('  ' + '─'.repeat(60));
+  console.log('  WINRATE PAR FACTION (toutes positions confondues)');
+  for (const f of F) {
+    const wr = fGames[f] ? (100 * fWins[f] / fGames[f]) : 0;
+    const flag = wr >= 45 && wr <= 55 ? '✅' : '❌';
+    console.log(`    ${flag} ${f.padEnd(10)} : ${wr.toFixed(1)}%  (${fWins[f]}/${fGames[f]})`);
+  }
   console.log('───────────────────────────────────────────────────────────────');
   if (crashes === 0 && timeouts === 0 && unfinished === 0) {
     console.log('  ✅ 100/100 parties terminées proprement, sans crash ni timeout');
