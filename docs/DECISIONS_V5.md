@@ -37,3 +37,22 @@ badge 💨) ; suppression des checks bewitched 50 % dans aiCombatPhase · altern
 écartée : garder le coin-flip des Sirènes · pourquoi : même mécanique RNG binaire que
 Bewitch, l'esprit de la tâche s'applique · impact mesuré : greek 51,0 % → 51,3 % (±3 ✅) ·
 ⚠️ à relire par Frank
+
+**[3.2]** Dieu yokai « choisis la prochaine phase » nommé **KAGUYA** (princesse lunaire,
+liée au temps céleste) · alternatives écartées : OMOIKANE_T (trop proche d'OMAIKANE
+existant, risque de confusion), TSUKUYOMI (collision) · pourquoi : figure mythologique
+distincte, zéro collision d'ID · ⚠️ à relire par Frank
+
+**[3.2]** Taille de deck recalculée : 54 → **57 cartes** (42 monstres + 15 dieux) en
+intégrant les 2 cartes temporelles par faction (monstre uncommon ×2, dieu ×1) ·
+alternative écartée : retirer 3 cartes existantes pour rester à 54 · pourquoi : le pool
+existant vient d'être équilibré, l'ajout net est plus simple et mesurable ·
+⚠️ à relire par Frank
+
+**[3.1]** Déclenchement manuel grec (Midi) : Héra déclenchée à la main pioche 3 SANS la
+condition « pas de dégâts ce tour » (non traçable proprement côté humain) — le coût
+d'opportunité est de révéler/consommer le piège · ⚠️ à relire par Frank
+
+**[3.3]** Compensation P2 réduite après Phase 3 : la pioche bonus T2 est SUPPRIMÉE
+(les cartes temporelles + zéniths ont avantagé P2 : P1 était tombé à 45,1 %) ;
+reste main 5/4 + coin +1 gem T1 → P1 51,7 % sur 1000 · ⚠️ à relire par Frank

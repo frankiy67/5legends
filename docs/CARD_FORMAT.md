@@ -65,3 +65,10 @@ Cards are defined as plain JavaScript objects in `index.html` (MONSTERS, GODS, S
 | `fd_cancel_monster` | Face Down: cancel next opponent monster |
 | `fd_destroy_attacker` | Face Down: destroy next attacker |
 | `fd_resurrect` | Face Down: resurrect on ally death |
+| `esquive` | First attack received each Cycle phase misses (recharges on phase change) |
+| `entry_cycle_advance1` / `entry_cycle_delay1` | Entry: advance / delay the Celestial Cycle by 1 phase |
+| `entry_cycle_freeze1` | Entry: freeze the Cycle for 1 turn |
+| `entry_cycle_prophecy` | Entry: look at the next 3 phases, choose the next one |
+| `exit_cycle_delay1` | Death: delay the Cycle by 1 phase |
+| `god_cycle_advance1` / `god_cycle_freeze2` / `god_cycle_random` | God: advance 1 / freeze 2 turns / reroll randomly |
+| `god_cycle_prophecy` / `god_cycle_choose` | God: choose the next phase (among next 3 / among all) |

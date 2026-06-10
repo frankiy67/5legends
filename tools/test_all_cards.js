@@ -28,7 +28,8 @@ const GAME_SRC = path.join(ROOT, 'src', 'game.js');
 
 // Cartes sans fichier d'illustration (placeholder volontaire, pas un échec).
 // (Hestia, Sobek, Oracle de Delphes ont désormais leur illustration.)
-const PLACEHOLDER_OK = new Set([]);
+// Cartes v5 (3.2 temporelles) — placeholder « cadre + nom + illustration à venir » assumé.
+const PLACEHOLDER_OK = new Set(['TOKI_ONNA','KAGUYA','URD','SKULD','SESHAT','HEH','HORAE','KAIROS','XOLOTL','TONATIUH_R']);
 
 // ── Stub DOM/Audio (identique à golden.js) ───────────────────────────────
 const ANY = new Proxy(function () {}, {

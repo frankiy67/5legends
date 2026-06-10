@@ -105,3 +105,35 @@ yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** 
 - Validation (2.3) : 171/171 caps avec handler, couverture 171/171, factions
   yokai 50,8 / norse 47,3 / egyptian 49,3 / greek 51,3 / aztec 51,5, P1 48,0 % (1000),
   0 crash. Impact carte convertie (Sirènes/greek) : +0,3 pt ∈ ±3 ✅.
+
+## 3.1 — Zéniths asymétriques
+- Suppression du +1/+1 universel au zénith.
+- Bonus signature par faction (voir GAME_RULES.md) : jetons égyptiens +1/+1+Élan à l'Aube,
+  déclenchement manuel des dieux face cachée grecs à Midi, recharge d'Endurance aztèque au
+  Crépuscule, Sommeil yokai +1 tour + dormeurs adverses ciblables (sans riposte) la Nuit,
+  Protection norse globale aux Ténèbres.
+- Helpers : `effProtect`, `canTargetSleeping`, `zenithTokenBoost`, `manualTriggerFaceDown`.
+- Validation : factions 47,3–52,5 %, P1 47,9 %, 0 crash.
+
+## 3.2 — Cartes de manipulation du temps (10 nouvelles cartes, deck → 57)
+| Carte | Faction | Type | Effet |
+|---|---|---|---|
+| Kairos (c2) | Greek | dieu | avance le Cycle d'1 phase |
+| Horae 2/3 c3 | Greek | monstre unc. | Entrée : fige 1 tour |
+| Heh (c3) | Egyptian | dieu | fige 2 tours |
+| Seshat 2/2 c3 | Egyptian | monstre unc. | Entrée : Prophétie (3 prochaines phases) |
+| Skuld (c2) | Norse | dieu | Prophétie |
+| Urd 3/4 c4 | Norse | monstre unc. | Mort : retarde d'1 phase |
+| Tonatiuh Renaissant (c2) | Aztec | dieu | relance aléatoirement |
+| Xolotl 4/3 c3 | Aztec | monstre unc. | Entrée : avance d'1 phase |
+| Toki-Onna 2/2 c2 | Yokai | monstre unc. | Entrée : retarde d'1 phase |
+| Kaguya (c3) | Yokai | dieu | choisit la prochaine phase |
+- Moteur : `setCyclePhase()` centralise les changements de phase (anim + recharges),
+  `G.cycleFrozen` (gel), `pickCyclePhase()` (IA : vise son zénith ; humain : modal).
+- IA : scoring des cartes temporelles selon la distance au zénith de sa faction.
+- Itération d'équilibre : Seshat cost 2→3, Xolotl def 2→3 (egyptian/aztec recentrés).
+
+## 3.3 — Re-simulation complète
+- P1 **51,7 %** sur 1000 (pioche bonus T2 de P2 retirée — voir DECISIONS).
+- Factions : yokai 50,5 / norse 52,5 / egyptian 52,8 / greek 48,3 / aztec 46,0 — toutes ∈ [45, 55] ✅.
+- 181 cartes, 181/181 caps avec handler, couverture sim 181/181, 0 crash. Golden régénéré (P1 107/P2 93).

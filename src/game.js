@@ -337,6 +337,7 @@ yokai:[
   {id:'ONI',        n:'Oni',        atk:5,def:9,cost:7,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
   {id:'RAIJU',      n:'Raiju',      atk:8,def:8,cost:8,rarity:'uncommon',cap:'solo_destroy',            txt:'Seul allié : détruit la cible sans combat.'},
   // RARES x1
+  {id:'TOKI_ONNA',  n:'Toki-Onna',  atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_cycle_delay1',      txt:"Entrée : retarde le Cycle Céleste d'une phase."},
   {id:'TSUCHINOKO', n:'Tsuchinoko', atk:5,def:4,cost:3,rarity:'rare',    cap:'curse_endure',            txt:'Malédiction + Endurance.'},
   {id:'TSUCHIGUMO', n:'Tsuchigumo', atk:6,def:7,cost:4,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
   {id:'USHI-ONI',   n:'Ushi-Oni',   atk:6,def:7,cost:5,rarity:'rare',    cap:'exit_dmg3_all',           txt:'Sortie : 3 dégâts à tous les monstres adverses.'},
@@ -362,6 +363,7 @@ norse:[
   {id:'IDI',        n:'Idi',        atk:7,def:9,cost:7,rarity:'uncommon',cap:'exit_search_3def',       txt:'Sortie : Cherchez un monstre DEF ≤3 dans votre deck.'},
   {id:'FENRIR',     n:'Fenrir',     atk:6,def:9,cost:8,rarity:'uncommon',cap:'curse',                  txt:'Malédiction.'},
   // RARES x1
+  {id:'URD',        n:'Urd',        atk:3,def:4,cost:4,rarity:'uncommon',cap:'exit_cycle_delay1',       txt:"Mort : retarde le Cycle Céleste d'une phase."},
   {id:'NIDDHOG',    n:'Niddhog',    atk:3,def:4,cost:3,rarity:'rare',    cap:'hit',                     txt:'Double attaque.'},
   {id:'GARM',       n:'Garm',       atk:5,def:4,cost:4,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
   {id:'JORMUNGANDR',n:'Jörmungandr',atk:4,def:7,cost:5,rarity:'rare',   cap:'splash_adjacent',         txt:'Inflige ATK×0.5 dégâts aux monstres adjacents à la cible.'},
@@ -387,6 +389,7 @@ egyptian:[
   {id:'GRIFFON',    n:'Griffon',    atk:8,def:7,cost:7,rarity:'uncommon',cap:'hurry_exit_heal4',        txt:'Rapide. Sortie : +4 PV.'},
   {id:'SERPOPARD',  n:'Serpopard',  atk:4,def:12,cost:8,rarity:'uncommon',cap:'curse',                  txt:'Malédiction.'},
   // RARES x1
+  {id:'SESHAT',     n:'Seshat',     atk:2,def:2,cost:3,rarity:'uncommon',cap:'entry_cycle_prophecy',    txt:'Entrée : Prophétie — regardez les 3 prochaines phases du Cycle et choisissez la suivante.'},
   {id:'EFRIT',      n:'Efrit',      atk:4,def:5,cost:3,rarity:'rare',    cap:'end_heal_ally',           txt:'Fin de tour : Soignez totalement un monstre allié ciblé.'},
   {id:'DJINN',      n:'Djinn',      atk:6,def:6,cost:4,rarity:'rare',    cap:'combat_dmg2',             txt:'Combat : 2 dégâts supplémentaires à la cible.'},
   {id:'URAEUS',     n:'Uraeus',     atk:7,def:5,cost:5,rarity:'rare',    cap:'curse_protect',           txt:'Malédiction + Protection.'},
@@ -412,6 +415,7 @@ greek:[
   {id:'CYCLOPE',    n:'Cyclope',    atk:6,def:9,cost:7,rarity:'uncommon',cap:'hit',                     txt:'Double attaque.'},
   {id:'ECHIDNA',    n:'Echidna',    atk:10,def:6,cost:7,rarity:'uncommon',cap:'entry_reclaim',          txt:'Entrée : Récupérez 1 monstre de votre défausse en main.'},
   // RARES x1
+  {id:'HORAE',      n:'Horae',      atk:2,def:3,cost:3,rarity:'uncommon',cap:'entry_cycle_freeze1',     txt:'Entrée : fige le Cycle Céleste pendant 1 tour.'},
   {id:'CERBERE',    n:'Cerbère',    atk:3,def:6,cost:3,rarity:'rare',    cap:'protect',                 txt:'Protection.'},
   {id:'MINOTAURE',  n:'Minotaure',  atk:5,def:6,cost:4,rarity:'rare',   cap:'protect_hit',             txt:'Protection + Double attaque.'},
   {id:'LADON',      n:'Ladon',      atk:8,def:5,cost:5,rarity:'rare',    cap:'copy_on_attack',          txt:'Attaque : invoquez une copie (sans cap) du monstre attaqué.'},
@@ -437,6 +441,7 @@ aztec:[
   {id:'OTOMITL',    n:'Otomitl',    atk:7,def:9,cost:7,rarity:'uncommon',cap:'passive_empty_hand_buff', txt:'Toujours : si main vide, alliés +2 ATK /+1 DEF.'},
   {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:9,def:9,cost:8,rarity:'uncommon',cap:'heal',                   txt:'Vie.'},
   // RARES x1
+  {id:'XOLOTL',     n:'Xolotl',     atk:4,def:3,cost:3,rarity:'uncommon',cap:'entry_cycle_advance1',    txt:"Entrée : avance le Cycle Céleste d'une phase."},
   {id:'QUETZAL',    n:'Quetzal',    atk:4,def:3,cost:4,rarity:'rare',    cap:'passive_all_hurry',       txt:'Toujours : tous vos monstres aztèques ont Rapide.'},
   {id:'CIPACTLI',   n:'Cipactli',   atk:4,def:7,cost:4,rarity:'rare',    cap:'entry_reclaim_spell',     txt:'Entrée : Récupérez un sort/dieu de votre défausse en main.'},
   {id:'IZCAQLLI',   n:'Izcaqlli',   atk:6,def:8,cost:5,rarity:'rare',    cap:'protect_endure',          txt:'Protection + Endurance.'},
@@ -461,6 +466,7 @@ yokai:[
   {id:'SUSANOO',    n:'Susanoo',    cost:3, cap:'god_heal_all',             txt:'Soignez les DEF originales de tous vos monstres.'},
   {id:'TENJIN',     n:'Tenjin',     cost:1, cap:'god_dmg3',                 txt:'Infligez 3 dégâts à une cible.'},
   {id:'TSUKUYOMI',  n:'Tsukuyomi',  cost:4, cap:'god_resurrect2',           txt:'Retournez jusqu\'à 2 monstres de coût ≤5 de votre défausse dans votre main.'},
+  {id:'KAGUYA',     n:'Kaguya',     cost:3, cap:'god_cycle_choose',         txt:'Choisissez la prochaine phase du Cycle Céleste.'},
 ],
 norse:[
   {id:'BALDER',     n:'Balder',     cost:3, cap:'fd_cancel_monster',        txt:'Face caché permanent : Quand un monstre adverse est invoqué, annulez-le.'},
@@ -477,6 +483,7 @@ norse:[
   {id:'ULLR',       n:'Ullr',       cost:5, cap:'god_equip_draw_attack',    txt:'Équipez à un monstre. Chaque fois qu\'il attaque, piochez une carte.'},
   {id:'VALI',       n:'Vali',       cost:2, cap:'god_equip_2shield',        txt:'Équipez à un monstre. 2 marqueurs : il ne peut pas être attaqué. Chaque attaque retire 1 marqueur.'},
   {id:'VIDAR',      n:'Vidar',      cost:4, cap:'god_blank11',              txt:"N'importe quand : Un monstre adverse devient jeton 1/1 sans capacité."},
+  {id:'SKULD',      n:'Skuld',      cost:2, cap:'god_cycle_prophecy',       txt:'Prophétie — regardez les 3 prochaines phases du Cycle et choisissez la suivante.'},
 ],
 egyptian:[
   {id:'AMUNRA',     n:'Amun-Ra',    cost:2, cap:'god_swap_hand_field',      txt:'Échangez un monstre de votre main avec un monstre en jeu de même légende.'},
@@ -493,6 +500,7 @@ egyptian:[
   {id:'SET',        n:'Set',        cost:5, cap:'god_tokens22_faction',     txt:'Invoquez un jeton 2/2 par monstre de la légende choisie. Bonus : sur les 2 terrains.'},
   {id:'SOBEK',      n:'Sobek',      cost:3, cap:'god_search_monster',       txt:'Cherchez un monstre dans votre deck et mettez-le en main.'},
   {id:'THOTH',      n:'Thoth',      cost:3, cap:'fd_copy_monster',          txt:'Face caché permanent : Quand l\'adversaire invoque un monstre, copiez-le.'},
+  {id:'HEH',        n:'Heh',        cost:3, cap:'god_cycle_freeze2',        txt:'Fige le Cycle Céleste pendant 2 tours.'},
 ],
 greek:[
   {id:'APHRODITE',  n:'Aphrodite',  cost:3, cap:'god_equip_resurrect',      txt:'Équipez à un monstre. Quand il meurt, remettez-le en jeu avec ses DEF d\'origine.'},
@@ -509,6 +517,7 @@ greek:[
   {id:'HESTIA',     n:'Hestia',     cost:4, cap:'god_3shield_attacks',      txt:'Permanent : 3 marqueurs. Chaque attaque adverse est annulée et retire 1 marqueur.'},
   {id:'POSEIDON',   n:'Poséidon',   cost:4, cap:'god_cancel_spell_draw',    txt:"N'importe quand : Annulez un sort et piochez. Bonus : Annulez aussi un monstre."},
   {id:'ZEUS',       n:'Zeus',       cost:6, cap:'god_destroy_low_all',      txt:'Détruisez tous les monstres de DEF ≤5. Bonus : Détruisez tous les monstres.'},
+  {id:'KAIROS',     n:'Kairos',     cost:2, cap:'god_cycle_advance1',       txt:"Avance le Cycle Céleste d'une phase."},
   {id:'ORACLE_DELPHES', n:'Oracle de Delphes', cost:2, type:'spell', cap:'oracle_3', txt:'Regardez les 3 prochaines cartes de votre deck. Réordonnez-les.'},
 ],
 aztec:[
@@ -526,6 +535,7 @@ aztec:[
   {id:'TONATIUH',       n:'Tonatiuh',       cost:2, cap:'god_reveal_discard_spell', txt:"L'adversaire révèle sa main. Choisissez un sort : il le défausse. Sinon, piochez 1."},
   {id:'XIPE_TOTEC',     n:'Xipe Totec',     cost:3, cap:'god_freeze_attacks',      txt:"Les monstres adverses ne peuvent pas attaquer lors du prochain tour adverse."},
   {id:'XIUHTECUHTLI',   n:'Xiuhtecuhtli',   cost:5, cap:'god_redirect_attack',     txt:"Annulez l'attaque d'un monstre adverse ciblant un allié. Il attaque un autre monstre adverse."},
+  {id:'TONATIUH_R',     n:'Tonatiuh Renaissant', cost:2, cap:'god_cycle_random',   txt:'Relance le Cycle Céleste sur une phase aléatoire.'},
 ]};;
 
 
@@ -639,6 +649,7 @@ function initGame(f1, f2, mode) {
     reactionUsed: false,
     ragnarok: 0,  // Counter: Norse bonus at 5
     cycle: 0,     // Cycle Céleste — 0=aube … 4=ténèbres
+    cycleFrozen: 0, // tours de gel du Cycle restants (3.2)
   };
   for(let p=1;p<=2;p++){
     const f = p===1?f1:f2;
@@ -659,7 +670,7 @@ function initGame(f1, f2, mode) {
       balderActive: false,
       // FIX 1.1 : compensation « Coin » — P2 (qui subit le tempo du 1ᵉʳ
       // joueur) reçoit 1 gem TEMPORAIRE à son 1ᵉʳ tour (consommé par doEndTurn).
-      _coinGem: p === 2 ? 1 : 0, _coinTurns: p === 2 ? 1 : 0, _bonusDrawTurn: p === 2 ? 2 : 0,
+      _coinGem: p === 2 ? 1 : 0, _coinTurns: p === 2 ? 1 : 0, _bonusDrawTurn: 0,
     };
   }
   G.activeTurn = 1; // Player 1 starts
@@ -828,6 +839,80 @@ const CYCLE_ICONS  = {aube:'🌅',midi:'☀️',crepuscule:'🌆',nuit:'🌙',te
 const CYCLE_NAMES  = {aube:'AUBE',midi:'MIDI',crepuscule:'CRÉPUSCULE',nuit:'NUIT',tenebres:'TÉNÈBRES'};
 const ZENITH_LABEL = {egyptian:'Égyptien 🏺',greek:'Grec 🏛',aztec:'Aztèque 🌞',yokai:'Yokai 🦊',norse:'Norse ⚡'};
 
+// ── MANIPULATION DU CYCLE (3.2) ───────────────────────────────────
+// Index de phase du zénith de chaque faction (cf. ZENITH_MAP).
+const FACTION_PHASE_IDX = {egyptian:0, greek:1, aztec:2, yokai:3, norse:4};
+
+// Change la phase du Cycle (cartes temporelles + fin de ronde) et applique
+// tous les effets « au changement de phase » (anim, recharge Esquive,
+// recharge Endurance aztèque au Crépuscule).
+function setCyclePhase(newCycle, srcLabel) {
+  const prev = G.cycle % 5;
+  G.cycle = ((newCycle % 5) + 5) % 5;
+  if((G.cycle % 5) === prev) return;
+  scheduleCycleAnim();
+  // ESQUIVE (2.2) : recharge à chaque changement de phase du Cycle.
+  [1,2].forEach(pl => G.players[pl].field.forEach(m => { if(m) m.esquiveUsed = false; }));
+  // ZÉNITH AZTEC (3.1) — Crépuscule : l'Endurance se recharge.
+  if(CYCLE_PHASES[G.cycle % 5] === 'crepuscule') {
+    [1,2].forEach(pl => {
+      if(G.players[pl].faction !== 'aztec') return;
+      G.players[pl].field.forEach(m => {
+        if(m && m.endureUsed) {
+          m.endureUsed = false;
+          if(!(m.cap||'').includes('endure')) m.cap = ((m.cap||'') + ' endure').trim();
+          addLog(`🌆 Zénith — ${m.n} peut endurer à nouveau !`,'buff');
+        }
+      });
+    });
+  }
+  if(srcLabel) addLog(`🌌 ${srcLabel} — le Cycle passe à ${CYCLE_NAMES[CYCLE_PHASES[G.cycle % 5]]} !`,'special');
+}
+
+// Choix de phase par un joueur (Prophétie / Kaguya). options = indices de
+// phase proposés. L'IA choisit la phase la plus proche de son zénith ;
+// l'humain passe par un petit modal.
+async function pickCyclePhase(p, options, title) {
+  const myIdx = FACTION_PHASE_IDX[G.players[p].faction];
+  if(aiControls(p)) {
+    // priorité : son propre zénith, sinon la phase qui en rapproche le plus
+    let best = options[0], bestD = 99;
+    for(const o of options) {
+      const d = ((myIdx - o) % 5 + 5) % 5; // distance o → zénith
+      if(o === myIdx) { best = o; bestD = -1; break; }
+      if(d < bestD) { bestD = d; best = o; }
+    }
+    return best;
+  }
+  return showCyclePickModal(options, title);
+}
+
+function showCyclePickModal(options, title) {
+  return new Promise(resolve => {
+    let modal = document.getElementById('cycle-pick-modal');
+    if(!modal) {
+      modal = document.createElement('div');
+      modal.id = 'cycle-pick-modal';
+      modal.className = 'oracle-modal';
+      document.body.appendChild(modal);
+    }
+    modal.innerHTML = `
+      <h3 style="color:#ffd700;margin:0 0 8px">🌌 ${title || 'Choisissez la prochaine phase'}</h3>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        ${options.map(o => `
+          <div class="cycle-pick-opt" data-c="${o}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(200,164,74,0.4);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:center;color:#fff">
+            <div style="font-size:24px">${CYCLE_ICONS[CYCLE_PHASES[o]]}</div>
+            <div style="font-size:11px;margin-top:4px">${CYCLE_NAMES[CYCLE_PHASES[o]]}</div>
+            <div style="font-size:9px;color:#aaa;margin-top:2px">Zénith ${ZENITH_LABEL[ZENITH_MAP[CYCLE_PHASES[o]]]}</div>
+          </div>`).join('')}
+      </div>`;
+    modal.querySelectorAll('.cycle-pick-opt').forEach(el => {
+      el.addEventListener('click', () => { modal.style.display='none'; resolve(parseInt(el.dataset.c)); });
+    });
+    modal.style.display = 'flex';
+  });
+}
+
 function getZenithFaction() {
   if(!G) return null;
   return ZENITH_MAP[CYCLE_PHASES[G.cycle % 5]];
@@ -994,25 +1079,12 @@ function doEndTurn() {
   G.activeTurn = G.cp; // track whose actual turn it is
   if(G.cp===1) {
     G.turn++;
-    const prevCycle = G.cycle;
-    G.cycle = (G.cycle + 1) % 5;
-    if(G.cycle !== prevCycle) {
-      scheduleCycleAnim();
-      // ESQUIVE (2.2) : recharge à chaque changement de phase du Cycle.
-      [1,2].forEach(pl => G.players[pl].field.forEach(m => { if(m) m.esquiveUsed = false; }));
-      // ZÉNITH AZTEC (3.1) — Crépuscule : l'Endurance se recharge.
-      if(CYCLE_PHASES[G.cycle % 5] === 'crepuscule') {
-        [1,2].forEach(pl => {
-          if(G.players[pl].faction !== 'aztec') return;
-          G.players[pl].field.forEach(m => {
-            if(m && m.endureUsed) {
-              m.endureUsed = false;
-              if(!(m.cap||'').includes('endure')) m.cap = ((m.cap||'') + ' endure').trim();
-              addLog(`🌆 Zénith — ${m.n} peut endurer à nouveau !`,'buff');
-            }
-          });
-        });
-      }
+    // CYCLE (3.2) : gel éventuel (Heh, Horae), sinon avance d'une phase.
+    if((G.cycleFrozen||0) > 0) {
+      G.cycleFrozen--;
+      addLog(`🧊 Le Cycle Céleste est figé (${G.cycleFrozen+1>1?G.cycleFrozen+' tour(s) restant(s)':'dernier tour'}).`,'special');
+    } else {
+      setCyclePhase(G.cycle + 1);
     }
   }
   G.phase='Main1';
@@ -1408,6 +1480,26 @@ registerEffect('entry', cap => cap.includes('entry_dmg4') || cap.includes('entry
   }
 });
 registerEffect('entry', cap => cap.includes('entry_sleep'), async ctx => { await pickTarget('sleep', ctx.p, true); });
+// ── Cartes temporelles (3.2) ──
+registerEffect('entry', cap => cap.includes('entry_cycle_advance1'), ctx => {
+  setCyclePhase(G.cycle + 1, ctx.m.n);
+});
+registerEffect('entry', cap => cap.includes('entry_cycle_delay1'), ctx => {
+  setCyclePhase(G.cycle - 1, ctx.m.n);
+});
+registerEffect('entry', cap => cap.includes('entry_cycle_freeze1'), ctx => {
+  G.cycleFrozen = (G.cycleFrozen||0) + 1;
+  addLog(`🧊 ${ctx.m.n} — le Cycle est figé 1 tour !`,'special');
+});
+registerEffect('entry', cap => cap.includes('entry_cycle_prophecy'), async ctx => {
+  const cur = G.cycle % 5;
+  const opts = [(cur+1)%5, (cur+2)%5, (cur+3)%5];
+  const chosen = await pickCyclePhase(ctx.p, opts, 'Prophétie — choisissez la prochaine phase');
+  setCyclePhase(chosen, ctx.m.n);
+});
+registerEffect('exit', cap => cap.includes('exit_cycle_delay1'), ctx => {
+  setCyclePhase(G.cycle - 1, ctx.m.n + ' (Mort)');
+});
 registerEffect('entry', cap => cap.includes('entry_blind'), async ctx => { await pickTarget('blind', ctx.p, true); });
 registerEffect('entry', cap => cap.includes('entry_draw_per_ally'), async ctx => {
   const { p, idx, m } = ctx;
@@ -2337,6 +2429,31 @@ GOD_EFFECTS["god_redirect_attack"] = (ctx) => { const {c,p,opp,cap}=ctx;
     addLog(`${c.n} — Attaque redirigée vers monstre adverse!`,'special');
   };
 
+// ── Dieux temporels (3.2) — nouvelles entrées GOD_EFFECTS ──────────
+GOD_EFFECTS["god_cycle_advance1"] = (ctx) => { setCyclePhase(G.cycle + 1, ctx.c.n); };
+GOD_EFFECTS["god_cycle_random"] = (ctx) => {
+  const cur = G.cycle % 5;
+  let r = Math.floor(rng() * 5);
+  if(r === cur) r = (r + 1) % 5; // « relance » = change forcément de phase
+  setCyclePhase(r, ctx.c.n);
+};
+GOD_EFFECTS["god_cycle_freeze2"] = (ctx) => {
+  G.cycleFrozen = (G.cycleFrozen||0) + 2;
+  addLog(`🧊 ${ctx.c.n} — le Cycle Céleste est figé 2 tours !`,'special');
+};
+GOD_EFFECTS["god_cycle_prophecy"] = async (ctx) => {
+  const cur = G.cycle % 5;
+  const opts = [(cur+1)%5, (cur+2)%5, (cur+3)%5];
+  const chosen = await pickCyclePhase(ctx.p, opts, 'Prophétie — choisissez la prochaine phase');
+  setCyclePhase(chosen, ctx.c.n);
+};
+GOD_EFFECTS["god_cycle_choose"] = async (ctx) => {
+  const cur = G.cycle % 5;
+  const opts = [0,1,2,3,4].filter(o => o !== cur);
+  const chosen = await pickCyclePhase(ctx.p, opts, 'Kaguya — choisissez la prochaine phase');
+  setCyclePhase(chosen, ctx.c.n);
+};
+
 async function playGod(c, p) {
   addLog(`Player ${p} plays God: ${c.n}!`,'summon');
   showGodBurst(p);
@@ -2968,6 +3085,18 @@ function scoreCard(c, p) {
     if(cap.includes('entry_cancel')  && oppField.length > 0) score += 5;
     if(cap.includes('entry_draw'))   score += 2.5;
 
+    // Cartes temporelles (3.2) : valeur selon la distance à notre zénith
+    if(cap.includes('cycle_')) {
+      const myZen = FACTION_PHASE_IDX[P.faction];
+      const cur = G.cycle % 5;
+      const dist = ((myZen - cur) % 5 + 5) % 5; // 0 = on y est
+      if(cap.includes('advance1'))  score += (dist === 1 ? 7 : dist === 2 ? 3 : 1);
+      if(cap.includes('delay1'))    score += (dist === 4 ? 7 : (cur === FACTION_PHASE_IDX[OP.faction] ? 4 : 1));
+      if(cap.includes('freeze'))    score += (dist === 0 ? 8 : 1);
+      if(cap.includes('prophecy') || cap.includes('choose')) score += (dist >= 1 && dist <= 3 ? 7 : 3);
+      if(cap.includes('random'))    score += (cur === FACTION_PHASE_IDX[OP.faction] ? 4 : 1);
+    }
+
     // Exit effects: more valuable when field is already contested
     if(cap.includes('exit_destroy') && oppField.length > 0) score += 4;
     if(cap.includes('exit_curse')   && oppField.length > 0) score += 3;
@@ -3068,6 +3197,16 @@ function scoreCard(c, p) {
       else score += oppField.length > myLive ? 7 : (oppField.length === myLive ? 3 : 0);
     }
     if(cap.includes('cancel_attack')) score += 4;
+    // Dieux temporels (3.2)
+    if(cap.includes('cycle_')) {
+      const myZen = FACTION_PHASE_IDX[P.faction];
+      const cur = G.cycle % 5;
+      const dist = ((myZen - cur) % 5 + 5) % 5;
+      if(cap.includes('advance1'))  score += (dist === 1 ? 8 : dist === 2 ? 4 : 0);
+      if(cap.includes('random'))    score += (cur === FACTION_PHASE_IDX[OP.faction] ? 5 : 0);
+      if(cap.includes('freeze'))    score += (dist === 0 ? 9 : 0);
+      if(cap.includes('prophecy') || cap.includes('choose')) score += (dist >= 1 && dist <= 3 ? 8 : 2);
+    }
 
     // General: gods with no valid targets are worthless
     const needsTarget = ['minus','destroy','steal','sleep','buff','blank','blind','force','thor'];

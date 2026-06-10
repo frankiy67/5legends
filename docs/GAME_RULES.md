@@ -2,7 +2,7 @@
 
 ## Setup
 - Each player selects a faction
-- Each player's deck is a fixed **54 cards**: 40 monsters (commons ×3, uncommons ×2, rares ×1) + 14 gods
+- Each player's deck is a fixed **57 cards**: 42 monsters (commons ×3, uncommons ×2, rares ×1) + 15 gods
 - Each player starts with **25 HP** and **1 Gem**
 - Player 1 goes first with **4 cards** in hand; Player 2 gets **5 cards** plus **+1 temporary Gem on each of their first two turns** (going-second compensation)
 - Both players then **mulligan**: starting hand face up, check any cards to replace (one pass), confirm — replaced cards are reshuffled into the deck
@@ -59,6 +59,20 @@ When an Endure monster would die, it instead returns to the field with 1 Shield 
 
 ### Cursed
 A cursed monster dies from any single point of damage.
+
+### The Celestial Cycle & Asymmetric Zeniths
+The Cycle advances one phase at the end of each round: 🌅 Aube → ☀️ Midi → 🌆 Crépuscule → 🌙 Nuit → 🌑 Ténèbres → (repeat).
+Each faction unlocks its **signature bonus** while its phase is active (its *zenith*):
+- **Egyptian — Aube**: your summoned tokens get **+1/+1 and Hurry**
+- **Greek — Midi**: your face-down gods can be **triggered manually** (click) in addition to their auto trigger
+- **Aztec — Crépuscule**: your monsters' **Endure recharges** (they can endure again)
+- **Yokai — Nuit**: your Sleep lasts **1 extra turn**, and **sleeping enemy monsters become targetable** (they don't strike back)
+- **Norse — Ténèbres**: all your monsters gain **Protect**
+
+### Time Manipulation Cards
+Each faction has 2 cards that manipulate the Cycle: advance it, delay it, freeze it
+(the Cycle does not advance while frozen), reroll it randomly, or **Prophétie**
+(look at the next 3 phases and choose which comes next).
 
 ### Esquive (Dodge)
 The first attack this monster receives during each Celestial Cycle phase **misses**.
