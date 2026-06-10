@@ -725,6 +725,8 @@ function initGame(f1, f2, mode, opts) {
 // Démarre la partie pour de bon (après le mulligan éventuel).
 function beginPlay() {
   renderAll();
+  // TUTO 1 : gems & jouer une carte (première partie PvE uniquement)
+  setTimeout(() => showTuto('gems'), 600);
 }
 
 // ── MULLIGAN ─────────────────────────────────────────────────────────────
@@ -888,6 +890,7 @@ function setCyclePhase(newCycle, srcLabel) {
   G.cycle = ((newCycle % 5) + 5) % 5;
   if((G.cycle % 5) === prev) return;
   scheduleCycleAnim();
+  if(G.mode === 'pve') showTuto('cycle'); // TUTO 5 : premier changement de Cycle
   // ESQUIVE (2.2) : recharge à chaque changement de phase du Cycle.
   [1,2].forEach(pl => G.players[pl].field.forEach(m => { if(m) m.esquiveUsed = false; }));
   // ZÉNITH AZTEC (3.1) — Crépuscule : l'Endurance se recharge.
@@ -1034,6 +1037,8 @@ function advancePhase() {
   updatePhaseBtn();
   renderPhaseBar();
   addLog('Phase → ' + PHASE_LABELS[G.phase]);
+  // TUTO 2/3 : phases puis attaque (au premier passage humain en Combat)
+  if(G.cp === 1 && G.phase === 'Combat') { showTuto('phases'); setTimeout(() => showTuto('attack'), 350); }
   if (G.phase === 'Combat' && typeof Audio5L !== 'undefined') Audio5L.combatMode();
   if (G.phase === 'Main2' && typeof Audio5L !== 'undefined') Audio5L.menuMode();
   if (G.phase === 'End') setTimeout(() => endCurrentTurn(), 400);
@@ -2523,6 +2528,7 @@ async function playGod(c, p) {
     G.players[p].field.push(m);
     G.players[p].summoned.add(G.players[p].field.length-1);
     addLog(`${c.n} enters Face Down`,'event');
+    if(p === 1) showTuto('facedown'); // TUTO 6
     return;
   }
 
@@ -3013,6 +3019,7 @@ function showReactionBanner(triggerCard, context, hasReactable) {
     ? 'linear-gradient(135deg, rgba(231,76,60,0.95), rgba(192,57,43,0.95))'
     : 'linear-gradient(135deg, rgba(243,156,18,0.95), rgba(230,126,34,0.95))';
   banner.style.display = 'flex';
+  showTuto('anytime'); // TUTO 7 : première fenêtre de réaction
 }
 
 function hideReactionBanner() {
@@ -3717,11 +3724,12 @@ function startAttackTargeting(attacker, p, idx) {
   // Mark player HP bar as target (if no protect)
   const oppBar = document.getElementById(`p${opp}-bar`);
   if(oppBar && !hasProtect) oppBar.classList.add('targetable');
+  if(hasProtect && p === 1) showTuto('protect'); // TUTO 4
 
   // Show hint
   const hint = document.getElementById('targeting-hint');
   hint.style.display = 'block';
-  hint.innerHTML = `⚔ <b>${attacker.n}</b> — drag to target or click · <span style="color:#888">ESC to cancel</span>`;
+  hint.innerHTML = `⚔ <b>${attacker.n}</b> — Choisis une cible (clic ou glisser) · <span style="color:#888">ESC pour annuler</span>`;
   
   startArrow(startPos);
   addLog(`${attacker.n} ready — click a target to attack`, 'event');
@@ -3772,7 +3780,7 @@ function startCardTargeting(handIdx, card) {
 
   const hint = document.getElementById('targeting-hint');
   hint.style.display = 'block';
-  hint.innerHTML = `⚡ <b>${card.n}</b> — click target · <span style="color:#888">ESC to cancel</span>`;
+  hint.innerHTML = `⚡ <b>${card.n}</b> — Choisis une cible · <span style="color:#888">ESC pour annuler</span>`;
 
   startArrow(startPos);
 }
@@ -4025,7 +4033,7 @@ function showTargetModal(type, p, opp) {
 
   const hint = document.getElementById('targeting-hint');
   hint.style.display = 'block';
-  hint.innerHTML = '🎯 <b>' + targetTitle(type) + '</b> — click a highlighted target · <span style="color:#888">ESC to cancel</span>';
+  hint.innerHTML = '🎯 <b>' + targetTitle(type) + '</b> — Choisis une cible en surbrillance · <span style="color:#888">ESC pour annuler</span>';
 
   startArrow(startPos);
 }
@@ -4837,6 +4845,37 @@ function showBigPreview(card) {
 
 
 // ══════════════════════════════════════════════════════════════════════════
+// TUTORIEL (5.2) — 7 popups contextuels à la première partie. Flag de session
+// en mémoire uniquement (R7 : pas de localStorage) : il revient à chaque reload.
+// ══════════════════════════════════════════════════════════════════════════
+const TUTO = { active: true, seen: new Set(), pending: null };
+const TUTO_STEPS = {
+  gems:    { n:1, title:'💎 Tes gems',            txt:"Chaque carte coûte des gems (chiffre en haut à gauche). Ton plafond augmente de 1 à chaque ronde. Clique une carte jouable (surbrillance) pour la poser." },
+  phases:  { n:2, title:'🔁 Les phases',          txt:'Ton tour : MAIN 1 (poser des cartes) → COMBAT (attaquer) → MAIN 2 (reposer des cartes) → FIN. Avance avec le bouton en bas ou ESPACE.' },
+  attack:  { n:3, title:'⚔️ Attaquer',            txt:"En phase de COMBAT, clique un de tes monstres puis sa cible (monstre adverse ou joueur). Une flèche suit ton curseur. Les monstres fraîchement invoqués ne peuvent pas attaquer (sauf Rapide)." },
+  protect: { n:4, title:'🛡 Protection',          txt:"L'adversaire a un monstre PROTECTION : tu dois le détruire avant de pouvoir attaquer le joueur directement." },
+  cycle:   { n:5, title:'🌌 Le Cycle Céleste',    txt:'Le ciel vient de changer ! À chaque ronde le Cycle avance : Aube → Midi → Crépuscule → Nuit → Ténèbres. Quand TA phase arrive, ta faction débloque son bonus de zénith (affiché dans le bandeau).' },
+  facedown:{ n:6, title:'🂠 Dieux face cachée',   txt:"Ce dieu est entré face cachée : c'est un piège qui se déclenchera automatiquement quand sa condition sera remplie. L'adversaire ne sait pas ce que c'est." },
+  anytime: { n:7, title:'⚡ Fenêtre ANYTIME',     txt:"L'IA agit — le jeu se met en pause. Tu peux jouer une carte à bordure ORANGE (ANYTIME) en réaction, ou appuyer sur ESPACE pour continuer." },
+};
+function showTuto(id) {
+  if(!TUTO.active || TUTO.seen.has(id)) return;
+  if(!G || G.mode !== 'pve') return;
+  const step = TUTO_STEPS[id];
+  const pop = document.getElementById('tuto-popup');
+  if(!step || !pop) return;
+  TUTO.seen.add(id);
+  document.getElementById('tuto-step').textContent = `TUTORIEL ${step.n}/7`;
+  document.getElementById('tuto-title').textContent = step.title;
+  document.getElementById('tuto-txt').textContent = step.txt;
+  pop.style.display = 'block';
+  const ok = document.getElementById('tuto-ok');
+  const skip = document.getElementById('tuto-skip');
+  if(ok) ok.onclick = () => { pop.style.display = 'none'; };
+  if(skip) skip.onclick = () => { TUTO.active = false; pop.style.display = 'none'; };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
 // MODE ARENA (Phase 4) — porté de feat-gameplay-v2 (draft 40 cartes, pick 1/4,
 // difficulté IA progressive) et adapté v5 : PAS de marché, PAS de pouvoirs
 // divins. Structure de run façon Slay the Spire : 6 nœuds à embranchements
@@ -5285,6 +5324,11 @@ function arenaShowEnd(champion) {
 
 // ── Branchements écran-titre (4.4) ───────────────────────────────────────
 (function(){
+  const bRules = document.getElementById('btn-rules');
+  if(bRules) bRules.addEventListener('click', () => {
+    const m = document.getElementById('rules-modal');
+    if(m) m.style.display = 'flex';
+  });
   const bArena = document.getElementById('btn-arena');
   if(bArena) bArena.addEventListener('click', () => {
     if(typeof Audio5L!=='undefined') Audio5L.startMusic();
@@ -5293,27 +5337,25 @@ function arenaShowEnd(champion) {
   });
 })();
 
-// Étape 6 : Test automatique des images
+// Test automatique des images (5.3) — les illustrations sont des FICHIERS
+// (./assets/cards/...), plus du base64 : on compte les IDs résolus vers un
+// chemin ; les cartes sans mapping affichent le placeholder volontaire.
 function testImages() {
-  let ok = 0, fail = 0, fails = [];
+  let ok = 0, placeholders = [];
   const allIds = [
     ...Object.values(MONSTERS).flat().map(m => m.id),
     ...Object.values(GODS).flat().map(g => g.id),
   ];
   for (const id of allIds) {
     const src = getCardImage(id);
-    if (src && src.startsWith('data:')) ok++;
-    else { fail++; fails.push(id); }
+    if (src) ok++;
+    else placeholders.push(id);
   }
-  console.log('Images OK: ' + ok + '/' + (ok + fail));
-  if (fails.length) console.warn('Missing:', fails);
-  return { ok, fail, fails };
+  console.log(`Images mappées : ${ok}/${allIds.length} (+${placeholders.length} placeholders volontaires)`);
+  if (placeholders.length) console.info('Placeholders (illustration à venir) :', placeholders.join(', '));
+  return { ok, placeholders };
 }
-window.addEventListener('load', () => {
-  const r = testImages();
-  if (r.fail > 0) console.warn('⚠ ' + r.fail + ' images manquantes:', r.fails);
-  else console.log('✅ Toutes les images chargées (' + r.ok + ')');
-});
+window.addEventListener('load', testImages);
 
 
 

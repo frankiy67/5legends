@@ -33,6 +33,7 @@
       <div class="title-btns">
         <button id="btn-arena" class="play-btn arena">⚔&nbsp;&nbsp;ARENA&nbsp;<span class="btn-reco">(recommandé)</span></button>
         <button id="btn-play" class="play-btn">🎴&nbsp;&nbsp;PARTIE LIBRE</button>
+        <button id="btn-rules" class="play-btn ghost">📜&nbsp;&nbsp;RÈGLES</button>
       </div>
       <div class="title-foot">🦊 Yokai&nbsp;&nbsp;·&nbsp;&nbsp;⚡ Norse&nbsp;&nbsp;·&nbsp;&nbsp;🏺 Egyptian&nbsp;&nbsp;·&nbsp;&nbsp;🏛 Greek&nbsp;&nbsp;·&nbsp;&nbsp;🌞 Aztec</div>
     </div>
@@ -350,6 +351,41 @@
     <div class="ae-sub" id="ae-sub"></div>
     <div class="ae-recap" id="ae-recap"></div>
     <button id="ae-replay" class="play-btn">⚔ Nouvelle run</button>
+  </div>
+</div>
+
+<!-- RÈGLES (5.1) : résumé en 6 panneaux -->
+<div id="rules-modal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal rules-modal-inner">
+    <h3>📜 RÈGLES — l'essentiel en 6 points</h3>
+    <div class="rules-grid">
+      <div class="rules-panel"><div class="rp-icon">💎</div><div class="rp-title">Gems</div>
+        <div class="rp-txt">Chaque carte coûte des gems. Ton plafond de gems = le numéro de la ronde (max 10). Joue autant de cartes que tes gems le permettent.</div></div>
+      <div class="rules-panel"><div class="rp-icon">⚔️</div><div class="rp-title">Tour de jeu</div>
+        <div class="rp-txt">Main 1 → Combat → Main 2 → Fin. En Combat, clique un monstre puis sa cible. Les monstres frappent simultanément. Amène l'adversaire à 0 PV.</div></div>
+      <div class="rules-panel"><div class="rp-icon">🛡</div><div class="rp-title">Protection</div>
+        <div class="rp-txt">Tant qu'un monstre Protection est en jeu, il doit être détruit avant d'attaquer le joueur directement.</div></div>
+      <div class="rules-panel"><div class="rp-icon">🌌</div><div class="rp-title">Cycle Céleste</div>
+        <div class="rp-txt">Le ciel change à chaque ronde : Aube → Midi → Crépuscule → Nuit → Ténèbres. Quand TA phase arrive (ton zénith), ta faction débloque son bonus signature. Des cartes manipulent le Cycle.</div></div>
+      <div class="rules-panel"><div class="rp-icon">🂠</div><div class="rp-title">Dieux face cachée</div>
+        <div class="rp-txt">Certains dieux entrent face cachée et se déclenchent automatiquement (piège). Au zénith grec, ils sont aussi déclenchables d'un clic.</div></div>
+      <div class="rules-panel"><div class="rp-icon">⚡</div><div class="rp-title">ANYTIME</div>
+        <div class="rp-txt">Les cartes à bordure orange se jouent même pendant le tour adverse. Quand l'IA agit, une fenêtre s'ouvre : joue une carte ANYTIME ou appuie sur ESPACE.</div></div>
+    </div>
+    <button class="play-btn" onclick="document.getElementById('rules-modal').style.display='none'">✔ COMPRIS</button>
+  </div>
+</div>
+
+<!-- TUTORIEL (5.2) : popup contextuel -->
+<div id="tuto-popup" style="display:none">
+  <div class="tuto-inner">
+    <div class="tuto-step" id="tuto-step"></div>
+    <div class="tuto-title" id="tuto-title"></div>
+    <div class="tuto-txt" id="tuto-txt"></div>
+    <div class="tuto-btns">
+      <button id="tuto-ok" class="play-btn">✔ OK</button>
+      <button id="tuto-skip" class="play-btn ghost">Passer le tuto</button>
+    </div>
   </div>
 </div>
 

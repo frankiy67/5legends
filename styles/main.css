@@ -81,8 +81,16 @@ body{
     radial-gradient(ellipse 90% 70% at 50% 120%, rgba(120,40,140,.25) 0%, transparent 60%),
     radial-gradient(ellipse 70% 60% at 20% 80%, rgba(60,120,200,.18) 0%, transparent 60%),
     linear-gradient(160deg,#0c0918,#05030e);
-  animation:titleDrift 14s ease-in-out infinite alternate}
-@keyframes titleDrift{from{filter:hue-rotate(0deg) brightness(1)}to{filter:hue-rotate(18deg) brightness(1.1)}}
+  /* Ciel du Cycle Céleste (5.1) : aube dorée → midi blanc → crépuscule orange
+     → nuit bleue → ténèbres violettes, en boucle. */
+  animation:titleCycleSky 30s ease-in-out infinite}
+@keyframes titleCycleSky{
+  0%,100%{filter:hue-rotate(0deg) brightness(1.05) saturate(1.15)}     /* aube dorée */
+  20%{filter:hue-rotate(-12deg) brightness(1.35) saturate(.7)}         /* midi blanc */
+  40%{filter:hue-rotate(-30deg) brightness(1.05) saturate(1.5)}        /* crépuscule orange */
+  60%{filter:hue-rotate(140deg) brightness(.75) saturate(1.2)}         /* nuit bleue */
+  80%{filter:hue-rotate(70deg) brightness(.6) saturate(1.4)}           /* ténèbres violettes */
+}
 .title-vignette{position:absolute;inset:0;pointer-events:none;z-index:1;
   background:radial-gradient(ellipse 120% 120% at 50% 50%, transparent 45%, rgba(3,2,10,.85) 100%)}
 .title-content{position:relative;z-index:2;gap:0}
@@ -989,3 +997,48 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
 .boss-an-name{font-family:'Cinzel',serif;font-size:clamp(34px,5vw,60px);font-weight:900;letter-spacing:10px;color:var(--rar-god);text-shadow:0 0 36px rgba(199,125,255,.6)}
 .boss-an-rule{font-family:'Spectral',serif;font-size:16px;color:var(--ink);max-width:520px;background:rgba(199,125,255,.1);
   border:1px solid rgba(199,125,255,.4);border-radius:10px;padding:10px 22px}
+
+
+/* ══ Phase 5 — RÈGLES, TUTORIEL, mobile paysage ══ */
+.play-btn.ghost{background:transparent;border-color:var(--brd2);opacity:.85}
+.play-btn.ghost:hover{border-color:var(--gold);opacity:1}
+.rules-modal-inner{max-width:920px;width:94vw;max-height:90vh;overflow-y:auto;text-align:center}
+.rules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0 18px}
+.rules-panel{background:rgba(255,255,255,.04);border:1px solid var(--brd2);border-radius:12px;padding:16px 14px;text-align:center}
+.rp-icon{font-size:34px;margin-bottom:6px}
+.rp-title{font-family:'Cinzel',serif;font-weight:800;letter-spacing:2px;color:var(--gold-bright);font-size:14px;margin-bottom:6px}
+.rp-txt{font-family:'Spectral',serif;font-size:12px;color:var(--ink2);line-height:1.45;text-align:left}
+@media (max-width:900px){.rules-grid{grid-template-columns:repeat(2,1fr)}}
+
+#tuto-popup{position:fixed;left:50%;bottom:220px;transform:translateX(-50%);z-index:6000;max-width:440px;width:92vw}
+.tuto-inner{background:linear-gradient(165deg,rgba(26,21,48,.97),rgba(13,10,26,.98));border:2px solid var(--gold);
+  border-radius:14px;padding:16px 20px;box-shadow:0 10px 40px rgba(0,0,0,.7),0 0 24px var(--gold-glow);
+  animation:tutoIn .35s cubic-bezier(.2,1.3,.4,1)}
+@keyframes tutoIn{from{opacity:0;transform:translateY(16px) scale(.94)}to{opacity:1;transform:none}}
+.tuto-step{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--gold);opacity:.8}
+.tuto-title{font-family:'Cinzel',serif;font-size:17px;font-weight:800;color:var(--gold-bright);margin:4px 0 6px}
+.tuto-txt{font-family:'Spectral',serif;font-size:13px;color:var(--ink);line-height:1.5}
+.tuto-btns{display:flex;gap:10px;margin-top:12px;justify-content:flex-end}
+.tuto-btns .play-btn{font-size:12px;padding:7px 16px}
+
+/* Mobile paysage (cible iPhone SE 667×375) — 5.3 */
+@media (max-width:740px) and (orientation:landscape), (max-height:420px){
+  #game{grid-template-rows:30px 44px 1fr 1fr 44px 118px}
+  .fcard,.fc-frame{width:66px}
+  .fc-frame{height:84px}
+  .bf-slot{width:66px;height:84px}
+  .hcard{width:74px;height:96px}
+  .hc-txt,.fc-cap-text{display:none}
+  .field-row,.bf-slots{gap:5px;padding-left:6px;padding-right:6px}
+  #hand-cards{padding-left:6px;padding-right:6px}
+  .pbar{gap:6px;padding:0 8px}
+  .pbar-id{min-width:60px}
+  .pbar-name{font-size:10px}
+  .hp-orb{width:34px;height:34px;font-size:12px}
+  .gems .gem{width:8px;height:8px}
+  #action-bar .action-btn{font-size:10px;padding:6px 10px}
+  #cycle-banner .cycle-phase-label{display:none}
+  .ai-overlay{bottom:130px;right:8px;font-size:9px}
+  #tuto-popup{bottom:130px}
+  .turn-bar{font-size:9px}
+}

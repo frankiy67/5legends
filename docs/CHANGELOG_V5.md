@@ -154,3 +154,18 @@ yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** 
   durée moyenne 9,3 tours ≤ 12 ✅**, 25 % de runs championnes (IA pilote).
 - Golden master STRICTEMENT IDENTIQUE après l'Arena (vérifié par golden_check) :
   zéro impact sur le jeu normal.
+
+## 5 — Première minute & UX
+- **5.1** Écran-titre : ciel du Cycle animé (aube dorée → midi blanc → crépuscule orange
+  → nuit bleue → ténèbres violettes, boucle 30 s), boutons ARENA / PARTIE LIBRE / RÈGLES
+  (modal 6 panneaux illustrés). Logo « 5 LEGENDS » (déjà correct sur main).
+- **5.2** Tutoriel : 7 popups contextuels en PvE (gems → phases → attaque → Protection →
+  Cycle → dieux face cachée → fenêtre ANYTIME), flag de session en mémoire (R7),
+  bouton « Passer le tuto ».
+- **5.3** Fixes AUDIT restants : `testImages()` réécrit (fichiers, plus de base64 —
+  log console véridique) ; media query mobile paysage (cible 667×375 : cartes 66 px,
+  textes cachés, barres compactes, ai-overlay/tuto recalés). Main IA face cachée,
+  panneau droit supprimé, 100vw/vh : déjà sur main (commits 6e9405b/8e18d4b/9377fe7).
+- **5.4** Instructions visibles : textes de ciblage en français (« Choisis une cible »),
+  bannière de réaction (existante), aides mulligan/draft (existantes), hint de draft Arena.
+- Golden STRICTEMENT IDENTIQUE (UI pure).
