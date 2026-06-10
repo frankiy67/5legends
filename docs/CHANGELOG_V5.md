@@ -73,3 +73,24 @@ Tous les changements de gameplay, cartes et équilibrage, avec chiffres de valid
 ### Validation factions : 500 parties (50 × 10 matchups, côtés alternés)
 yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** · aztec **50,0 %**
 — toutes dans [45, 55] ✅ · 0 crash · 0 timeout
+
+
+## 1.2 — buildDeck déterministe
+- Suppression du `shuffle().slice(0,45)` qui coupait 9 cartes au hasard à chaque partie.
+- Deck complet et fixe de **54 cartes** (40 monstres + 14 dieux). GAME_RULES.md mis à jour.
+- Validation : factions 47,5–51,5 %, P1 47,9 % sur 1000, golden régénéré (P1 95/P2 105, 0 crash).
+
+## 1.3 — Mulligan (flow Legends of Runeterra)
+- L'overlay joueur existait (commit 6f2e2dd) ; ajouts v5 :
+  - **Heuristique IA conforme spec** : garde les coûts ≤3 (objectif 3), remplace les coûts ≥5
+    sauf s'il n'y en a qu'1, creuse en remplaçant les coûts 4 si <3 cartes cheap.
+  - **Mulligan en mode 'sim'** : le golden master couvre désormais le vrai flow.
+- Compensation P2 re-calibrée après mulligan (le mulligan changeait l'équilibre) :
+  Coin +1 gem T1 + **pioche bonus au 2ᵉ tour de P2** (variantes mesurées : coin 1T → 53,9 %,
+  coin 2T → 44,9 %, main 6 → 45,3 %, retenue → 49,2 %).
+- Ajustements post-mulligan (itérations 4-5) : buffs yokai (Ningyo, Mujnina, Tanuki, Keukegen,
+  Tsuchinoko, Ushi-Oni +1), aztec (Chullachaki, Teuzauhtototl, Huay Chivo, Izcoalt +1),
+  egyptian (Abtu, Sphinx, Criosphinx, Hieracosphinx, Momie, Djinn +1) ; retours partiels
+  greek (Hippocampe, Cyclope −1).
+- **Validation finale Phase 1 (1000 parties)** : P1 **48,4 %** · yokai **50,8** · norse **47,5** ·
+  egyptian **49,3** · greek **51,0** · aztec **51,5** — tous critères ✅ · 0 crash.
