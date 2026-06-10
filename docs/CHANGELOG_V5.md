@@ -276,3 +276,12 @@ yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** 
 ## Description courte de repo suggérée (8.2)
 > Jeu de cartes mythologique en vanilla JS où le temps est le plateau : manipulez le
 > Cycle Céleste, déclenchez le zénith de votre panthéon, draftez et survivez à l'Arena.
+
+## 8.5 — État final
+- Branche `fix-audit-v5` : 11 commits atomiques au-dessus de `origin/main` (30bbd64),
+  **AUCUN merge dans main**, branches feat-* intactes.
+- Tests : golden ✓ identique au snapshot · 181/181 cartes · factions [45,55] ·
+  Arena 0 crash · preview 211/211 — tout vert.
+- **Push remote : NON effectué** — `git push` reste suspendu en attente
+  d'identifiants interactifs (HTTPS + prompt impossible en session autonome).
+  La branche est prête : `git push -u origin fix-audit-v5`.
