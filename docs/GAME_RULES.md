@@ -2,8 +2,10 @@
 
 ## Setup
 - Each player selects a faction
-- Each player starts with **25 HP**, **1 Gem**, and **4-5 cards** in hand
-- Player 1 goes first
+- Each player's deck is a fixed **54 cards**: 40 monsters (commons ×3, uncommons ×2, rares ×1) + 14 gods
+- Each player starts with **25 HP** and **1 Gem**
+- Player 1 goes first with **4 cards** in hand; Player 2 gets **5 cards** plus **+1 temporary Gem on each of their first two turns** (going-second compensation)
+- Both players then **mulligan**: starting hand face up, check any cards to replace (one pass), confirm — replaced cards are reshuffled into the deck
 
 ## Turn Structure
 
@@ -17,7 +19,7 @@ Attack with your monsters. Select a monster to attack, then choose a target (opp
 Play more cards after combat.
 
 ### End
-Turn passes to the opponent. Both players gain +1 max gem for next turn.
+Turn passes to the opponent. The gem cap is the **round number** (capped at 10) — identical for both players.
 
 ## Playing Cards
 

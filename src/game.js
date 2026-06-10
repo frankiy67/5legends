@@ -530,7 +530,7 @@ aztec:[
 
 
 
-const SPELLS = {};  // Sorts retirés — deck 45 cartes (40 monstres + 5 dieux)
+const SPELLS = {};  // Sorts retirés — deck 54 cartes (40 monstres + 14 dieux)
 
 // =====================================================
 // GAME STATE
@@ -585,21 +585,22 @@ function newCard(template) {
 }
 
 function buildDeck(faction) {
-  // DECK 45 CARTES — Pas de sorts
+  // DECK 54 CARTES — composition DÉTERMINISTE (fix 1.2 : l'ancien
+  // shuffle().slice(0,45) coupait 9 cartes AU HASARD à chaque partie).
   // Monstres par rareté du xlsx :
   //   non rare  × 3  (6 cartes uniques = 18 cartes)
   //   Semi rare × 2  (8 cartes uniques = 16 cartes)
   //   Rare      × 1  (6 cartes uniques =  6 cartes)
   //   Total monstres = 40 cartes
   // Dieux : 14 × 1 = 14 cartes
-  // TOTAL = 54 cartes
+  // TOTAL = 54 cartes (toutes présentes, seul l'ordre est mélangé)
   const rarityCopies = { common: 3, uncommon: 2, rare: 1 };
   const ms = MONSTERS[faction].flatMap(m => {
     const copies = rarityCopies[m.rarity] || 1;
     return Array.from({length: copies}, () => newCard({...m, type:'monster', faction}));
   });
   const gs = GODS[faction].map(g => newCard({...g, type: g.type || 'god', faction}));
-  return shuffle([...ms, ...gs]).slice(0, 45);
+  return shuffle([...ms, ...gs]);
 }
 
 // Debug helper (accessible depuis la console)
