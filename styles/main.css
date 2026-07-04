@@ -1150,7 +1150,7 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
 /* préférence OS : fondu quasi instantané (le toggle in-game body.reduce-motion
    est déjà couvert par la règle globale animation/transition .001s) */
 @media (prefers-reduced-motion:reduce){
-  .sky-layer{transition-duration:.05s}
+  .sky-layer,.bf-cycle-tint{transition-duration:.05s}
   .sky-layer::before,.sky-layer::after{animation:none}
 }
 .sky-layer[data-phase="aube"]{background:
