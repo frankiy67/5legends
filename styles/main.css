@@ -610,8 +610,9 @@ body.reduce-motion #destiny-timeline{transition:none}
   box-shadow:var(--shadow-float),0 18px 38px rgba(0,0,0,.6)!important}
 .hcard:hover + .hcard{transform:rotate(var(--arc-rot,0deg)) translateY(var(--arc-y,0px)) translateX(14px);transition:transform .14s ease-out}
 .hcard:has(+ .hcard:hover){transform:rotate(var(--arc-rot,0deg)) translateY(var(--arc-y,0px)) translateX(-14px);transition:transform .14s ease-out}
-/* le tilt 3D se neutralise pendant le preview agrandi pour rester lisible */
-.hcard:hover .hc-frame-inner{--rx:0deg!important;--ry:0deg!important}
+/* le tilt 3D (±6° via --rx/--ry, cf. section 15b) compose avec le lift :
+   il vit sur le cadre INTERNE, l'arc et le soulèvement sur la carte —
+   assez subtil pour rester lisible, le gros zoom reste dans le preview */
 .hcard.anytime.playable{animation:hcard-anytime 1.5s ease-in-out infinite}
 @keyframes hcard-anytime{0%,100%{box-shadow:var(--shadow-card),0 0 12px rgba(244,160,20,.4)}50%{box-shadow:var(--shadow-card),0 0 26px rgba(244,160,20,.9)}}
 .hcard.reaction-ready{animation:pulse-reaction .8s ease-in-out infinite alternate!important}
@@ -832,16 +833,24 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
 #big-preview-overlay{align-items:center;justify-content:center}
 
 /* ──────────────────────────────────────────────────────────────────
-   15b. INCLINAISON 3D (tilt) — perspective conteneur + rotX/rotY ±8°
+   15b. INCLINAISON 3D (tilt) — perspective conteneur + rotX/rotY ±6°
    Le tilt s'applique au cadre INTERNE pour composer avec l'arc/hover.
+   --rx/--ry sont posées par le script rAF d'index.html (souris fine
+   uniquement) ; la transition .12s lisse les frames = inertie d'objet.
    ────────────────────────────────────────────────────────────────── */
 .fcard,.hcard{perspective:600px}
 .fc-frame,.hc-frame-inner{
   transform:rotateX(var(--ry,0deg)) rotateY(var(--rx,0deg));
   transform-style:preserve-3d;
-  transition:transform .12s ease,box-shadow .3s,background .3s;
+  transition:transform .12s ease-out,box-shadow .3s,background .3s;
   will-change:transform;
 }
+/* reduced-motion (pref OS ou toggle in-game) : cartes à plat, le JS est
+   déjà coupé — ceci est la ceinture de sécurité côté CSS */
+@media (prefers-reduced-motion:reduce){
+  .fc-frame,.hc-frame-inner{transform:none!important}
+}
+body.reduce-motion .fc-frame,body.reduce-motion .hc-frame-inner{transform:none!important}
 /* reflet spéculaire glissant selon le tilt */
 .fc-frame::after,.hc-frame-inner::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:5;
   background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,calc(.10 + var(--gloss,0)*.14)) 50%,transparent 65%);
