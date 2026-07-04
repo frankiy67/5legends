@@ -1032,6 +1032,19 @@ function effProtect(m, ownerP) {
   if((m.cap||'').includes('protect')) return true;
   return getZenithFaction() === 'norse' && G.players[ownerP] && G.players[ownerP].faction === 'norse';
 }
+// ── ASCENSION (A3) : ÉGIDE — exception grecque à la règle « un Rempart à
+// genoux ne protège plus ». Une créature Égide (vivante, debout, visible)
+// protège les fidèles AGENOUILLÉS de son contrôleur : l'ennemi doit la
+// détruire avant de pouvoir attaquer/profaner ces agenouillés.
+// AUCUN porteur pour l'instant (décision Frank Q1 : moteur seul).
+function hasEgide(P) {
+  return !!P && P.field.some(x => x && !x.faceDown && !x.asleep && !x.kneeling && (x.cap||'').includes('egide'));
+}
+// Un fidèle agenouillé protégé par une Égide alliée est inciblable en attaque.
+function protectedByEgide(targetP, m) {
+  return !!(m && m.kneeling && hasEgide(G.players[targetP]));
+}
+
 // Zénith yokai (Nuit) : les monstres endormis ADVERSES deviennent ciblables.
 function canTargetSleeping(attackerP) {
   return getZenithFaction() === 'yokai' && G.players[attackerP] && G.players[attackerP].faction === 'yokai';
@@ -2017,6 +2030,14 @@ registerEffect('exit', cap => cap.includes('exit_heal4'), ctx => {
   const { p, m } = ctx;
   G.players[p].hp = Math.min(25, G.players[p].hp + 4);
   addLog(`${m.n} Exit — +4 PV!`,'heal');
+});
+// ── ASCENSION (A3) : exit_faith — Dernier Souffle : +1 Foi au contrôleur.
+// AUCUN porteur pour l'instant (décision Frank Q1 : moteur seul).
+registerEffect('exit', cap => cap.includes('exit_faith'), ctx => {
+  const { p, m } = ctx;
+  G.players[p].faith = (G.players[p].faith || 0) + 1;
+  addLog(`🔥 ${m.n} Dernier Souffle — +1 Foi (${G.players[p].faith}/${FAITH_WIN})`,'special');
+  checkVictory();
 });
 
 async function applyExit(p, m) {
@@ -3130,6 +3151,16 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       // cursed defender: 1 dmg = death
       const actualDmg = def.cursed ? def.cDef : atkVal;
       def.cDef -= actualDmg;
+      // ── ASCENSION (A3) : FERVEUR — quand une créature Ferveur ATTAQUE et
+      // inflige des dégâts à une créature ennemie, +1 Foi à son contrôleur
+      // (1×/tour par créature, flag _fervor reset en début de tour). Pas sur
+      // la riposte, pas sur une attaque au visage. AUCUN porteur pour
+      // l'instant (décision Frank Q1 : moteur seul) — inerte en v1.
+      if(actualDmg > 0 && (atk.cap||'').includes('fervor') && !atk._fervor) {
+        atk._fervor = true;
+        AP.faith = (AP.faith || 0) + 1;
+        addLog(`🔥 Ferveur — ${atk.n} : +1 Foi (${AP.faith}/${FAITH_WIN})`, 'special');
+      }
       const retDmg = (def.cursed || def.asleep) ? 0 : retVal; // un dormeur ne riposte pas
       atk.cDef -= retDmg;
 
@@ -4055,7 +4086,7 @@ async function aiCombatPhase(p=2) {
 function aiHasProductiveAttack(p, m) {
   const opp = p===1?2:1;
   const OP = G.players[opp];
-  const alive = OP.field.filter(x => x && (!x.faceDown || (x.asleep && canTargetSleeping(p))));
+  const alive = OP.field.filter(x => x && (!x.faceDown || (x.asleep && canTargetSleeping(p))) && !protectedByEgide(opp, x));
   const hasProtect = alive.some(x => effProtect(x, opp));
   const myAtk = m.cAtk||0, myDef = m.cDef||0;
   if(hasProtect) return myAtk >= 2;                    // percer le mur adverse
@@ -4100,7 +4131,8 @@ function pickAITarget(targetP, attackerP=2) {
     .map((m,i) => ({m,i}))
     .filter(({m,i}) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
 
-  const alive = TP.field.map((m,i)=>({m,i})).filter(x => x.m && (!x.m.faceDown || (x.m.asleep && canTargetSleeping(attackerP))));
+  // ÉGIDE (A3) : les agenouillés protégés sont exclus des cibles.
+  const alive = TP.field.map((m,i)=>({m,i})).filter(x => x.m && (!x.m.faceDown || (x.m.asleep && canTargetSleeping(attackerP))) && !protectedByEgide(targetP, x.m));
   const hasProtect = alive.some(x => effProtect(x.m, targetP));
 
   // ── LETHAL CHECK: can remaining attackers kill the player? ──────
@@ -4494,7 +4526,8 @@ function startAttackTargeting(attacker, p, idx) {
   document.querySelectorAll(`[data-player="${opp}"]`).forEach(el => {
     const mi = parseInt(el.dataset.idx);
     const m = OP.field[mi];
-    if(m && (!m.faceDown || (m.asleep && canTargetSleeping(p)))) el.classList.add('valid-target-dmg');
+    // ÉGIDE (A3) : un agenouillé protégé n'est pas marqué comme cible.
+    if(m && (!m.faceDown || (m.asleep && canTargetSleeping(p))) && !protectedByEgide(opp, m)) el.classList.add('valid-target-dmg');
   });
 
   // Mark player HP bar as target (if no protect)
@@ -4604,6 +4637,15 @@ function markValidTargets(cap, p, opp) {
 function resolveTarget(target) {
   if(!G || !G.targeting) return;
   const t = G.targeting;
+  // ÉGIDE (A3) : interdire de cibler un fidèle agenouillé protégé (le ciblage
+  // reste actif pour choisir une autre cible).
+  if(t.mode==='attack' && target.type==='field') {
+    const def = G.players[target.p] && G.players[target.p].field[target.i];
+    if(def && protectedByEgide(target.p, def)) {
+      addLog(`${def.n} est protégé par une Égide — détruisez-la d'abord.`,'warn');
+      return;
+    }
+  }
   stopTargeting();
 
   if(t.mode==='attack') {
@@ -5279,7 +5321,7 @@ function renderField(p) {
       if(G.targeting.mode==='attack') {
         // Attack: all visible opponent monsters + player bar (handled in renderPlayerBar)
         const opp=G.targeting.p===1?2:1;
-        if(p===opp) cls+=' valid-target-dmg';
+        if(p===opp && !protectedByEgide(p, m)) cls+=' valid-target-dmg'; // ÉGIDE (A3)
       } else if(G.targeting.mode==='card') {
         // Card targeting: defer to markValidTargets (called separately)
       }
@@ -5768,6 +5810,7 @@ function showAtkModal(attacker) {
   // Monster targets
   OP.field.forEach((m,i)=>{
     if(!m||m.faceDown) return;
+    if(protectedByEgide(opp, m)) return; // ÉGIDE (A3) : agenouillé protégé inciblable
     const blocked=hasProtect&&!effProtect(m,opp);
     const div=document.createElement('div');
     div.className=`tgt-item${blocked?' blocked':''}`;
