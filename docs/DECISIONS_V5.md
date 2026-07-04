@@ -177,3 +177,25 @@ sérialisés) · les NOMS DE FACTIONS (Yokai/Norse/Egyptian/Greek/Aztec) sont
 traités comme noms propres et conservés (identifiants transverses code/tests/
 HUD) · le badge de cadre « ANYTIME » est conservé comme marqueur visuel ·
 ⚠️ à relire par Frank
+
+**[D1]** Présages datés en TICKS (compteur absolu de transitions du Cycle,
+`G.cycleTick`) et non en noms de phase · alternative écartée : échéance par
+nom de phase (ambiguë avec gel/reroll/retard) · conséquences : geler le Cycle
+RETARDE les présages, l'accélérer les RAPPROCHE ; un retard du Cycle (marche
+arrière) compte aussi comme une transition · ⚠️ à relire par Frank
+
+**[D1]** doEndTurn reste SYNC : le rendre async décalait d'une microtask les
+morts différées flottantes en sim (golden_check l'a détecté, seed 69 —
+inversion de 2 lignes de log). Résolution des présages : awaitée aux points
+sûrs (début de tour IA, mi-tour IA après une carte, fin de doAttack, playCard),
+fire-and-forget quand le tour qui commence est humain ; TOUS les awaits sont
+CONDITIONNELS (file non vide) pour ne pas ajouter de cession de microtask ·
+⚠️ à relire par Frank
+
+**[D2]** Effet placeholder ramené de « 2 dégâts » (exemple de la consigne) à
+« 1 dégât à une créature adverse aléatoire » · pourquoi : à 2 dégâts, les
+présages décimaient les boards larges de petits corps — egyptian sortait du
+gate ±4pp (−4,3pp) ; à 1 dégât le gate passe (egyptian −3,0) · les 5 cartes
+sont volontairement IDENTIQUES (2/3 c2 uncommon) : placeholders, pas le design
+final · noms : Onmyōji / Völva / Ouadjet / Pythie / Tonalpouhqui (devins de
+chaque panthéon, zéro collision d'ID) · ⚠️ à relire par Frank

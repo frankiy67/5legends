@@ -108,6 +108,16 @@ When the AI plays a card or attacks, the game pauses and gives the human player 
 | `desecrateIfKneeling` | Profanation sur les 3 sorties « vraie mort » de handleDeath |
 | `hasEgide` / `protectedByEgide` / cap `fervor` / `exit_faith` / `_sanctuary` | Mots-clés moteur SANS porteur en v1 (décision Frank Q1) |
 
+## v1-unification additions (briques B & D)
+
+| Section | Responsibility |
+|---------|---------------|
+| `AI_PROFILES` / `setAIProfile` / `profileCardBonus` / `bumpStat` | Profils IA CONTROL/RUSH/GUARD/RAID (CONTROL = no-op strict, golden-safe) ; compteurs d'observation jamais sérialisés |
+| `ARENA_BOSS_DEFS[].profile` | 1 profil IA par boss d'Arena (B3) |
+| `G.cycleTick` / `G.omens` / `G._omensPending` | Frise du Destin : horloge de transitions + présages datés en ticks |
+| `scheduleOmen` / `fireOmen` / `OMEN_EFFECTS` / `resolveDueOmens` | Mot-clé Présage — résolution AWAITÉE aux points sûrs (début/mi-tour IA, doAttack, playCard), fire-and-forget au tour humain ; awaits CONDITIONNELS (aucune cession microtask à file vide → déterminisme golden) |
+| `renderDestinyTimeline` | Frise HUD : 5 prochaines phases projetées + badges 🔮 |
+
 ## Test harnesses (tools/)
 
 | Tool | Checks |
@@ -120,6 +130,9 @@ When the AI plays a card or attacks, the game pauses and gives the human player 
 | `card_metrics.js [N] [--md out]` | per-card play rate / win contribution / avg turn + combo rates |
 | `p1p2_diag.js [N]` | P1/P2 structural balance diagnostics |
 | `test_faith.js [N=20]` | 25 paires × N parties : 0 crash, Ascension ∈ [5,40] %, durée ≤ 13 tours, ventilation victoires par faction × raison |
+| `test_omens.js [N=20]` | 500 parties : 0 crash, chaque présage déclenché EXACTEMENT à son tick d'échéance (instrumentation scheduleOmen/fireOmen), durée ≤ 13 tours |
+| `ai_validate.js [seeds=20]` | Garde-fou comportemental : signatures RUSH/GUARD/RAID vs référence CONTROL (1000 parties/profil) |
+| `sim_core.js` | Loader partagé des harnais IA (profils + compteurs + getVictoryState) |
 
 Gate factions (arbitrage Frank 2026-07-04) : `test_factions.js 200` — chaque
 faction dans **[baseline ± 4pp]**, baseline fix-audit-v5 codée dans le harnais.

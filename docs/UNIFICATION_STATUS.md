@@ -3,7 +3,7 @@
 Suivi du portage des briques A→D sur le socle fix-audit-v5 (181 cartes, moteur v5).
 Méthode : PORTAGE (réécriture dans le moteur v5), pas de merge — cf. DECISIONS_V5.md [4.1].
 
-**État global : PLAN VALIDÉ PAR FRANK (2026-07-04) — brique A en cours.**
+**État global : LES 4 BRIQUES A→D SONT TERMINÉES ET VERTES (2026-07-04).**
 
 Réponses de Frank aux questions ouvertes :
 - **Q1 → Moteur seul, 0 carte convertie.** Ferveur/Égide/Sanctuaire implémentés dans le
@@ -25,7 +25,7 @@ Réponses de Frank aux questions ouvertes :
 | A — Foi / Ascension | jauge, Guerre/Prière, FAITH_WIN=16, Profanation, Ferveur, Égide, horloge T18 | ✅ TERMINÉE (4 commits A1-A4) | ✅ régénéré + round-trip vérifié | ✅ test_faith 500 : asc 5,8 %, 10,1 tours, 0 crash |
 | B — IA multistrat | profils CONTROL/RUSH/GUARD/RAID, garde-fou ai_validate, boss Arena, difficulté Partie Libre | ✅ TERMINÉE (3 commits B1-B3) | ✅ byte-identique vérifié 2× | ✅ ai_validate : 3 signatures ✓ |
 | C — i18n FR | UI visible en français (IDs/variables en anglais) | ✅ TERMINÉE (1 commit) | ✅ byte-identique vérifié | ✅ batterie complète verte |
-| D — Frise du Destin | timeline 5 phases, mot-clé Présage, 5 cartes démo | ⏳ non démarrée | régénérer en fin de D | test_omens.js à créer |
+| D — Frise du Destin | timeline 5 phases, mot-clé Présage, 5 cartes démo | ✅ TERMINÉE (3 commits D1-D3) | ✅ régénéré 1× + round-trip vérifié | ✅ test_omens 500 : 100 % au tick exact |
 
 ## Spec extraite des branches (2026-07-04)
 
@@ -103,7 +103,12 @@ Réponses de Frank aux questions ouvertes :
 
 ## Idées créatives NON codées (parking — consigne brique D)
 
-*(vide — à remplir si des idées émergent pendant D)*
+Idées survenues pendant D, volontairement NON codées (à trier avec Frank) :
+- Présages différenciés par faction (soin/buff/pioche/gel au lieu du dégât uniforme).
+- Présages CACHÉS à l'adversaire (badge 🔮 anonyme) vs révélés — tension d'info.
+- Interaction Prophétie/Kaguya ↔ Frise : choisir la phase pour esquiver/accélérer un présage adverse (déjà émergent via les ticks, à exploiter en design).
+- Présage conditionné au zénith (s'accomplit seulement si la phase d'échéance est le zénith du propriétaire).
+- Profil IA « OMEN » qui joue autour de la Frise (brique B l'accueillerait trivialement).
 
 ## ✅ ARBITRAGE FRANK (2026-07-04) — gate factions redéfini (P4 seul)
 

@@ -289,6 +289,26 @@ Porté de feat-ai-multistrat P1-P3, adapté au moteur v1 (double victoire).
   (noms propres).
 - Golden BYTE-IDENTIQUE vérifié · batterie complète verte.
 
+# v1-unification — BRIQUE D : socle de la Frise du Destin (structure seule)
+
+- **D1** : `G.cycleTick` (horloge de transitions), `G.omens` datés en ticks,
+  déclenchement des échus via `setCyclePhase` + résolution awaitée aux points
+  sûrs (awaits conditionnels — zéro cession microtask à file vide, golden
+  byte-identique vérifié sur la structure inerte). Frise HUD : 5 prochaines
+  phases projetées + badges 🔮 par joueur sur le divider central.
+- **D2** : mot-clé **Présage** + 5 cartes démo placeholder (1 uncommon 2/3 c2
+  par faction : Onmyōji, Völva, Ouadjet, Pythie, Tonalpouhqui), effet unique
+  « Présage (2 phases) : 1 dégât à une créature adverse aléatoire » (ramené de
+  2 à 1 dégât : à 2, egyptian sortait du gate à −4,3pp). Deck 57 → **59**
+  (44 monstres + 15 dieux). AUCUN autre contenu créatif (consigne).
+- **D3** : `tools/test_omens.js` — 500 parties : **0 crash · 390/442 présages
+  déclenchés, 100 % au tick exact · 10,2 tours ≤ 13** (les non-déclenchés =
+  partie finie avant l'échéance).
+- Validation : factions N=200 gate ±4pp ✅ (yokai +2,1 · norse −1,8 · egyptian
+  −3,0 · greek +3,4 · aztec −0,8) · P1 48,9 % (1000) · 186/186 cartes ·
+  Arena 0 crash · preview 202/202 · test_faith 6,2 % Ascension ✅ ·
+  **golden RÉGÉNÉRÉ** (P1 98/P2 102, 0 crash, round-trip déterministe).
+
 # RAPPORT FINAL — mission fix-audit-v5 (8.4)
 
 ## Avant / Après
