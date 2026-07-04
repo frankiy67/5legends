@@ -658,7 +658,12 @@ function buildDeck(faction) {
     return Array.from({length: copies}, () => newCard({...m, type:'monster', faction}));
   });
   const gs = GODS[faction].map(g => newCard({...g, type: g.type || 'god', faction}));
-  return shuffle([...ms, ...gs]);
+  // HARNAIS ASCENSION (pilier 3) : porteurs placeholder Ferveur/Égide injectés
+  // UNIQUEMENT sous flag harnais (×2 chacun, convention uncommon). Défaut : 0.
+  const phs = FAITH_PLACEHOLDERS
+    ? FAITH_PLACEHOLDER_CARDS.flatMap(t => Array.from({length: 2}, () => newCard({...t, type:'monster', faction})))
+    : [];
+  return shuffle([...ms, ...gs, ...phs]);
 }
 
 // Debug helper (accessible depuis la console)
@@ -693,6 +698,23 @@ function setP2StartFaith(v) { P2_START_FAITH = (v == null ? 0 : v); }
 const SUPREME_GODS = {
   yokai:'Amaterasu', norse:'Odin', egyptian:'Râ', greek:'Zeus', aztec:'Huitzilopochtli'
 };
+
+// ══════════════════════════════════════════════════════════════════════════
+// HARNAIS ASCENSION (pilier 3) — porteurs PLACEHOLDER de Ferveur / Égide.
+// Le jeu par défaut garde ZÉRO porteur (décision Frank Q1) : ces deux cartes
+// n'entrent dans les decks QUE si FAITH_PLACEHOLDERS est activé par un
+// harnais (tools/test_faith.js). Effets minimaux, génériques, sans saveur —
+// supports neutres pour prouver que le moteur Ferveur/Égide fonctionne.
+// Le design des VRAIES cartes appartient à Frank (docs/PILIERS_A_DESIGNER.md).
+// ══════════════════════════════════════════════════════════════════════════
+let FAITH_PLACEHOLDERS = false;
+function setFaithPlaceholders(v) { FAITH_PLACEHOLDERS = !!v; }
+const FAITH_PLACEHOLDER_CARDS = [
+  {id:'PH_FERVOR', n:'Zélote [PLACEHOLDER]',        atk:2, def:2, cost:2, rarity:'uncommon', cap:'fervor',
+   txt:'Ferveur — quand il inflige des dégâts en attaquant une créature : +1 Foi (1×/tour). [PLACEHOLDER pilier 3]'},
+  {id:'PH_EGIDE',  n:'Gardien votif [PLACEHOLDER]', atk:1, def:4, cost:2, rarity:'uncommon', cap:'egide',
+   txt:'Égide — vos fidèles agenouillés sont inciblables et improfanables. [PLACEHOLDER pilier 3]'},
+];
 
 // ARENA (4.x) : construit un deck joueur depuis des templates draftés
 // (cartes multi-factions). Chaque template porte déjà sa faction.
