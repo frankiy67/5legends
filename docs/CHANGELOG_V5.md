@@ -223,6 +223,38 @@ yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** 
 
 ---
 
+# v1-unification — BRIQUE A : le système de Foi (Ascension)
+
+Portage de origin/ascension (C1, C2, C4, P1, P2) + expériences retenues de
+feat-ai-multistrat (FAITH_WIN=16, DESECRATE_FAITH=1) sur le moteur v5.
+**C3 (retrait des PV) NON porté** : la Foi s'ajoute à la victoire par PV.
+
+### Moteur
+- Jauge de Foi par joueur (HUD des deux camps, Dieu Suprême + X/16).
+- **Guerre/Prière** : menu ⚔️/🙏 au clic en Combat ; +1 Foi verrouillée, fidèle
+  à genoux jusqu'à son prochain tour ; Rempart agenouillé ne protège plus ;
+  les jetons (cost 0) ne prient pas.
+- **Profanation** : tuer un agenouillé = +1 Foi au tueur (3 sorties « vraie
+  mort » de handleDeath ; Endure/Momie/Aphrodite/Anubis/Sanctuaire immunisent).
+- **Horloge céleste T18** : plus de Foi gagne ; égalité → PV ; double → nul.
+- `getVictoryState()` : source unique de fin de partie (jeu + tous les harnais).
+- IA : `aiPrayPhase` après léthal/anti-stall (ne prie jamais une attaque
+  productive) ; profanation prioritaire dans pickAITarget.
+- Mots-clés moteur SANS porteur (décision Frank Q1) : Ferveur, Égide,
+  Sanctuaire, exit_faith.
+- predictCombat : renvoi en main Artémis/Izanami modélisé (trou préexistant).
+
+### Validation (état retenu)
+- `test_faith.js` (500 parties) : **0 crash · Ascension 5,8 % ∈ [5,40] ·
+  10,1 tours ≤ 13** · victoires PV 94 %, horloge 2,2 %, nuls 0.
+- Factions N=200 — **gate relatif baseline ±4pp (arbitrage Frank)** :
+  yokai 48,4 (−2,7) · norse 42,6 (−3,9) · egyptian 60,3 (+1,0 — dette
+  préexistante, baseline réelle 59,3) · greek 50,7 (+3,6) · aztec 48,1 (+2,1) ✅.
+- P1 **51,8 %** sur 1000 (baseline 51,2 — pas de dérive P1/P2).
+- 181/181 cartes · Arena 0 crash · preview 201/201 · **golden RÉGÉNÉRÉ**
+  (200 parties, P1 114/P2 85/nul 1, 0 crash, round-trip déterministe vérifié ;
+  snapshot enrichi : faith, kneeling, winReason).
+
 # RAPPORT FINAL — mission fix-audit-v5 (8.4)
 
 ## Avant / Après

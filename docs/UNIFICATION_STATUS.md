@@ -22,7 +22,7 @@ Réponses de Frank aux questions ouvertes :
 
 | Brique | Contenu | État | Golden | Tests |
 |---|---|---|---|---|
-| A — Foi / Ascension | jauge, Guerre/Prière, FAITH_WIN=16, Profanation, Ferveur, Égide, horloge T18 | ⏳ non démarrée | régénérer en fin de A | test_faith.js à créer |
+| A — Foi / Ascension | jauge, Guerre/Prière, FAITH_WIN=16, Profanation, Ferveur, Égide, horloge T18 | ✅ TERMINÉE (4 commits A1-A4) | ✅ régénéré + round-trip vérifié | ✅ test_faith 500 : asc 5,8 %, 10,1 tours, 0 crash |
 | B — IA multistrat | profils CONTROL/RUSH/GUARD/RAID, garde-fou ai_validate, boss Arena, difficulté Partie Libre | ⏳ non démarrée | byte-identique | ai_validate.js à porter |
 | C — i18n FR | UI visible en français (IDs/variables en anglais) | ⏳ non démarrée | ⚠️ conflit logs (Q2) | batterie existante |
 | D — Frise du Destin | timeline 5 phases, mot-clé Présage, 5 cartes démo | ⏳ non démarrée | régénérer en fin de D | test_omens.js à créer |

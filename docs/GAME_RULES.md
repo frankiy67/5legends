@@ -43,6 +43,30 @@ Turn passes to the opponent. The gem cap is the **round number** (capped at 10) 
 
 A player loses when their HP reaches 0.
 
+## L'Ascension — 2e condition de victoire (v1-unification, brique A)
+
+En plus de la victoire par PV (inchangée), chaque joueur sert son **Dieu
+Suprême** (Amaterasu / Odin / Râ / Zeus / Huitzilopochtli) via une **jauge de
+Foi** visible dans le HUD des deux joueurs.
+
+- **Guerre OU Prière** : en phase de Combat, chaque monstre fait UNE action —
+  attaquer, ou **Prier** (menu au clic : ⚔️ / 🙏). Prier rapporte **+1 Foi,
+  verrouillée immédiatement**, et le fidèle **s'agenouille** 🙏 jusqu'au début
+  du tour de son propriétaire.
+- **Ascension** : atteindre **16 Foi** (`FAITH_WIN`) = victoire immédiate.
+- **Un fidèle à genoux est vulnérable** : un Rempart agenouillé ne protège
+  plus, et le tuer (**Profanation**) donne **+1 Foi** (`DESECRATE_FAITH`) à
+  son meurtrier. La Foi déjà priée reste acquise.
+- **Les jetons ne prient pas** (les corps invoqués à coût 0 n'ont pas d'âme).
+- **Horloge céleste** : à la fin du tour **18** (`TURN_CAP`), si personne n'a
+  ascensionné ni tué, le joueur avec le **plus de Foi** gagne ; égalité de
+  Foi → le plus de **PV** ; double égalité → match nul.
+- Mots-clés moteur définis mais **portés par aucune carte en v1** (décision
+  Frank — le contenu viendra dans des sessions dédiées) : **Ferveur** (+1 Foi
+  quand la créature blesse une créature en attaquant, 1×/tour), **Égide**
+  (protège les fidèles à genoux alliés : improfanables tant que l'Égide est
+  debout), **Sanctuaire** (un fidèle désigné ne peut pas être profané).
+
 ## Special Rules
 
 ### Anytime Cards

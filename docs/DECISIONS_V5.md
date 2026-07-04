@@ -97,3 +97,53 @@ de jetons en combat · Autel = payoff Autel/Sacrifice déclenché · ⚠️ à r
 nécessaires à l'archétype grec « Toile de pièges » (4 pièges + 9 corps payoff) ·
 alternative écartée : créer 3 nouveaux dieux fd (gonflement du pool) ·
 ⚠️ à relire par Frank
+
+---
+# v1-unification (briques A→D)
+
+**[A1]** C3 d'ascension NON porté : la victoire par PV=0 reste, la Foi S'AJOUTE
+(consigne Frank explicite) — toutes les conséquences de C3 dans la branche
+(attaques au visage retirées, effets PV neutralisés, orbe PV supprimée) sont
+ignorées · FAITH_WIN=16 et DESECRATE_FAITH=1 repris des expériences
+feat-ai-multistrat · P2_START_FAITH=0 (décision Frank Q3 : « valeur retenue »
+du rapport de calibration J2, contexte v1 déjà équilibré P1/P2) · horloge T18 :
+égalité de Foi → tie-breaker aux PV (consigne v1 ; la branche faisait match
+nul), double égalité → nul (Arena : nul = défaite du joueur) · validé par Frank
+
+**[A1]** Mots-clés Ferveur/Égide/Sanctuaire implémentés MOTEUR SEUL, zéro carte
+convertie (décision Frank Q1) · alternatives écartées : liste branche adaptée
+v5, ajout sans retrait · pourquoi : les porteurs branche ont divergé en v5
+(Mujnina→Réveil, Pégase→Toile, Hestia réparée en 6.3) et toute conversion
+touche l'équilibrage gelé en phase 0 · sources de Foi v1 : Prière et
+Profanation uniquement · validé par Frank
+
+**[A2]** Les JETONS (cost 0) ne peuvent pas prier · alternative écartée :
+prière universelle (spec branche implicite) · pourquoi : les hordes de jetons
+(Medjed) transformaient la course en spam — egyptian +4pp mesurés ·
+⚠️ à relire par Frank
+
+**[A2]** aiPrayPhase adaptée au monde double-victoire : exécutée APRÈS les
+checks léthal/anti-stall, une créature ne prie que si elle n'a AUCUNE attaque
+productive (kill propre, trade-up, percée de mur, chip au visage) et n'est pas
+un Rempart debout · alternative écartée : formule branche « garde ceil(menace/2)
+défenseurs, prie le reste » (réglée pour un monde SANS PV — mesurée ici :
+Ascension 0-3,8 %, hors cible) · ⚠️ à relire par Frank
+
+**[A2]** CONTROL profane en priorité : un fidèle à genoux tuable PROPREMENT
+passe devant les autres kills dans pickAITarget · pourquoi : sans contre, prier
+était gratuit (les factions tortue montaient) ; c'est l'usage prévu de
+DESECRATE_FAITH · RAID (brique B) ira plus loin (profanation même sale) ·
+⚠️ à relire par Frank
+
+**[A2/GATE]** Arbitrage Frank (P4 seul) : gate factions RELATIF à la baseline
+fix-audit-v5, **±4pp à N=200** (baseline : yokai 51,1 · norse 46,5 · egyptian
+59,3 · greek 47,1 · aztec 46,0) · egyptian ~59 % = dette PRÉEXISTANTE (le
+54,5 % de la batterie v5 était un artefact d'échantillon N=100) · norse −3,9pp
+absorbé par le gate · P1/P2/P3/P5 refusés : aucune modif d'IA, de règle ou de
+carte en phase 0 ; rééquilibrage norse + nerf egyptian reportés à la session
+d'équilibrage dédiée (phase 5) · décision Frank 2026-07-04
+
+**[A3]** predictCombat étendu : renvoi en main Artémis/Izanami d'une cible
+survivante (`targetBounced`) — trou de prédiction PRÉEXISTANT débusqué par
+test_preview via les nouveaux chemins de jeu de la brique A ·
+⚠️ à relire par Frank

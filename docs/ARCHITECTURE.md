@@ -96,6 +96,18 @@ When the AI plays a card or attacks, the game pauses and gives the human player 
 | `showAIIntent` | AI intention badge (category only — no hidden info leak) |
 | `TUTO` | 7 contextual tutorial popups (session memory only — R7: no localStorage) |
 
+## v1-unification additions (brique A — Foi/Ascension)
+
+| Section | Responsibility |
+|---------|---------------|
+| `FAITH_WIN` / `TURN_CAP` / `DESECRATE_FAITH` / `P2_START_FAITH` (+`setP2StartFaith`) | Constantes de Foi paramétrables en tête de fichier |
+| `player.faith` / `player.supremeGod` / `card.kneeling` | État de la course à l'Ascension |
+| `getVictoryState()` | Source unique de fin de partie : `{winner: 1\|2\|0, reason: 'hp'\|'ascension'\|'clock'}` ou null — consommée par checkVictory/checkVictoryBool ET tous les harnais |
+| `canPray` / `doPray` / `prayWith` / `showActionMenu` | Guerre/Prière (humain : menu flottant ⚔️/🙏) |
+| `aiPrayPhase` / `aiHasProductiveAttack` | IA : prie APRÈS léthal/anti-stall, jamais à la place d'une attaque productive |
+| `desecrateIfKneeling` | Profanation sur les 3 sorties « vraie mort » de handleDeath |
+| `hasEgide` / `protectedByEgide` / cap `fervor` / `exit_faith` / `_sanctuary` | Mots-clés moteur SANS porteur en v1 (décision Frank Q1) |
+
 ## Test harnesses (tools/)
 
 | Tool | Checks |
@@ -107,3 +119,9 @@ When the AI plays a card or attacks, the game pauses and gives the human player 
 | `test_preview.js` | combat preview prediction == actual outcome (200+ combats) |
 | `card_metrics.js [N] [--md out]` | per-card play rate / win contribution / avg turn + combo rates |
 | `p1p2_diag.js [N]` | P1/P2 structural balance diagnostics |
+| `test_faith.js [N=20]` | 25 paires × N parties : 0 crash, Ascension ∈ [5,40] %, durée ≤ 13 tours, ventilation victoires par faction × raison |
+
+Gate factions (arbitrage Frank 2026-07-04) : `test_factions.js 200` — chaque
+faction dans **[baseline ± 4pp]**, baseline fix-audit-v5 codée dans le harnais.
+Le [45,55] absolu reste affiché à titre indicatif (egyptian ~59 % = dette
+préexistante, nerf en phase 5).

@@ -152,18 +152,31 @@ async function main() {
   console.log(`  Parties inachevées ... : ${unfinished}`);
   console.log(`  Durée ................ : ${dt}s`);
   console.log('  ' + '─'.repeat(60));
-  console.log('  WINRATE PAR FACTION (toutes positions confondues)');
+  // ── GATE FACTIONS v1-unification (arbitrage Frank 2026-07-04, P4) ────────
+  // Gate RELATIF : chaque faction dans [baseline ± 4pp], baseline mesurée sur
+  // fix-audit-v5 (9c7be21) à N=200. Le [45,55] absolu reste affiché à titre
+  // indicatif (egyptian ~59 % = dette préexistante, nerf reporté phase 5).
+  // Le verdict relatif n'est significatif qu'à N ≥ 200 (SE ≈ 1,8pp).
+  const BASELINE = { yokai: 51.1, norse: 46.5, egyptian: 59.3, greek: 47.1, aztec: 46.0 };
+  const GATE_PP = 4;
+  const relGate = GAMES_PER_MATCHUP >= 200;
+  let relFails = 0;
+  console.log(`  WINRATE PAR FACTION (indicatif [45,55] · gate = baseline ±${GATE_PP}pp${relGate ? '' : ' — N<200, non contractuel'})`);
   for (const f of F) {
     const wr = fGames[f] ? (100 * fWins[f] / fGames[f]) : 0;
-    const flag = wr >= 45 && wr <= 55 ? '✅' : '❌';
-    console.log(`    ${flag} ${f.padEnd(10)} : ${wr.toFixed(1)}%  (${fWins[f]}/${fGames[f]})`);
+    const abs = wr >= 45 && wr <= 55 ? '✅' : '❌';
+    const d = wr - BASELINE[f];
+    const rel = Math.abs(d) <= GATE_PP ? '✅' : '❌';
+    if (relGate && Math.abs(d) > GATE_PP) relFails++;
+    console.log(`    ${f.padEnd(10)} : ${wr.toFixed(1)}%  (${fWins[f]}/${fGames[f]})  [45,55]:${abs}  Δbaseline ${d >= 0 ? '+' : ''}${d.toFixed(1)}pp:${rel}`);
   }
   console.log('───────────────────────────────────────────────────────────────');
-  if (crashes === 0 && timeouts === 0 && unfinished === 0) {
-    console.log('  ✅ 100/100 parties terminées proprement, sans crash ni timeout');
+  const clean = crashes === 0 && timeouts === 0 && unfinished === 0;
+  if (clean && (!relGate || relFails === 0)) {
+    console.log(`  ✅ ${total}/${total} parties propres` + (relGate ? ` · gate relatif ±${GATE_PP}pp OK` : ''));
     process.exit(0);
   } else {
-    console.log('  ❌ Anomalies détectées (voir colonnes ci-dessus)');
+    console.log(`  ❌ ${!clean ? 'Anomalies détectées' : `Gate relatif ±${GATE_PP}pp en échec (${relFails} faction(s))`}`);
     process.exit(1);
   }
 }
