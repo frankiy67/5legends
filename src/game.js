@@ -920,6 +920,9 @@ function initGame(f1, f2, mode, opts) {
     cycleTick: 0,
     omens: [],           // [{dueTick, ownerP, effectId, label, cardName}]
     _omensPending: [],
+    // ── DIEUX-RÉGENTS (pilier 4) : un trône par phase du Cycle (0..4).
+    // Toujours [null×5] par défaut — seul le harnais (REGENTS_DEMO) intronise.
+    regents: [null, null, null, null, null],
   };
   for(let p=1;p<=2;p++){
     const f = p===1?f1:f2;
@@ -1172,6 +1175,9 @@ function setCyclePhase(newCycle, srcLabel, opts) {
       G._omensPending.push(...due);
     }
   }
+  // DIEUX-RÉGENTS (pilier 4) : sortie/entrée de phase pour les auras.
+  // No-op strict tant qu'aucun régent ne siège (défaut hors harnais).
+  if(G.regents && (G.regents[prev] || G.regents[G.cycle % 5])) regentsOnTransition(prev, G.cycle % 5);
   scheduleCycleAnim();
   if(G.mode === 'pve') showTuto('cycle'); // TUTO 5 : premier changement de Cycle
   // ESQUIVE (2.2) : recharge à chaque changement de phase du Cycle.
@@ -1338,18 +1344,129 @@ async function resolveDueOmens() {
   checkVictory();
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// DIEUX-RÉGENTS (pilier 4) — MOTEUR d'intronisation / détrônement.
+// Un dieu peut RÉGNER sur une phase de la Frise : son aura s'applique pendant
+// que le Cycle traverse cette phase, et on peut le détrôner (le dieu part au
+// cimetière de son propriétaire ; un trône occupé est CONTESTÉ par une
+// nouvelle intronisation). MOTEUR SEUL : aucun régent n'existe par défaut —
+// la démo technique (3 dieux, auras [PLACEHOLDER]) n'est activée que sous
+// REGENTS_DEMO=false→true par le harnais tools/test_regents.js. Le choix des
+// vrais dieux-régents et le design des auras appartiennent à Frank
+// (docs/PILIERS_A_DESIGNER.md) — NE PAS convertir les 15 dieux faibles ici.
+// ══════════════════════════════════════════════════════════════════════════
+let REGENTS_DEMO = false;
+function setRegentsDemo(v) { REGENTS_DEMO = !!v; }
+
+// Démo technique sous flag : 3 dieux (1 par faction), intronisés sur le
+// zénith de leur faction AU LIEU de leur effet one-shot. Choix arbitraire
+// (dieux coût 2, souvent joués par l'IA) — PAS un choix de design.
+const REGENT_DEMO_GODS = {
+  KAIROS:     { phaseIdx: 1, auraId: 'aura_atk1'   }, // greek  / midi
+  SKULD:      { phaseIdx: 4, auraId: 'aura_faith1' }, // norse  / ténèbres
+  TONATIUH_R: { phaseIdx: 2, auraId: 'aura_draw1'  }, // aztec  / crépuscule
+};
+
+// Auras [PLACEHOLDER] — volontairement simples et sûres :
+//  · continue (apply à l'entrée de phase / remove à la sortie) : aura_atk1 ;
+//  · à l'entrée de phase (one-shot par traversée) : aura_faith1, aura_draw1.
+const REGENT_AURAS = {
+  aura_atk1: {
+    label: '+1 ATK aux alliés pendant la phase [PLACEHOLDER]',
+    apply(entry) {
+      entry._buffed = [];
+      G.players[entry.ownerP].field.forEach(m => {
+        if(m && !m.faceDown && m.type === 'monster') { m.cAtk += 1; entry._buffed.push(m); }
+      });
+      if(entry._buffed.length) addLog(`👑 Aura de ${entry.card.n} — +1 ATK à ${entry._buffed.length} allié(s).`,'buff');
+    },
+    remove(entry) {
+      (entry._buffed || []).forEach(m => { m.cAtk = Math.max(0, m.cAtk - 1); });
+      entry._buffed = [];
+    },
+  },
+  aura_faith1: {
+    label: "+1 Foi à l'entrée de la phase [PLACEHOLDER]",
+    enter(entry) {
+      const P = G.players[entry.ownerP];
+      P.faith = (P.faith || 0) + 1;
+      addLog(`👑 Aura de ${entry.card.n} — +1 Foi (${P.faith}/${FAITH_WIN}).`,'special');
+    },
+  },
+  aura_draw1: {
+    label: "Pioche 1 à l'entrée de la phase [PLACEHOLDER]",
+    enter(entry) { drawCard(entry.ownerP); addLog(`👑 Aura de ${entry.card.n} — pioche 1.`,'buff'); },
+  },
+};
+
+function getRegent(phaseIdx) { return (G && G.regents && G.regents[phaseIdx]) || null; }
+
+// Intronise `card` (dieu du joueur p) sur la phase `phaseIdx`. Trône occupé =
+// contesté : l'occupant est détrôné d'abord. Si la phase est déjà active,
+// l'aura s'applique/se déclenche immédiatement.
+function enthroneGod(p, card, phaseIdx, auraId) {
+  if(!G.regents) G.regents = [null, null, null, null, null];
+  if(G.regents[phaseIdx]) dethroneGod(phaseIdx, `${card.n} (trône contesté)`);
+  const entry = { card, ownerP: p, auraId, phaseIdx };
+  G.regents[phaseIdx] = entry;
+  const aura = REGENT_AURAS[auraId];
+  addLog(`👑 ${card.n} est INTRONISÉ sur ${CYCLE_NAMES[CYCLE_PHASES[phaseIdx]]} — ${aura ? aura.label : auraId}.`,'special');
+  if((G.cycle % 5) === phaseIdx) regentPhaseEnter(entry);
+  renderAll();
+  return entry;
+}
+
+// Détrône le régent de `phaseIdx` : retire son aura continue si sa phase est
+// active, et envoie le dieu au cimetière de son propriétaire.
+function dethroneGod(phaseIdx, srcLabel) {
+  const entry = getRegent(phaseIdx);
+  if(!entry) return null;
+  if((G.cycle % 5) === phaseIdx) regentPhaseExit(entry);
+  G.regents[phaseIdx] = null;
+  G.players[entry.ownerP].graveyard.push(entry.card);
+  addLog(`⚡ ${srcLabel || 'Détrônement'} — ${entry.card.n} est DÉTRÔNÉ de ${CYCLE_NAMES[CYCLE_PHASES[phaseIdx]]} !`,'special');
+  renderAll();
+  return entry;
+}
+
+function regentPhaseEnter(entry) {
+  const aura = REGENT_AURAS[entry.auraId];
+  if(!aura) return;
+  if(aura.apply) aura.apply(entry);
+  if(aura.enter) aura.enter(entry);
+}
+function regentPhaseExit(entry) {
+  const aura = REGENT_AURAS[entry.auraId];
+  if(aura && aura.remove) aura.remove(entry);
+}
+
+// Hook de transition appelé par setCyclePhase — no-op strict sans régent.
+function regentsOnTransition(prevIdx, newIdx) {
+  if(!G.regents) return;
+  const prevR = G.regents[prevIdx];
+  if(prevR) regentPhaseExit(prevR);
+  const newR = G.regents[newIdx];
+  if(newR) regentPhaseEnter(newR);
+}
+
 // ── Rendu de la Frise (5 prochaines phases projetées + présages épinglés) ──
 function renderDestinyTimeline() {
   const host = document.getElementById('destiny-timeline');
   if(!host || !G) return;
   let html = '';
   for(let d = 1; d <= 5; d++) {
-    const ph = CYCLE_PHASES[(G.cycle + d) % 5];
+    const phIdx = (G.cycle + d) % 5;
+    const ph = CYCLE_PHASES[phIdx];
     const omensHere = (G.omens || []).filter(o => o.dueTick - G.cycleTick === d);
     const badge = omensHere.length
       ? `<span class="dt-omen ${omensHere[0].hidden ? 'p0' : 'p'+omensHere[0].ownerP}" title="${omensHere.map(o => o.hidden ? '🔮 présage voilé' : `${o.cardName} : ${o.label}`).join(' · ')}">🔮${omensHere.length>1?omensHere.length:''}</span>`
       : '';
-    html += `<span class="dt-slot" title="${CYCLE_NAMES[ph]} (+${d})">${CYCLE_ICONS[ph]}${badge}</span>`;
+    // DIEUX-RÉGENTS (pilier 4) : couronne sur la phase où siège un régent.
+    const reg = getRegent(phIdx);
+    const crown = reg
+      ? `<span class="dt-regent p${reg.ownerP}" title="${reg.card.n} règne sur ${CYCLE_NAMES[ph]} — ${(REGENT_AURAS[reg.auraId]||{}).label || reg.auraId}">👑</span>`
+      : '';
+    html += `<span class="dt-slot" title="${CYCLE_NAMES[ph]} (+${d})">${CYCLE_ICONS[ph]}${badge}${crown}</span>`;
   }
   host.innerHTML = html;
 }
@@ -4013,6 +4130,15 @@ async function playGod(c, p) {
     G.players[p].summoned.add(G.players[p].field.length-1);
     addLog(`${c.n} enters Face Down`,'event');
     if(p === 1) showTuto('facedown'); // TUTO 6
+    return;
+  }
+
+  // DIEUX-RÉGENTS (pilier 4, DÉMO sous flag) : le dieu démo SIÈGE sur le
+  // zénith de sa faction au lieu de son effet one-shot (il ne va pas au
+  // cimetière tant qu'il règne). Jamais actif par défaut (REGENTS_DEMO=false).
+  if(REGENTS_DEMO && REGENT_DEMO_GODS[c.id]) {
+    const d = REGENT_DEMO_GODS[c.id];
+    enthroneGod(p, c, d.phaseIdx, d.auraId);
     return;
   }
 
