@@ -352,13 +352,13 @@ body.reduce-motion #destiny-timeline{transition:none}
 }
 .bf.bf2 .bf-overlay-dark{background-color:rgba(20,8,18,.42)}
 .bf.bf1 .bf-overlay-dark{background-color:rgba(8,12,28,.42)}
-/* teinte selon la phase du cycle */
+/* teinte selon la phase du cycle — accordée aux palettes du CIEL VIVANT */
 .bf-cycle-tint{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;mix-blend-mode:soft-light;transition:background .9s ease}
-#game[data-cycle-phase="aube"]      .bf-cycle-tint{background:linear-gradient(180deg,rgba(255,150,90,.5),rgba(255,200,120,.15))}
-#game[data-cycle-phase="midi"]      .bf-cycle-tint{background:linear-gradient(180deg,rgba(255,235,180,.45),rgba(255,250,220,.1))}
-#game[data-cycle-phase="crepuscule"].bf-cycle-tint{background:linear-gradient(180deg,rgba(230,110,80,.45),rgba(150,70,120,.18))}
-#game[data-cycle-phase="nuit"]      .bf-cycle-tint{background:linear-gradient(180deg,rgba(60,80,170,.5),rgba(30,40,100,.2))}
-#game[data-cycle-phase="tenebres"]  .bf-cycle-tint{background:linear-gradient(180deg,rgba(40,30,70,.6),rgba(10,8,30,.3))}
+#game[data-cycle-phase="aube"]       .bf-cycle-tint{background:linear-gradient(180deg,rgba(255,170,80,.5),rgba(255,210,130,.15))}
+#game[data-cycle-phase="midi"]       .bf-cycle-tint{background:linear-gradient(180deg,rgba(150,200,255,.4),rgba(225,242,255,.1))}
+#game[data-cycle-phase="crepuscule"] .bf-cycle-tint{background:linear-gradient(180deg,rgba(224,106,48,.5),rgba(120,50,110,.2))}
+#game[data-cycle-phase="nuit"]       .bf-cycle-tint{background:linear-gradient(180deg,rgba(60,90,180,.5),rgba(25,40,100,.22))}
+#game[data-cycle-phase="tenebres"]   .bf-cycle-tint{background:linear-gradient(180deg,rgba(95,15,35,.55),rgba(20,6,22,.3))}
 
 .bf-label{position:absolute;top:7px;left:18px;z-index:3;font-family:'Cinzel',serif;font-size:8px;color:rgba(244,201,93,.3);letter-spacing:4px;text-transform:uppercase}
 
@@ -1123,6 +1123,32 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
   animation:particleFly .8s ease-out forwards;box-shadow:0 0 8px currentColor}
 @keyframes particleFly{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--dx,30px),var(--dy,-60px)) scale(.3)}}
 .float-dmg{font-weight:900;font-family:'Cinzel',serif}
+
+/* ──────────────────────────────────────────────────────────────────
+   CIEL VIVANT — fond de plateau piloté par la phase du Cycle.
+   Deux couches superposées dans #sky : renderSky() peint la couche
+   cachée avec la nouvelle ambiance puis échange les opacités.
+   z-index:-1 : au-dessus du fond de #game, sous tout l'UI positionné.
+   L'« horizon » (~50-52%) correspond à la ligne du médaillon central.
+   ────────────────────────────────────────────────────────────────── */
+#sky{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.sky-layer{position:absolute;inset:0;opacity:0}
+.sky-layer.visible{opacity:1}
+.sky-layer[data-phase="aube"]{background:
+  radial-gradient(ellipse 90% 42% at 50% 52%, rgba(255,196,90,.42) 0%, transparent 62%),
+  linear-gradient(180deg,#181038 0%,#3a2448 28%,#8a4a34 44%,#d89040 51%,#513a1c 62%,#1c140c 100%)}
+.sky-layer[data-phase="midi"]{background:
+  radial-gradient(ellipse 70% 45% at 50% 10%, rgba(255,255,235,.28) 0%, transparent 60%),
+  linear-gradient(180deg,#245493 0%,#3a76b8 34%,#5e94cf 50%,#24466e 66%,#0e1e38 100%)}
+.sky-layer[data-phase="crepuscule"]{background:
+  radial-gradient(ellipse 85% 38% at 50% 52%, rgba(240,110,50,.45) 0%, transparent 62%),
+  linear-gradient(180deg,#241040 0%,#5a2a6e 32%,#a04050 46%,#e06a30 52%,#4a2030 64%,#160a18 100%)}
+.sky-layer[data-phase="nuit"]{background:
+  radial-gradient(ellipse 60% 30% at 72% 16%, rgba(140,170,255,.16) 0%, transparent 60%),
+  linear-gradient(180deg,#05070f 0%,#0a1430 40%,#14224a 52%,#0a1128 66%,#04060e 100%)}
+.sky-layer[data-phase="tenebres"]{background:
+  radial-gradient(ellipse 90% 45% at 50% 55%, rgba(122,16,32,.38) 0%, transparent 65%),
+  linear-gradient(180deg,#060208 0%,#12061a 35%,#3a0a18 52%,#1a040c 66%,#030103 100%)}
 
 /* 7.5 : fond du board suivant la phase du Cycle */
 #game[data-cycle-phase="aube"]{background:linear-gradient(180deg,#241a08 0%,#0d0a1a 45%,#1a1029 100%)}
