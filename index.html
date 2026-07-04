@@ -111,6 +111,12 @@
         <label><input type="radio" name="mode" value="pvp"> 2 Players</label>
         <label><input type="radio" name="mode" value="pve" checked> vs AI</label>
       </div>
+      <!-- IA MULTI-STRATÉGIES (B3) : difficulté = ressources de départ de l'IA (d0/d1/d2, cf. Arena 4.2) -->
+      <div class="mode-row" id="difficulty-row">
+        <label><input type="radio" name="aidiff" value="0"> 🌱 Facile</label>
+        <label><input type="radio" name="aidiff" value="1" checked> ⚖️ Normal</label>
+        <label><input type="radio" name="aidiff" value="2"> 🔥 Difficile</label>
+      </div>
       <button id="start-btn" class="confirm-btn" disabled>⚔ START BATTLE</button>
     </div>
   </div>

@@ -255,6 +255,27 @@ feat-ai-multistrat (FAITH_WIN=16, DESECRATE_FAITH=1) sur le moteur v5.
   (200 parties, P1 114/P2 85/nul 1, 0 crash, round-trip déterministe vérifié ;
   snapshot enrichi : faith, kneeling, winReason).
 
+# v1-unification — BRIQUE B : IA multi-stratégies
+
+Porté de feat-ai-multistrat P1-P3, adapté au moteur v1 (double victoire).
+
+- **B1** : profils CONTROL/RUSH/GUARD/RAID paramétrables (`setAIProfile`) —
+  bonus additifs dans scoreCard, arbitrage prière↔combat par profil dans
+  aiPrayPhase, ciblage RAID (profanation même sale) dans pickAITarget,
+  compteurs d'observation `bumpStat`. CONTROL = brique A à l'identique :
+  **golden byte-identique vérifié** à chaque sous-brique.
+- **B2** : `sim_core.js` + `ai_validate.js` (garde-fou, 1000 parties/profil vs
+  CONTROL, sièges équilibrés). Signatures ✓ : RUSH prie 9,5/partie dès T3 et
+  délaisse le combat (0,3 kills vs 4,1) · GUARD perd 2× moins de fidèles
+  (0,61 vs 1,17) avec +13 % de gardiennes · RAID profane +13 % (axe Ferveur
+  hors assertion — 0 porteur v1).
+- **B3** : 1 profil par boss d'Arena (Zeus RUSH · Anubis RAID · Odin GUARD ·
+  Quetzalcoatl RAID · Amaterasu CONTROL) + sélecteur de difficulté en Partie
+  Libre (🌱 d0 / ⚖️ d1 défaut / 🔥 d2, masqué en PvP).
+- Validation : golden **byte-identique** · test_arena 50 runs 0 crash
+  (boss profilés) · factions N=200 gate ±4pp ✅ · test_faith ✅ · 181/181 ✅ ·
+  preview 201/201 ✅.
+
 # RAPPORT FINAL — mission fix-audit-v5 (8.4)
 
 ## Avant / Après

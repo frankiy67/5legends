@@ -147,3 +147,23 @@ d'équilibrage dédiée (phase 5) · décision Frank 2026-07-04
 survivante (`targetBounced`) — trou de prédiction PRÉEXISTANT débusqué par
 test_preview via les nouveaux chemins de jeu de la brique A ·
 ⚠️ à relire par Frank
+
+**[B1]** CONTROL = IA brique A à l'identique (no-op strict, golden
+byte-identique vérifié) ; les branches GUARD/RAID d'aiPrayPhase suivent la
+spec branche (P1/P3) et non l'heuristique CONTROL v1 — GUARD prie DERRIÈRE
+ses gardiennes même sans « attaque improductive », RAID prie sans « bonne
+attaque » (kill franc / profanation / Ferveur) · ⚠️ à relire par Frank
+
+**[B2]** Signature RAID recalibrée : l'axe « Ferveur > CONTROL×1.1 » de la
+branche est affiché mais RETIRÉ des assertions (0 porteur de Ferveur en v1,
+décision Q1) ; remplacé par profanations > ×1.1 ET kills ≥ ×0.95 · signatures
+RUSH et GUARD de la branche conservées telles quelles ·
+⚠️ à relire par Frank
+
+**[B3]** Mapping profil par boss : Zeus RUSH (le Cycle s'emballe) · Anubis
+RAID (dieu des morts, profanateur) · Odin GUARD (prie derrière ses 2 murs) ·
+Quetzalcoatl RAID (échange sans peur grâce à l'Endurance) · Amaterasu CONTROL
+(généraliste) · sélecteur de difficulté Partie Libre = ressources d0/d1/d2 de
+l'Arena (défaut Normal d1 = comportement historique), pas de profil exposé au
+joueur (les profils restent réservés aux boss/harnais en v1) ·
+⚠️ à relire par Frank

@@ -754,6 +754,11 @@ function initGame(f1, f2, mode, opts) {
     };
   }
   G.activeTurn = 1; // Player 1 starts
+  // IA MULTI-STRATÉGIES (B3) : reset des profils à chaque partie ; un boss
+  // d'Arena impose le sien. Les harnais (sim) écrasent via setAIProfile après
+  // initGame. En Partie Libre PvE, l'IA reste CONTROL (golden inchangé).
+  setAIProfile(1, 'CONTROL');
+  setAIProfile(2, (boss && ARENA_BOSS_DEFS[boss] && ARENA_BOSS_DEFS[boss].profile) || 'CONTROL');
   addLog('⚔ Battle begins!', 'event');
   // ── BOSS D'ARENA (4.3) : règles cassées, annoncées à l'écran ──
   if(G.bossRule) {
@@ -6036,13 +6041,23 @@ document.querySelectorAll('.fp[data-p="2"]').forEach(fp => {
   });
 });
 
+// B3 : le sélecteur de difficulté n'a de sens que contre l'IA.
+document.querySelectorAll('input[name=mode]').forEach(r => r.addEventListener('change', () => {
+  const row = document.getElementById('difficulty-row');
+  if(row) row.style.display = (document.querySelector('input[name=mode]:checked').value === 'pve') ? '' : 'none';
+}));
+
 document.getElementById('start-btn').addEventListener('click', () => {
   Audio5L.startMusic();
   if (!setupP1 || !setupP2) return;
   const mode = document.querySelector('input[name=mode]:checked').value;
   document.getElementById('setup').style.display = 'none';
   document.getElementById('game').style.display = 'grid';
-  initGame(setupP1, setupP2, mode);
+  // B3 : difficulté de la Partie Libre (d0/d1/d2 — mêmes ressources IA que
+  // l'Arena 4.2). Défaut 1 = équilibre standard, identique à avant.
+  const diffEl = document.querySelector('input[name=aidiff]:checked');
+  const difficulty = (mode === 'pve' && diffEl) ? parseInt(diffEl.value, 10) : 1;
+  initGame(setupP1, setupP2, mode, { difficulty });
 });
 
 document.getElementById('mull-confirm').addEventListener('click', confirmMulligan);
@@ -6156,12 +6171,17 @@ const ARENA_NODES       = 6;   // + 1 boss = 7 duels max
 const ARENA_SANCT_HEAL  = 5;
 
 // Boss à règles cassées (4.3) — 1 par faction ; boss final tiré HORS faction joueur.
+// IA MULTI-STRATÉGIES (B3) : chaque boss joue son PROFIL en plus de sa règle
+// cassée — Zeus fonce (RUSH, le Cycle s'emballe), Anubis profane (RAID, dieu
+// des morts), Odin prie derrière ses murs (GUARD), Quetzalcoatl échange sans
+// peur grâce à l'Endurance (RAID), Amaterasu reste la généraliste (CONTROL).
+// ⚠️ mapping à relire par Frank (DECISIONS [B3]).
 const ARENA_BOSS_DEFS = {
-  zeus:        { name:'ZEUS',          faction:'greek',    ruleTxt:'Le Cycle Céleste avance d\'une phase CHAQUE tour.' },
-  anubis:      { name:'ANUBIS',        faction:'egyptian', ruleTxt:'Le premier monstre du boss détruit chaque tour revient en jeu.' },
-  odin:        { name:'ODIN',          faction:'norse',    ruleTxt:'Le boss commence avec 2 murs Protection 0/4 en jeu.' },
-  quetzalcoatl:{ name:'QUETZALCOATL',  faction:'aztec',    ruleTxt:'Tous les monstres du boss ont Endurance.' },
-  amaterasu:   { name:'AMATERASU',     faction:'yokai',    ruleTxt:'Le Cycle Céleste est figé sur la NUIT pendant tout le duel.' },
+  zeus:        { name:'ZEUS',          faction:'greek',    profile:'RUSH',    ruleTxt:'Le Cycle Céleste avance d\'une phase CHAQUE tour.' },
+  anubis:      { name:'ANUBIS',        faction:'egyptian', profile:'RAID',    ruleTxt:'Le premier monstre du boss détruit chaque tour revient en jeu.' },
+  odin:        { name:'ODIN',          faction:'norse',    profile:'GUARD',   ruleTxt:'Le boss commence avec 2 murs Protection 0/4 en jeu.' },
+  quetzalcoatl:{ name:'QUETZALCOATL',  faction:'aztec',    profile:'RAID',    ruleTxt:'Tous les monstres du boss ont Endurance.' },
+  amaterasu:   { name:'AMATERASU',     faction:'yokai',    profile:'CONTROL', ruleTxt:'Le Cycle Céleste est figé sur la NUIT pendant tout le duel.' },
 };
 
 function showBossAnnounce(B) {
