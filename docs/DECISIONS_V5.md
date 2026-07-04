@@ -167,3 +167,13 @@ Quetzalcoatl RAID (échange sans peur grâce à l'Endurance) · Amaterasu CONTRO
 l'Arena (défaut Normal d1 = comportement historique), pas de profil exposé au
 joueur (les profils restent réservés aux boss/harnais en v1) ·
 ⚠️ à relire par Frank
+
+**[C]** i18n : écrans setup, boutons, modales de ciblage, écran de victoire,
+labels face cachée/endormi/piège et descripteurs de factions (vocabulaire v5 :
+Sommeil·Rempart / Immortel·Rempart / Frénésie·Jetons / Offrande·Pièges /
+Immortel·Offrande) traduits · le LOG DE BATAILLE reste hors périmètre
+(décision Frank Q2 : golden byte-identique — les textes de log sont
+sérialisés) · les NOMS DE FACTIONS (Yokai/Norse/Egyptian/Greek/Aztec) sont
+traités comme noms propres et conservés (identifiants transverses code/tests/
+HUD) · le badge de cadre « ANYTIME » est conservé comme marqueur visuel ·
+⚠️ à relire par Frank

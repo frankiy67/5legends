@@ -1192,8 +1192,8 @@ function advancePhase() {
 function updatePhaseBtn() {
   const btn = document.getElementById('btn-next');
   if (!btn) return;
-  const labels = { Main1:'MAIN 1 → COMBAT', Combat:'COMBAT → MAIN 2', Main2:'MAIN 2 → END', End:'END TURN' };
-  btn.textContent = labels[G.phase] || 'NEXT';
+  const labels = { Main1:'MAIN 1 → COMBAT', Combat:'COMBAT → MAIN 2', Main2:'MAIN 2 → FIN', End:'FIN DE TOUR' };
+  btn.textContent = labels[G.phase] || 'SUIVANT';
 }
 
 function renderPhaseBar() {
@@ -5493,12 +5493,12 @@ function renderField(p) {
       // Sleeping monsters look DIFFERENT from intentional traps
       const isSleeping = m.asleep;
       const fdIcon  = isSleeping ? '😴' : '🂠';
-      const fdLabel = isSleeping ? `Zzz (${m.sleepTurns||'?'}t)` : 'Face Down';
+      const fdLabel = isSleeping ? `Zzz (${m.sleepTurns||'?'}t)` : 'Face cachée';
       const fdBg    = isSleeping
         ? 'radial-gradient(ellipse at 50% 40%, rgba(20,40,100,0.7), var(--bg3))'
         : 'radial-gradient(ellipse at 50% 40%, rgba(60,50,120,0.4), var(--bg3))';
       const fdNameColor = isSleeping ? '#88aaff' : factionCol;
-      const fdName      = isSleeping ? '💤 Sleeping' : `${FE[P.faction]} Trap`;
+      const fdName      = isSleeping ? '💤 Endormi' : `${FE[P.faction]} Piège`;
       div.innerHTML=`
         <div class="fc-frame" style="${isSleeping?'box-shadow:0 0 12px rgba(100,140,255,0.4)':''}">
           <div class="fc-inner">
@@ -5922,7 +5922,7 @@ function showAtkModal(attacker) {
   const modal=document.getElementById('atk-modal');
   const title=document.getElementById('atk-title');
   const body=document.getElementById('atk-body');
-  title.textContent=`${attacker.n} (${attacker.cAtk}⚔) — choose target`;
+  title.textContent=`${attacker.n} (${attacker.cAtk}⚔) — choisis la cible`;
   body.innerHTML='';
 
   const OP=G.players[opp];
@@ -5937,7 +5937,7 @@ function showAtkModal(attacker) {
   divP.innerHTML=`
     <div style="font-size:24px">👤</div>
     <div style="flex:1">
-      <div style="font-family:'Cinzel',serif;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text)">Player ${opp} — Direct Attack</div>
+      <div style="font-family:'Cinzel',serif;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text)">Joueur ${opp} — Attaque directe</div>
       <div style="height:7px;background:rgba(0,0,0,0.5);border-radius:4px;overflow:hidden">
         <div style="width:${pct0}%;height:100%;background:${col0}"></div>
       </div>
@@ -5968,7 +5968,7 @@ function showAtkModal(attacker) {
   });
 
   const cancel=document.createElement('button');
-  cancel.className='btn-sm';cancel.textContent='Cancel';
+  cancel.className='btn-sm';cancel.textContent='Annuler';
   cancel.onclick=()=>{modal.style.display='none';G.selAtk=null;renderAll();};
   body.appendChild(cancel);
   modal.style.display='flex';

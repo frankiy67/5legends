@@ -276,6 +276,19 @@ Porté de feat-ai-multistrat P1-P3, adapté au moteur v1 (double victoire).
   (boss profilés) · factions N=200 gate ±4pp ✅ · test_faith ✅ · 181/181 ✅ ·
   preview 201/201 ✅.
 
+# v1-unification — BRIQUE C : unification de la langue (i18n FR)
+
+- Écrans setup (Joueur 1/2, Choisis ta faction, Confirmer, 2 Joueurs/contre
+  l'IA, LANCER LA BATAILLE), bannière ANYTIME, FIN DE TOUR, Journal de combat,
+  écran de victoire (Rejouer), modales de ciblage (Choisis une cible, Attaque
+  directe, Annuler), labels Face cachée/💤 Endormi/Piège, boutons de phase
+  (MAIN 2 → FIN, FIN DE TOUR), sous-titre « Jeu de Cartes Tactique »,
+  descripteurs de factions au vocabulaire v5.
+- HORS PÉRIMÈTRE (décision Frank Q2) : le log de bataille (ses textes sont
+  sérialisés par le golden) — session ultérieure. Noms de factions conservés
+  (noms propres).
+- Golden BYTE-IDENTIQUE vérifié · batterie complète verte.
+
 # RAPPORT FINAL — mission fix-audit-v5 (8.4)
 
 ## Avant / Après

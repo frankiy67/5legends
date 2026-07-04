@@ -24,7 +24,7 @@ Réponses de Frank aux questions ouvertes :
 |---|---|---|---|---|
 | A — Foi / Ascension | jauge, Guerre/Prière, FAITH_WIN=16, Profanation, Ferveur, Égide, horloge T18 | ✅ TERMINÉE (4 commits A1-A4) | ✅ régénéré + round-trip vérifié | ✅ test_faith 500 : asc 5,8 %, 10,1 tours, 0 crash |
 | B — IA multistrat | profils CONTROL/RUSH/GUARD/RAID, garde-fou ai_validate, boss Arena, difficulté Partie Libre | ✅ TERMINÉE (3 commits B1-B3) | ✅ byte-identique vérifié 2× | ✅ ai_validate : 3 signatures ✓ |
-| C — i18n FR | UI visible en français (IDs/variables en anglais) | ⏳ non démarrée | ⚠️ conflit logs (Q2) | batterie existante |
+| C — i18n FR | UI visible en français (IDs/variables en anglais) | ✅ TERMINÉE (1 commit) | ✅ byte-identique vérifié | ✅ batterie complète verte |
 | D — Frise du Destin | timeline 5 phases, mot-clé Présage, 5 cartes démo | ⏳ non démarrée | régénérer en fin de D | test_omens.js à créer |
 
 ## Spec extraite des branches (2026-07-04)
