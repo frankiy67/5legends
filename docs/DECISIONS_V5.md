@@ -224,3 +224,29 @@ valider À L'ŒIL par Frank, Midi en particulier · ambiance : étoiles Nuit /
 poussière Aube / braise Ténèbres en transform+opacité seuls (composité GPU,
 zéro rAF), pause sur la couche cachée, animation:none en reduced-motion
 (toggle in-game ET pref OS) · ⚠️ à relire par Frank
+
+**[SKY]** Ciel rendu DOMINANT : le diagnostic à l'œil de Frank (Midi ≈ Aube,
+phases indistinguables) venait de trois couches qui écrasaient le ciel —
+illustrations de terrain à opacité .5, voiles sombres fixes (.42 + vignette
+.85) identiques entre phases, et teinte de phase en soft-light .5 (quasi
+nulle sur pixels sombres) · remède : terrains en retrait (opacité .3,
+saturate .5 — texture d'ambiance, plus l'élément dominant), voiles fixes
+réduits (.14 / vignette .5), et la teinte devient une vraie extension du
+ciel : gradient plein régime orienté vers l'horizon du médaillon (inversé
+sur bf2 pour que les deux terrains « regardent » la ligne d'horizon) ·
+barres HUD passées de .96 à ~.82 pour que le bain traverse tout l'écran,
+mais cartes, médaillon et bas de main gardent leur fond sombre opaque
+(lisibilité prioritaire) · ⚠️ à relire par Frank
+
+**[SKY]** Couleurs du tint en @property <color> (--tint-h/--tint-f posées
+sur #game par phase) · pourquoi : transition:background ne s'anime JAMAIS
+sur un gradient (le tint sautait d'un coup — invisible avant, violent
+après renforcement) ; @property laisse le navigateur interpoler les deux
+couleurs sur 1,8 s, synchro avec le cross-fade du ciel · fallback sans
+@property (vieux navigateurs) : la teinte change sans fondu, comme avant ·
+vérifié cette fois AU PIXEL en navigateur (Chrome headless, 1440×900 et
+portrait 390×844, les 5 phases + mi-transition Aube→Ténèbres : fondu
+progressif, HUD/cartes/Frise lisibles partout) · zéro JS par frame,
+reduced-motion couvert (media query + toggle in-game) · golden re-vérifié
+byte-identique, test_all_cards et test_factions inchangés ·
+⚠️ à relire par Frank
