@@ -10,7 +10,7 @@ depuis `v1-unification` (aucun merge entre elles) :
 | 1 — Frise du Destin, moteur complet | `feat-frise-moteur` | ✅ terminé | `node tools/test_omens.js` → 14/14 scénarios + 500 parties vertes |
 | 2 — Combat télégraphié (flag) | `feat-telegraph` | ✅ terminé | `node tools/test_telegraph.js` → A/B 1000+1000, 4/4 gates ✅ |
 | 3 — Harnais Ferveur/Égide | `feat-ascension-harnais` | ✅ terminé | `node tools/test_faith.js` → 12/12 scénarios + 500 parties vertes |
-| 4 — Dieux-régents (moteur) | `feat-regents` | ⏳ à faire | `node tools/test_regents.js` |
+| 4 — Dieux-régents (moteur) | `feat-regents` | ✅ terminé | `node tools/test_regents.js` → 15/15 scénarios + 500 parties vertes |
 
 ## Journal d'avancement
 
@@ -29,6 +29,16 @@ depuis `v1-unification` (aucun merge entre elles) :
   respectée), golden byte-identique vérifié. 12/12 scénarios Ferveur/Égide ✅,
   batterie 500 parties placeholders ON : Ascension 11,0 %, 10,70 tours,
   0 crash, Ferveur ×88, Égide ×501. Batterie standard verte flag off.
+- **2026-07-04** : PILIER 4 TERMINÉ sur `feat-regents` (2 commits R1/R2).
+  Moteur intronisation/détrônement + démo 3 dieux sous REGENTS_DEMO=false,
+  golden byte-identique vérifié. 15/15 scénarios ✅, 500 parties démo ON :
+  143 intronisations, 3 détrônements contestés, 180 auras, 0 crash, 10,25
+  tours. Batterie standard verte flag off.
+- **2026-07-04 — FIN DE SESSION : LES 4 PILIERS SONT LIVRÉS.** Comment
+  vérifier : sur chaque branche, `node tools/test_<pilier>.js` (vert, code
+  sortie 0) ; le golden de chaque branche est vérifié (byte-identique partout
+  sauf `feat-frise-moteur`, régénéré et documenté). Aucun merge entre les
+  branches ; `v1-unification` ne porte que ce fichier de synthèse.
 
 ---
 
@@ -203,6 +213,57 @@ l'Ascension monte un peu (+2,8pp) car des frappes fizzlent (cibles déjà mortes
 
 ---
 
-# PILIER 4 — Dieux-régents (`feat-regents`) — À FAIRE
+# PILIER 4 — Dieux-régents (`feat-regents`)
 
-*(sera rempli quand le pilier sera terminé)*
+## Ce qui est construit (moteur seul + démo sous flag)
+
+- **Moteur** (`src/game.js`, section « DIEUX-RÉGENTS (pilier 4) ») — inerte
+  par défaut (aucun régent n'existe hors harnais) :
+  - `G.regents` : un TRÔNE par phase du Cycle (0..4) ;
+  - `enthroneGod(p, card, phaseIdx, auraId)` — intronise un dieu sur une
+    phase ; trône occupé = CONTESTÉ (l'occupant est détrôné d'abord) ; phase
+    déjà active = aura immédiate ;
+  - `dethroneGod(phaseIdx, srcLabel)` — retire l'aura si active, envoie le
+    dieu au cimetière de son propriétaire ;
+  - hook `regentsOnTransition` dans `setCyclePhase` : aura continue appliquée
+    à l'ENTRÉE de la phase du régent, retirée à la SORTIE ; auras « d'entrée »
+    déclenchées à chaque traversée ;
+  - rendu : couronne 👑 (couleur du propriétaire) sur la Frise HUD.
+- **Démo technique** sous `REGENTS_DEMO=false` (activée par le harnais
+  seulement) : 3 dieux coût 2 — choix ARBITRAIRE, pas un choix de design —
+  s'intronisent sur le zénith de leur faction au lieu de leur one-shot :
+  Kairos→midi `aura_atk1` (+1 ATK alliés pendant la phase), Skuld→ténèbres
+  `aura_faith1` (+1 Foi par traversée), Tonatiuh Renaissant→crépuscule
+  `aura_draw1` (pioche 1 par traversée). Marqués [PLACEHOLDER].
+- **Aucun des 15 dieux faibles n'a été converti** (consigne respectée).
+
+## Ce qui est testé (chiffres)
+
+`node tools/test_regents.js` :
+- 15 scénarios dirigés **15/15 ✅** : aura appliquée à l'entrée/retirée à la
+  sortie/re-appliquée à la traversée suivante ; intronisation sur phase active
+  = aura immédiate ; détrônement = aura retirée + cimetière + trône vide ;
+  trône contesté = bascule d'aura P1→P2 ; auras d'entrée (Foi, pioche)
+  déclenchées à chaque traversée.
+- Batterie 500 parties démo ON : **0 crash**, 10,25 tours ≤ 13,
+  143 intronisations, 3 détrônements (miroirs contestés), 180 entrées d'aura.
+
+## DÉCISIONS DE DESIGN QUI T'ATTENDENT (pilier 4)
+
+1. **Quels dieux deviennent régents ?** La liste des 15 dieux faibles à
+   convertir (ou pas) t'appartient. Le moteur accepte n'importe quel dieu +
+   n'importe quelle phase + n'importe quelle aura enregistrée.
+2. **Design des vraies auras** : le registre `REGENT_AURAS` accepte deux
+   formes — continue (`apply`/`remove`) et à l'entrée (`enter`). Les 3 démos
+   sont volontairement plates (+1 ATK, +1 Foi, pioche 1).
+3. **Comment détrône-t-on ?** Aujourd'hui : seule la contestation (introniser
+   sur un trône occupé) détrône, + `dethroneGod` appelable par de futures
+   cartes. À designer : cartes de détrônement dédiées ? coût ? le détrôneur
+   gagne-t-il quelque chose (Foi de Profanation divine ?) ?
+4. **Choix de la phase** : la démo intronise d'office sur le zénith de la
+   faction. Alternative : le joueur choisit la phase (le modal
+   `pickCyclePhase` existe déjà et serait réutilisable tel quel).
+5. **Sémantique fine** (constantes techniques actuelles, à confirmer) :
+   l'aura continue ne s'applique qu'aux créatures PRÉSENTES à l'entrée de
+   phase (un monstre posé en cours de phase n'en profite pas) ; le dieu qui
+   règne n'est ni ciblable ni récupérable (hors du jeu jusqu'au détrônement).
