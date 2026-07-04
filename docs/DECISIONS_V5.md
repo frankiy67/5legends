@@ -250,3 +250,28 @@ progressif, HUD/cartes/Frise lisibles partout) · zéro JS par frame,
 reduced-motion couvert (media query + toggle in-game) · golden re-vérifié
 byte-identique, test_all_cards et test_factions inchangés ·
 ⚠️ à relire par Frank
+
+**[CARDS]** Poids et matière des cartes (main + terrain) — tilt 3D au
+survol, soulèvement, reflet balayant · un embryon existait déjà (script
+inline + section 15b) mais : tilt NEUTRALISÉ en !important sur les cartes
+en main (invisible là où il compte), un getBoundingClientRect par
+mousemove sans rAF, aucun respect reduced-motion, reflet statique (alpha
+seul, pas de balayage) · réécriture : un listener pointermove document +
+UN SEUL rAF partagé actif uniquement pendant le survol (zéro JS/frame
+sinon), une lecture layout max/frame, amplitude 8°→6° (objet physique,
+pas toupie), tilt sur le cadre INTERNE pour composer avec l'arc Balatro
+et le lift existants · soulèvement : ombres portées étagées (28 px main,
+frame+sol terrain), l'ombre au sol s'élargit/s'éclaircit en scale+opacité
+(plus d'animation de width) · reflet : bande lumineuse 2× la carte
+déplacée en translateX (--gx), clippée par hc-frame-inner/fc-inner
+(overflow:hidden) — transform+opacité seuls, composité GPU · rareté :
+accent doré (rare) / violet (god) dans la bande, sobre · tactile : tilt
+coupé (pointer coarse), tap = lift+halo instantanés via :active, l'état
+de visée .targeting-src du jeu reste maître · reduced-motion (pref OS ET
+toggle in-game) : tilt et balayage coupés côté JS + ceinture CSS
+transform:none · vérifié Chrome headless 1440×900 et portrait 390×844 :
+tilt proportionnel au curseur (±6°), reset propre à la sortie, 61 fps
+constant repos ET balayage souris, zéro erreur console, zéro tilt au
+doigt · golden 200 parties byte-identique (seule la méta horloge
+generatedSeconds bouge), test_all_cards ✅, test_factions
+sortie strictement identique à la baseline · ⚠️ à relire par Frank
