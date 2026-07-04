@@ -1146,8 +1146,8 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
   radial-gradient(ellipse 90% 42% at 50% 52%, rgba(255,196,90,.42) 0%, transparent 62%),
   linear-gradient(180deg,#181038 0%,#3a2448 28%,#8a4a34 44%,#d89040 51%,#513a1c 62%,#1c140c 100%)}
 .sky-layer[data-phase="midi"]{background:
-  radial-gradient(ellipse 70% 45% at 50% 10%, rgba(255,255,235,.28) 0%, transparent 60%),
-  linear-gradient(180deg,#245493 0%,#3a76b8 34%,#5e94cf 50%,#24466e 66%,#0e1e38 100%)}
+  radial-gradient(ellipse 70% 45% at 50% 10%, rgba(255,255,235,.26) 0%, transparent 58%),
+  linear-gradient(180deg,#1e4a85 0%,#356cab 34%,#4a7cb4 50%,#1e3c60 66%,#0c1a30 100%)}
 .sky-layer[data-phase="crepuscule"]{background:
   radial-gradient(ellipse 85% 38% at 50% 52%, rgba(240,110,50,.45) 0%, transparent 62%),
   linear-gradient(180deg,#241040 0%,#5a2a6e 32%,#a04050 46%,#e06a30 52%,#4a2030 64%,#160a18 100%)}
