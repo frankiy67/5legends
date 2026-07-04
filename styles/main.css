@@ -168,7 +168,7 @@ body{
 .turn-bar{
   grid-column:1;grid-row:1;display:flex;align-items:center;
   padding:0 18px;position:relative;
-  background:linear-gradient(90deg,rgba(26,21,48,.96),rgba(16,12,32,.96));
+  background:linear-gradient(90deg,rgba(26,21,48,.84),rgba(16,12,32,.84));
   border-bottom:1px solid var(--brd2);
   box-shadow:0 2px 14px rgba(0,0,0,.5);
 }
@@ -223,8 +223,8 @@ body{
    6. PLAYER BARS — portrait + orbe + cristaux
    ────────────────────────────────────────────────────────────────── */
 .pbar{display:flex;align-items:center;gap:14px;padding:0 20px;position:relative;overflow:hidden}
-.pbar.p2{grid-row:2;grid-column:1;background:linear-gradient(90deg,rgba(40,10,16,.96),rgba(14,9,26,.95));border-bottom:1px solid rgba(232,69,95,.3)}
-.pbar.p1{grid-row:5;grid-column:1;background:linear-gradient(90deg,rgba(10,18,40,.96),rgba(12,9,26,.95));border-top:1px solid rgba(91,155,213,.3)}
+.pbar.p2{grid-row:2;grid-column:1;background:linear-gradient(90deg,rgba(40,10,16,.82),rgba(14,9,26,.8));border-bottom:1px solid rgba(232,69,95,.3)}
+.pbar.p1{grid-row:5;grid-column:1;background:linear-gradient(90deg,rgba(10,18,40,.82),rgba(12,9,26,.8));border-top:1px solid rgba(91,155,213,.3)}
 .pbar.p2::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(232,69,95,.7) 50%,transparent)}
 .pbar.p1::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(91,155,213,.7) 50%,transparent)}
 .pbar.active-turn{box-shadow:inset 0 0 40px rgba(244,201,93,.08)}
@@ -353,13 +353,23 @@ body.reduce-motion #destiny-timeline{transition:none}
 }
 .bf.bf2 .bf-overlay-dark{background-color:rgba(20,8,18,.14)}
 .bf.bf1 .bf-overlay-dark{background-color:rgba(8,12,28,.14)}
-/* teinte selon la phase du cycle — accordée aux palettes du CIEL VIVANT */
-.bf-cycle-tint{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;mix-blend-mode:soft-light;transition:background .9s ease}
-#game[data-cycle-phase="aube"]       .bf-cycle-tint{background:linear-gradient(180deg,rgba(255,170,80,.5),rgba(255,210,130,.15))}
-#game[data-cycle-phase="midi"]       .bf-cycle-tint{background:linear-gradient(180deg,rgba(150,200,255,.4),rgba(225,242,255,.1))}
-#game[data-cycle-phase="crepuscule"] .bf-cycle-tint{background:linear-gradient(180deg,rgba(224,106,48,.5),rgba(120,50,110,.2))}
-#game[data-cycle-phase="nuit"]       .bf-cycle-tint{background:linear-gradient(180deg,rgba(60,90,180,.5),rgba(25,40,100,.22))}
-#game[data-cycle-phase="tenebres"]   .bf-cycle-tint{background:linear-gradient(180deg,rgba(95,15,35,.55),rgba(20,6,22,.3))}
+/* teinte selon la phase du cycle — extension du CIEL VIVANT sur les terrains.
+   --tint-h (côté horizon/médaillon) et --tint-f (côté lointain) sont des
+   @property <color> : le navigateur interpole les couleurs du gradient au
+   changement de phase (un simple transition:background ne s'anime pas sur
+   un gradient). Fallback sans @property : la teinte change sans fondu. */
+@property --tint-h{syntax:'<color>';inherits:true;initial-value:transparent}
+@property --tint-f{syntax:'<color>';inherits:true;initial-value:transparent}
+.bf-cycle-tint{position:absolute;inset:0;z-index:1;pointer-events:none;
+  transition:--tint-h 1.8s ease,--tint-f 1.8s ease;
+  background:linear-gradient(180deg,var(--tint-h),var(--tint-f))}
+/* bf2 (en haut) : l'horizon est en bas, vers le médaillon — gradient inversé */
+.bf.bf2 .bf-cycle-tint{background:linear-gradient(180deg,var(--tint-f),var(--tint-h))}
+#game[data-cycle-phase="aube"]       {--tint-h:rgba(232,148,58,.5); --tint-f:rgba(56,34,66,.42)}
+#game[data-cycle-phase="midi"]       {--tint-h:rgba(120,178,235,.44);--tint-f:rgba(28,58,102,.4)}
+#game[data-cycle-phase="crepuscule"] {--tint-h:rgba(214,96,46,.52); --tint-f:rgba(62,28,74,.44)}
+#game[data-cycle-phase="nuit"]       {--tint-h:rgba(56,86,168,.46); --tint-f:rgba(7,12,36,.52)}
+#game[data-cycle-phase="tenebres"]   {--tint-h:rgba(138,22,42,.55); --tint-f:rgba(14,4,16,.55)}
 
 .bf-label{position:absolute;top:7px;left:18px;z-index:3;font-family:'Cinzel',serif;font-size:8px;color:rgba(244,201,93,.3);letter-spacing:4px;text-transform:uppercase}
 
@@ -530,7 +540,7 @@ body.reduce-motion #destiny-timeline{transition:none}
    9. MAIN DU JOUEUR — éventail + preview
    ────────────────────────────────────────────────────────────────── */
 .hand-area{grid-row:6;grid-column:1;position:relative;overflow:visible;display:flex;flex-direction:column;
-  background:linear-gradient(180deg,rgba(14,10,30,.0) 0%,rgba(12,8,26,.92) 30%,rgba(8,5,18,.99) 100%);padding:4px 0 0}
+  background:linear-gradient(180deg,rgba(14,10,30,.0) 0%,rgba(12,8,26,.82) 30%,rgba(8,5,18,.99) 100%);padding:4px 0 0}
 .hand-area::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(244,201,93,.5) 50%,transparent)}
 #hand-label{font-family:'Cinzel',serif;font-size:10px;color:var(--gold);letter-spacing:1.5px;padding:3px 18px;display:flex;align-items:center;gap:12px}
 .opp-turn-banner{display:none;margin:0 18px 4px;background:linear-gradient(90deg,rgba(244,160,20,.16),transparent);border:1px solid rgba(244,160,20,.35);border-radius:6px;padding:3px 10px;font-family:'Cinzel',serif;font-size:10px;color:#f0a014}
