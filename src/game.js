@@ -643,6 +643,24 @@ function shuffle(a) {
   return r;
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// ASCENSION (v1-unification, brique A) — 2e condition de victoire par la Foi.
+// Portage de la branche `ascension` SANS son commit C3 : la victoire par
+// PV=0 reste inchangée, la Foi S'AJOUTE. Constantes paramétrables :
+// ══════════════════════════════════════════════════════════════════════════
+const FAITH_WIN = 16;       // Ascension : atteindre cette Foi = victoire immédiate
+const TURN_CAP = 18;        // Horloge céleste : fin du tour 18 → le plus de Foi
+                            // gagne (égalité de Foi → tie-breaker aux PV)
+const DESECRATE_FAITH = 1;  // Profanation : tuer un fidèle à genoux donne N Foi au tueur
+// Jeton de Foi du 2e joueur (J1 démarre toujours à 0). Valeur retenue : 0 —
+// cf. rapport de calibration J2 de feat-ai-multistrat + DECISIONS_V5.md [A1].
+// `let` + setter : les harnais peuvent la sweeper sans toucher au fichier.
+let P2_START_FAITH = 0;
+function setP2StartFaith(v) { P2_START_FAITH = (v == null ? 0 : v); }
+const SUPREME_GODS = {
+  yokai:'Amaterasu', norse:'Odin', egyptian:'Râ', greek:'Zeus', aztec:'Huitzilopochtli'
+};
+
 // ARENA (4.x) : construit un deck joueur depuis des templates draftés
 // (cartes multi-factions). Chaque template porte déjà sa faction.
 function buildCustomDeck(templates) {
@@ -706,6 +724,10 @@ function initGame(f1, f2, mode, opts) {
       // FIX 1.1 : compensation « Coin » — P2 (qui subit le tempo du 1ᵉʳ
       // joueur) reçoit 1 gem TEMPORAIRE à son 1ᵉʳ tour (consommé par doEndTurn).
       _coinGem: (p === 2 && difficulty >= 1) ? 1 : 0, _coinTurns: (p === 2 && difficulty >= 1) ? 1 : 0, _bonusDrawTurn: 0,
+      // ASCENSION (A1) : jauge de Foi + Dieu Suprême de la faction.
+      // Jeton de Foi du 2e joueur : J1=0, J2=P2_START_FAITH (silencieux, aucun log).
+      faith: p === 1 ? 0 : P2_START_FAITH,
+      supremeGod: SUPREME_GODS[f] || 'Dieu Suprême',
     };
   }
   G.activeTurn = 1; // Player 1 starts
@@ -1245,6 +1267,9 @@ function doEndTurn() {
       setCyclePhase(G.cycle + 1);
     }
   }
+  // ── ASCENSION (A1) : horloge céleste — annonce au début du dernier tour.
+  // La résolution (G.turn > TURN_CAP) est portée par checkVictory() ci-dessous.
+  if(G.cp===1 && G.turn === TURN_CAP) addLog("🔔 L'horloge céleste sonne — dernier tour !", 'warn');
   G.phase='Main1';
   G.selAtk=null;
 
@@ -3398,23 +3423,58 @@ async function pickTarget(type, p, isEntry, card=null) {
 // =====================================================
 // VICTORY CHECK
 // =====================================================
-function checkVictory() {
-  for(let p=1;p<=2;p++) {
-    if(G.players[p].hp<=0) {
-      const w=p===1?2:1;
-      // ARENA (4.2) : le résultat alimente la run, pas l'écran de victoire normal.
-      if(ARENA) { arenaOnDuelEnd(w); return; }
-      if(w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
-      const localWin = (G.mode==='pve') ? (w===1) : true; // en PvP, le gagnant est "victorieux"
-      const titleEl=document.getElementById('vic-title');
-      titleEl.textContent = (G.mode==='pve')
-        ? (w===1 ? 'VICTOIRE' : 'DÉFAITE')
-        : `JOUEUR ${w} — VICTOIRE`;
-      titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
-      document.getElementById('vic-sub').textContent=`${(G.players[w].faction||'').toUpperCase()} triomphe au tour ${G.turn}`;
-      document.getElementById('victory').style.display='flex';
-    }
+// ── ASCENSION (A1) : état de fin de partie centralisé. Renvoie null si la
+// partie continue, sinon { winner: 1|2|0, reason } avec winner 0 = match nul
+// et reason ∈ 'hp' | 'ascension' | 'clock'. Priorité : mort par PV (inchangée),
+// puis Ascension (Foi >= FAITH_WIN), puis horloge céleste (tour TURN_CAP joué :
+// le plus de Foi gagne, égalité de Foi → tie-breaker aux PV, double égalité → nul).
+function getVictoryState() {
+  if(G.players[1].hp<=0) return { winner:2, reason:'hp' };
+  if(G.players[2].hp<=0) return { winner:1, reason:'hp' };
+  if((G.players[1].faith||0) >= FAITH_WIN) return { winner:1, reason:'ascension' };
+  if((G.players[2].faith||0) >= FAITH_WIN) return { winner:2, reason:'ascension' };
+  if(G.turn > TURN_CAP) {
+    const f1=G.players[1].faith||0, f2=G.players[2].faith||0;
+    if(f1!==f2) return { winner: f1>f2?1:2, reason:'clock' };
+    if(G.players[1].hp!==G.players[2].hp) return { winner: G.players[1].hp>G.players[2].hp?1:2, reason:'clock' };
+    return { winner:0, reason:'clock' };
   }
+  return null;
+}
+
+function checkVictory() {
+  const vs = getVictoryState();
+  if(!vs) return;
+  // ARENA (4.2) : le résultat alimente la run, pas l'écran de victoire normal.
+  // (Match nul à l'horloge — cas rarissime — compté comme défaite du joueur.)
+  if(ARENA) { arenaOnDuelEnd(vs.winner === 1 ? 1 : 2); return; }
+  const titleEl=document.getElementById('vic-title');
+  const subEl=document.getElementById('vic-sub');
+  if(vs.winner===0) {
+    titleEl.textContent = 'MATCH NUL — L\'HORLOGE CÉLESTE A SONNÉ';
+    titleEl.classList.remove('defeat');
+    subEl.textContent = `Foi et PV à égalité au tour ${G.turn}`;
+    document.getElementById('victory').style.display='flex';
+    return;
+  }
+  const w = vs.winner;
+  const W = G.players[w];
+  if(w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
+  titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
+  if(vs.reason==='ascension') {
+    titleEl.textContent = `${W.supremeGod || 'Dieu Suprême'} ASCENSIONNE !`;
+    subEl.textContent = `${(W.faction||'').toUpperCase()} atteint l'Ascension (${W.faith}/${FAITH_WIN}) au tour ${G.turn}`;
+  } else if(vs.reason==='clock') {
+    titleEl.textContent = `${W.supremeGod || 'Dieu Suprême'} L'EMPORTE À L'HORLOGE !`;
+    const lf=G.players[w===1?2:1].faith||0;
+    subEl.textContent = `Plus de Foi à l'horloge céleste — ${(W.faction||'').toUpperCase()} ${W.faith||0}/${FAITH_WIN} contre ${lf}`;
+  } else {
+    titleEl.textContent = (G.mode==='pve')
+      ? (w===1 ? 'VICTOIRE' : 'DÉFAITE')
+      : `JOUEUR ${w} — VICTOIRE`;
+    subEl.textContent = `${(W.faction||'').toUpperCase()} triomphe au tour ${G.turn}`;
+  }
+  document.getElementById('victory').style.display='flex';
 }
 
 // =====================================================
@@ -4109,7 +4169,9 @@ function aiPickTarget(type, p, card) {
 }
 
 function checkVictoryBool() {
-  return G.players[1].hp<=0 || G.players[2].hp<=0;
+  // ASCENSION (A1) : fin de partie = PV<=0 OU Foi>=FAITH_WIN OU horloge céleste
+  // (le tour TURN_CAP a été joué). Source unique : getVictoryState().
+  return getVictoryState() !== null;
 }
 
 function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }
@@ -5036,6 +5098,17 @@ function renderPlayerBar(p) {
   if (deckEl) deckEl.innerHTML =
     `<span class="deck-pile">🂠</span><span class="deck-count">${P.deck ? P.deck.length : 0}</span>`
     + `<span class="grave-count">${P.graveyard ? P.graveyard.length : 0}†</span>`;
+
+  // ── ASCENSION (A1) : jauge de Foi (Dieu Suprême + X/FAITH_WIN), à côté des PV ──
+  const faithEl = document.getElementById(`p${p}-faith`);
+  if (faithEl) {
+    const fv = P.faith || 0;
+    faithEl.style.setProperty('--faith-pct', Math.min(100, fv / FAITH_WIN * 100));
+    faithEl.innerHTML =
+      `<span class="faith-god">${P.supremeGod || 'Dieu Suprême'}</span>`
+      + `<span class="faith-meter"><span class="faith-fill"></span></span>`
+      + `<span class="faith-val">🙏 ${fv} / ${FAITH_WIN}</span>`;
+  }
 }
 
 
