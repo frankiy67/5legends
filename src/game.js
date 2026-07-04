@@ -5307,6 +5307,29 @@ async function applyTargetEffect(type, fromP, idx, card) {
 const FC = {yokai:'#d04030',norse:'#8090a0',egyptian:'#3090d0',greek:'#9050c0',aztec:'#d0b010'};
 const FE = {yokai:'🦊',norse:'⚡',egyptian:'🏺',greek:'🏛️',aztec:'🌿'};
 
+// ── CIEL VIVANT — fond du plateau selon la phase du Cycle ─────────
+// Rendu pur (aucun accès à G) : deux couches dans #sky, la couche
+// cachée reçoit la nouvelle palette puis les opacités s'échangent
+// (cross-fade CSS). Inerte sous les stubs DOM du harnais golden.
+// SKY_PHASE_COL : couleur clé de chaque ambiance, exposée en CSS via
+// --phase-col sur #game (écho du ciel dans le bandeau et le médaillon).
+const SKY_PHASE_COL = {aube:'#f4b942',midi:'#8ec2f2',crepuscule:'#ff8a4a',nuit:'#8aa8f0',tenebres:'#e0435a'};
+let _skyPhase = null;
+function renderSky(phaseName) {
+  if(phaseName === _skyPhase) return;
+  const sky = document.getElementById('sky');
+  if(!sky) return;
+  const layers = sky.querySelectorAll('.sky-layer');
+  if(layers.length < 2) return;
+  const front = sky.dataset.front === '1' ? 1 : 0;
+  const nxt = layers[1 - front];
+  nxt.dataset.phase = phaseName;
+  nxt.classList.add('visible');
+  layers[front].classList.remove('visible');
+  sky.dataset.front = String(1 - front);
+  _skyPhase = phaseName;
+}
+
 // ── Cycle Céleste — render & animation ────────────────────────────
 function renderCycleBanner() {
   const el = document.getElementById('cycle-banner');
@@ -5329,9 +5352,13 @@ function renderCycleBanner() {
     <div class="cycle-phases">${iconsHTML}</div>
     <div class="cycle-zenith" data-zen="${zenFaction}">ZÉNITH · <strong style="color:${zenCol};text-shadow:0 0 10px ${zenCol}">${ZENITH_LABEL[zenFaction]}</strong><span class="cycle-bonus">${ZENITH_BONUS_TXT[zenFaction]||''}</span></div>`;
 
-  // Teinte du champ de bataille selon la phase
+  // Teinte du champ de bataille selon la phase + CIEL VIVANT
   const game = document.getElementById('game');
-  if(game) game.dataset.cyclePhase = phaseName;
+  if(game) {
+    game.dataset.cyclePhase = phaseName;
+    game.style.setProperty('--phase-col', SKY_PHASE_COL[phaseName]);
+  }
+  renderSky(phaseName);
   // Médaillon central (7.5) : phase actuelle + les 2 prochaines + bonus du zénith.
   const medIcon = document.getElementById('divider-medallion-icon');
   if(medIcon) medIcon.textContent = CYCLE_ICONS[phaseName];

@@ -199,3 +199,28 @@ gate ±4pp (−4,3pp) ; à 1 dégât le gate passe (egyptian −3,0) · les 5 ca
 sont volontairement IDENTIQUES (2/3 c2 uncommon) : placeholders, pas le design
 final · noms : Onmyōji / Völva / Ouadjet / Pythie / Tonalpouhqui (devins de
 chaque panthéon, zéro collision d'ID) · ⚠️ à relire par Frank
+
+**[SKY]** Ciel Vivant branché dans renderCycleBanner (chemin de rendu pur)
+et NON dans setCyclePhase (option de la consigne) · pourquoi : setCyclePhase
+tourne aussi en simulation (golden) alors que renderCycleBanner est déjà
+appelé à chaque renderAll et reste inerte sous les stubs Node · conséquence :
+le moteur n'est pas touché du tout, golden byte-identique par construction
+(vérifié : 200/200 parties strictement identiques) · ⚠️ à relire par Frank
+
+**[SKY]** Deux couches #sky (z-index:-1, cross-fade opacité 1,8 s) plutôt
+qu'une factorisation avec le ciel du titre · le titre anime AU TEMPS
+(hue-rotate en boucle 30 s), le plateau à la PHASE réelle du Cycle —
+factoriser aurait forcé la réécriture du titre pour un bénéfice nul ·
+fix au passage : sélecteur `.bf-cycle-tint` du crépuscule (espace manquante,
+la teinte ne s'appliquait jamais) · teintes de terrain réaccordées sur les
+5 palettes du ciel · ⚠️ à relire par Frank
+
+**[SKY]** Midi assombri (horizon #5e94cf → #4a7cb4) après vérif contraste
+CALCULÉE (WCAG, composition ciel × overlays de terrain) : or du HUD à
+6,4–9,4:1 sur les terrains, bande d'horizon brute à 2,8:1 mais purement
+décorative (Frise, médaillon, bonus ont leur fond sombre opaque) · vérif
+navigateur impossible en session (extension Chrome non connectée) → à
+valider À L'ŒIL par Frank, Midi en particulier · ambiance : étoiles Nuit /
+poussière Aube / braise Ténèbres en transform+opacité seuls (composité GPU,
+zéro rAF), pause sur la couche cachée, animation:none en reduced-motion
+(toggle in-game ET pref OS) · ⚠️ à relire par Frank

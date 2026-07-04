@@ -181,6 +181,9 @@
      GAME
 ══════════════════════════════════════════ -->
 <div id="game">
+  <!-- CIEL VIVANT : fond de plateau piloté par la phase du Cycle (couche décor pure,
+       peinte par renderSky() — deux couches pour le cross-fade entre phases) -->
+  <div id="sky" aria-hidden="true"><div class="sky-layer"></div><div class="sky-layer"></div></div>
   <!-- Turn bar -->
   <div class="turn-bar" style="grid-row:1;grid-column:1;z-index:20">
     <div class="turn-bar-left">
