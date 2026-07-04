@@ -366,8 +366,8 @@ body.reduce-motion #destiny-timeline{transition:none}
 /* bf2 (en haut) : l'horizon est en bas, vers le médaillon — gradient inversé */
 .bf.bf2 .bf-cycle-tint{background:linear-gradient(180deg,var(--tint-f),var(--tint-h))}
 #game[data-cycle-phase="aube"]       {--tint-h:rgba(232,148,58,.5); --tint-f:rgba(56,34,66,.42)}
-#game[data-cycle-phase="midi"]       {--tint-h:rgba(120,178,235,.44);--tint-f:rgba(28,58,102,.4)}
-#game[data-cycle-phase="crepuscule"] {--tint-h:rgba(214,96,46,.52); --tint-f:rgba(62,28,74,.44)}
+#game[data-cycle-phase="midi"]       {--tint-h:rgba(150,200,250,.5); --tint-f:rgba(64,116,178,.42)}
+#game[data-cycle-phase="crepuscule"] {--tint-h:rgba(214,96,46,.52); --tint-f:rgba(76,26,96,.48)}
 #game[data-cycle-phase="nuit"]       {--tint-h:rgba(56,86,168,.46); --tint-f:rgba(7,12,36,.52)}
 #game[data-cycle-phase="tenebres"]   {--tint-h:rgba(138,22,42,.55); --tint-f:rgba(14,4,16,.55)}
 
