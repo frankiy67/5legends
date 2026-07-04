@@ -967,7 +967,13 @@ const FACTION_PHASE_IDX = {egyptian:0, greek:1, aztec:2, yokai:3, norse:4};
 // Change la phase du Cycle (cartes temporelles + fin de ronde) et applique
 // tous les effets « au changement de phase » (anim, recharge Esquive,
 // recharge Endurance aztèque au Crépuscule).
-function setCyclePhase(newCycle, srcLabel) {
+// FRISE MOTEUR (P1) : opts.backward=true pour les effets « retarde le Cycle »
+// (Toki-Onna, Urd) — la transition recule l'horloge des présages d'un tick au
+// lieu de l'avancer : retarder le Cycle REPOUSSE les présages, l'avancer les
+// RAPPROCHE, le figer les protège (aucune transition). Les autres effets de
+// changement de phase (Esquive, Endurance, Éclipse, Momie) restent identiques
+// quelle que soit la direction : seule la datation des présages est signée.
+function setCyclePhase(newCycle, srcLabel, opts) {
   if(G.cycleLocked) { addLog('🌙 Le Cycle est verrouillé sur la Nuit (Amaterasu).','special'); return; }
   const prev = G.cycle % 5;
   G.cycle = ((newCycle % 5) + 5) % 5;
@@ -975,8 +981,9 @@ function setCyclePhase(newCycle, srcLabel) {
   // FRISE DU DESTIN (D1) : chaque transition effective avance l'horloge des
   // présages ; ceux arrivés à échéance passent en file de résolution (la
   // résolution elle-même est awaitée par les appelants — resolveDueOmens).
-  G.cycleTick = (G.cycleTick || 0) + 1;
-  if(G.omens && G.omens.length) {
+  const backward = !!(opts && opts.backward);
+  G.cycleTick = (G.cycleTick || 0) + (backward ? -1 : 1);
+  if(!backward && G.omens && G.omens.length) {
     const due = G.omens.filter(o => o.dueTick <= G.cycleTick);
     if(due.length) {
       G.omens = G.omens.filter(o => o.dueTick > G.cycleTick);
@@ -1045,9 +1052,76 @@ const OMEN_EFFECTS = {
 };
 
 // Inscrit un présage sur la Frise, `delta` transitions du Cycle plus tard.
+// FRISE MOTEUR (P1) : chaque présage porte un id interne (jamais sérialisé
+// par le golden) pour que le contre-jeu et les harnais puissent le désigner.
 function scheduleOmen(ownerP, effectId, delta, label, cardName) {
-  G.omens.push({ dueTick: (G.cycleTick || 0) + delta, ownerP, effectId, label, cardName });
+  G._omenSeq = (G._omenSeq || 0) + 1;
+  const o = { id: G._omenSeq, dueTick: (G.cycleTick || 0) + delta, ownerP, effectId, label, cardName };
+  G.omens.push(o);
   addLog(`🔮 ${cardName} — Présage inscrit sur la Frise (dans ${delta} phase${delta>1?'s':''}) : ${label}.`,'special');
+  return o;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// FRISE MOTEUR (P1) — CONTRE-JEU sur les présages. Trois verbes moteur :
+// détruire, voler, décaler. AUCUNE carte ne les porte en v1 (le design des
+// cartes de contre-jeu appartient à Frank — cf. docs/PILIERS_A_DESIGNER.md) ;
+// ces fonctions sont la plomberie appelable par de futures caps et par les
+// harnais. `ref` = un présage de G.omens (objet, id, ou index dans G.omens).
+// ══════════════════════════════════════════════════════════════════════════
+function findOmen(ref) {
+  if(!G || !G.omens) return -1;
+  if(typeof ref === 'object' && ref !== null) return G.omens.indexOf(ref);
+  if(typeof ref === 'number') {
+    const byId = G.omens.findIndex(o => o.id === ref);
+    if(byId >= 0) return byId;
+    return (ref >= 0 && ref < G.omens.length) ? ref : -1;
+  }
+  return -1;
+}
+
+// Détruit un présage inscrit : il ne s'accomplira jamais.
+function destroyOmen(ref, srcLabel) {
+  const i = findOmen(ref);
+  if(i < 0) return null;
+  const o = G.omens.splice(i, 1)[0];
+  addLog(`💥 ${srcLabel || 'Contre-jeu'} — le présage de ${o.cardName} (« ${o.label} ») est effacé de la Frise !`,'special');
+  renderAll();
+  return o;
+}
+
+// Vole un présage : il reste daté au même tick mais change de propriétaire
+// (son effet se résoudra du point de vue du voleur).
+function stealOmen(ref, newOwnerP, srcLabel) {
+  const i = findOmen(ref);
+  if(i < 0) return null;
+  const o = G.omens[i];
+  if(o.ownerP === newOwnerP) return o;
+  o.ownerP = newOwnerP;
+  addLog(`🃏 ${srcLabel || 'Contre-jeu'} — le présage de ${o.cardName} (« ${o.label} ») passe au Joueur ${newOwnerP} !`,'special');
+  renderAll();
+  return o;
+}
+
+// Décale un présage de `delta` transitions (positif = repoussé, négatif =
+// rapproché). Un présage ramené à échéance (dueTick <= tick courant) est
+// re-daté AU tick courant et passe en file : il se résout au prochain point
+// de résolution awaité (l'invariant « déclenché au tick exact » est préservé).
+function shiftOmen(ref, delta, srcLabel) {
+  const i = findOmen(ref);
+  if(i < 0) return null;
+  const o = G.omens[i];
+  o.dueTick += delta;
+  if(o.dueTick <= (G.cycleTick || 0)) {
+    o.dueTick = G.cycleTick || 0;
+    G.omens.splice(i, 1);
+    G._omensPending.push(o);
+    addLog(`⏳ ${srcLabel || 'Contre-jeu'} — le présage de ${o.cardName} arrive à échéance immédiate !`,'special');
+  } else {
+    addLog(`⏳ ${srcLabel || 'Contre-jeu'} — le présage de ${o.cardName} est ${delta > 0 ? 'repoussé' : 'avancé'} de ${Math.abs(delta)} phase${Math.abs(delta)>1?'s':''}.`,'special');
+  }
+  renderAll();
+  return o;
 }
 
 // Déclenche UN présage échu (surchargeable par les harnais pour instrumentation).
@@ -1880,7 +1954,8 @@ registerEffect('entry', cap => cap.includes('entry_cycle_advance1'), ctx => {
   setCyclePhase(G.cycle + 1, ctx.m.n);
 });
 registerEffect('entry', cap => cap.includes('entry_cycle_delay1'), ctx => {
-  setCyclePhase(G.cycle - 1, ctx.m.n);
+  // FRISE MOTEUR (P1) : retarder = transition backward → repousse les présages.
+  setCyclePhase(G.cycle - 1, ctx.m.n, {backward:true});
 });
 registerEffect('entry', cap => cap.includes('entry_cycle_freeze1'), ctx => {
   G.cycleFrozen = (G.cycleFrozen||0) + 1;
@@ -1893,7 +1968,8 @@ registerEffect('entry', cap => cap.includes('entry_cycle_prophecy'), async ctx =
   setCyclePhase(chosen, ctx.m.n);
 });
 registerEffect('exit', cap => cap.includes('exit_cycle_delay1'), ctx => {
-  setCyclePhase(G.cycle - 1, ctx.m.n + ' (Mort)');
+  // FRISE MOTEUR (P1) : retarder = transition backward → repousse les présages.
+  setCyclePhase(G.cycle - 1, ctx.m.n + ' (Mort)', {backward:true});
 });
 registerEffect('entry', cap => cap.includes('entry_blind'), async ctx => { await pickTarget('blind', ctx.p, true); });
 registerEffect('entry', cap => cap.includes('entry_draw_per_ally'), async ctx => {
