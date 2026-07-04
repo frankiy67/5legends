@@ -352,6 +352,8 @@ yokai:[
   {id:'RAIJU',      n:'Raiju',      atk:8,def:8,cost:8,rarity:'uncommon',cap:'solo_destroy',            txt:'Seul allié : détruit la cible sans combat.'},
   // RARES x1
   {id:'TOKI_ONNA',  n:'Toki-Onna',  atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_cycle_delay1',      txt:"Éveil : retarde le Cycle Céleste d'une phase."},
+  // FRISE DU DESTIN (D2) — carte Présage PLACEHOLDER (design final : session dédiée avec Frank).
+  {id:'ONMYOJI',    n:'Onmyōji',    atk:2,def:3,cost:2,rarity:'uncommon',cap:'omen_dmg1',               txt:"Éveil — Présage (2 phases) : inscrit sur la Frise « 1 dégât à une créature adverse aléatoire »."},
   {id:'TSUCHINOKO', n:'Tsuchinoko', atk:5,def:4,cost:3,rarity:'rare',    cap:'curse_endure',            txt:'Malédiction + Immortel.'},
   {id:'TSUCHIGUMO', n:'Tsuchigumo', atk:6,def:7,cost:4,rarity:'rare',    cap:'protect',                 txt:'Rempart.'},
   {id:'USHI-ONI',   n:'Ushi-Oni',   atk:6,def:7,cost:5,rarity:'rare',    cap:'exit_dmg3_all',           txt:'Dernier Souffle : 3 dégâts à tous les monstres adverses.'},
@@ -378,6 +380,8 @@ norse:[
   {id:'FENRIR',     n:'Fenrir',     atk:6,def:9,cost:8,rarity:'uncommon',cap:'ragnarok_growing',       txt:'Ragnarök : pendant les Ténèbres, inflige X dégâts à tous les monstres adverses au début de votre tour. X augmente de 1 à chaque déclenchement.'},
   // RARES x1
   {id:'URD',        n:'Urd',        atk:3,def:4,cost:4,rarity:'uncommon',cap:'exit_cycle_delay1',       txt:"Mort : retarde le Cycle Céleste d'une phase."},
+  // FRISE DU DESTIN (D2) — carte Présage PLACEHOLDER.
+  {id:'VOLVA',      n:'Völva',      atk:2,def:3,cost:2,rarity:'uncommon',cap:'omen_dmg1',               txt:"Éveil — Présage (2 phases) : inscrit sur la Frise « 1 dégât à une créature adverse aléatoire »."},
   {id:'NIDDHOG',    n:'Niddhog',    atk:3,def:5,cost:3,rarity:'rare',    cap:'protect fortress_payoff', txt:'Rempart. Forteresse : tant que vous contrôlez ≥2 Remparts, +2 ATK et Frénésie.'},
   {id:'GARM',       n:'Garm',       atk:5,def:6,cost:4,rarity:'rare',    cap:'protect riposte2',        txt:'Rempart. Riposte : inflige 2 dégâts à tout attaquant.'},
   {id:'JORMUNGANDR',n:'Jörmungandr',atk:4,def:7,cost:5,rarity:'rare',   cap:'splash_adjacent',         txt:'Inflige ATK×0.5 dégâts aux monstres adjacents à la cible.'},
@@ -404,6 +408,8 @@ egyptian:[
   {id:'SERPOPARD',  n:'Serpopard',  atk:4,def:12,cost:8,rarity:'uncommon',cap:'curse',                  txt:'Malédiction.'},
   // RARES x1
   {id:'SESHAT',     n:'Seshat',     atk:2,def:2,cost:3,rarity:'uncommon',cap:'entry_cycle_prophecy',    txt:'Éveil : Prophétie — regardez les 3 prochaines phases du Cycle et choisissez la suivante.'},
+  // FRISE DU DESTIN (D2) — carte Présage PLACEHOLDER.
+  {id:'OUADJET',    n:'Ouadjet',    atk:2,def:3,cost:2,rarity:'uncommon',cap:'omen_dmg1',               txt:"Éveil — Présage (2 phases) : inscrit sur la Frise « 1 dégât à une créature adverse aléatoire »."},
   {id:'EFRIT',      n:'Efrit',      atk:4,def:5,cost:3,rarity:'rare',    cap:'end_heal_ally',           txt:'Fin de tour : Soignez totalement un monstre allié ciblé.'},
   {id:'DJINN',      n:'Djinn',      atk:6,def:6,cost:4,rarity:'rare',    cap:'combat_dmg2',             txt:'Combat : 2 dégâts supplémentaires à la cible.'},
   {id:'URAEUS',     n:'Uraeus',     atk:7,def:5,cost:5,rarity:'rare',    cap:'curse_protect',           txt:'Malédiction + Rempart.'},
@@ -430,6 +436,8 @@ greek:[
   {id:'ECHIDNA',    n:'Echidna',    atk:10,def:6,cost:7,rarity:'uncommon',cap:'entry_reclaim',          txt:'Éveil : Récupérez 1 monstre de votre défausse en main.'},
   // RARES x1
   {id:'HORAE',      n:'Horae',      atk:2,def:3,cost:3,rarity:'uncommon',cap:'entry_cycle_freeze1',     txt:'Éveil : fige le Cycle Céleste pendant 1 tour.'},
+  // FRISE DU DESTIN (D2) — carte Présage PLACEHOLDER.
+  {id:'PYTHIE',     n:'Pythie',     atk:2,def:3,cost:2,rarity:'uncommon',cap:'omen_dmg1',               txt:"Éveil — Présage (2 phases) : inscrit sur la Frise « 1 dégât à une créature adverse aléatoire »."},
   {id:'CERBERE',    n:'Cerbère',    atk:3,def:6,cost:3,rarity:'rare',    cap:'protect',                 txt:'Rempart.'},
   {id:'MINOTAURE',  n:'Minotaure',  atk:5,def:6,cost:4,rarity:'rare',   cap:'protect_hit',             txt:'Rempart + Frénésie.'},
   {id:'LADON',      n:'Ladon',      atk:8,def:5,cost:5,rarity:'rare',    cap:'copy_on_attack',          txt:'Attaque : invoquez une copie (sans cap) du monstre attaqué.'},
@@ -456,6 +464,8 @@ aztec:[
   {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:9,def:9,cost:7,rarity:'uncommon',cap:'heal',                   txt:'Offrande.'},
   // RARES x1
   {id:'XOLOTL',     n:'Xolotl',     atk:4,def:3,cost:3,rarity:'uncommon',cap:'entry_cycle_advance1',    txt:"Éveil : avance le Cycle Céleste d'une phase."},
+  // FRISE DU DESTIN (D2) — carte Présage PLACEHOLDER.
+  {id:'TONALPOUHQUI',n:'Tonalpouhqui',atk:2,def:3,cost:2,rarity:'uncommon',cap:'omen_dmg1',             txt:"Éveil — Présage (2 phases) : inscrit sur la Frise « 1 dégât à une créature adverse aléatoire »."},
   {id:'QUETZAL',    n:'Quetzal',    atk:4,def:3,cost:4,rarity:'rare',    cap:'passive_all_hurry',       txt:'Toujours : tous vos monstres aztèques ont Élan.'},
   {id:'CIPACTLI',   n:'Cipactli',   atk:4,def:7,cost:4,rarity:'rare',    cap:'entry_reclaim_spell',     txt:'Éveil : Récupérez un sort/dieu de votre défausse en main.'},
   {id:'IZCAQLLI',   n:'Izcaqlli',   atk:6,def:8,cost:5,rarity:'rare',    cap:'protect_endure',          txt:'Rempart + Immortel.'},
@@ -1018,15 +1028,18 @@ function setCyclePhase(newCycle, srcLabel) {
 // unique effet placeholder par faction en v1 (décision Frank, brique D).
 // ══════════════════════════════════════════════════════════════════════════
 const OMEN_EFFECTS = {
-  // Placeholder sûr : 2 dégâts à une créature adverse aléatoire (rien si board vide).
-  omen_dmg2_random: async (o) => {
+  // Placeholder sûr : 1 dégât à une créature adverse aléatoire (rien si board
+  // vide). NB : la version « 2 dégâts » de l'exemple décimait les boards
+  // larges de petits corps — egyptian passait à −4,3pp du gate ±4pp. 1 dégât
+  // garde la démo structurelle avec un impact d'équilibre minimal.
+  omen_dmg1_random: async (o) => {
     const opp = o.ownerP === 1 ? 2 : 1;
     const OP = G.players[opp];
     const targets = OP.field.filter(m => m && !m.faceDown);
     if(targets.length === 0) { addLog(`🔮 Présage de ${o.cardName} — aucune cible, l'augure se dissipe.`,'event'); return; }
     const tgt = targets[Math.floor(rng() * targets.length)];
-    tgt.cDef -= 2;
-    addLog(`🔮 Présage de ${o.cardName} s'accomplit — 2 dégâts à ${tgt.n} !`,'special');
+    tgt.cDef -= 1;
+    addLog(`🔮 Présage de ${o.cardName} s'accomplit — 1 dégât à ${tgt.n} !`,'special');
     if(tgt.cDef <= 0) await handleDeath(opp, tgt);
   },
 };
@@ -1855,6 +1868,12 @@ registerEffect('entry', cap => cap.includes('entry_oracle'), ctx => {
     addLog(`🔮 ${m.n} — Oracle : le dessus du deck adverse est ${top.n}.`,'special');
     if(top.type === 'god') { drawCard(p); addLog(`${m.n} — c'est un dieu : pioche 1 !`,'buff'); }
   }
+});
+// ── FRISE DU DESTIN (D2) : mot-clé PRÉSAGE — à l'Éveil, inscrit un effet daté
+// sur la Frise (2 transitions du Cycle plus tard). Effet placeholder UNIQUE
+// en v1 (décision Frank : structure seule, design final en session dédiée).
+registerEffect('entry', cap => cap.includes('omen_dmg1'), ctx => {
+  scheduleOmen(ctx.p, 'omen_dmg1_random', 2, '1 dégât à une créature adverse aléatoire', ctx.m.n);
 });
 // ── Cartes temporelles (3.2) ──
 registerEffect('entry', cap => cap.includes('entry_cycle_advance1'), ctx => {
@@ -3406,6 +3425,10 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   const finalIdx = AP.field.indexOf(atk);
   if(finalIdx >= 0) AP.attacked.add(finalIdx);
   G.selAtk=null;
+  // FRISE DU DESTIN (D2) : une mort en combat peut déplacer le Cycle (Urd) et
+  // faire échoir un présage — résolution au plus près de l'échéance (await
+  // conditionnel : aucune cession de microtask à file vide → golden intact).
+  if(G._omensPending && G._omensPending.length) await resolveDueOmens();
   renderAll();
   checkVictory();
 }
@@ -3556,13 +3579,22 @@ function predictCombat(attackerP, attackerIdx, targetP, targetIdx) {
     res.notes.push('Dernier Souffle se déclenche');
     if(/exit_dmg|exit_destroy/.test(def.cap||'')) { res.uncertain = true; res.notes.push('ses dégâts de mort peuvent toucher l\'attaquant'); }
   }
-  // ARTÉMIS (_equipBounce) / IZANAMI : la cible SURVIVANTE (y compris via
-  // Immortel/Endure) est renvoyée en main après la frappe — elle quitte le
-  // terrain sans mourir. (Trou de prédiction débusqué par test_preview après
-  // la brique A : Scylla+Artémis vs Golem Immortel.)
-  if((atk._equipBounce || atk.izanamiEquipped) && !res.targetDies && !res.cancelled) {
-    res.targetBounced = true;
-    res.notes.push('la cible survivante est renvoyée en main');
+  // ARTÉMIS (_equipBounce) / IZANAMI : la cible survivante est renvoyée en
+  // main — elle quitte le terrain sans mourir. Conditions exactes de doAttack :
+  //  · Artémis teste APRÈS les morts → un survivant à bouclier >0 est renvoyé,
+  //    y compris via Immortel (1🛡) ou Aphrodite (DEF restaurée) ; la MOMIE
+  //    (reste en bandelettes à 0🛡) n'est PAS renvoyée ;
+  //  · Izanami teste AVANT la résolution des morts → uniquement un survivant
+  //    « simple » (cDef > 0 après dégâts).
+  // (Trous de prédiction débusqués par test_preview, briques A et D.)
+  if(!res.cancelled) {
+    const bounceArtemis = atk._equipBounce && !res.targetDies &&
+      (def.cDef > 0 || ((def.cap||'').includes('endure') && !def.endureUsed) || def._equipAphrodite);
+    const bounceIzanami = atk.izanamiEquipped && def.cDef > 0;
+    if(bounceArtemis || bounceIzanami) {
+      res.targetBounced = true;
+      res.notes.push('la cible survivante est renvoyée en main');
+    }
   }
   res.defLeft = Math.max(0, def.cDef);
   res.atkLeft = Math.max(0, atkDef);
