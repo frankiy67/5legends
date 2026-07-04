@@ -9,7 +9,7 @@ depuis `v1-unification` (aucun merge entre elles) :
 |---|---|---|---|
 | 1 — Frise du Destin, moteur complet | `feat-frise-moteur` | ✅ terminé | `node tools/test_omens.js` → 14/14 scénarios + 500 parties vertes |
 | 2 — Combat télégraphié (flag) | `feat-telegraph` | ✅ terminé | `node tools/test_telegraph.js` → A/B 1000+1000, 4/4 gates ✅ |
-| 3 — Harnais Ferveur/Égide | `feat-ascension-harnais` | ⏳ à faire | `node tools/test_faith.js` étendu |
+| 3 — Harnais Ferveur/Égide | `feat-ascension-harnais` | ✅ terminé | `node tools/test_faith.js` → 12/12 scénarios + 500 parties vertes |
 | 4 — Dieux-régents (moteur) | `feat-regents` | ⏳ à faire | `node tools/test_regents.js` |
 
 ## Journal d'avancement
@@ -24,6 +24,11 @@ depuis `v1-unification` (aucun merge entre elles) :
   Flag TELEGRAPH=false défaut, golden byte-identique vérifié. A/B 1000+1000 :
   mode ON 0 crash, 10,26 tours, 20 123 frappes déclarées ; rapport complet dans
   la section pilier 2. Batterie standard verte flag off.
+- **2026-07-04** : PILIER 3 TERMINÉ sur `feat-ascension-harnais` (2 commits
+  H1/H2). Flag FAITH_PLACEHOLDERS=false défaut (0 porteur, décision Q1
+  respectée), golden byte-identique vérifié. 12/12 scénarios Ferveur/Égide ✅,
+  batterie 500 parties placeholders ON : Ascension 11,0 %, 10,70 tours,
+  0 crash, Ferveur ×88, Égide ×501. Batterie standard verte flag off.
 
 ---
 
@@ -152,9 +157,49 @@ l'Ascension monte un peu (+2,8pp) car des frappes fizzlent (cibles déjà mortes
 
 ---
 
-# PILIER 3 — Harnais Ferveur/Égide (`feat-ascension-harnais`) — À FAIRE
+# PILIER 3 — Harnais Ferveur/Égide (`feat-ascension-harnais`)
 
-*(sera rempli quand le pilier sera terminé)*
+## Ce qui est construit (harnais, PAS de cartes shippées)
+
+- Le moteur Ferveur/Égide de la brique A (A3) était là mais orphelin (0
+  porteur, décision Q1). Ce pilier le PROUVE sans le shipper :
+- `FAITH_PLACEHOLDERS = false` + `setFaithPlaceholders(v)` : quand un harnais
+  l'active, `buildDeck` injecte 2 cartes [PLACEHOLDER] ×2 copies dans chaque
+  deck (59 → 63 cartes, harnais uniquement) :
+  - **Zélote [PLACEHOLDER]** 2/2 coût 2 — `fervor` ;
+  - **Gardien votif [PLACEHOLDER]** 1/4 coût 2 — `egide`.
+- **Le jeu par défaut est inchangé** : flag off = deck 59, zéro porteur,
+  golden vérifié byte-identique.
+
+## Ce qui est testé (chiffres)
+
+`node tools/test_faith.js` — 2 étages :
+- 12 scénarios dirigés **12/12 ✅** : Ferveur +1 Foi en attaquant une créature,
+  1×/tour, re-déclenche après reset de tour, RIEN au visage ; Égide protège
+  l'agenouillé (l'IA ne le cible jamais), ne protège plus agenouillée/endormie,
+  protection rétablie debout ; boucle prière → +1 Foi → improfanable.
+- Batterie 500 parties placeholders ON : **Ascension 11,0 % ∈ [5,40]**,
+  10,70 tours ≤ 13, 0 crash, Ferveur déclenchée 88× (0,18/partie), Égide a
+  bloqué un ciblage 501×. Winrates : yokai 43,5 · norse 50,5 · egyptian 51,5 ·
+  greek 52,0 · aztec 52,0 (l'écart yokai est un artefact de l'échantillon deck
+  +4 cartes — ce n'est PAS l'état shippé, aucun gate factions n'est requis ici).
+
+## DÉCISIONS DE DESIGN QUI T'ATTENDENT (pilier 3)
+
+1. **Les vraies cartes Ferveur/Égide** — LE design que tu voulais garder :
+   quels porteurs, combien par faction, quels coûts ? (Rappel de ta propre
+   option pré-notée en Q1, toujours dispo dans UNIFICATION_STATUS.md : les 6
+   « Offrande pure » v5 + Griffon + dieux Idunn/Osiris/Mayahuel versions Foi +
+   Égide sur Cerbère/Minotaure/jetons Déméter, Hestia v5 préservée.)
+2. **Ferveur sur la riposte ?** Le moteur actuel : attaque seulement (pas de
+   Foi en défendant). À confirmer ou élargir.
+3. **Sanctuaire** (`_sanctuary`, Mayahuel branche) : le flag moteur existe
+   (immunise 1 fidèle de la Profanation) mais n'a pas de harnais dédié — il
+   n'a de sens qu'avec la carte qui le pose. À designer avec les porteurs.
+4. **Équilibre des jauges** : avec seulement 4 cartes placeholder/deck,
+   l'Ascension passe de 6,2 % → 11,0 %. Les vrais porteurs bougeront ce taux :
+   la cible [5,40] % te laisse de la marge, mais garde un œil sur FAITH_WIN=16
+   (constante paramétrable si tu veux ralentir/accélérer la course).
 
 ---
 
