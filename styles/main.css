@@ -1132,8 +1132,15 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
    L'« horizon » (~50-52%) correspond à la ligne du médaillon central.
    ────────────────────────────────────────────────────────────────── */
 #sky{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-.sky-layer{position:absolute;inset:0;opacity:0}
+/* cross-fade cinématique 1,8 s entre deux ambiances — purement cosmétique :
+   pointer-events:none sur tout #sky, l'interaction n'est jamais bloquée */
+.sky-layer{position:absolute;inset:0;opacity:0;transition:opacity 1.8s ease}
 .sky-layer.visible{opacity:1}
+/* préférence OS : fondu quasi instantané (le toggle in-game body.reduce-motion
+   est déjà couvert par la règle globale animation/transition .001s) */
+@media (prefers-reduced-motion:reduce){
+  .sky-layer{transition-duration:.05s}
+}
 .sky-layer[data-phase="aube"]{background:
   radial-gradient(ellipse 90% 42% at 50% 52%, rgba(255,196,90,.42) 0%, transparent 62%),
   linear-gradient(180deg,#181038 0%,#3a2448 28%,#8a4a34 44%,#d89040 51%,#513a1c 62%,#1c140c 100%)}
