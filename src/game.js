@@ -588,6 +588,28 @@ let G = null;
 let pendingAction = null; // {type, data, resolve}
 let aiThinking = false;
 
+// ════════════════════════════════════════════════════════════════════
+// IA MULTI-STRATÉGIES (v1-unification, brique B — porté de feat-ai-multistrat).
+// Profils ADDITIFS : CONTROL = comportement brique A À L'IDENTIQUE — toutes
+// les branches de profil sont des no-ops stricts pour CONTROL (golden
+// byte-identique, vérifié par golden_check). RUSH/GUARD/RAID ne sont activés
+// que par les harnais (sim) et par les boss d'Arena ; en Partie Libre PvE
+// l'IA reste CONTROL.
+// ════════════════════════════════════════════════════════════════════
+const AI_PROFILES = { 1: 'CONTROL', 2: 'CONTROL' };
+function getAIProfile(p) { return AI_PROFILES[p] || 'CONTROL'; }
+function setAIProfile(p, name) { AI_PROFILES[p] = name || 'CONTROL'; }
+
+// Compteurs d'OBSERVATION (appareil de mesure). Jamais sérialisés par le
+// golden, jamais lus par la logique de jeu → aucun effet sur le déroulé.
+// Servent au garde-fou comportemental (ai_validate) et aux tournois.
+function bumpStat(p, key, n) {
+  if (!G) return;
+  if (!G.aiStats) G.aiStats = { 1: {}, 2: {} };
+  const s = G.aiStats[p] || (G.aiStats[p] = {});
+  s[key] = (s[key] || 0) + (n == null ? 1 : n);
+}
+
 function newCard(template) {
   return {
     ...template,
@@ -1546,6 +1568,7 @@ async function playMonster(c, p) {
   P.field.push(m);
   const idx = P.field.length-1;
   P.summoned.add(idx);
+  if(/protect|egide/.test(m.cap||'')) bumpStat(p, 'protectPlayed'); // mesure (B1, no-op logique)
   // Passifs/auras du plateau s'appliquant au monstre entrant (cf. moteur d'effets,
   // Event 'passive'). Conditions = état du plateau/faction ; ordre préservé.
   await runEffects('passive', { p, idx, m, opp, cap: m.cap||'' });
@@ -3159,6 +3182,7 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       if(actualDmg > 0 && (atk.cap||'').includes('fervor') && !atk._fervor) {
         atk._fervor = true;
         AP.faith = (AP.faith || 0) + 1;
+        bumpStat(attackerP, 'fervorTriggers'); // mesure (B1, no-op logique)
         addLog(`🔥 Ferveur — ${atk.n} : +1 Foi (${AP.faith}/${FAITH_WIN})`, 'special');
       }
       const retDmg = (def.cursed || def.asleep) ? 0 : retVal; // un dormeur ne riposte pas
@@ -3201,7 +3225,14 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
         const wallsR = DP.field.filter(x => x && effProtect(x, targetP)).length;
         if(wallsR >= 2) markCombo(DP.faction); // Forteresse : mur qui riposte
       }
-      if(def.cDef <= 0) await handleDeath(targetP, def);
+      if(def.cDef <= 0) {
+        const defWasKneeling = !!def.kneeling; // mesure (B1) : profanation ?
+        await handleDeath(targetP, def);
+        if(!DP.field.includes(def)) { // réellement retiré (ni Sanctuaire ni Endure…)
+          bumpStat(attackerP, 'enemyKills');
+          if(defWasKneeling) { bumpStat(attackerP, 'profanations'); bumpStat(targetP, 'kneelersLost'); }
+        }
+      }
       if(atk.cDef <= 0) await handleDeath(attackerP, atk);
     }
   };
@@ -3866,7 +3897,7 @@ function scoreCard(c, p) {
     // Prefer spending gems efficiently (don't hoard)
     if(c.cost >= P.gems * 0.7) score += 1.5;
 
-    return score * urgency * lethalPressure;
+    return (score + profileCardBonus(c, p)) * urgency * lethalPressure;
   }
 
   if(c.type === 'god') {
@@ -3972,7 +4003,7 @@ function scoreCard(c, p) {
     const hasTarget = oppField.length > 0 || myField.length > 0;
     if(!hasTarget && needsTarget.some(k => cap.includes(k))) score = Math.max(score - 4, 0);
 
-    return score * urgency;
+    return (score + profileCardBonus(c, p)) * urgency;
   }
 
   // Spell
@@ -3985,7 +4016,59 @@ function scoreCard(c, p) {
   if(cap.includes('cancel') && oppField.length > 0) score += 5;
   if(cap.includes('draw3'))   score += P.hand.length < 3 ? 5 : 2;
 
-  return score * urgency;
+  return (score + profileCardBonus(c, p)) * urgency;
+}
+
+// ── IA MULTI-STRATÉGIES (B1) : ajustement de score selon le profil ────────
+// Bonus ADDITIF appliqué avant le multiplicateur d'urgence. Retourne 0 pour
+// CONTROL (identité stricte : (score+0)*u === score*u → golden inchangé).
+// Oriente QUELLES cartes l'IA privilégie pour incarner sa stratégie.
+function profileCardBonus(c, p) {
+  const prof = getAIProfile(p);
+  if (prof === 'CONTROL') return 0;
+  const cap = c.cap || '';
+  const opp = p === 1 ? 2 : 1;
+  const OP = G.players[opp];
+  const oppField = OP.field.filter(m => m && !m.faceDown && !m.asleep);
+  let b = 0;
+
+  if (prof === 'RUSH') {
+    // Course à la Foi : poser un MAX de corps bon marché tôt pour les faire prier.
+    if (c.type === 'monster') {
+      b += 6;                                   // poser un corps prime sur le reste
+      b += Math.max(0, 4 - (c.cost || 0)) * 3;  // moins cher = plus de corps de prière tôt
+      if (cap.includes('hurry'))      b += 3;   // peut prier dès le tour de pose
+      if (cap.includes('exit_faith')) b += 3;   // Foi garantie
+      if (cap.includes('fervor'))     b += 1;
+    } else {
+      b -= 5;                                   // dieux/sorts détournent des corps de prière
+    }
+  } else if (prof === 'GUARD') {
+    // Protection : gardiennes (Égide/Rempart) + gros boucliers, prier en sécurité.
+    if (c.type === 'monster') {
+      if (cap.includes('egide'))   b += 10;     // protège les fidèles à genoux
+      if (cap.includes('protect')) b += 8;      // mur défensif
+      if (cap.includes('endure'))  b += 4;
+      if (cap.includes('heal'))    b += 2;
+      b += (c.def || 0) * 1.3;                  // privilégie la DEF
+      b -= Math.max(0, (c.atk || 0) - (c.def || 0)) * 0.6; // évite les corps fragiles offensifs
+    } else if (c.type === 'god' && /balder|protect|resurrect/.test(cap)) {
+      b += 4;
+    }
+  } else if (prof === 'RAID') {
+    // Déni/aggro : gros attaquants pour profaner/tuer + retrait des créatures.
+    if (c.type === 'monster') {
+      if (cap.includes('fervor')) b += 8;       // génère sa Foi par le combat
+      b += (c.atk || 0) * 1.1;                  // gros attaquants pour profaner/tuer
+      if (cap.includes('hit'))   b += 4;        // Frénésie = plus de kills
+      if (cap.includes('hurry')) b += 3;
+      b -= Math.max(0, (c.def || 0) - (c.atk || 0)) * 0.3; // dévalorise les murs passifs
+    } else if ((c.type === 'god' || c.type === 'spell') && oppField.length > 0 &&
+               /destroy|dmg|minus|sleep|steal|thor|cancel|blind/.test(cap)) {
+      b += 6;                                   // retrait priorisé s'il y a des cibles
+    }
+  }
+  return b;
 }
 
 async function aiCombatPhase(p=2) {
@@ -4111,7 +4194,43 @@ function aiPrayPhase(p=2) {
   // Mêmes conditions d'éligibilité que le joueur humain (canPray : phase
   // Combat, pas de jeton, pas de mal d'invocation, pas déjà agi…).
   const eligible = P.field.map((m,i)=>({m,i})).filter(({m,i}) => m && canPray(p, i));
-  const candidates = eligible.filter(({m}) => !effProtect(m, p) && !aiHasProductiveAttack(p, m));
+  // ── IA MULTI-STRATÉGIES (B1) : arbitrage prière↔combat selon le profil.
+  // CONTROL = heuristique brique A À L'IDENTIQUE (golden inchangé).
+  const prof = getAIProfile(p);
+  let candidates;
+  if (prof === 'RUSH') {
+    // Course à la Foi : TOUT le monde prie (le léthal a déjà été vérifié avant).
+    candidates = eligible;
+  } else if (prof === 'GUARD') {
+    // Spec branche P1 : prier DERRIÈRE les gardiennes, proportionnellement.
+    //  · Égide vivante → les agenouillés sont improfanables : prier tout le reste ;
+    //  · murs Rempart  → prier derrière, en gardant un tampon ceil(menace/2) ;
+    //  · aucune gardienne → prudence : garder max(1, menace) corps debout.
+    const guardians = eligible.filter(({ m }) => /protect|egide/.test(m.cap || ''));
+    const enemyThreat = OP.field.filter(m => m && !m.faceDown && !m.asleep && !m.kneeling).length;
+    let keepN;
+    if (hasEgide(P)) keepN = Math.min(eligible.length, guardians.length);
+    else if (guardians.length > 0) keepN = Math.min(eligible.length, guardians.length + Math.ceil(enemyThreat / 2));
+    else keepN = Math.min(eligible.length, Math.max(1, enemyThreat));
+    const sorted = [...eligible].sort((a,b) => {
+      const ap = /protect|egide/.test(a.m.cap||'') ? 1 : 0;
+      const bp = /protect|egide/.test(b.m.cap||'') ? 1 : 0;
+      return (bp - ap) || ((b.m.cDef||0) - (a.m.cDef||0));
+    });
+    candidates = sorted.slice(keepN);
+  } else if (prof === 'RAID') {
+    // Spec branche P3 : ne prie QUE sans BONNE attaque (décision par créature) —
+    // kill franc, profanation d'un fidèle, ou Ferveur → reste au combat.
+    const targets = OP.field.filter(m => m && !m.faceDown && !m.asleep && !protectedByEgide(opp, m));
+    const goodAttack = (m) => targets.length > 0 && (
+      targets.some(t => t.cDef <= (m.cAtk || 0)) ||
+      targets.some(t => t.kneeling) ||
+      (m.cap || '').includes('fervor'));
+    candidates = eligible.filter(({ m }) => !goodAttack(m));
+  } else {
+    // CONTROL (brique A, inchangé).
+    candidates = eligible.filter(({m}) => !effProtect(m, p) && !aiHasProductiveAttack(p, m));
+  }
   if(candidates.length === 0) return;
   let prayed = false;
   for(const {m,i} of candidates) {
@@ -4154,6 +4273,23 @@ function pickAITarget(targetP, attackerP=2) {
   const cur = AP.field.find((m,i) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
   const myAtk = cur?.cAtk || 0;
   const myDef = cur?.cDef || 0;
+
+  // ── IA MULTI-STRATÉGIES (B1) : ciblage RAID (profanation + déni de Ferveur).
+  // No-op pour les autres profils → CONTROL inchangé. Contrairement au
+  // CONTROL (profanation PROPRE uniquement, ci-dessous), RAID profane même
+  // en s'exposant à la riposte.
+  if (getAIProfile(attackerP) === 'RAID') {
+    // 1) Profaner : tuer un fidèle ennemi à genoux (vole DESECRATE_FAITH).
+    const profan0 = alive.filter(x => x.m.kneeling && x.m.cDef <= myAtk);
+    if (profan0.length) { profan0.sort((a,b)=>(b.m.cAtk+b.m.cDef)-(a.m.cAtk+a.m.cDef)); return profan0[0].i; }
+    // 2) Neutraliser une source de Ferveur ennemie tuable.
+    const fervKill = alive.filter(x => (x.m.cap||'').includes('fervor') && x.m.cDef <= myAtk);
+    if (fervKill.length) { fervKill.sort((a,b)=>(b.m.cAtk+b.m.cDef)-(a.m.cAtk+a.m.cDef)); return fervKill[0].i; }
+    // 3) À défaut de kill, entamer le fidèle à genoux le plus tendre.
+    const kneelers = alive.filter(x => x.m.kneeling);
+    if (kneelers.length) { kneelers.sort((a,b)=>a.m.cDef-b.m.cDef); return kneelers[0].i; }
+    // sinon → ciblage générique ci-dessous (clean kills / trade up).
+  }
 
   // ── ASCENSION (A2) : PROFANATION PRIORITAIRE — un fidèle à genoux tuable
   // PROPREMENT passe devant les autres kills : on retire un générateur de Foi
@@ -5672,6 +5808,9 @@ function doPray(p, i) {
   P.faith = (P.faith || 0) + 1;
   m.kneeling = true;
   P.attacked.add(i);
+  // Mesure (B1, no-op logique) : nombre de prières + tour de la 1ʳᵉ prière.
+  bumpStat(p, 'prayers');
+  if (G.aiStats && G.aiStats[p] && G.aiStats[p].firstPrayTurn == null) G.aiStats[p].firstPrayTurn = G.turn;
   addLog(`🙏 ${m.n} prie — ${P.supremeGod} canalise +1 Foi (${P.faith}/${FAITH_WIN})`, 'special');
 }
 
