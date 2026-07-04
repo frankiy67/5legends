@@ -619,6 +619,17 @@ body.reduce-motion #destiny-timeline{transition:none}
 @keyframes pulse-reaction{from{box-shadow:var(--shadow-card),0 0 10px rgba(231,76,60,.6)}to{box-shadow:var(--shadow-card),0 0 24px rgba(231,76,60,.95),0 0 44px rgba(231,76,60,.4)}}
 .hcard.targeting-src{transform:translateY(-44px) scale(1.26)!important;z-index:200!important;box-shadow:var(--shadow-float),0 0 34px rgba(244,201,93,.85)!important}
 
+/* TACTILE — pas de survol ni de tilt au doigt : la carte tapée se soulève
+   et s'illumine instantanément (:active + le :hover émulé qui « colle »
+   après le tap sert d'état sélectionné) ; l'état de visée reste
+   .targeting-src, géré par le jeu. Transform/box-shadow only. */
+@media (hover:none){
+  .hcard:active{transform:rotate(0deg) translateY(calc(var(--arc-y,0px) - 18px)) scale(1.08)!important;z-index:300!important;
+    transition:transform .05s,box-shadow .05s!important;
+    box-shadow:var(--shadow-float),0 0 28px rgba(244,201,93,.55),inset 1px 1px 2px rgba(255,235,150,.6)!important}
+  .fcard:active{transform:translateY(-8px) scale(1.04);transition:transform .05s}
+}
+
 /* main adverse (dos de cartes) */
 .opp-hand-area{position:absolute;top:6px;left:50%;transform:translateX(-50%);display:flex;align-items:flex-end;justify-content:center;z-index:4;pointer-events:none;height:48px}
 .hcard-back{width:36px;height:50px;border-radius:6px;background:linear-gradient(150deg,#3a3080,#1a1060 40%,#0a0840);border:1px solid rgba(140,120,210,.5);box-shadow:0 3px 10px rgba(0,0,0,.7),inset 1px 1px 3px rgba(160,140,230,.2);display:flex;align-items:center;justify-content:center;font-size:17px;color:rgba(150,130,230,.6);flex-shrink:0;transform-origin:bottom center}
@@ -857,10 +868,14 @@ body.reduce-motion .fc-frame,body.reduce-motion .hc-frame-inner{transform:none!i
    (overflow:hidden) — transform + opacité seuls, composité GPU */
 .fc-inner::after,.hc-frame-inner::after{content:'';position:absolute;top:-30%;bottom:-30%;left:-50%;width:200%;
   pointer-events:none;z-index:5;
-  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,var(--sheen,.12)) 50%,transparent 58%);
+  background:linear-gradient(105deg,transparent 40%,var(--sheen-tint,transparent) 46%,
+    rgba(255,255,255,var(--sheen,.12)) 50%,var(--sheen-tint,transparent) 54%,transparent 60%);
   transform:translateX(calc(var(--gx,0)*50%));
   opacity:0;transition:transform .12s ease-out,opacity .25s}
 .fcard:hover .fc-inner::after,.hcard:hover .hc-frame-inner::after{opacity:1}
+/* rare = liseré doré dans le reflet, god = violet — sobre, juste un accent */
+.fcard[data-rarity="rare"],.hcard[data-rarity="rare"]{--sheen:.18;--sheen-tint:rgba(255,225,138,.10)}
+.fcard[data-rarity="god"],.hcard[data-rarity="god"],.fcard[data-type="god"],.hcard.god{--sheen:.22;--sheen-tint:rgba(230,184,255,.12)}
 /* reduced-motion : pas de balayage du tout */
 @media (prefers-reduced-motion:reduce){
   .fc-inner::after,.hc-frame-inner::after{display:none}
