@@ -8,7 +8,7 @@ depuis `v1-unification` (aucun merge entre elles) :
 | Pilier | Branche | État | Test |
 |---|---|---|---|
 | 1 — Frise du Destin, moteur complet | `feat-frise-moteur` | ✅ terminé | `node tools/test_omens.js` → 14/14 scénarios + 500 parties vertes |
-| 2 — Combat télégraphié (flag) | `feat-telegraph` | ⏳ en cours | `node tools/test_telegraph.js` |
+| 2 — Combat télégraphié (flag) | `feat-telegraph` | ✅ terminé | `node tools/test_telegraph.js` → A/B 1000+1000, 4/4 gates ✅ |
 | 3 — Harnais Ferveur/Égide | `feat-ascension-harnais` | ⏳ à faire | `node tools/test_faith.js` étendu |
 | 4 — Dieux-régents (moteur) | `feat-regents` | ⏳ à faire | `node tools/test_regents.js` |
 
@@ -20,6 +20,10 @@ depuis `v1-unification` (aucun merge entre elles) :
   10,10 tours (≤ 12). Batterie complète verte (faith 6,2 % asc · all_cards ·
   preview 202 · arena · factions gate ±4pp ✅). Golden dédié régénéré (4/200
   parties divergent — effet documenté du « retard directionnel », round-trip ✅).
+- **2026-07-04** : PILIER 2 TERMINÉ sur `feat-telegraph` (2 commits T1/T2).
+  Flag TELEGRAPH=false défaut, golden byte-identique vérifié. A/B 1000+1000 :
+  mode ON 0 crash, 10,26 tours, 20 123 frappes déclarées ; rapport complet dans
+  la section pilier 2. Batterie standard verte flag off.
 
 ---
 
@@ -88,9 +92,63 @@ depuis `v1-unification` (aucun merge entre elles) :
 
 ---
 
-# PILIER 2 — Combat télégraphié (`feat-telegraph`) — EN COURS
+# PILIER 2 — Combat télégraphié (`feat-telegraph`)
 
-*(sera rempli quand le pilier sera terminé)*
+## Ce qui est construit (derrière flag, jeu par défaut INCHANGÉ)
+
+- `TELEGRAPH = false` + `setTelegraph(v)` (`src/game.js`). **Golden vérifié
+  byte-identique flag off** ; le harnais prouve en plus que OFF ne déclare
+  JAMAIS une frappe (compteur = 0 sur 1000 parties).
+- Flag ON : `doAttack` devient une **déclaration** (`declareStrike`) — l'action
+  de la créature est consommée, la frappe est posée dans `G.strikes` (références
+  de cartes, pas d'index) et se résout à la **sortie de la phase Combat**
+  (`resolveStrikes`, awaitée côté IA pour le déterminisme, fire-and-forget côté
+  humain comme les présages D1).
+- **Élan (`hurry`) = frappe instantanée** (ancien comportement conservé), la 2e
+  frappe de HIT reste instantanée (partie de la résolution).
+- **Fenêtre de réaction** : en PvE, pause Anytime/ESPACE existante avant la
+  première résolution (le défenseur humain peut répondre).
+- **Fizzle propre** : attaquant mort/endormi/ensablé/parti → la frappe se
+  dissipe ; cible-créature disparue → se dissipe ; frappe déclarée sur le
+  visage → reste sur le visage.
+
+## Ce qui est testé — LE RAPPORT A/B POUR TON ARBITRAGE
+
+`node tools/test_telegraph.js` — mêmes 1000 parties seedées dans chaque mode :
+
+| Mesure | OFF (instantané) | ON (télégraphié) |
+|---|---|---|
+| Durée moyenne | 10,45 tours | 10,26 tours |
+| Victoires P1 | 481 (48,1 %) | 485 (48,5 %) |
+| Victoires P2 | 517 (51,7 %) | 512 (51,2 %) |
+| · par PV | 91,0 % | 87,8 % |
+| · par Ascension | 7,0 % | 9,8 % |
+| · à l'horloge | 1,8 % | 2,1 % |
+| Frappes déclarées | 0 | 20 123 |
+| Crashs / inachevées | 0 / 0 | 0 / 0 |
+
+Winrates factions : yokai 50,8→49,8 · norse 48,5→51,3 (+2,8pp) · egyptian
+53,0→52,3 · greek 48,5→48,0 · aztec 48,8→48,0. Aucun basculement majeur ;
+l'Ascension monte un peu (+2,8pp) car des frappes fizzlent (cibles déjà mortes)
+→ un poil moins de dégâts convertis.
+
+## DÉCISIONS DE DESIGN QUI T'ATTENDENT (pilier 2)
+
+1. **LE choix : garder instantané ou passer télégraphié ?** Les chiffres
+   ci-dessus sont là pour ça. Techniquement les deux modes sont stables.
+2. **Redirection des frappes au visage** : sémantique v1 = une frappe déclarée
+   sur le visage reste sur le visage même si un Rempart arrive en réaction.
+   Alternative à trancher : le Rempart intercepte (plus « défensif », plus
+   complexe à lire).
+3. **IA télégraphe-consciente** : l'IA actuelle déclare comme elle attaquait
+   (elle peut empiler 2 frappes sur une cible qui n'en demandait qu'une). Si tu
+   retiens le mode, il faudra une passe IA (prévoir un profil ou une correction
+   de `pickAITarget` en mode déclaratif).
+4. **UI de la frappe posée** : aujourd'hui, log seulement (🏹). Design à faire :
+   marqueur visuel sur l'attaquant/cible, flèche fantôme, possibilité d'annuler
+   sa propre déclaration ?
+5. **Réaction de l'IA** : le défenseur IA ne réagit pas aux frappes du joueur
+   (quelles cartes jouerait-elle en réaction ? → design).
 
 ---
 
