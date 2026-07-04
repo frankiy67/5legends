@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 /**
- * test_factions.js — 100 parties IA vs IA sur tous les matchups de factions.
+ * test_faith.js — 500 parties IA vs IA pour valider le système de Foi (brique A).
  *
- * 10 matchups (les 10 paires distinctes de 5 factions) × 10 parties = 100.
- * Pour chaque partie on vérifie :
- *   · Aucun crash JS (capturé par try/catch autour de la boucle de jeu).
- *   · Aucun timeout anormal (> 60 tours).
- *   · La partie se termine proprement (un vainqueur est désigné).
+ * 25 paires ordonnées de factions × 20 parties seedées = 500.
+ * CRITÈRES (consignes v1-unification) :
+ *   · 0 crash JS
+ *   · taux de victoires par ASCENSION ∈ [5, 40] %
+ *   · durée moyenne ≤ 13 tours
+ * Diagnostics affichés en plus : répartition hp/ascension/horloge/nul,
+ * prières par partie, profanations, Foi finale moyenne.
  *
- * Usage : node tools/test_factions.js
- * Sortie : 0 si tout passe, 1 sinon.
+ * Usage : node tools/test_faith.js [gamesParPaire=20]
  */
 'use strict';
 const fs = require('fs');
@@ -18,8 +19,7 @@ const vm = require('vm');
 
 const ROOT = path.resolve(__dirname, '..');
 const GAME_SRC = path.join(ROOT, 'src', 'game.js');
-const GAMES_PER_MATCHUP = parseInt(process.argv[2] || '10', 10);
-const TURN_LIMIT = 60;     // au-delà → timeout anormal
+const GAMES_PER_PAIR = parseInt(process.argv[2] || '20', 10);
 const HARD_GUARD = 4000;
 
 // ── Stub DOM/Audio (identique à golden.js) ───────────────────────────────
@@ -69,7 +69,7 @@ function loadGame() {
   sandbox.CustomEvent = function(){return ANY;}; sandbox.Event = function(){return ANY;};
   sandbox.console = console; sandbox.globalThis = sandbox;
   const src = fs.readFileSync(GAME_SRC, 'utf8');
-  const boot = `\n;globalThis.__API = { FACTIONS, initGame, aiTurn, seedRNG, checkVictoryBool, getVictoryState, getG: ()=>G, resetAI: ()=>{ aiThinking=false; } };\n`;
+  const boot = `\n;globalThis.__API = { FACTIONS, initGame, aiTurn, seedRNG, checkVictoryBool, getVictoryState, getG: ()=>G, resetAI: ()=>{ aiThinking=false; }, FAITH_WIN, TURN_CAP };\n`;
   vm.createContext(sandbox);
   vm.runInContext(src + boot, sandbox, { filename: 'game.js' });
   return sandbox.__API;
@@ -85,86 +85,83 @@ async function playOne(API, f1, f2, seed) {
   } catch (e) {
     error = (e && e.stack ? e.stack.split('\n')[0] : String(e));
   }
-  // ASCENSION (brique A) : le gagnant vient de getVictoryState (PV, Ascension
-  // ou horloge T18). Double-KO ('both') conservé ; match nul horloge → 'both'
-  // aussi (fin propre sans vainqueur, exclue du winrate comme avant).
-  let winner = null;
   const vs = API.getVictoryState();
-  if (G.players[1].hp <= 0 && G.players[2].hp <= 0) winner = 'both';
-  else if (vs && vs.winner === 0) winner = 'both';
-  else if (vs) winner = vs.winner;
-  return { turns: G.turn, winner, error };
+  // Prières exécutées = somme de la Foi acquise par prière ; approximation par
+  // le log serait fragile — on lit directement la Foi finale des deux camps.
+  return {
+    turns: G.turn, error,
+    winner: vs ? vs.winner : null,
+    reason: vs ? vs.reason : null,
+    faith1: G.players[1].faith || 0,
+    faith2: G.players[2].faith || 0,
+  };
 }
 
 async function main() {
   const API = loadGame();
   const F = API.FACTIONS;
-  // 10 paires distinctes (sans miroir)
-  const matchups = [];
-  for (let i = 0; i < F.length; i++) for (let j = i + 1; j < F.length; j++) matchups.push([F[i], F[j]]);
+  const pairs = [];
+  for (const a of F) for (const b of F) pairs.push([a, b]);
 
-  let total = 0, crashes = 0, timeouts = 0, unfinished = 0;
-  const rows = [];
+  let total = 0, crashes = 0, turnsSum = 0, unfinished = 0;
+  const byReason = { hp: 0, ascension: 0, clock: 0, draw: 0 };
+  // Diagnostic : victoires par faction × raison (hp / ascension / clock).
+  const fWins = {};
+  F.forEach(f => { fWins[f] = { hp: 0, ascension: 0, clock: 0, games: 0 }; });
+  let faithSum = 0, faithMax = 0;
   let seed = 1;
   const t0 = Date.now();
-  // Agrégat par faction (winrate toutes positions confondues).
-  const fWins = {}, fGames = {};
-  F.forEach(f => { fWins[f] = 0; fGames[f] = 0; });
-  for (const [fa, fb] of matchups) {
-    let w1 = 0, w2 = 0, maxTurn = 0, crash = 0, to = 0, unf = 0;
-    for (let g = 0; g < GAMES_PER_MATCHUP; g++) {
-      // Alternance des côtés pour neutraliser tout biais P1/P2 résiduel.
-      const swap = g % 2 === 1;
-      const [f1, f2] = swap ? [fb, fa] : [fa, fb];
+  for (const [f1, f2] of pairs) {
+    for (let g = 0; g < GAMES_PER_PAIR; g++) {
       const r = await playOne(API, f1, f2, seed++);
       total++;
-      maxTurn = Math.max(maxTurn, r.turns);
-      if (r.error) { crash++; crashes++; }
-      if (r.turns > TURN_LIMIT) { to++; timeouts++; }
-      // Un double-KO ('both') est une fin PROPRE (morts simultanées sur AoE) —
-      // seul un null (vrai timeout sans vainqueur) compte comme inachevé.
-      if (r.winner === null) { unf++; unfinished++; }
-      if (r.winner === 1 || r.winner === 2) {
-        const winF = r.winner === 1 ? f1 : f2;
-        if (winF === fa) w1++; else w2++;
-        fWins[winF]++; fGames[fa]++; fGames[fb]++;
+      turnsSum += r.turns;
+      fWins[f1].games++; fWins[f2].games++;
+      if (r.error) { crashes++; console.log(`  💥 ${f1} vs ${f2} seed=${seed-1}: ${r.error}`); }
+      if (r.winner === null) unfinished++;
+      else if (r.winner === 0) byReason.draw++;
+      else {
+        byReason[r.reason] = (byReason[r.reason] || 0) + 1;
+        const wf = r.winner === 1 ? f1 : f2;
+        fWins[wf][r.reason]++;
       }
+      faithSum += r.faith1 + r.faith2;
+      faithMax = Math.max(faithMax, r.faith1, r.faith2);
     }
-    rows.push({ m: `${fa} vs ${fb}`, w1, w2, maxTurn, crash, to, unf });
   }
   const dt = ((Date.now() - t0) / 1000).toFixed(1);
+  const avgTurns = turnsSum / total;
+  const ascPct = 100 * byReason.ascension / total;
+  const clockPct = 100 * byReason.clock / total;
 
   console.log('═══════════════════════════════════════════════════════════════');
-  console.log('  100 PARTIES — TOUS LES MATCHUPS DE FACTIONS');
+  console.log(`  TEST FAITH — ${total} parties (FAITH_WIN=${API.FAITH_WIN}, TURN_CAP=${API.TURN_CAP})`);
   console.log('═══════════════════════════════════════════════════════════════');
-  console.log('  Matchup'.padEnd(26) + 'W1  W2  maxT  crash  >60t  inachevé');
+  console.log(`  Victoires par PV ........... : ${byReason.hp} (${(100*byReason.hp/total).toFixed(1)}%)`);
+  console.log(`  Victoires par ASCENSION .... : ${byReason.ascension} (${ascPct.toFixed(1)}%)`);
+  console.log(`  Victoires à l'horloge T${API.TURN_CAP} .. : ${byReason.clock} (${clockPct.toFixed(1)}%)`);
+  console.log(`  Matchs nuls ................ : ${byReason.draw}`);
+  console.log(`  Parties inachevées ......... : ${unfinished}`);
+  console.log(`  Durée moyenne .............. : ${avgTurns.toFixed(2)} tours`);
+  console.log(`  Foi finale moyenne (2 camps) : ${(faithSum/total/2).toFixed(2)} (max vu : ${faithMax})`);
+  console.log(`  Crashs JS .................. : ${crashes}`);
+  console.log(`  Durée réelle ............... : ${dt}s`);
   console.log('  ' + '─'.repeat(60));
-  for (const r of rows) {
-    console.log('  ' + r.m.padEnd(24) +
-      String(r.w1).padStart(2) + '  ' + String(r.w2).padStart(2) + '   ' +
-      String(r.maxTurn).padStart(3) + '   ' + String(r.crash).padStart(3) + '   ' +
-      String(r.to).padStart(3) + '     ' + String(r.unf).padStart(3));
-  }
-  console.log('  ' + '─'.repeat(60));
-  console.log(`  Total parties ........ : ${total}`);
-  console.log(`  Crashs JS ............ : ${crashes}`);
-  console.log(`  Timeouts (>${TURN_LIMIT} tours) : ${timeouts}`);
-  console.log(`  Parties inachevées ... : ${unfinished}`);
-  console.log(`  Durée ................ : ${dt}s`);
-  console.log('  ' + '─'.repeat(60));
-  console.log('  WINRATE PAR FACTION (toutes positions confondues)');
+  console.log('  VICTOIRES PAR FACTION × RAISON (winrate global, miroirs inclus)');
   for (const f of F) {
-    const wr = fGames[f] ? (100 * fWins[f] / fGames[f]) : 0;
-    const flag = wr >= 45 && wr <= 55 ? '✅' : '❌';
-    console.log(`    ${flag} ${f.padEnd(10)} : ${wr.toFixed(1)}%  (${fWins[f]}/${fGames[f]})`);
+    const w = fWins[f];
+    const tot = w.hp + w.ascension + w.clock;
+    const wr = w.games ? (100 * tot / w.games) : 0;
+    console.log(`    ${f.padEnd(10)} : ${wr.toFixed(1).padStart(5)}%  (hp ${w.hp} · asc ${w.ascension} · horloge ${w.clock})`);
   }
-  console.log('───────────────────────────────────────────────────────────────');
-  if (crashes === 0 && timeouts === 0 && unfinished === 0) {
-    console.log('  ✅ 100/100 parties terminées proprement, sans crash ni timeout');
-    process.exit(0);
-  } else {
-    console.log('  ❌ Anomalies détectées (voir colonnes ci-dessus)');
-    process.exit(1);
-  }
+  console.log('  ' + '─'.repeat(60));
+
+  const okCrash = crashes === 0 && unfinished === 0;
+  const okAsc = ascPct >= 5 && ascPct <= 40;
+  const okTurns = avgTurns <= 13;
+  console.log(`  ${okCrash ? '✅' : '❌'} 0 crash / 0 inachevée`);
+  console.log(`  ${okAsc ? '✅' : '❌'} Ascension ∈ [5, 40] % (mesuré : ${ascPct.toFixed(1)}%)`);
+  console.log(`  ${okTurns ? '✅' : '❌'} durée moyenne ≤ 13 tours (mesuré : ${avgTurns.toFixed(2)})`);
+  process.exit(okCrash && okAsc && okTurns ? 0 : 1);
 }
 main().catch(e => { console.error('HARNESS FAIL', e); process.exit(1); });

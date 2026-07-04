@@ -596,6 +596,7 @@ function newCard(template) {
     cDef: template.def || 0,
     endureUsed: false,
     esquiveUsed: false,
+    kneeling: false,   // ASCENSION (A2) : fidèle à genoux (a prié ce tour)
     cursed: false,
     asleep: false,
     sanded: false,
@@ -1027,6 +1028,7 @@ const ZENITH_BONUS_TXT = {
 // Protection effective : cap protect OU zénith norse (Ténèbres) pour les monstres norse.
 function effProtect(m, ownerP) {
   if(!m || m.faceDown) return false;
+  if(m.kneeling) return false; // ASCENSION (A2) : un Rempart à genoux ne protège plus
   if((m.cap||'').includes('protect')) return true;
   return getZenithFaction() === 'norse' && G.players[ownerP] && G.players[ownerP].faction === 'norse';
 }
@@ -1285,6 +1287,10 @@ function doEndTurn() {
   Audio5L.sfx.mana();
   NP.attacked = new Set();
   NP.summoned = new Set();
+  // ── ASCENSION (A2) : les fidèles se relèvent au début du tour de leur
+  // contrôleur (leur Foi est déjà acquise ; ils peuvent de nouveau agir).
+  // Reset des flags Ferveur (1×/tour) et Sanctuaire (Mayahuel) au passage.
+  NP.field.forEach(m => { if(m) { m.kneeling = false; m._fervor = false; m._sanctuary = false; } });
   G.actions = 1;
   // Auto-draw
   if(NP.deck.length > 0) { NP.hand.push(NP.deck.shift()); Audio5L.sfx.draw(); }
@@ -2049,10 +2055,31 @@ function animateDeath(cardDiv, callback) {
 }
 
 
+// ── ASCENSION (A2) : PROFANATION — tuer un fidèle à genoux (qui a prié) donne
+// DESECRATE_FAITH Foi au tueur (l'adversaire du propriétaire). Appelée à chaque
+// sortie « vraie mort » de handleDeath : mort finale, Balder (remplacé), et
+// Réincarnation (quitte le jeu). Les chemins de SURVIE (Endure, Momie,
+// Aphrodite, Anubis, Sanctuaire) ne profanent pas.
+function desecrateIfKneeling(p, m) {
+  if(!DESECRATE_FAITH || !m.kneeling) return;
+  const opp = p===1?2:1;
+  const OPP = G.players[opp];
+  OPP.faith = (OPP.faith || 0) + DESECRATE_FAITH;
+  addLog(`⛧ Profanation — ${m.n} (à genoux) tué : +${DESECRATE_FAITH} Foi pour P${opp} (${OPP.faith}/${FAITH_WIN})`,'special');
+}
+
 async function handleDeath(p, m) {
   const P = G.players[p];
   const idx = P.field.indexOf(m);
   if(idx<0) return;
+
+  // ── ASCENSION (A3) : SANCTUAIRE — un fidèle agenouillé sanctuarisé ne peut
+  // pas être profané (tué) jusqu'au prochain tour de son contrôleur. ──
+  if(m._sanctuary && m.kneeling) {
+    m.cDef = Math.max(1, m.cDef);
+    addLog(`✨ Sanctuaire — ${m.n} ne peut pas être profané !`,'special');
+    return;
+  }
 
   // Endure
   if((m.cap||'').includes('endure') && !m.endureUsed) {
@@ -2069,6 +2096,7 @@ async function handleDeath(p, m) {
 
   // Balder
   if(P.balderActive && P.field.length<6) {
+    desecrateIfKneeling(p, m); // ASCENSION (A2) : remplacé = vraie mort
     P.field.splice(idx,1);
     P.graveyard.push(m);
     const token = newCard({id:'BALDER_TOKEN',n:'2/2 Token',atk:2,def:2,cost:0,type:'monster',cap:'',txt:'Balder token',faction:P.faction});
@@ -2126,6 +2154,7 @@ async function handleDeath(p, m) {
     m2.cAtk=m2.atk; m2.cDef=m2.def;
     G.players[p].deck.push(m2); G.players[p].deck.sort(()=>rng()-0.5);
     addLog(`✨ ${m.n} — Réincarnation! Retourne dans le deck avec +3/+3.`,'event');
+    desecrateIfKneeling(p, m); // ASCENSION (A2) : quitte le jeu = vraie mort
     // Remove from field before exit, skip graveyard
     P.field.splice(idx,1); reindexSets(P,idx,true); return;
   }
@@ -2147,6 +2176,7 @@ async function handleDeath(p, m) {
     return;
   }
 
+  desecrateIfKneeling(p, m); // ASCENSION (A2) : mort finale
   Audio5L.sfx.death();
   // Death animation: find card in DOM and play card-death before removing
   const _dyingEl = document.querySelector(`[data-player="${p}"][data-idx="${idx}"]`);
@@ -3365,6 +3395,14 @@ function predictCombat(attackerP, attackerIdx, targetP, targetIdx) {
     res.notes.push('Dernier Souffle se déclenche');
     if(/exit_dmg|exit_destroy/.test(def.cap||'')) { res.uncertain = true; res.notes.push('ses dégâts de mort peuvent toucher l\'attaquant'); }
   }
+  // ARTÉMIS (_equipBounce) / IZANAMI : la cible SURVIVANTE (y compris via
+  // Immortel/Endure) est renvoyée en main après la frappe — elle quitte le
+  // terrain sans mourir. (Trou de prédiction débusqué par test_preview après
+  // la brique A : Scylla+Artémis vs Golem Immortel.)
+  if((atk._equipBounce || atk.izanamiEquipped) && !res.targetDies && !res.cancelled) {
+    res.targetBounced = true;
+    res.notes.push('la cible survivante est renvoyée en main');
+  }
   res.defLeft = Math.max(0, def.cDef);
   res.atkLeft = Math.max(0, atkDef);
   if(hasHit && !res.attackerDies) res.notes.push('Frénésie : peut attaquer une 2e fois');
@@ -3971,6 +4009,13 @@ async function aiCombatPhase(p=2) {
     return;
   }
 
+  // ── ASCENSION (A2) : GUERRE/PRIÈRE — les créatures sans attaque productive
+  // prient. Placé APRÈS les blocs léthal et anti-stall : l'IA ne prie jamais
+  // à la place d'un coup gagnant ni d'un visage libre (adaptation v1 du C2 de
+  // la branche, qui n'avait plus de PV — cf. DECISIONS_V5.md [A2]).
+  aiPrayPhase(p);
+  if(checkVictoryBool()) return;
+
   // ── NORMAL COMBAT: strongest attackers first ────────────────────
   // Sort: Hurry/high-atk first, then others
   const sorted = getAttackers().sort((a,b) => {
@@ -4000,6 +4045,50 @@ async function aiCombatPhase(p=2) {
 
     if(checkVictoryBool()) break;
   }
+}
+
+// ── ASCENSION (A2) : une créature a-t-elle une attaque PRODUCTIVE ce tour ?
+// Miroir des priorités de pickAITarget : percée de mur (Rempart adverse),
+// kill propre, échange favorable, chip au visage. Sinon → candidate à la
+// Prière. ⚠️ heuristique v1 à relire par Frank (la branche gardait
+// ceil(menace/2) défenseurs et priait tout le reste — monde sans PV).
+function aiHasProductiveAttack(p, m) {
+  const opp = p===1?2:1;
+  const OP = G.players[opp];
+  const alive = OP.field.filter(x => x && (!x.faceDown || (x.asleep && canTargetSleeping(p))));
+  const hasProtect = alive.some(x => effProtect(x, opp));
+  const myAtk = m.cAtk||0, myDef = m.cDef||0;
+  if(hasProtect) return myAtk >= 2;                    // percer le mur adverse
+  if(alive.length === 0) return true;                  // visage libre (sûreté — anti-stall géré avant)
+  if(alive.some(t => t.cDef <= myAtk && t.cAtk < myDef)) return true;              // kill propre
+  if(myAtk >= 4 && alive.some(t => t.cDef <= myAtk && t.cAtk >= myAtk)) return true; // trade up
+  if(myAtk >= 4 && OP.hp <= 15) return true;           // chip au visage (règle pickAITarget)
+  return false;
+}
+
+// ── ASCENSION (A2) : phase de prière de l'IA. Deux garde-fous composés :
+//   1. filtre « attaque productive » (v1) : on ne prie jamais à la place d'un
+//      coup utile — les Remparts debout ne prient jamais ;
+//   2. noyau défensif (spec branche C2) : on garde ceil(menace adverse / 2)
+//      corps DEBOUT parmi les candidats à la prière (les plus costauds), pour
+//      ne pas offrir un boulevard de profanations/dégâts. Sans ce plafond,
+//      les factions tortue (egyptian) montaient à 58,5 % en simulation.
+function aiPrayPhase(p=2) {
+  const P = G.players[p];
+  const opp = p===1?2:1;
+  const OP = G.players[opp];
+  // Mêmes conditions d'éligibilité que le joueur humain (canPray : phase
+  // Combat, pas de jeton, pas de mal d'invocation, pas déjà agi…).
+  const eligible = P.field.map((m,i)=>({m,i})).filter(({m,i}) => m && canPray(p, i));
+  const candidates = eligible.filter(({m}) => !effProtect(m, p) && !aiHasProductiveAttack(p, m));
+  if(candidates.length === 0) return;
+  let prayed = false;
+  for(const {m,i} of candidates) {
+    doPray(p, i);
+    prayed = true;
+    if(getVictoryState()) break;                // Ascension atteinte en priant
+  }
+  if(prayed) renderAll();
 }
 
 function pickAITarget(targetP, attackerP=2) {
@@ -4033,6 +4122,16 @@ function pickAITarget(targetP, attackerP=2) {
   const cur = AP.field.find((m,i) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
   const myAtk = cur?.cAtk || 0;
   const myDef = cur?.cDef || 0;
+
+  // ── ASCENSION (A2) : PROFANATION PRIORITAIRE — un fidèle à genoux tuable
+  // PROPREMENT passe devant les autres kills : on retire un générateur de Foi
+  // ET on vole DESECRATE_FAITH. C'est le contre naturel de la Prière (sans lui,
+  // prier était gratuit : les factions tortue montaient à +4pp en simulation).
+  const profanable = alive.filter(x => x.m.kneeling && x.m.cDef <= myAtk && x.m.cAtk < myDef);
+  if(profanable.length > 0) {
+    profanable.sort((a,b) => (b.m.cAtk + b.m.cDef) - (a.m.cAtk + a.m.cDef));
+    return profanable[0].i;
+  }
 
   // ── CLEAN KILLS: kill target without losing our monster ─────────
   const cleanKills = alive.filter(x =>
@@ -5173,6 +5272,7 @@ function renderField(p) {
     if(P.attacked.has(i)) cls+=' tapped';
     if(summonSick && !canAtk) cls+=' summon-sick';
     if(m.faceDown) cls+=' face-down';
+    if(m.kneeling) cls+=' kneeling';   // ASCENSION (A2) : fidèle à genoux
     if(isZenith(m)) cls+=' zenith-card';
     // Re-apply targeting highlights when in targeting mode
     if(G.targeting && !m.faceDown) {
@@ -5499,6 +5599,101 @@ function updateButtons() {
 // ═══════════════════════════════════════════════════════════════════
 // FIELD CLICK
 // ═══════════════════════════════════════════════════════════════════
+// ── ASCENSION (A2) : GUERRE OU PRIÈRE ──────────────────────────────────────
+// Une créature fait UNE action par tour : attaquer OU prier (exclusif).
+// Éligible à prier dans la même fenêtre que l'attaque : phase Combat, pas de
+// mal d'invocation, pas déjà agi, pas déjà à genoux, pas inactivée.
+function canPray(p, i) {
+  if(!G || G.phase !== 'Combat') return false;
+  const P = G.players[p];
+  const m = P && P.field[i];
+  if(!m || m.faceDown || m.asleep || m.sanded || m.kneeling) return false;
+  // Les JETONS (cost 0, invoqués par effet) n'ont pas d'âme : ils ne génèrent
+  // pas de Foi. Sans ce garde-fou, les hordes de jetons (Medjed…) transforment
+  // la course à l'Ascension en spam — mesuré : egyptian 63 % en simulation.
+  // ⚠️ à relire par Frank (DECISIONS [A2]).
+  if((m.cost||0) <= 0) return false;
+  if(P.attacked.has(i)) return false;
+  const hasHurry = (m.cap||'').includes('hurry')
+    || P.field.some(x=>x&&(x.cap||'').includes('passive_all_hurry'));
+  if(P.summoned.has(i) && !hasHurry) return false;
+  return true;
+}
+
+// Mutation pure : +1 Foi VERROUILLÉE immédiatement, la créature s'agenouille
+// (jusqu'au début du tour de son contrôleur) et a consommé son action.
+// (Tuer un agenouillé ne retire PAS cette Foi : elle est déjà au Dieu Suprême —
+// mais le tueur en gagne via la Profanation, cf. desecrateIfKneeling.)
+function doPray(p, i) {
+  const P = G.players[p];
+  const m = P.field[i];
+  P.faith = (P.faith || 0) + 1;
+  m.kneeling = true;
+  P.attacked.add(i);
+  addLog(`🙏 ${m.n} prie — ${P.supremeGod} canalise +1 Foi (${P.faith}/${FAITH_WIN})`, 'special');
+}
+
+// Action déclenchée par le joueur humain (menu 🙏).
+function prayWith(p, i) {
+  if(!canPray(p, i)) return;
+  doPray(p, i);
+  Audio5L.sfx.heal();
+  renderAll();
+  checkVictory();
+}
+
+// ── ASCENSION (A2/UI) : menu d'action flottant Guerre / Prière ─────────────
+// 100 % UI : ⚔️ Attaquer relance le flux d'attaque existant, 🙏 Prier appelle
+// prayWith. Positionné au-dessus de la carte, clampé au viewport, sans reflow.
+function _actionMenuOutside(e) {
+  const menu = document.getElementById('action-menu');
+  if(menu && !menu.contains(e.target)) closeActionMenu();
+}
+function closeActionMenu() {
+  const el = document.getElementById('action-menu');
+  if(el) el.remove();
+  document.removeEventListener('mousedown', _actionMenuOutside, true);
+}
+function showActionMenu(p, i) {
+  closeActionMenu();
+  const P = G.players[p];
+  const m = P && P.field[i];
+  if(!m) return;
+
+  const menu = document.createElement('div');
+  menu.id = 'action-menu';
+  menu.innerHTML =
+    `<button class="am-btn am-attack" data-act="attack">⚔️ Attaquer</button>`
+    + `<button class="am-btn am-pray" data-act="pray">🙏 Prier<span class="am-sub">+1 Foi</span></button>`;
+  document.body.appendChild(menu);
+
+  // Positionnement : au-dessus de la carte, centré, clampé au viewport.
+  const cardEl = document.querySelector(`[data-player="${p}"][data-idx="${i}"]`);
+  const mr = menu.getBoundingClientRect();
+  let x, y;
+  if(cardEl){
+    const r = cardEl.getBoundingClientRect();
+    x = r.left + r.width/2 - mr.width/2;
+    y = r.top - mr.height - 10;
+    if(y < 8) y = r.bottom + 10;
+  } else { x = (window.innerWidth - mr.width)/2; y = (window.innerHeight - mr.height)/2; }
+  x = Math.max(8, Math.min(x, window.innerWidth - mr.width - 8));
+  y = Math.max(8, Math.min(y, window.innerHeight - mr.height - 8));
+  menu.style.left = x+'px';
+  menu.style.top = y+'px';
+
+  menu.querySelector('.am-attack').onclick = (e) => {
+    e.stopPropagation(); closeActionMenu();
+    G.selAtk={p,i}; startAttackTargeting(m,p,i);
+  };
+  menu.querySelector('.am-pray').onclick = (e) => {
+    e.stopPropagation(); closeActionMenu(); prayWith(p,i);
+  };
+
+  // Fermer au clic extérieur (différé pour ne pas capter le clic d'ouverture).
+  setTimeout(() => document.addEventListener('mousedown', _actionMenuOutside, true), 0);
+}
+
 function onFieldClick(p,i) {
   if(!G) return;
   // Ritual: picking an ally to sacrifice
@@ -5525,6 +5720,9 @@ function onFieldClick(p,i) {
     const hasHurry=(m.cap||'').includes('hurry');
     if(P.summoned.has(i)&&!hasHurry){ addLog(`${m.n} summoned this turn — can't attack`); return; }
     if(m.sanded){ addLog(`${m.n} is sanded!`); return; }
+    // ASCENSION (A2) : choix Guerre/Prière via menu flottant quand la Prière
+    // est disponible ; sinon flux d'attaque direct (comportement v5).
+    if(canPray(cp, i)) { showActionMenu(cp, i); return; }
     G.selAtk={p:cp,i};
     startAttackTargeting(m,cp,i);
   }
@@ -5689,6 +5887,7 @@ function showVictory(winner,faction,turn){
 
 // ESC / right-click to cancel targeting (keydown 2 — conservé pour cancelTargeting)
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ closeActionMenu(); } // ASCENSION (A2) : menu Guerre/Prière
   if(e.key==='Escape'&&G&&G.targeting){ cancelTargeting(); }
 });
 document.addEventListener('contextmenu',e=>{

@@ -283,6 +283,31 @@ body{
   background:linear-gradient(90deg,#a04fd0,#c77dff 60%,#f4c95d);box-shadow:0 0 6px rgba(199,125,255,.7);transition:width .5s ease}
 .faith-val{font-family:'Spectral',serif;font-size:9px;font-weight:600;letter-spacing:.5px;color:var(--gold);text-shadow:0 0 6px var(--gold-glow)}
 
+/* ── ASCENSION (A2/UI) : menu d'action Guerre/Prière + créature à genoux ── */
+#action-menu{position:fixed;z-index:200;display:flex;gap:8px;padding:6px;border-radius:13px;
+  background:linear-gradient(160deg,rgba(26,21,48,.98),rgba(12,9,26,.98));
+  border:1px solid rgba(244,201,93,.4);box-shadow:0 12px 34px rgba(0,0,0,.85),0 0 0 1px rgba(0,0,0,.5);
+  animation:amIn .12s ease-out}
+@keyframes amIn{from{opacity:0;transform:translateY(5px) scale(.95)}to{opacity:1;transform:none}}
+.am-btn{font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;
+  padding:10px 16px;border-radius:9px;color:#fff;border:1.5px solid;display:flex;align-items:center;gap:6px;
+  white-space:nowrap;transition:transform .12s,box-shadow .2s,filter .15s}
+.am-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.am-btn:active{transform:translateY(0)}
+.am-attack{background:radial-gradient(ellipse at 50% 25%,#7a1d12,#3a0d08);border-color:#ff6347;
+  box-shadow:0 0 14px rgba(255,90,60,.4)}
+.am-attack:hover{box-shadow:0 0 24px rgba(255,90,60,.7)}
+.am-pray{background:radial-gradient(ellipse at 50% 25%,#5a2080,#2a0e44);border-color:#c77dff;
+  box-shadow:0 0 14px rgba(199,125,255,.45)}
+.am-pray:hover{box-shadow:0 0 24px rgba(199,125,255,.8)}
+.am-sub{font-family:'Spectral',serif;font-size:9.5px;font-weight:600;color:var(--gold-bright);opacity:.9;margin-left:2px}
+/* fidèle à genoux : désaturé, anneau violet « Foi », icône 🙏 */
+.fcard.kneeling .fc-frame{filter:saturate(.6) brightness(.82)}
+.fcard.kneeling .fc-frame::before{border-color:var(--rar-god)!important;opacity:1!important;
+  box-shadow:inset 0 0 10px rgba(199,125,255,.55),0 0 6px rgba(199,125,255,.4)!important}
+.fcard.kneeling::before{content:'🙏';position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+  z-index:9;font-size:17px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.9));pointer-events:none}
+
 /* Pile de deck */
 .pbar-deck{margin-left:auto;display:flex;align-items:center;gap:6px;font-family:'Cinzel',serif;font-size:10px;color:var(--ink3);letter-spacing:.5px}
 .deck-pile{position:relative;width:20px;height:26px;border-radius:3px;background:linear-gradient(150deg,#3a3080,#1a1060 60%,#0a0840);border:1px solid rgba(140,120,210,.5);box-shadow:2px 2px 0 -1px #15103a,4px 4px 0 -2px #0d0a28,0 3px 8px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(180,160,240,.7)}

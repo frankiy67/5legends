@@ -105,6 +105,32 @@ Réponses de Frank aux questions ouvertes :
 
 *(vide — à remplir si des idées émergent pendant D)*
 
+## ⚠️ BLOCAGE GATE FACTIONS (brique A) — mesures pour arbitrage Frank
+
+Le critère « les 5 factions ∈ [45,55] à `test_factions 100` » est en échec, mais
+l'analyse montre que le problème est LARGEMENT préexistant à la brique A :
+
+| Mesure (N=200, 2000 parties, SE≈1,8pp) | norse | egyptian | autres |
+|---|---|---|---|
+| **Baseline fix-audit-v5 (9c7be21)** | 46,5 % | **59,3 %** | 46-51 ✅ |
+| Brique A, prière IA désactivée (A/B) | 46,2 % | 59,1 % | ✅ |
+| Brique A, état retenu (prière v1 + profanation-prio) | **42,6 %** | 60,3 % | ✅ |
+
+- **egyptian ~59 % est un état de la BASELINE** : le « 54,5 % ✅ » de la batterie
+  v5 était un artefact d'échantillon à N=100 (SE≈2,5pp, seeds favorables).
+  La brique A n'ajoute que ~+1pp. Les nerfs egyptian sont déjà prévus « plus
+  tard » par Frank (hors périmètre v1 : « ne touche à AUCUN équilibrage »).
+- **norse : −3,9pp**, seul VRAI effet de la brique A (46,5 → 42,6). Cause : les
+  corps adverses qui suicidaient leurs attaques en v5 prient désormais et
+  restent sur le board, absorbant les attaques norse au lieu du visage.
+  Sonde Ragnarök : 2,32 → 2,05 (effet mineur, pas la cause principale).
+- 3 variantes d'heuristique de prière testées (filtre productif seul · noyau
+  défensif ceil(menace/2) · règle « board à genoux → visage ») : les winrates
+  oscillent de ±5pp entre variantes (norse 38,8-46,3, aztec 44,3-51,4) — on
+  règle dans le bruit structurel des matchups. Règle d'arrêt appliquée.
+- Critères test_faith TOUS verts sur l'état retenu : Ascension 5,8 % ∈ [5,40],
+  10,1 tours ≤ 13, 0 crash. test_all_cards/test_arena/test_preview verts.
+
 ## Journal de session
 
 - **2026-07-04** : lecture docs v5, extraction complète des specs ascension +
