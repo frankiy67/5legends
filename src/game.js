@@ -724,6 +724,15 @@ function initGame(f1, f2, mode, opts) {
     cycleFrozen: 0, // tours de gel du Cycle restants (3.2)
     bossRule: boss || null,  // règle cassée du boss d'Arena (4.3)
     cycleLocked: false,      // Amaterasu : Cycle figé tout le duel
+    // ── FRISE DU DESTIN (D1) : compteur absolu de transitions du Cycle +
+    // présages inscrits sur des transitions futures. Un présage est daté en
+    // TICKS (nombre de changements de phase), pas en noms de phase : geler le
+    // Cycle le retarde, l'accélérer le rapproche (cohérent avec les cartes
+    // temporelles). _omensPending = présages échus en attente de résolution
+    // awaitée (déterminisme sim).
+    cycleTick: 0,
+    omens: [],           // [{dueTick, ownerP, effectId, label, cardName}]
+    _omensPending: [],
   };
   for(let p=1;p<=2;p++){
     const f = p===1?f1:f2;
@@ -953,6 +962,17 @@ function setCyclePhase(newCycle, srcLabel) {
   const prev = G.cycle % 5;
   G.cycle = ((newCycle % 5) + 5) % 5;
   if((G.cycle % 5) === prev) return;
+  // FRISE DU DESTIN (D1) : chaque transition effective avance l'horloge des
+  // présages ; ceux arrivés à échéance passent en file de résolution (la
+  // résolution elle-même est awaitée par les appelants — resolveDueOmens).
+  G.cycleTick = (G.cycleTick || 0) + 1;
+  if(G.omens && G.omens.length) {
+    const due = G.omens.filter(o => o.dueTick <= G.cycleTick);
+    if(due.length) {
+      G.omens = G.omens.filter(o => o.dueTick > G.cycleTick);
+      G._omensPending.push(...due);
+    }
+  }
   scheduleCycleAnim();
   if(G.mode === 'pve') showTuto('cycle'); // TUTO 5 : premier changement de Cycle
   // ESQUIVE (2.2) : recharge à chaque changement de phase du Cycle.
@@ -988,6 +1008,68 @@ function setCyclePhase(newCycle, srcLabel) {
     }));
   }
   if(srcLabel) addLog(`🌌 ${srcLabel} — le Cycle passe à ${CYCLE_NAMES[CYCLE_PHASES[G.cycle % 5]]} !`,'special');
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// FRISE DU DESTIN (brique D) — PRÉSAGES. Une carte à mot-clé Présage inscrit
+// un effet daté sur une transition future du Cycle (dueTick). setCyclePhase
+// met les présages échus en file ; resolveDueOmens (awaitée par doEndTurn et
+// playCard) les déclenche dans l'ordre d'inscription. STRUCTURE SEULE : un
+// unique effet placeholder par faction en v1 (décision Frank, brique D).
+// ══════════════════════════════════════════════════════════════════════════
+const OMEN_EFFECTS = {
+  // Placeholder sûr : 2 dégâts à une créature adverse aléatoire (rien si board vide).
+  omen_dmg2_random: async (o) => {
+    const opp = o.ownerP === 1 ? 2 : 1;
+    const OP = G.players[opp];
+    const targets = OP.field.filter(m => m && !m.faceDown);
+    if(targets.length === 0) { addLog(`🔮 Présage de ${o.cardName} — aucune cible, l'augure se dissipe.`,'event'); return; }
+    const tgt = targets[Math.floor(rng() * targets.length)];
+    tgt.cDef -= 2;
+    addLog(`🔮 Présage de ${o.cardName} s'accomplit — 2 dégâts à ${tgt.n} !`,'special');
+    if(tgt.cDef <= 0) await handleDeath(opp, tgt);
+  },
+};
+
+// Inscrit un présage sur la Frise, `delta` transitions du Cycle plus tard.
+function scheduleOmen(ownerP, effectId, delta, label, cardName) {
+  G.omens.push({ dueTick: (G.cycleTick || 0) + delta, ownerP, effectId, label, cardName });
+  addLog(`🔮 ${cardName} — Présage inscrit sur la Frise (dans ${delta} phase${delta>1?'s':''}) : ${label}.`,'special');
+}
+
+// Déclenche UN présage échu (surchargeable par les harnais pour instrumentation).
+async function fireOmen(o) {
+  const fx = OMEN_EFFECTS[o.effectId];
+  if(fx) await fx(o);
+}
+
+// Résout la file des présages échus. Awaitée par doEndTurn (fin de ronde) et
+// playCard (cartes temporelles qui déplacent le Cycle en plein tour) →
+// résolution DÉTERMINISTE, aucune promesse flottante en sim.
+async function resolveDueOmens() {
+  if(!G || !G._omensPending || G._omensPending.length === 0) return;
+  while(G._omensPending.length) {
+    const o = G._omensPending.shift();
+    await fireOmen(o);
+  }
+  renderAll();
+  checkVictory();
+}
+
+// ── Rendu de la Frise (5 prochaines phases projetées + présages épinglés) ──
+function renderDestinyTimeline() {
+  const host = document.getElementById('destiny-timeline');
+  if(!host || !G) return;
+  let html = '';
+  for(let d = 1; d <= 5; d++) {
+    const ph = CYCLE_PHASES[(G.cycle + d) % 5];
+    const omensHere = (G.omens || []).filter(o => o.dueTick - G.cycleTick === d);
+    const badge = omensHere.length
+      ? `<span class="dt-omen p${omensHere[0].ownerP}" title="${omensHere.map(o => `${o.cardName} : ${o.label}`).join(' · ')}">🔮${omensHere.length>1?omensHere.length:''}</span>`
+      : '';
+    html += `<span class="dt-slot" title="${CYCLE_NAMES[ph]} (+${d})">${CYCLE_ICONS[ph]}${badge}</span>`;
+  }
+  host.innerHTML = html;
 }
 
 // Choix de phase par un joueur (Prophétie / Kaguya). options = indices de
@@ -1223,6 +1305,11 @@ function endTurn() {
   doEndTurn();
 }
 
+// FRISE DU DESTIN (D1) : doEndTurn reste SYNC (le rendre async décalait d'une
+// microtask les morts différées flottantes → golden). Les présages échus à la
+// transition de fin de ronde sont résolus de façon AWAITÉE au début du tour
+// suivant de l'IA (aiTurn), ou en fire-and-forget si le tour qui commence est
+// humain (aucune exigence de déterminisme côté UI).
 function doEndTurn() {
   const P = G.players[G.cp];
   const oppP = G.cp===1?2:1;
@@ -1339,6 +1426,9 @@ function doEndTurn() {
   G.phase = 'Main1';
 
   addLog(`── Turn ${G.turn} — Player ${G.cp} (${NP.faction}) ──`,'turn');
+  // FRISE DU DESTIN (D1) : tour humain qui commence → résolution immédiate
+  // fire-and-forget ; tour IA → aiTurn résout de façon awaitée.
+  if(G._omensPending && G._omensPending.length && !aiControls(G.cp)) resolveDueOmens();
   renderAll();
   checkVictory();
 
@@ -1522,6 +1612,10 @@ async function playCard(handIdx) {
     if (window._resolveReaction) window._resolveReaction();
   }
 
+  // FRISE DU DESTIN (D1) : une carte temporelle jouée peut avoir déplacé le
+  // Cycle en plein tour → résoudre les présages échus ici, de façon awaitée
+  // (await conditionnel : aucune cession supplémentaire à file vide).
+  if(G._omensPending && G._omensPending.length) await resolveDueOmens();
   renderAll();
   checkVictory();
 }
@@ -3681,6 +3775,11 @@ async function aiTurn(p=2) {
   if(!G||G.cp!==p||aiThinking) return;
   aiThinking=true;
 
+  // FRISE DU DESTIN (D1) : présages échus à la transition de fin de ronde
+  // précédente — résolution awaitée (déterminisme sim). Await conditionnel :
+  // aucune cession de microtask supplémentaire à file vide.
+  if(G._omensPending && G._omensPending.length) { await resolveDueOmens(); if(checkVictoryBool()) { aiThinking=false; return; } }
+
   addLog(`── AI thinking... ──`,'phase');
   showAIIntent(p); // 7.1 : badge d'intention (catégorie du plan)
   renderAll();
@@ -3761,6 +3860,10 @@ async function aiMainPhase(p=2) {
       // Pause obligatoire : joueur doit appuyer ESPACE pour continuer
       const context = best.c.type === 'spell' ? 'spell' : 'play';
       await waitForPlayerAck(best.c, context);
+
+      // FRISE DU DESTIN (D1) : une carte temporelle IA peut avoir déplacé le
+      // Cycle en plein tour (await conditionnel — rien à file vide).
+      if(G._omensPending && G._omensPending.length) await resolveDueOmens();
 
       renderAll();
       played = true;
@@ -5296,6 +5399,7 @@ function renderAll() {
   if(!G) return;
   renderCycleBanner();
   applyCycleAnim();
+  renderDestinyTimeline(); // FRISE DU DESTIN (D1)
   renderPlayerBar(1); renderPlayerBar(2);
   renderField(1); renderField(2);
   renderHand();
