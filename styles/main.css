@@ -406,11 +406,16 @@ body.reduce-motion #destiny-timeline{transition:none}
   width:120px;flex-shrink:0;position:relative;cursor:pointer;margin-bottom:8px;
   transition:transform .22s cubic-bezier(.34,1.56,.64,1),filter .22s;
 }
-/* ombre portée au sol (ancrage 3D) */
+/* ombre portée au sol (ancrage 3D) — scale/opacité seuls, jamais width */
 .fcard::after{content:'';position:absolute;left:50%;bottom:-12px;width:84px;height:16px;transform:translateX(-50%);
-  background:radial-gradient(ellipse,rgba(0,0,0,.65) 0%,transparent 72%);filter:blur(2px);z-index:-1;transition:width .22s,opacity .22s}
+  background:radial-gradient(ellipse,rgba(0,0,0,.65) 0%,transparent 72%);filter:blur(2px);z-index:-1;transition:transform .22s,opacity .22s}
 .fcard:hover{transform:translateY(-16px) scale(1.07);z-index:15}
-.fcard:hover::after{width:70px;opacity:.55}
+/* la carte monte → l'ombre au sol s'élargit et s'éclaircit (objet qui décolle) */
+.fcard:hover::after{transform:translateX(-50%) scale(1.18);opacity:.42}
+.fcard:hover .fc-frame{
+  box-shadow:inset 1px 1px 2px rgba(255,235,150,.6),inset -1px -1px 3px rgba(40,20,0,.9),
+    var(--shadow-float),0 26px 52px rgba(0,0,0,.55),
+    0 0 20px var(--fac-soft,rgba(244,201,93,.3))}
 
 .fc-frame{
   width:120px;height:150px;border-radius:14px;padding:3px;position:relative;
@@ -599,8 +604,10 @@ body.reduce-motion #destiny-timeline{transition:none}
 .hcard:hover.playable,.hcard:hover.anytime{
   transform:rotate(0deg) translateY(calc(var(--arc-y,0px) - 26px)) scale(1.12)!important;z-index:300!important;
   transition:transform .12s ease-out,box-shadow .12s,filter .12s!important;
-  box-shadow:var(--shadow-float),0 0 32px rgba(244,201,93,.6),inset 1px 1px 2px rgba(255,235,150,.6)!important;filter:brightness(1.08)}
-.hcard:hover.dim{transform:rotate(0deg) translateY(calc(var(--arc-y,0px) - 18px)) scale(1.06)!important;z-index:300!important;transition:transform .12s ease-out!important}
+  box-shadow:var(--shadow-float),0 28px 56px rgba(0,0,0,.72),0 0 32px rgba(244,201,93,.6),inset 1px 1px 2px rgba(255,235,150,.6)!important;filter:brightness(1.08)}
+.hcard:hover.dim{transform:rotate(0deg) translateY(calc(var(--arc-y,0px) - 18px)) scale(1.06)!important;z-index:300!important;
+  transition:transform .12s ease-out,box-shadow .12s!important;
+  box-shadow:var(--shadow-float),0 18px 38px rgba(0,0,0,.6)!important}
 .hcard:hover + .hcard{transform:rotate(var(--arc-rot,0deg)) translateY(var(--arc-y,0px)) translateX(14px);transition:transform .14s ease-out}
 .hcard:has(+ .hcard:hover){transform:rotate(var(--arc-rot,0deg)) translateY(var(--arc-y,0px)) translateX(-14px);transition:transform .14s ease-out}
 /* le tilt 3D se neutralise pendant le preview agrandi pour rester lisible */
