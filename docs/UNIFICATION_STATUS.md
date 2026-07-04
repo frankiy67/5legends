@@ -105,7 +105,34 @@ Réponses de Frank aux questions ouvertes :
 
 *(vide — à remplir si des idées émergent pendant D)*
 
-## ⚠️ BLOCAGE GATE FACTIONS (brique A) — mesures pour arbitrage Frank
+## ✅ ARBITRAGE FRANK (2026-07-04) — gate factions redéfini (P4 seul)
+
+**Décision Frank** : gate RELATIF à la baseline, **±4pp, mesuré à N=200**
+(`node tools/test_factions.js 200`), en remplacement du [45,55] absolu à N=100.
+- **Refusés explicitement** : P1/P2 (modifs d'heuristique IA), P3 (nouvelle
+  règle « prière au zénith »), P5 (micro-nerfs de cartes). **Aucune modif
+  d'IA, de règle ou de carte en phase 0.**
+- **egyptian ~59 %** : documenté comme DETTE PRÉEXISTANTE non causée par la
+  brique (baseline réelle 59,3 % à N=200 ; le 54,5 % de la batterie v5 était
+  un artefact d'échantillon N=100). Nerf reporté à la **session d'équilibrage
+  dédiée (phase 5)**, avec le rééquilibrage de norse.
+- **norse 42,6 %** (−3,9pp, dans le ±4pp) : absorbé par le gate relatif,
+  rééquilibrage en phase 5.
+
+**Référence baseline (fix-audit-v5 @ 9c7be21, N=200)** — à utiliser pour tous
+les gates des briques A→D :
+| faction | baseline | brique A (état retenu) | Δ | gate ±4pp |
+|---|---|---|---|---|
+| yokai | 51,1 % | 48,4 % | −2,7 | ✅ |
+| norse | 46,5 % | 42,6 % | −3,9 | ✅ |
+| egyptian | 59,3 % | 60,3 % | +1,0 | ✅ (dette préexistante) |
+| greek | 47,1 % | 50,7 % | +3,6 | ✅ |
+| aztec | 46,0 % | 48,1 % | +2,1 | ✅ |
+
+→ **GATE FACTIONS BRIQUE A : VERT** avec l'état A2 committé (420bbbf), sans
+aucune itération supplémentaire.
+
+## Mesures d'origine du blocage (conservées pour référence)
 
 Le critère « les 5 factions ∈ [45,55] à `test_factions 100` » est en échec, mais
 l'analyse montre que le problème est LARGEMENT préexistant à la brique A :
