@@ -352,6 +352,8 @@ yokai:[
   {id:'RAIJU',      n:'Raiju',      atk:8,def:8,cost:8,rarity:'uncommon',cap:'solo_destroy',            txt:'Seul allié : détruit la cible sans combat.'},
   // RARES x1
   {id:'TOKI_ONNA',  n:'Toki-Onna',  atk:2,def:2,cost:2,rarity:'uncommon',cap:'entry_cycle_delay1',      txt:"Éveil : retarde le Cycle Céleste d'une phase."},
+  // FRISE DU DESTIN (D2) — carte Présage PLACEHOLDER (design final : session dédiée avec Frank).
+  {id:'ONMYOJI',    n:'Onmyōji',    atk:2,def:3,cost:2,rarity:'uncommon',cap:'omen_dmg1',               txt:"Éveil — Présage (2 phases) : inscrit sur la Frise « 1 dégât à une créature adverse aléatoire »."},
   {id:'TSUCHINOKO', n:'Tsuchinoko', atk:5,def:4,cost:3,rarity:'rare',    cap:'curse_endure',            txt:'Malédiction + Immortel.'},
   {id:'TSUCHIGUMO', n:'Tsuchigumo', atk:6,def:7,cost:4,rarity:'rare',    cap:'protect',                 txt:'Rempart.'},
   {id:'USHI-ONI',   n:'Ushi-Oni',   atk:6,def:7,cost:5,rarity:'rare',    cap:'exit_dmg3_all',           txt:'Dernier Souffle : 3 dégâts à tous les monstres adverses.'},
@@ -378,6 +380,8 @@ norse:[
   {id:'FENRIR',     n:'Fenrir',     atk:6,def:9,cost:8,rarity:'uncommon',cap:'ragnarok_growing',       txt:'Ragnarök : pendant les Ténèbres, inflige X dégâts à tous les monstres adverses au début de votre tour. X augmente de 1 à chaque déclenchement.'},
   // RARES x1
   {id:'URD',        n:'Urd',        atk:3,def:4,cost:4,rarity:'uncommon',cap:'exit_cycle_delay1',       txt:"Mort : retarde le Cycle Céleste d'une phase."},
+  // FRISE DU DESTIN (D2) — carte Présage PLACEHOLDER.
+  {id:'VOLVA',      n:'Völva',      atk:2,def:3,cost:2,rarity:'uncommon',cap:'omen_dmg1',               txt:"Éveil — Présage (2 phases) : inscrit sur la Frise « 1 dégât à une créature adverse aléatoire »."},
   {id:'NIDDHOG',    n:'Niddhog',    atk:3,def:5,cost:3,rarity:'rare',    cap:'protect fortress_payoff', txt:'Rempart. Forteresse : tant que vous contrôlez ≥2 Remparts, +2 ATK et Frénésie.'},
   {id:'GARM',       n:'Garm',       atk:5,def:6,cost:4,rarity:'rare',    cap:'protect riposte2',        txt:'Rempart. Riposte : inflige 2 dégâts à tout attaquant.'},
   {id:'JORMUNGANDR',n:'Jörmungandr',atk:4,def:7,cost:5,rarity:'rare',   cap:'splash_adjacent',         txt:'Inflige ATK×0.5 dégâts aux monstres adjacents à la cible.'},
@@ -404,6 +408,8 @@ egyptian:[
   {id:'SERPOPARD',  n:'Serpopard',  atk:4,def:12,cost:8,rarity:'uncommon',cap:'curse',                  txt:'Malédiction.'},
   // RARES x1
   {id:'SESHAT',     n:'Seshat',     atk:2,def:2,cost:3,rarity:'uncommon',cap:'entry_cycle_prophecy',    txt:'Éveil : Prophétie — regardez les 3 prochaines phases du Cycle et choisissez la suivante.'},
+  // FRISE DU DESTIN (D2) — carte Présage PLACEHOLDER.
+  {id:'OUADJET',    n:'Ouadjet',    atk:2,def:3,cost:2,rarity:'uncommon',cap:'omen_dmg1',               txt:"Éveil — Présage (2 phases) : inscrit sur la Frise « 1 dégât à une créature adverse aléatoire »."},
   {id:'EFRIT',      n:'Efrit',      atk:4,def:5,cost:3,rarity:'rare',    cap:'end_heal_ally',           txt:'Fin de tour : Soignez totalement un monstre allié ciblé.'},
   {id:'DJINN',      n:'Djinn',      atk:6,def:6,cost:4,rarity:'rare',    cap:'combat_dmg2',             txt:'Combat : 2 dégâts supplémentaires à la cible.'},
   {id:'URAEUS',     n:'Uraeus',     atk:7,def:5,cost:5,rarity:'rare',    cap:'curse_protect',           txt:'Malédiction + Rempart.'},
@@ -430,6 +436,8 @@ greek:[
   {id:'ECHIDNA',    n:'Echidna',    atk:10,def:6,cost:7,rarity:'uncommon',cap:'entry_reclaim',          txt:'Éveil : Récupérez 1 monstre de votre défausse en main.'},
   // RARES x1
   {id:'HORAE',      n:'Horae',      atk:2,def:3,cost:3,rarity:'uncommon',cap:'entry_cycle_freeze1',     txt:'Éveil : fige le Cycle Céleste pendant 1 tour.'},
+  // FRISE DU DESTIN (D2) — carte Présage PLACEHOLDER.
+  {id:'PYTHIE',     n:'Pythie',     atk:2,def:3,cost:2,rarity:'uncommon',cap:'omen_dmg1',               txt:"Éveil — Présage (2 phases) : inscrit sur la Frise « 1 dégât à une créature adverse aléatoire »."},
   {id:'CERBERE',    n:'Cerbère',    atk:3,def:6,cost:3,rarity:'rare',    cap:'protect',                 txt:'Rempart.'},
   {id:'MINOTAURE',  n:'Minotaure',  atk:5,def:6,cost:4,rarity:'rare',   cap:'protect_hit',             txt:'Rempart + Frénésie.'},
   {id:'LADON',      n:'Ladon',      atk:8,def:5,cost:5,rarity:'rare',    cap:'copy_on_attack',          txt:'Attaque : invoquez une copie (sans cap) du monstre attaqué.'},
@@ -456,6 +464,8 @@ aztec:[
   {id:'XIUHCOATL',  n:'Xiuhcoatl',  atk:9,def:9,cost:7,rarity:'uncommon',cap:'heal',                   txt:'Offrande.'},
   // RARES x1
   {id:'XOLOTL',     n:'Xolotl',     atk:4,def:3,cost:3,rarity:'uncommon',cap:'entry_cycle_advance1',    txt:"Éveil : avance le Cycle Céleste d'une phase."},
+  // FRISE DU DESTIN (D2) — carte Présage PLACEHOLDER.
+  {id:'TONALPOUHQUI',n:'Tonalpouhqui',atk:2,def:3,cost:2,rarity:'uncommon',cap:'omen_dmg1',             txt:"Éveil — Présage (2 phases) : inscrit sur la Frise « 1 dégât à une créature adverse aléatoire »."},
   {id:'QUETZAL',    n:'Quetzal',    atk:4,def:3,cost:4,rarity:'rare',    cap:'passive_all_hurry',       txt:'Toujours : tous vos monstres aztèques ont Élan.'},
   {id:'CIPACTLI',   n:'Cipactli',   atk:4,def:7,cost:4,rarity:'rare',    cap:'entry_reclaim_spell',     txt:'Éveil : Récupérez un sort/dieu de votre défausse en main.'},
   {id:'IZCAQLLI',   n:'Izcaqlli',   atk:6,def:8,cost:5,rarity:'rare',    cap:'protect_endure',          txt:'Rempart + Immortel.'},
@@ -588,6 +598,28 @@ let G = null;
 let pendingAction = null; // {type, data, resolve}
 let aiThinking = false;
 
+// ════════════════════════════════════════════════════════════════════
+// IA MULTI-STRATÉGIES (v1-unification, brique B — porté de feat-ai-multistrat).
+// Profils ADDITIFS : CONTROL = comportement brique A À L'IDENTIQUE — toutes
+// les branches de profil sont des no-ops stricts pour CONTROL (golden
+// byte-identique, vérifié par golden_check). RUSH/GUARD/RAID ne sont activés
+// que par les harnais (sim) et par les boss d'Arena ; en Partie Libre PvE
+// l'IA reste CONTROL.
+// ════════════════════════════════════════════════════════════════════
+const AI_PROFILES = { 1: 'CONTROL', 2: 'CONTROL' };
+function getAIProfile(p) { return AI_PROFILES[p] || 'CONTROL'; }
+function setAIProfile(p, name) { AI_PROFILES[p] = name || 'CONTROL'; }
+
+// Compteurs d'OBSERVATION (appareil de mesure). Jamais sérialisés par le
+// golden, jamais lus par la logique de jeu → aucun effet sur le déroulé.
+// Servent au garde-fou comportemental (ai_validate) et aux tournois.
+function bumpStat(p, key, n) {
+  if (!G) return;
+  if (!G.aiStats) G.aiStats = { 1: {}, 2: {} };
+  const s = G.aiStats[p] || (G.aiStats[p] = {});
+  s[key] = (s[key] || 0) + (n == null ? 1 : n);
+}
+
 function newCard(template) {
   return {
     ...template,
@@ -596,6 +628,7 @@ function newCard(template) {
     cDef: template.def || 0,
     endureUsed: false,
     esquiveUsed: false,
+    kneeling: false,   // ASCENSION (A2) : fidèle à genoux (a prié ce tour)
     cursed: false,
     asleep: false,
     sanded: false,
@@ -643,6 +676,24 @@ function shuffle(a) {
   return r;
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// ASCENSION (v1-unification, brique A) — 2e condition de victoire par la Foi.
+// Portage de la branche `ascension` SANS son commit C3 : la victoire par
+// PV=0 reste inchangée, la Foi S'AJOUTE. Constantes paramétrables :
+// ══════════════════════════════════════════════════════════════════════════
+const FAITH_WIN = 16;       // Ascension : atteindre cette Foi = victoire immédiate
+const TURN_CAP = 18;        // Horloge céleste : fin du tour 18 → le plus de Foi
+                            // gagne (égalité de Foi → tie-breaker aux PV)
+const DESECRATE_FAITH = 1;  // Profanation : tuer un fidèle à genoux donne N Foi au tueur
+// Jeton de Foi du 2e joueur (J1 démarre toujours à 0). Valeur retenue : 0 —
+// cf. rapport de calibration J2 de feat-ai-multistrat + DECISIONS_V5.md [A1].
+// `let` + setter : les harnais peuvent la sweeper sans toucher au fichier.
+let P2_START_FAITH = 0;
+function setP2StartFaith(v) { P2_START_FAITH = (v == null ? 0 : v); }
+const SUPREME_GODS = {
+  yokai:'Amaterasu', norse:'Odin', egyptian:'Râ', greek:'Zeus', aztec:'Huitzilopochtli'
+};
+
 // ARENA (4.x) : construit un deck joueur depuis des templates draftés
 // (cartes multi-factions). Chaque template porte déjà sa faction.
 function buildCustomDeck(templates) {
@@ -683,6 +734,15 @@ function initGame(f1, f2, mode, opts) {
     cycleFrozen: 0, // tours de gel du Cycle restants (3.2)
     bossRule: boss || null,  // règle cassée du boss d'Arena (4.3)
     cycleLocked: false,      // Amaterasu : Cycle figé tout le duel
+    // ── FRISE DU DESTIN (D1) : compteur absolu de transitions du Cycle +
+    // présages inscrits sur des transitions futures. Un présage est daté en
+    // TICKS (nombre de changements de phase), pas en noms de phase : geler le
+    // Cycle le retarde, l'accélérer le rapproche (cohérent avec les cartes
+    // temporelles). _omensPending = présages échus en attente de résolution
+    // awaitée (déterminisme sim).
+    cycleTick: 0,
+    omens: [],           // [{dueTick, ownerP, effectId, label, cardName}]
+    _omensPending: [],
   };
   for(let p=1;p<=2;p++){
     const f = p===1?f1:f2;
@@ -706,9 +766,18 @@ function initGame(f1, f2, mode, opts) {
       // FIX 1.1 : compensation « Coin » — P2 (qui subit le tempo du 1ᵉʳ
       // joueur) reçoit 1 gem TEMPORAIRE à son 1ᵉʳ tour (consommé par doEndTurn).
       _coinGem: (p === 2 && difficulty >= 1) ? 1 : 0, _coinTurns: (p === 2 && difficulty >= 1) ? 1 : 0, _bonusDrawTurn: 0,
+      // ASCENSION (A1) : jauge de Foi + Dieu Suprême de la faction.
+      // Jeton de Foi du 2e joueur : J1=0, J2=P2_START_FAITH (silencieux, aucun log).
+      faith: p === 1 ? 0 : P2_START_FAITH,
+      supremeGod: SUPREME_GODS[f] || 'Dieu Suprême',
     };
   }
   G.activeTurn = 1; // Player 1 starts
+  // IA MULTI-STRATÉGIES (B3) : reset des profils à chaque partie ; un boss
+  // d'Arena impose le sien. Les harnais (sim) écrasent via setAIProfile après
+  // initGame. En Partie Libre PvE, l'IA reste CONTROL (golden inchangé).
+  setAIProfile(1, 'CONTROL');
+  setAIProfile(2, (boss && ARENA_BOSS_DEFS[boss] && ARENA_BOSS_DEFS[boss].profile) || 'CONTROL');
   addLog('⚔ Battle begins!', 'event');
   // ── BOSS D'ARENA (4.3) : règles cassées, annoncées à l'écran ──
   if(G.bossRule) {
@@ -903,6 +972,17 @@ function setCyclePhase(newCycle, srcLabel) {
   const prev = G.cycle % 5;
   G.cycle = ((newCycle % 5) + 5) % 5;
   if((G.cycle % 5) === prev) return;
+  // FRISE DU DESTIN (D1) : chaque transition effective avance l'horloge des
+  // présages ; ceux arrivés à échéance passent en file de résolution (la
+  // résolution elle-même est awaitée par les appelants — resolveDueOmens).
+  G.cycleTick = (G.cycleTick || 0) + 1;
+  if(G.omens && G.omens.length) {
+    const due = G.omens.filter(o => o.dueTick <= G.cycleTick);
+    if(due.length) {
+      G.omens = G.omens.filter(o => o.dueTick > G.cycleTick);
+      G._omensPending.push(...due);
+    }
+  }
   scheduleCycleAnim();
   if(G.mode === 'pve') showTuto('cycle'); // TUTO 5 : premier changement de Cycle
   // ESQUIVE (2.2) : recharge à chaque changement de phase du Cycle.
@@ -938,6 +1018,71 @@ function setCyclePhase(newCycle, srcLabel) {
     }));
   }
   if(srcLabel) addLog(`🌌 ${srcLabel} — le Cycle passe à ${CYCLE_NAMES[CYCLE_PHASES[G.cycle % 5]]} !`,'special');
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// FRISE DU DESTIN (brique D) — PRÉSAGES. Une carte à mot-clé Présage inscrit
+// un effet daté sur une transition future du Cycle (dueTick). setCyclePhase
+// met les présages échus en file ; resolveDueOmens (awaitée par doEndTurn et
+// playCard) les déclenche dans l'ordre d'inscription. STRUCTURE SEULE : un
+// unique effet placeholder par faction en v1 (décision Frank, brique D).
+// ══════════════════════════════════════════════════════════════════════════
+const OMEN_EFFECTS = {
+  // Placeholder sûr : 1 dégât à une créature adverse aléatoire (rien si board
+  // vide). NB : la version « 2 dégâts » de l'exemple décimait les boards
+  // larges de petits corps — egyptian passait à −4,3pp du gate ±4pp. 1 dégât
+  // garde la démo structurelle avec un impact d'équilibre minimal.
+  omen_dmg1_random: async (o) => {
+    const opp = o.ownerP === 1 ? 2 : 1;
+    const OP = G.players[opp];
+    const targets = OP.field.filter(m => m && !m.faceDown);
+    if(targets.length === 0) { addLog(`🔮 Présage de ${o.cardName} — aucune cible, l'augure se dissipe.`,'event'); return; }
+    const tgt = targets[Math.floor(rng() * targets.length)];
+    tgt.cDef -= 1;
+    addLog(`🔮 Présage de ${o.cardName} s'accomplit — 1 dégât à ${tgt.n} !`,'special');
+    if(tgt.cDef <= 0) await handleDeath(opp, tgt);
+  },
+};
+
+// Inscrit un présage sur la Frise, `delta` transitions du Cycle plus tard.
+function scheduleOmen(ownerP, effectId, delta, label, cardName) {
+  G.omens.push({ dueTick: (G.cycleTick || 0) + delta, ownerP, effectId, label, cardName });
+  addLog(`🔮 ${cardName} — Présage inscrit sur la Frise (dans ${delta} phase${delta>1?'s':''}) : ${label}.`,'special');
+}
+
+// Déclenche UN présage échu (surchargeable par les harnais pour instrumentation).
+async function fireOmen(o) {
+  const fx = OMEN_EFFECTS[o.effectId];
+  if(fx) await fx(o);
+}
+
+// Résout la file des présages échus. Awaitée par doEndTurn (fin de ronde) et
+// playCard (cartes temporelles qui déplacent le Cycle en plein tour) →
+// résolution DÉTERMINISTE, aucune promesse flottante en sim.
+async function resolveDueOmens() {
+  if(!G || !G._omensPending || G._omensPending.length === 0) return;
+  while(G._omensPending.length) {
+    const o = G._omensPending.shift();
+    await fireOmen(o);
+  }
+  renderAll();
+  checkVictory();
+}
+
+// ── Rendu de la Frise (5 prochaines phases projetées + présages épinglés) ──
+function renderDestinyTimeline() {
+  const host = document.getElementById('destiny-timeline');
+  if(!host || !G) return;
+  let html = '';
+  for(let d = 1; d <= 5; d++) {
+    const ph = CYCLE_PHASES[(G.cycle + d) % 5];
+    const omensHere = (G.omens || []).filter(o => o.dueTick - G.cycleTick === d);
+    const badge = omensHere.length
+      ? `<span class="dt-omen p${omensHere[0].ownerP}" title="${omensHere.map(o => `${o.cardName} : ${o.label}`).join(' · ')}">🔮${omensHere.length>1?omensHere.length:''}</span>`
+      : '';
+    html += `<span class="dt-slot" title="${CYCLE_NAMES[ph]} (+${d})">${CYCLE_ICONS[ph]}${badge}</span>`;
+  }
+  host.innerHTML = html;
 }
 
 // Choix de phase par un joueur (Prophétie / Kaguya). options = indices de
@@ -1005,9 +1150,23 @@ const ZENITH_BONUS_TXT = {
 // Protection effective : cap protect OU zénith norse (Ténèbres) pour les monstres norse.
 function effProtect(m, ownerP) {
   if(!m || m.faceDown) return false;
+  if(m.kneeling) return false; // ASCENSION (A2) : un Rempart à genoux ne protège plus
   if((m.cap||'').includes('protect')) return true;
   return getZenithFaction() === 'norse' && G.players[ownerP] && G.players[ownerP].faction === 'norse';
 }
+// ── ASCENSION (A3) : ÉGIDE — exception grecque à la règle « un Rempart à
+// genoux ne protège plus ». Une créature Égide (vivante, debout, visible)
+// protège les fidèles AGENOUILLÉS de son contrôleur : l'ennemi doit la
+// détruire avant de pouvoir attaquer/profaner ces agenouillés.
+// AUCUN porteur pour l'instant (décision Frank Q1 : moteur seul).
+function hasEgide(P) {
+  return !!P && P.field.some(x => x && !x.faceDown && !x.asleep && !x.kneeling && (x.cap||'').includes('egide'));
+}
+// Un fidèle agenouillé protégé par une Égide alliée est inciblable en attaque.
+function protectedByEgide(targetP, m) {
+  return !!(m && m.kneeling && hasEgide(G.players[targetP]));
+}
+
 // Zénith yokai (Nuit) : les monstres endormis ADVERSES deviennent ciblables.
 function canTargetSleeping(attackerP) {
   return getZenithFaction() === 'yokai' && G.players[attackerP] && G.players[attackerP].faction === 'yokai';
@@ -1128,8 +1287,8 @@ function advancePhase() {
 function updatePhaseBtn() {
   const btn = document.getElementById('btn-next');
   if (!btn) return;
-  const labels = { Main1:'MAIN 1 → COMBAT', Combat:'COMBAT → MAIN 2', Main2:'MAIN 2 → END', End:'END TURN' };
-  btn.textContent = labels[G.phase] || 'NEXT';
+  const labels = { Main1:'MAIN 1 → COMBAT', Combat:'COMBAT → MAIN 2', Main2:'MAIN 2 → FIN', End:'FIN DE TOUR' };
+  btn.textContent = labels[G.phase] || 'SUIVANT';
 }
 
 function renderPhaseBar() {
@@ -1159,6 +1318,11 @@ function endTurn() {
   doEndTurn();
 }
 
+// FRISE DU DESTIN (D1) : doEndTurn reste SYNC (le rendre async décalait d'une
+// microtask les morts différées flottantes → golden). Les présages échus à la
+// transition de fin de ronde sont résolus de façon AWAITÉE au début du tour
+// suivant de l'IA (aiTurn), ou en fire-and-forget si le tour qui commence est
+// humain (aucune exigence de déterminisme côté UI).
 function doEndTurn() {
   const P = G.players[G.cp];
   const oppP = G.cp===1?2:1;
@@ -1245,6 +1409,9 @@ function doEndTurn() {
       setCyclePhase(G.cycle + 1);
     }
   }
+  // ── ASCENSION (A1) : horloge céleste — annonce au début du dernier tour.
+  // La résolution (G.turn > TURN_CAP) est portée par checkVictory() ci-dessous.
+  if(G.cp===1 && G.turn === TURN_CAP) addLog("🔔 L'horloge céleste sonne — dernier tour !", 'warn');
   G.phase='Main1';
   G.selAtk=null;
 
@@ -1260,6 +1427,10 @@ function doEndTurn() {
   Audio5L.sfx.mana();
   NP.attacked = new Set();
   NP.summoned = new Set();
+  // ── ASCENSION (A2) : les fidèles se relèvent au début du tour de leur
+  // contrôleur (leur Foi est déjà acquise ; ils peuvent de nouveau agir).
+  // Reset des flags Ferveur (1×/tour) et Sanctuaire (Mayahuel) au passage.
+  NP.field.forEach(m => { if(m) { m.kneeling = false; m._fervor = false; m._sanctuary = false; } });
   G.actions = 1;
   // Auto-draw
   if(NP.deck.length > 0) { NP.hand.push(NP.deck.shift()); Audio5L.sfx.draw(); }
@@ -1268,6 +1439,9 @@ function doEndTurn() {
   G.phase = 'Main1';
 
   addLog(`── Turn ${G.turn} — Player ${G.cp} (${NP.faction}) ──`,'turn');
+  // FRISE DU DESTIN (D1) : tour humain qui commence → résolution immédiate
+  // fire-and-forget ; tour IA → aiTurn résout de façon awaitée.
+  if(G._omensPending && G._omensPending.length && !aiControls(G.cp)) resolveDueOmens();
   renderAll();
   checkVictory();
 
@@ -1451,6 +1625,10 @@ async function playCard(handIdx) {
     if (window._resolveReaction) window._resolveReaction();
   }
 
+  // FRISE DU DESTIN (D1) : une carte temporelle jouée peut avoir déplacé le
+  // Cycle en plein tour → résoudre les présages échus ici, de façon awaitée
+  // (await conditionnel : aucune cession supplémentaire à file vide).
+  if(G._omensPending && G._omensPending.length) await resolveDueOmens();
   renderAll();
   checkVictory();
 }
@@ -1502,6 +1680,7 @@ async function playMonster(c, p) {
   P.field.push(m);
   const idx = P.field.length-1;
   P.summoned.add(idx);
+  if(/protect|egide/.test(m.cap||'')) bumpStat(p, 'protectPlayed'); // mesure (B1, no-op logique)
   // Passifs/auras du plateau s'appliquant au monstre entrant (cf. moteur d'effets,
   // Event 'passive'). Conditions = état du plateau/faction ; ordre préservé.
   await runEffects('passive', { p, idx, m, opp, cap: m.cap||'' });
@@ -1689,6 +1868,12 @@ registerEffect('entry', cap => cap.includes('entry_oracle'), ctx => {
     addLog(`🔮 ${m.n} — Oracle : le dessus du deck adverse est ${top.n}.`,'special');
     if(top.type === 'god') { drawCard(p); addLog(`${m.n} — c'est un dieu : pioche 1 !`,'buff'); }
   }
+});
+// ── FRISE DU DESTIN (D2) : mot-clé PRÉSAGE — à l'Éveil, inscrit un effet daté
+// sur la Frise (2 transitions du Cycle plus tard). Effet placeholder UNIQUE
+// en v1 (décision Frank : structure seule, design final en session dédiée).
+registerEffect('entry', cap => cap.includes('omen_dmg1'), ctx => {
+  scheduleOmen(ctx.p, 'omen_dmg1_random', 2, '1 dégât à une créature adverse aléatoire', ctx.m.n);
 });
 // ── Cartes temporelles (3.2) ──
 registerEffect('entry', cap => cap.includes('entry_cycle_advance1'), ctx => {
@@ -1987,6 +2172,14 @@ registerEffect('exit', cap => cap.includes('exit_heal4'), ctx => {
   G.players[p].hp = Math.min(25, G.players[p].hp + 4);
   addLog(`${m.n} Exit — +4 PV!`,'heal');
 });
+// ── ASCENSION (A3) : exit_faith — Dernier Souffle : +1 Foi au contrôleur.
+// AUCUN porteur pour l'instant (décision Frank Q1 : moteur seul).
+registerEffect('exit', cap => cap.includes('exit_faith'), ctx => {
+  const { p, m } = ctx;
+  G.players[p].faith = (G.players[p].faith || 0) + 1;
+  addLog(`🔥 ${m.n} Dernier Souffle — +1 Foi (${G.players[p].faith}/${FAITH_WIN})`,'special');
+  checkVictory();
+});
 
 async function applyExit(p, m) {
   // Dispatch composable des effets de sortie (cf. moteur d'effets).
@@ -2024,10 +2217,31 @@ function animateDeath(cardDiv, callback) {
 }
 
 
+// ── ASCENSION (A2) : PROFANATION — tuer un fidèle à genoux (qui a prié) donne
+// DESECRATE_FAITH Foi au tueur (l'adversaire du propriétaire). Appelée à chaque
+// sortie « vraie mort » de handleDeath : mort finale, Balder (remplacé), et
+// Réincarnation (quitte le jeu). Les chemins de SURVIE (Endure, Momie,
+// Aphrodite, Anubis, Sanctuaire) ne profanent pas.
+function desecrateIfKneeling(p, m) {
+  if(!DESECRATE_FAITH || !m.kneeling) return;
+  const opp = p===1?2:1;
+  const OPP = G.players[opp];
+  OPP.faith = (OPP.faith || 0) + DESECRATE_FAITH;
+  addLog(`⛧ Profanation — ${m.n} (à genoux) tué : +${DESECRATE_FAITH} Foi pour P${opp} (${OPP.faith}/${FAITH_WIN})`,'special');
+}
+
 async function handleDeath(p, m) {
   const P = G.players[p];
   const idx = P.field.indexOf(m);
   if(idx<0) return;
+
+  // ── ASCENSION (A3) : SANCTUAIRE — un fidèle agenouillé sanctuarisé ne peut
+  // pas être profané (tué) jusqu'au prochain tour de son contrôleur. ──
+  if(m._sanctuary && m.kneeling) {
+    m.cDef = Math.max(1, m.cDef);
+    addLog(`✨ Sanctuaire — ${m.n} ne peut pas être profané !`,'special');
+    return;
+  }
 
   // Endure
   if((m.cap||'').includes('endure') && !m.endureUsed) {
@@ -2044,6 +2258,7 @@ async function handleDeath(p, m) {
 
   // Balder
   if(P.balderActive && P.field.length<6) {
+    desecrateIfKneeling(p, m); // ASCENSION (A2) : remplacé = vraie mort
     P.field.splice(idx,1);
     P.graveyard.push(m);
     const token = newCard({id:'BALDER_TOKEN',n:'2/2 Token',atk:2,def:2,cost:0,type:'monster',cap:'',txt:'Balder token',faction:P.faction});
@@ -2101,6 +2316,7 @@ async function handleDeath(p, m) {
     m2.cAtk=m2.atk; m2.cDef=m2.def;
     G.players[p].deck.push(m2); G.players[p].deck.sort(()=>rng()-0.5);
     addLog(`✨ ${m.n} — Réincarnation! Retourne dans le deck avec +3/+3.`,'event');
+    desecrateIfKneeling(p, m); // ASCENSION (A2) : quitte le jeu = vraie mort
     // Remove from field before exit, skip graveyard
     P.field.splice(idx,1); reindexSets(P,idx,true); return;
   }
@@ -2122,6 +2338,7 @@ async function handleDeath(p, m) {
     return;
   }
 
+  desecrateIfKneeling(p, m); // ASCENSION (A2) : mort finale
   Audio5L.sfx.death();
   // Death animation: find card in DOM and play card-death before removing
   const _dyingEl = document.querySelector(`[data-player="${p}"][data-idx="${idx}"]`);
@@ -3075,6 +3292,17 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
       // cursed defender: 1 dmg = death
       const actualDmg = def.cursed ? def.cDef : atkVal;
       def.cDef -= actualDmg;
+      // ── ASCENSION (A3) : FERVEUR — quand une créature Ferveur ATTAQUE et
+      // inflige des dégâts à une créature ennemie, +1 Foi à son contrôleur
+      // (1×/tour par créature, flag _fervor reset en début de tour). Pas sur
+      // la riposte, pas sur une attaque au visage. AUCUN porteur pour
+      // l'instant (décision Frank Q1 : moteur seul) — inerte en v1.
+      if(actualDmg > 0 && (atk.cap||'').includes('fervor') && !atk._fervor) {
+        atk._fervor = true;
+        AP.faith = (AP.faith || 0) + 1;
+        bumpStat(attackerP, 'fervorTriggers'); // mesure (B1, no-op logique)
+        addLog(`🔥 Ferveur — ${atk.n} : +1 Foi (${AP.faith}/${FAITH_WIN})`, 'special');
+      }
       const retDmg = (def.cursed || def.asleep) ? 0 : retVal; // un dormeur ne riposte pas
       atk.cDef -= retDmg;
 
@@ -3115,7 +3343,14 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
         const wallsR = DP.field.filter(x => x && effProtect(x, targetP)).length;
         if(wallsR >= 2) markCombo(DP.faction); // Forteresse : mur qui riposte
       }
-      if(def.cDef <= 0) await handleDeath(targetP, def);
+      if(def.cDef <= 0) {
+        const defWasKneeling = !!def.kneeling; // mesure (B1) : profanation ?
+        await handleDeath(targetP, def);
+        if(!DP.field.includes(def)) { // réellement retiré (ni Sanctuaire ni Endure…)
+          bumpStat(attackerP, 'enemyKills');
+          if(defWasKneeling) { bumpStat(attackerP, 'profanations'); bumpStat(targetP, 'kneelersLost'); }
+        }
+      }
       if(atk.cDef <= 0) await handleDeath(attackerP, atk);
     }
   };
@@ -3190,6 +3425,10 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
   const finalIdx = AP.field.indexOf(atk);
   if(finalIdx >= 0) AP.attacked.add(finalIdx);
   G.selAtk=null;
+  // FRISE DU DESTIN (D2) : une mort en combat peut déplacer le Cycle (Urd) et
+  // faire échoir un présage — résolution au plus près de l'échéance (await
+  // conditionnel : aucune cession de microtask à file vide → golden intact).
+  if(G._omensPending && G._omensPending.length) await resolveDueOmens();
   renderAll();
   checkVictory();
 }
@@ -3340,6 +3579,23 @@ function predictCombat(attackerP, attackerIdx, targetP, targetIdx) {
     res.notes.push('Dernier Souffle se déclenche');
     if(/exit_dmg|exit_destroy/.test(def.cap||'')) { res.uncertain = true; res.notes.push('ses dégâts de mort peuvent toucher l\'attaquant'); }
   }
+  // ARTÉMIS (_equipBounce) / IZANAMI : la cible survivante est renvoyée en
+  // main — elle quitte le terrain sans mourir. Conditions exactes de doAttack :
+  //  · Artémis teste APRÈS les morts → un survivant à bouclier >0 est renvoyé,
+  //    y compris via Immortel (1🛡) ou Aphrodite (DEF restaurée) ; la MOMIE
+  //    (reste en bandelettes à 0🛡) n'est PAS renvoyée ;
+  //  · Izanami teste AVANT la résolution des morts → uniquement un survivant
+  //    « simple » (cDef > 0 après dégâts).
+  // (Trous de prédiction débusqués par test_preview, briques A et D.)
+  if(!res.cancelled) {
+    const bounceArtemis = atk._equipBounce && !res.targetDies &&
+      (def.cDef > 0 || ((def.cap||'').includes('endure') && !def.endureUsed) || def._equipAphrodite);
+    const bounceIzanami = atk.izanamiEquipped && def.cDef > 0;
+    if(bounceArtemis || bounceIzanami) {
+      res.targetBounced = true;
+      res.notes.push('la cible survivante est renvoyée en main');
+    }
+  }
   res.defLeft = Math.max(0, def.cDef);
   res.atkLeft = Math.max(0, atkDef);
   if(hasHit && !res.attackerDies) res.notes.push('Frénésie : peut attaquer une 2e fois');
@@ -3398,23 +3654,58 @@ async function pickTarget(type, p, isEntry, card=null) {
 // =====================================================
 // VICTORY CHECK
 // =====================================================
-function checkVictory() {
-  for(let p=1;p<=2;p++) {
-    if(G.players[p].hp<=0) {
-      const w=p===1?2:1;
-      // ARENA (4.2) : le résultat alimente la run, pas l'écran de victoire normal.
-      if(ARENA) { arenaOnDuelEnd(w); return; }
-      if(w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
-      const localWin = (G.mode==='pve') ? (w===1) : true; // en PvP, le gagnant est "victorieux"
-      const titleEl=document.getElementById('vic-title');
-      titleEl.textContent = (G.mode==='pve')
-        ? (w===1 ? 'VICTOIRE' : 'DÉFAITE')
-        : `JOUEUR ${w} — VICTOIRE`;
-      titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
-      document.getElementById('vic-sub').textContent=`${(G.players[w].faction||'').toUpperCase()} triomphe au tour ${G.turn}`;
-      document.getElementById('victory').style.display='flex';
-    }
+// ── ASCENSION (A1) : état de fin de partie centralisé. Renvoie null si la
+// partie continue, sinon { winner: 1|2|0, reason } avec winner 0 = match nul
+// et reason ∈ 'hp' | 'ascension' | 'clock'. Priorité : mort par PV (inchangée),
+// puis Ascension (Foi >= FAITH_WIN), puis horloge céleste (tour TURN_CAP joué :
+// le plus de Foi gagne, égalité de Foi → tie-breaker aux PV, double égalité → nul).
+function getVictoryState() {
+  if(G.players[1].hp<=0) return { winner:2, reason:'hp' };
+  if(G.players[2].hp<=0) return { winner:1, reason:'hp' };
+  if((G.players[1].faith||0) >= FAITH_WIN) return { winner:1, reason:'ascension' };
+  if((G.players[2].faith||0) >= FAITH_WIN) return { winner:2, reason:'ascension' };
+  if(G.turn > TURN_CAP) {
+    const f1=G.players[1].faith||0, f2=G.players[2].faith||0;
+    if(f1!==f2) return { winner: f1>f2?1:2, reason:'clock' };
+    if(G.players[1].hp!==G.players[2].hp) return { winner: G.players[1].hp>G.players[2].hp?1:2, reason:'clock' };
+    return { winner:0, reason:'clock' };
   }
+  return null;
+}
+
+function checkVictory() {
+  const vs = getVictoryState();
+  if(!vs) return;
+  // ARENA (4.2) : le résultat alimente la run, pas l'écran de victoire normal.
+  // (Match nul à l'horloge — cas rarissime — compté comme défaite du joueur.)
+  if(ARENA) { arenaOnDuelEnd(vs.winner === 1 ? 1 : 2); return; }
+  const titleEl=document.getElementById('vic-title');
+  const subEl=document.getElementById('vic-sub');
+  if(vs.winner===0) {
+    titleEl.textContent = 'MATCH NUL — L\'HORLOGE CÉLESTE A SONNÉ';
+    titleEl.classList.remove('defeat');
+    subEl.textContent = `Foi et PV à égalité au tour ${G.turn}`;
+    document.getElementById('victory').style.display='flex';
+    return;
+  }
+  const w = vs.winner;
+  const W = G.players[w];
+  if(w===1) Audio5L.sfx.victory(); else Audio5L.sfx.defeat();
+  titleEl.classList.toggle('defeat', G.mode==='pve' && w===2);
+  if(vs.reason==='ascension') {
+    titleEl.textContent = `${W.supremeGod || 'Dieu Suprême'} ASCENSIONNE !`;
+    subEl.textContent = `${(W.faction||'').toUpperCase()} atteint l'Ascension (${W.faith}/${FAITH_WIN}) au tour ${G.turn}`;
+  } else if(vs.reason==='clock') {
+    titleEl.textContent = `${W.supremeGod || 'Dieu Suprême'} L'EMPORTE À L'HORLOGE !`;
+    const lf=G.players[w===1?2:1].faith||0;
+    subEl.textContent = `Plus de Foi à l'horloge céleste — ${(W.faction||'').toUpperCase()} ${W.faith||0}/${FAITH_WIN} contre ${lf}`;
+  } else {
+    titleEl.textContent = (G.mode==='pve')
+      ? (w===1 ? 'VICTOIRE' : 'DÉFAITE')
+      : `JOUEUR ${w} — VICTOIRE`;
+    subEl.textContent = `${(W.faction||'').toUpperCase()} triomphe au tour ${G.turn}`;
+  }
+  document.getElementById('victory').style.display='flex';
 }
 
 // =====================================================
@@ -3516,6 +3807,11 @@ async function aiTurn(p=2) {
   if(!G||G.cp!==p||aiThinking) return;
   aiThinking=true;
 
+  // FRISE DU DESTIN (D1) : présages échus à la transition de fin de ronde
+  // précédente — résolution awaitée (déterminisme sim). Await conditionnel :
+  // aucune cession de microtask supplémentaire à file vide.
+  if(G._omensPending && G._omensPending.length) { await resolveDueOmens(); if(checkVictoryBool()) { aiThinking=false; return; } }
+
   addLog(`── AI thinking... ──`,'phase');
   showAIIntent(p); // 7.1 : badge d'intention (catégorie du plan)
   renderAll();
@@ -3596,6 +3892,10 @@ async function aiMainPhase(p=2) {
       // Pause obligatoire : joueur doit appuyer ESPACE pour continuer
       const context = best.c.type === 'spell' ? 'spell' : 'play';
       await waitForPlayerAck(best.c, context);
+
+      // FRISE DU DESTIN (D1) : une carte temporelle IA peut avoir déplacé le
+      // Cycle en plein tour (await conditionnel — rien à file vide).
+      if(G._omensPending && G._omensPending.length) await resolveDueOmens();
 
       renderAll();
       played = true;
@@ -3737,7 +4037,7 @@ function scoreCard(c, p) {
     // Prefer spending gems efficiently (don't hoard)
     if(c.cost >= P.gems * 0.7) score += 1.5;
 
-    return score * urgency * lethalPressure;
+    return (score + profileCardBonus(c, p)) * urgency * lethalPressure;
   }
 
   if(c.type === 'god') {
@@ -3843,7 +4143,7 @@ function scoreCard(c, p) {
     const hasTarget = oppField.length > 0 || myField.length > 0;
     if(!hasTarget && needsTarget.some(k => cap.includes(k))) score = Math.max(score - 4, 0);
 
-    return score * urgency;
+    return (score + profileCardBonus(c, p)) * urgency;
   }
 
   // Spell
@@ -3856,7 +4156,59 @@ function scoreCard(c, p) {
   if(cap.includes('cancel') && oppField.length > 0) score += 5;
   if(cap.includes('draw3'))   score += P.hand.length < 3 ? 5 : 2;
 
-  return score * urgency;
+  return (score + profileCardBonus(c, p)) * urgency;
+}
+
+// ── IA MULTI-STRATÉGIES (B1) : ajustement de score selon le profil ────────
+// Bonus ADDITIF appliqué avant le multiplicateur d'urgence. Retourne 0 pour
+// CONTROL (identité stricte : (score+0)*u === score*u → golden inchangé).
+// Oriente QUELLES cartes l'IA privilégie pour incarner sa stratégie.
+function profileCardBonus(c, p) {
+  const prof = getAIProfile(p);
+  if (prof === 'CONTROL') return 0;
+  const cap = c.cap || '';
+  const opp = p === 1 ? 2 : 1;
+  const OP = G.players[opp];
+  const oppField = OP.field.filter(m => m && !m.faceDown && !m.asleep);
+  let b = 0;
+
+  if (prof === 'RUSH') {
+    // Course à la Foi : poser un MAX de corps bon marché tôt pour les faire prier.
+    if (c.type === 'monster') {
+      b += 6;                                   // poser un corps prime sur le reste
+      b += Math.max(0, 4 - (c.cost || 0)) * 3;  // moins cher = plus de corps de prière tôt
+      if (cap.includes('hurry'))      b += 3;   // peut prier dès le tour de pose
+      if (cap.includes('exit_faith')) b += 3;   // Foi garantie
+      if (cap.includes('fervor'))     b += 1;
+    } else {
+      b -= 5;                                   // dieux/sorts détournent des corps de prière
+    }
+  } else if (prof === 'GUARD') {
+    // Protection : gardiennes (Égide/Rempart) + gros boucliers, prier en sécurité.
+    if (c.type === 'monster') {
+      if (cap.includes('egide'))   b += 10;     // protège les fidèles à genoux
+      if (cap.includes('protect')) b += 8;      // mur défensif
+      if (cap.includes('endure'))  b += 4;
+      if (cap.includes('heal'))    b += 2;
+      b += (c.def || 0) * 1.3;                  // privilégie la DEF
+      b -= Math.max(0, (c.atk || 0) - (c.def || 0)) * 0.6; // évite les corps fragiles offensifs
+    } else if (c.type === 'god' && /balder|protect|resurrect/.test(cap)) {
+      b += 4;
+    }
+  } else if (prof === 'RAID') {
+    // Déni/aggro : gros attaquants pour profaner/tuer + retrait des créatures.
+    if (c.type === 'monster') {
+      if (cap.includes('fervor')) b += 8;       // génère sa Foi par le combat
+      b += (c.atk || 0) * 1.1;                  // gros attaquants pour profaner/tuer
+      if (cap.includes('hit'))   b += 4;        // Frénésie = plus de kills
+      if (cap.includes('hurry')) b += 3;
+      b -= Math.max(0, (c.def || 0) - (c.atk || 0)) * 0.3; // dévalorise les murs passifs
+    } else if ((c.type === 'god' || c.type === 'spell') && oppField.length > 0 &&
+               /destroy|dmg|minus|sleep|steal|thor|cancel|blind/.test(cap)) {
+      b += 6;                                   // retrait priorisé s'il y a des cibles
+    }
+  }
+  return b;
 }
 
 async function aiCombatPhase(p=2) {
@@ -3911,6 +4263,13 @@ async function aiCombatPhase(p=2) {
     return;
   }
 
+  // ── ASCENSION (A2) : GUERRE/PRIÈRE — les créatures sans attaque productive
+  // prient. Placé APRÈS les blocs léthal et anti-stall : l'IA ne prie jamais
+  // à la place d'un coup gagnant ni d'un visage libre (adaptation v1 du C2 de
+  // la branche, qui n'avait plus de PV — cf. DECISIONS_V5.md [A2]).
+  aiPrayPhase(p);
+  if(checkVictoryBool()) return;
+
   // ── NORMAL COMBAT: strongest attackers first ────────────────────
   // Sort: Hurry/high-atk first, then others
   const sorted = getAttackers().sort((a,b) => {
@@ -3942,6 +4301,86 @@ async function aiCombatPhase(p=2) {
   }
 }
 
+// ── ASCENSION (A2) : une créature a-t-elle une attaque PRODUCTIVE ce tour ?
+// Miroir des priorités de pickAITarget : percée de mur (Rempart adverse),
+// kill propre, échange favorable, chip au visage. Sinon → candidate à la
+// Prière. ⚠️ heuristique v1 à relire par Frank (la branche gardait
+// ceil(menace/2) défenseurs et priait tout le reste — monde sans PV).
+function aiHasProductiveAttack(p, m) {
+  const opp = p===1?2:1;
+  const OP = G.players[opp];
+  const alive = OP.field.filter(x => x && (!x.faceDown || (x.asleep && canTargetSleeping(p))) && !protectedByEgide(opp, x));
+  const hasProtect = alive.some(x => effProtect(x, opp));
+  const myAtk = m.cAtk||0, myDef = m.cDef||0;
+  if(hasProtect) return myAtk >= 2;                    // percer le mur adverse
+  if(alive.length === 0) return true;                  // visage libre (sûreté — anti-stall géré avant)
+  if(alive.some(t => t.cDef <= myAtk && t.cAtk < myDef)) return true;              // kill propre
+  if(myAtk >= 4 && alive.some(t => t.cDef <= myAtk && t.cAtk >= myAtk)) return true; // trade up
+  if(myAtk >= 4 && OP.hp <= 15) return true;           // chip au visage (règle pickAITarget)
+  return false;
+}
+
+// ── ASCENSION (A2) : phase de prière de l'IA. Deux garde-fous composés :
+//   1. filtre « attaque productive » (v1) : on ne prie jamais à la place d'un
+//      coup utile — les Remparts debout ne prient jamais ;
+//   2. noyau défensif (spec branche C2) : on garde ceil(menace adverse / 2)
+//      corps DEBOUT parmi les candidats à la prière (les plus costauds), pour
+//      ne pas offrir un boulevard de profanations/dégâts. Sans ce plafond,
+//      les factions tortue (egyptian) montaient à 58,5 % en simulation.
+function aiPrayPhase(p=2) {
+  const P = G.players[p];
+  const opp = p===1?2:1;
+  const OP = G.players[opp];
+  // Mêmes conditions d'éligibilité que le joueur humain (canPray : phase
+  // Combat, pas de jeton, pas de mal d'invocation, pas déjà agi…).
+  const eligible = P.field.map((m,i)=>({m,i})).filter(({m,i}) => m && canPray(p, i));
+  // ── IA MULTI-STRATÉGIES (B1) : arbitrage prière↔combat selon le profil.
+  // CONTROL = heuristique brique A À L'IDENTIQUE (golden inchangé).
+  const prof = getAIProfile(p);
+  let candidates;
+  if (prof === 'RUSH') {
+    // Course à la Foi : TOUT le monde prie (le léthal a déjà été vérifié avant).
+    candidates = eligible;
+  } else if (prof === 'GUARD') {
+    // Spec branche P1 : prier DERRIÈRE les gardiennes, proportionnellement.
+    //  · Égide vivante → les agenouillés sont improfanables : prier tout le reste ;
+    //  · murs Rempart  → prier derrière, en gardant un tampon ceil(menace/2) ;
+    //  · aucune gardienne → prudence : garder max(1, menace) corps debout.
+    const guardians = eligible.filter(({ m }) => /protect|egide/.test(m.cap || ''));
+    const enemyThreat = OP.field.filter(m => m && !m.faceDown && !m.asleep && !m.kneeling).length;
+    let keepN;
+    if (hasEgide(P)) keepN = Math.min(eligible.length, guardians.length);
+    else if (guardians.length > 0) keepN = Math.min(eligible.length, guardians.length + Math.ceil(enemyThreat / 2));
+    else keepN = Math.min(eligible.length, Math.max(1, enemyThreat));
+    const sorted = [...eligible].sort((a,b) => {
+      const ap = /protect|egide/.test(a.m.cap||'') ? 1 : 0;
+      const bp = /protect|egide/.test(b.m.cap||'') ? 1 : 0;
+      return (bp - ap) || ((b.m.cDef||0) - (a.m.cDef||0));
+    });
+    candidates = sorted.slice(keepN);
+  } else if (prof === 'RAID') {
+    // Spec branche P3 : ne prie QUE sans BONNE attaque (décision par créature) —
+    // kill franc, profanation d'un fidèle, ou Ferveur → reste au combat.
+    const targets = OP.field.filter(m => m && !m.faceDown && !m.asleep && !protectedByEgide(opp, m));
+    const goodAttack = (m) => targets.length > 0 && (
+      targets.some(t => t.cDef <= (m.cAtk || 0)) ||
+      targets.some(t => t.kneeling) ||
+      (m.cap || '').includes('fervor'));
+    candidates = eligible.filter(({ m }) => !goodAttack(m));
+  } else {
+    // CONTROL (brique A, inchangé).
+    candidates = eligible.filter(({m}) => !effProtect(m, p) && !aiHasProductiveAttack(p, m));
+  }
+  if(candidates.length === 0) return;
+  let prayed = false;
+  for(const {m,i} of candidates) {
+    doPray(p, i);
+    prayed = true;
+    if(getVictoryState()) break;                // Ascension atteinte en priant
+  }
+  if(prayed) renderAll();
+}
+
 function pickAITarget(targetP, attackerP=2) {
   const TP = G.players[targetP];
   const AP = G.players[attackerP];
@@ -3951,7 +4390,8 @@ function pickAITarget(targetP, attackerP=2) {
     .map((m,i) => ({m,i}))
     .filter(({m,i}) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
 
-  const alive = TP.field.map((m,i)=>({m,i})).filter(x => x.m && (!x.m.faceDown || (x.m.asleep && canTargetSleeping(attackerP))));
+  // ÉGIDE (A3) : les agenouillés protégés sont exclus des cibles.
+  const alive = TP.field.map((m,i)=>({m,i})).filter(x => x.m && (!x.m.faceDown || (x.m.asleep && canTargetSleeping(attackerP))) && !protectedByEgide(targetP, x.m));
   const hasProtect = alive.some(x => effProtect(x.m, targetP));
 
   // ── LETHAL CHECK: can remaining attackers kill the player? ──────
@@ -3973,6 +4413,33 @@ function pickAITarget(targetP, attackerP=2) {
   const cur = AP.field.find((m,i) => m && !m.faceDown && !m.asleep && !m.sanded && !AP.attacked.has(i));
   const myAtk = cur?.cAtk || 0;
   const myDef = cur?.cDef || 0;
+
+  // ── IA MULTI-STRATÉGIES (B1) : ciblage RAID (profanation + déni de Ferveur).
+  // No-op pour les autres profils → CONTROL inchangé. Contrairement au
+  // CONTROL (profanation PROPRE uniquement, ci-dessous), RAID profane même
+  // en s'exposant à la riposte.
+  if (getAIProfile(attackerP) === 'RAID') {
+    // 1) Profaner : tuer un fidèle ennemi à genoux (vole DESECRATE_FAITH).
+    const profan0 = alive.filter(x => x.m.kneeling && x.m.cDef <= myAtk);
+    if (profan0.length) { profan0.sort((a,b)=>(b.m.cAtk+b.m.cDef)-(a.m.cAtk+a.m.cDef)); return profan0[0].i; }
+    // 2) Neutraliser une source de Ferveur ennemie tuable.
+    const fervKill = alive.filter(x => (x.m.cap||'').includes('fervor') && x.m.cDef <= myAtk);
+    if (fervKill.length) { fervKill.sort((a,b)=>(b.m.cAtk+b.m.cDef)-(a.m.cAtk+a.m.cDef)); return fervKill[0].i; }
+    // 3) À défaut de kill, entamer le fidèle à genoux le plus tendre.
+    const kneelers = alive.filter(x => x.m.kneeling);
+    if (kneelers.length) { kneelers.sort((a,b)=>a.m.cDef-b.m.cDef); return kneelers[0].i; }
+    // sinon → ciblage générique ci-dessous (clean kills / trade up).
+  }
+
+  // ── ASCENSION (A2) : PROFANATION PRIORITAIRE — un fidèle à genoux tuable
+  // PROPREMENT passe devant les autres kills : on retire un générateur de Foi
+  // ET on vole DESECRATE_FAITH. C'est le contre naturel de la Prière (sans lui,
+  // prier était gratuit : les factions tortue montaient à +4pp en simulation).
+  const profanable = alive.filter(x => x.m.kneeling && x.m.cDef <= myAtk && x.m.cAtk < myDef);
+  if(profanable.length > 0) {
+    profanable.sort((a,b) => (b.m.cAtk + b.m.cDef) - (a.m.cAtk + a.m.cDef));
+    return profanable[0].i;
+  }
 
   // ── CLEAN KILLS: kill target without losing our monster ─────────
   const cleanKills = alive.filter(x =>
@@ -4109,7 +4576,9 @@ function aiPickTarget(type, p, card) {
 }
 
 function checkVictoryBool() {
-  return G.players[1].hp<=0 || G.players[2].hp<=0;
+  // ASCENSION (A1) : fin de partie = PV<=0 OU Foi>=FAITH_WIN OU horloge céleste
+  // (le tour TURN_CAP a été joué). Source unique : getVictoryState().
+  return getVictoryState() !== null;
 }
 
 function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }
@@ -4333,7 +4802,8 @@ function startAttackTargeting(attacker, p, idx) {
   document.querySelectorAll(`[data-player="${opp}"]`).forEach(el => {
     const mi = parseInt(el.dataset.idx);
     const m = OP.field[mi];
-    if(m && (!m.faceDown || (m.asleep && canTargetSleeping(p)))) el.classList.add('valid-target-dmg');
+    // ÉGIDE (A3) : un agenouillé protégé n'est pas marqué comme cible.
+    if(m && (!m.faceDown || (m.asleep && canTargetSleeping(p))) && !protectedByEgide(opp, m)) el.classList.add('valid-target-dmg');
   });
 
   // Mark player HP bar as target (if no protect)
@@ -4443,6 +4913,15 @@ function markValidTargets(cap, p, opp) {
 function resolveTarget(target) {
   if(!G || !G.targeting) return;
   const t = G.targeting;
+  // ÉGIDE (A3) : interdire de cibler un fidèle agenouillé protégé (le ciblage
+  // reste actif pour choisir une autre cible).
+  if(t.mode==='attack' && target.type==='field') {
+    const def = G.players[target.p] && G.players[target.p].field[target.i];
+    if(def && protectedByEgide(target.p, def)) {
+      addLog(`${def.n} est protégé par une Égide — détruisez-la d'abord.`,'warn');
+      return;
+    }
+  }
   stopTargeting();
 
   if(t.mode==='attack') {
@@ -4952,6 +5431,7 @@ function renderAll() {
   if(!G) return;
   renderCycleBanner();
   applyCycleAnim();
+  renderDestinyTimeline(); // FRISE DU DESTIN (D1)
   renderPlayerBar(1); renderPlayerBar(2);
   renderField(1); renderField(2);
   renderHand();
@@ -5036,6 +5516,17 @@ function renderPlayerBar(p) {
   if (deckEl) deckEl.innerHTML =
     `<span class="deck-pile">🂠</span><span class="deck-count">${P.deck ? P.deck.length : 0}</span>`
     + `<span class="grave-count">${P.graveyard ? P.graveyard.length : 0}†</span>`;
+
+  // ── ASCENSION (A1) : jauge de Foi (Dieu Suprême + X/FAITH_WIN), à côté des PV ──
+  const faithEl = document.getElementById(`p${p}-faith`);
+  if (faithEl) {
+    const fv = P.faith || 0;
+    faithEl.style.setProperty('--faith-pct', Math.min(100, fv / FAITH_WIN * 100));
+    faithEl.innerHTML =
+      `<span class="faith-god">${P.supremeGod || 'Dieu Suprême'}</span>`
+      + `<span class="faith-meter"><span class="faith-fill"></span></span>`
+      + `<span class="faith-val">🙏 ${fv} / ${FAITH_WIN}</span>`;
+  }
 }
 
 
@@ -5100,13 +5591,14 @@ function renderField(p) {
     if(P.attacked.has(i)) cls+=' tapped';
     if(summonSick && !canAtk) cls+=' summon-sick';
     if(m.faceDown) cls+=' face-down';
+    if(m.kneeling) cls+=' kneeling';   // ASCENSION (A2) : fidèle à genoux
     if(isZenith(m)) cls+=' zenith-card';
     // Re-apply targeting highlights when in targeting mode
     if(G.targeting && !m.faceDown) {
       if(G.targeting.mode==='attack') {
         // Attack: all visible opponent monsters + player bar (handled in renderPlayerBar)
         const opp=G.targeting.p===1?2:1;
-        if(p===opp) cls+=' valid-target-dmg';
+        if(p===opp && !protectedByEgide(p, m)) cls+=' valid-target-dmg'; // ÉGIDE (A3)
       } else if(G.targeting.mode==='card') {
         // Card targeting: defer to markValidTargets (called separately)
       }
@@ -5137,12 +5629,12 @@ function renderField(p) {
       // Sleeping monsters look DIFFERENT from intentional traps
       const isSleeping = m.asleep;
       const fdIcon  = isSleeping ? '😴' : '🂠';
-      const fdLabel = isSleeping ? `Zzz (${m.sleepTurns||'?'}t)` : 'Face Down';
+      const fdLabel = isSleeping ? `Zzz (${m.sleepTurns||'?'}t)` : 'Face cachée';
       const fdBg    = isSleeping
         ? 'radial-gradient(ellipse at 50% 40%, rgba(20,40,100,0.7), var(--bg3))'
         : 'radial-gradient(ellipse at 50% 40%, rgba(60,50,120,0.4), var(--bg3))';
       const fdNameColor = isSleeping ? '#88aaff' : factionCol;
-      const fdName      = isSleeping ? '💤 Sleeping' : `${FE[P.faction]} Trap`;
+      const fdName      = isSleeping ? '💤 Endormi' : `${FE[P.faction]} Piège`;
       div.innerHTML=`
         <div class="fc-frame" style="${isSleeping?'box-shadow:0 0 12px rgba(100,140,255,0.4)':''}">
           <div class="fc-inner">
@@ -5426,6 +5918,104 @@ function updateButtons() {
 // ═══════════════════════════════════════════════════════════════════
 // FIELD CLICK
 // ═══════════════════════════════════════════════════════════════════
+// ── ASCENSION (A2) : GUERRE OU PRIÈRE ──────────────────────────────────────
+// Une créature fait UNE action par tour : attaquer OU prier (exclusif).
+// Éligible à prier dans la même fenêtre que l'attaque : phase Combat, pas de
+// mal d'invocation, pas déjà agi, pas déjà à genoux, pas inactivée.
+function canPray(p, i) {
+  if(!G || G.phase !== 'Combat') return false;
+  const P = G.players[p];
+  const m = P && P.field[i];
+  if(!m || m.faceDown || m.asleep || m.sanded || m.kneeling) return false;
+  // Les JETONS (cost 0, invoqués par effet) n'ont pas d'âme : ils ne génèrent
+  // pas de Foi. Sans ce garde-fou, les hordes de jetons (Medjed…) transforment
+  // la course à l'Ascension en spam — mesuré : egyptian 63 % en simulation.
+  // ⚠️ à relire par Frank (DECISIONS [A2]).
+  if((m.cost||0) <= 0) return false;
+  if(P.attacked.has(i)) return false;
+  const hasHurry = (m.cap||'').includes('hurry')
+    || P.field.some(x=>x&&(x.cap||'').includes('passive_all_hurry'));
+  if(P.summoned.has(i) && !hasHurry) return false;
+  return true;
+}
+
+// Mutation pure : +1 Foi VERROUILLÉE immédiatement, la créature s'agenouille
+// (jusqu'au début du tour de son contrôleur) et a consommé son action.
+// (Tuer un agenouillé ne retire PAS cette Foi : elle est déjà au Dieu Suprême —
+// mais le tueur en gagne via la Profanation, cf. desecrateIfKneeling.)
+function doPray(p, i) {
+  const P = G.players[p];
+  const m = P.field[i];
+  P.faith = (P.faith || 0) + 1;
+  m.kneeling = true;
+  P.attacked.add(i);
+  // Mesure (B1, no-op logique) : nombre de prières + tour de la 1ʳᵉ prière.
+  bumpStat(p, 'prayers');
+  if (G.aiStats && G.aiStats[p] && G.aiStats[p].firstPrayTurn == null) G.aiStats[p].firstPrayTurn = G.turn;
+  addLog(`🙏 ${m.n} prie — ${P.supremeGod} canalise +1 Foi (${P.faith}/${FAITH_WIN})`, 'special');
+}
+
+// Action déclenchée par le joueur humain (menu 🙏).
+function prayWith(p, i) {
+  if(!canPray(p, i)) return;
+  doPray(p, i);
+  Audio5L.sfx.heal();
+  renderAll();
+  checkVictory();
+}
+
+// ── ASCENSION (A2/UI) : menu d'action flottant Guerre / Prière ─────────────
+// 100 % UI : ⚔️ Attaquer relance le flux d'attaque existant, 🙏 Prier appelle
+// prayWith. Positionné au-dessus de la carte, clampé au viewport, sans reflow.
+function _actionMenuOutside(e) {
+  const menu = document.getElementById('action-menu');
+  if(menu && !menu.contains(e.target)) closeActionMenu();
+}
+function closeActionMenu() {
+  const el = document.getElementById('action-menu');
+  if(el) el.remove();
+  document.removeEventListener('mousedown', _actionMenuOutside, true);
+}
+function showActionMenu(p, i) {
+  closeActionMenu();
+  const P = G.players[p];
+  const m = P && P.field[i];
+  if(!m) return;
+
+  const menu = document.createElement('div');
+  menu.id = 'action-menu';
+  menu.innerHTML =
+    `<button class="am-btn am-attack" data-act="attack">⚔️ Attaquer</button>`
+    + `<button class="am-btn am-pray" data-act="pray">🙏 Prier<span class="am-sub">+1 Foi</span></button>`;
+  document.body.appendChild(menu);
+
+  // Positionnement : au-dessus de la carte, centré, clampé au viewport.
+  const cardEl = document.querySelector(`[data-player="${p}"][data-idx="${i}"]`);
+  const mr = menu.getBoundingClientRect();
+  let x, y;
+  if(cardEl){
+    const r = cardEl.getBoundingClientRect();
+    x = r.left + r.width/2 - mr.width/2;
+    y = r.top - mr.height - 10;
+    if(y < 8) y = r.bottom + 10;
+  } else { x = (window.innerWidth - mr.width)/2; y = (window.innerHeight - mr.height)/2; }
+  x = Math.max(8, Math.min(x, window.innerWidth - mr.width - 8));
+  y = Math.max(8, Math.min(y, window.innerHeight - mr.height - 8));
+  menu.style.left = x+'px';
+  menu.style.top = y+'px';
+
+  menu.querySelector('.am-attack').onclick = (e) => {
+    e.stopPropagation(); closeActionMenu();
+    G.selAtk={p,i}; startAttackTargeting(m,p,i);
+  };
+  menu.querySelector('.am-pray').onclick = (e) => {
+    e.stopPropagation(); closeActionMenu(); prayWith(p,i);
+  };
+
+  // Fermer au clic extérieur (différé pour ne pas capter le clic d'ouverture).
+  setTimeout(() => document.addEventListener('mousedown', _actionMenuOutside, true), 0);
+}
+
 function onFieldClick(p,i) {
   if(!G) return;
   // Ritual: picking an ally to sacrifice
@@ -5452,6 +6042,9 @@ function onFieldClick(p,i) {
     const hasHurry=(m.cap||'').includes('hurry');
     if(P.summoned.has(i)&&!hasHurry){ addLog(`${m.n} summoned this turn — can't attack`); return; }
     if(m.sanded){ addLog(`${m.n} is sanded!`); return; }
+    // ASCENSION (A2) : choix Guerre/Prière via menu flottant quand la Prière
+    // est disponible ; sinon flux d'attaque direct (comportement v5).
+    if(canPray(cp, i)) { showActionMenu(cp, i); return; }
     G.selAtk={p:cp,i};
     startAttackTargeting(m,cp,i);
   }
@@ -5465,7 +6058,7 @@ function showAtkModal(attacker) {
   const modal=document.getElementById('atk-modal');
   const title=document.getElementById('atk-title');
   const body=document.getElementById('atk-body');
-  title.textContent=`${attacker.n} (${attacker.cAtk}⚔) — choose target`;
+  title.textContent=`${attacker.n} (${attacker.cAtk}⚔) — choisis la cible`;
   body.innerHTML='';
 
   const OP=G.players[opp];
@@ -5480,7 +6073,7 @@ function showAtkModal(attacker) {
   divP.innerHTML=`
     <div style="font-size:24px">👤</div>
     <div style="flex:1">
-      <div style="font-family:'Cinzel',serif;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text)">Player ${opp} — Direct Attack</div>
+      <div style="font-family:'Cinzel',serif;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text)">Joueur ${opp} — Attaque directe</div>
       <div style="height:7px;background:rgba(0,0,0,0.5);border-radius:4px;overflow:hidden">
         <div style="width:${pct0}%;height:100%;background:${col0}"></div>
       </div>
@@ -5497,6 +6090,7 @@ function showAtkModal(attacker) {
   // Monster targets
   OP.field.forEach((m,i)=>{
     if(!m||m.faceDown) return;
+    if(protectedByEgide(opp, m)) return; // ÉGIDE (A3) : agenouillé protégé inciblable
     const blocked=hasProtect&&!effProtect(m,opp);
     const div=document.createElement('div');
     div.className=`tgt-item${blocked?' blocked':''}`;
@@ -5510,7 +6104,7 @@ function showAtkModal(attacker) {
   });
 
   const cancel=document.createElement('button');
-  cancel.className='btn-sm';cancel.textContent='Cancel';
+  cancel.className='btn-sm';cancel.textContent='Annuler';
   cancel.onclick=()=>{modal.style.display='none';G.selAtk=null;renderAll();};
   body.appendChild(cancel);
   modal.style.display='flex';
@@ -5583,13 +6177,23 @@ document.querySelectorAll('.fp[data-p="2"]').forEach(fp => {
   });
 });
 
+// B3 : le sélecteur de difficulté n'a de sens que contre l'IA.
+document.querySelectorAll('input[name=mode]').forEach(r => r.addEventListener('change', () => {
+  const row = document.getElementById('difficulty-row');
+  if(row) row.style.display = (document.querySelector('input[name=mode]:checked').value === 'pve') ? '' : 'none';
+}));
+
 document.getElementById('start-btn').addEventListener('click', () => {
   Audio5L.startMusic();
   if (!setupP1 || !setupP2) return;
   const mode = document.querySelector('input[name=mode]:checked').value;
   document.getElementById('setup').style.display = 'none';
   document.getElementById('game').style.display = 'grid';
-  initGame(setupP1, setupP2, mode);
+  // B3 : difficulté de la Partie Libre (d0/d1/d2 — mêmes ressources IA que
+  // l'Arena 4.2). Défaut 1 = équilibre standard, identique à avant.
+  const diffEl = document.querySelector('input[name=aidiff]:checked');
+  const difficulty = (mode === 'pve' && diffEl) ? parseInt(diffEl.value, 10) : 1;
+  initGame(setupP1, setupP2, mode, { difficulty });
 });
 
 document.getElementById('mull-confirm').addEventListener('click', confirmMulligan);
@@ -5616,6 +6220,7 @@ function showVictory(winner,faction,turn){
 
 // ESC / right-click to cancel targeting (keydown 2 — conservé pour cancelTargeting)
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ closeActionMenu(); } // ASCENSION (A2) : menu Guerre/Prière
   if(e.key==='Escape'&&G&&G.targeting){ cancelTargeting(); }
 });
 document.addEventListener('contextmenu',e=>{
@@ -5702,12 +6307,17 @@ const ARENA_NODES       = 6;   // + 1 boss = 7 duels max
 const ARENA_SANCT_HEAL  = 5;
 
 // Boss à règles cassées (4.3) — 1 par faction ; boss final tiré HORS faction joueur.
+// IA MULTI-STRATÉGIES (B3) : chaque boss joue son PROFIL en plus de sa règle
+// cassée — Zeus fonce (RUSH, le Cycle s'emballe), Anubis profane (RAID, dieu
+// des morts), Odin prie derrière ses murs (GUARD), Quetzalcoatl échange sans
+// peur grâce à l'Endurance (RAID), Amaterasu reste la généraliste (CONTROL).
+// ⚠️ mapping à relire par Frank (DECISIONS [B3]).
 const ARENA_BOSS_DEFS = {
-  zeus:        { name:'ZEUS',          faction:'greek',    ruleTxt:'Le Cycle Céleste avance d\'une phase CHAQUE tour.' },
-  anubis:      { name:'ANUBIS',        faction:'egyptian', ruleTxt:'Le premier monstre du boss détruit chaque tour revient en jeu.' },
-  odin:        { name:'ODIN',          faction:'norse',    ruleTxt:'Le boss commence avec 2 murs Protection 0/4 en jeu.' },
-  quetzalcoatl:{ name:'QUETZALCOATL',  faction:'aztec',    ruleTxt:'Tous les monstres du boss ont Endurance.' },
-  amaterasu:   { name:'AMATERASU',     faction:'yokai',    ruleTxt:'Le Cycle Céleste est figé sur la NUIT pendant tout le duel.' },
+  zeus:        { name:'ZEUS',          faction:'greek',    profile:'RUSH',    ruleTxt:'Le Cycle Céleste avance d\'une phase CHAQUE tour.' },
+  anubis:      { name:'ANUBIS',        faction:'egyptian', profile:'RAID',    ruleTxt:'Le premier monstre du boss détruit chaque tour revient en jeu.' },
+  odin:        { name:'ODIN',          faction:'norse',    profile:'GUARD',   ruleTxt:'Le boss commence avec 2 murs Protection 0/4 en jeu.' },
+  quetzalcoatl:{ name:'QUETZALCOATL',  faction:'aztec',    profile:'RAID',    ruleTxt:'Tous les monstres du boss ont Endurance.' },
+  amaterasu:   { name:'AMATERASU',     faction:'yokai',    profile:'CONTROL', ruleTxt:'Le Cycle Céleste est figé sur la NUIT pendant tout le duel.' },
 };
 
 function showBossAnnounce(B) {

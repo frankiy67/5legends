@@ -2,7 +2,7 @@
 
 ## Setup
 - Each player selects a faction
-- Each player's deck is a fixed **57 cards**: 42 monsters (commons ×3, uncommons ×2, rares ×1) + 15 gods
+- Each player's deck is a fixed **59 cards**: 44 monsters (commons ×3, uncommons ×2, rares ×1) + 15 gods
 - Each player starts with **25 HP** and **1 Gem**
 - Player 1 goes first with **4 cards** in hand; Player 2 gets **5 cards** plus **+1 temporary Gem on each of their first two turns** (going-second compensation)
 - Both players then **mulligan**: starting hand face up, check any cards to replace (one pass), confirm — replaced cards are reshuffled into the deck
@@ -42,6 +42,30 @@ Turn passes to the opponent. The gem cap is the **round number** (capped at 10) 
 ## Losing
 
 A player loses when their HP reaches 0.
+
+## L'Ascension — 2e condition de victoire (v1-unification, brique A)
+
+En plus de la victoire par PV (inchangée), chaque joueur sert son **Dieu
+Suprême** (Amaterasu / Odin / Râ / Zeus / Huitzilopochtli) via une **jauge de
+Foi** visible dans le HUD des deux joueurs.
+
+- **Guerre OU Prière** : en phase de Combat, chaque monstre fait UNE action —
+  attaquer, ou **Prier** (menu au clic : ⚔️ / 🙏). Prier rapporte **+1 Foi,
+  verrouillée immédiatement**, et le fidèle **s'agenouille** 🙏 jusqu'au début
+  du tour de son propriétaire.
+- **Ascension** : atteindre **16 Foi** (`FAITH_WIN`) = victoire immédiate.
+- **Un fidèle à genoux est vulnérable** : un Rempart agenouillé ne protège
+  plus, et le tuer (**Profanation**) donne **+1 Foi** (`DESECRATE_FAITH`) à
+  son meurtrier. La Foi déjà priée reste acquise.
+- **Les jetons ne prient pas** (les corps invoqués à coût 0 n'ont pas d'âme).
+- **Horloge céleste** : à la fin du tour **18** (`TURN_CAP`), si personne n'a
+  ascensionné ni tué, le joueur avec le **plus de Foi** gagne ; égalité de
+  Foi → le plus de **PV** ; double égalité → match nul.
+- Mots-clés moteur définis mais **portés par aucune carte en v1** (décision
+  Frank — le contenu viendra dans des sessions dédiées) : **Ferveur** (+1 Foi
+  quand la créature blesse une créature en attaquant, 1×/tour), **Égide**
+  (protège les fidèles à genoux alliés : improfanables tant que l'Égide est
+  debout), **Sanctuaire** (un fidèle désigné ne peut pas être profané).
 
 ## Special Rules
 
@@ -99,6 +123,20 @@ The first attack this monster receives during each Celestial Cycle phase **misse
 The dodge recharges every time the Cycle changes phase. A 💨 badge shows while the
 dodge is available. (Deterministic replacement of the old 50% coin-flip defense.)
 
+
+## La Frise du Destin & le mot-clé Présage (v1-unification, brique D — SOCLE)
+
+Une **Frise** au centre du plateau montre les **5 prochaines phases** projetées
+du Cycle. Le mot-clé **Présage** inscrit un effet daté sur une transition
+future de la Frise (badge 🔮) ; quand le Cycle atteint cette transition,
+l'effet s'accomplit. Les présages sont datés en **transitions** : geler le
+Cycle les retarde, l'accélérer les rapproche.
+
+En v1, **une seule carte Présage de démonstration par faction** (Onmyōji,
+Völva, Ouadjet, Pythie, Tonalpouhqui — uncommon 2/3, coût 2) avec un effet
+placeholder identique : « Présage (2 phases) : 1 dégât à une créature adverse
+aléatoire ». **Ce n'est PAS le design final** — les vrais présages, combos et
+équilibrage viendront dans des sessions dédiées.
 
 ## ARENA Mode (recommended)
 

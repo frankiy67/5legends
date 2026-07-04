@@ -70,7 +70,8 @@ doAttack = async function(attackerP, attackerIdx, targetP, targetIdx, isSecond) 
     PV.checked++;
     const defAlive = G.players[targetP].field.includes(defRef);
     const atkAlive = G.players[attackerP].field.includes(atkRef);
-    const okDef = pred.cancelled ? defAlive : (pred.targetDies === !defAlive);
+    // targetBounced (Artémis/Izanami) : la cible survit mais quitte le terrain.
+    const okDef = pred.cancelled ? defAlive : pred.targetBounced ? !defAlive : (pred.targetDies === !defAlive);
     const okAtk = pred.cancelled ? atkAlive : (pred.attackerDies === !atkAlive);
     if (okDef && okAtk) PV.ok++;
     else PV.fails.push(\`atk=\${atkRef.n}[\${atkRef.cap}|\${atkRef.cAtk}/\${atkRef.cDef} eq:\${!!atkRef._equipBounce}\${!!atkRef._equipAphrodite}](\${atkAlive?'vivant':'mort'} prédit \${pred.attackerDies?'mort':'vivant'}) def=\${defRef.n}[\${defRef.cap}|\${defRef.cAtk}/\${defRef.cDef} asleep:\${!!defRef.asleep}](\${defAlive?'vivant':'mort'} prédit \${pred.cancelled?'annulé':pred.targetDies?'mort':'vivant'}) notes=\${pred.notes.join(',')} PRE_ATK=\${PV._preAtk} PRE_DEF=\${PV._preDef} DPFD=\${PV._dpFD}\`);

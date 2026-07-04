@@ -223,6 +223,92 @@ yokai **48,0 %** · norse **51,5 %** · egyptian **50,0 %** · greek **50,5 %** 
 
 ---
 
+# v1-unification — BRIQUE A : le système de Foi (Ascension)
+
+Portage de origin/ascension (C1, C2, C4, P1, P2) + expériences retenues de
+feat-ai-multistrat (FAITH_WIN=16, DESECRATE_FAITH=1) sur le moteur v5.
+**C3 (retrait des PV) NON porté** : la Foi s'ajoute à la victoire par PV.
+
+### Moteur
+- Jauge de Foi par joueur (HUD des deux camps, Dieu Suprême + X/16).
+- **Guerre/Prière** : menu ⚔️/🙏 au clic en Combat ; +1 Foi verrouillée, fidèle
+  à genoux jusqu'à son prochain tour ; Rempart agenouillé ne protège plus ;
+  les jetons (cost 0) ne prient pas.
+- **Profanation** : tuer un agenouillé = +1 Foi au tueur (3 sorties « vraie
+  mort » de handleDeath ; Endure/Momie/Aphrodite/Anubis/Sanctuaire immunisent).
+- **Horloge céleste T18** : plus de Foi gagne ; égalité → PV ; double → nul.
+- `getVictoryState()` : source unique de fin de partie (jeu + tous les harnais).
+- IA : `aiPrayPhase` après léthal/anti-stall (ne prie jamais une attaque
+  productive) ; profanation prioritaire dans pickAITarget.
+- Mots-clés moteur SANS porteur (décision Frank Q1) : Ferveur, Égide,
+  Sanctuaire, exit_faith.
+- predictCombat : renvoi en main Artémis/Izanami modélisé (trou préexistant).
+
+### Validation (état retenu)
+- `test_faith.js` (500 parties) : **0 crash · Ascension 5,8 % ∈ [5,40] ·
+  10,1 tours ≤ 13** · victoires PV 94 %, horloge 2,2 %, nuls 0.
+- Factions N=200 — **gate relatif baseline ±4pp (arbitrage Frank)** :
+  yokai 48,4 (−2,7) · norse 42,6 (−3,9) · egyptian 60,3 (+1,0 — dette
+  préexistante, baseline réelle 59,3) · greek 50,7 (+3,6) · aztec 48,1 (+2,1) ✅.
+- P1 **51,8 %** sur 1000 (baseline 51,2 — pas de dérive P1/P2).
+- 181/181 cartes · Arena 0 crash · preview 201/201 · **golden RÉGÉNÉRÉ**
+  (200 parties, P1 114/P2 85/nul 1, 0 crash, round-trip déterministe vérifié ;
+  snapshot enrichi : faith, kneeling, winReason).
+
+# v1-unification — BRIQUE B : IA multi-stratégies
+
+Porté de feat-ai-multistrat P1-P3, adapté au moteur v1 (double victoire).
+
+- **B1** : profils CONTROL/RUSH/GUARD/RAID paramétrables (`setAIProfile`) —
+  bonus additifs dans scoreCard, arbitrage prière↔combat par profil dans
+  aiPrayPhase, ciblage RAID (profanation même sale) dans pickAITarget,
+  compteurs d'observation `bumpStat`. CONTROL = brique A à l'identique :
+  **golden byte-identique vérifié** à chaque sous-brique.
+- **B2** : `sim_core.js` + `ai_validate.js` (garde-fou, 1000 parties/profil vs
+  CONTROL, sièges équilibrés). Signatures ✓ : RUSH prie 9,5/partie dès T3 et
+  délaisse le combat (0,3 kills vs 4,1) · GUARD perd 2× moins de fidèles
+  (0,61 vs 1,17) avec +13 % de gardiennes · RAID profane +13 % (axe Ferveur
+  hors assertion — 0 porteur v1).
+- **B3** : 1 profil par boss d'Arena (Zeus RUSH · Anubis RAID · Odin GUARD ·
+  Quetzalcoatl RAID · Amaterasu CONTROL) + sélecteur de difficulté en Partie
+  Libre (🌱 d0 / ⚖️ d1 défaut / 🔥 d2, masqué en PvP).
+- Validation : golden **byte-identique** · test_arena 50 runs 0 crash
+  (boss profilés) · factions N=200 gate ±4pp ✅ · test_faith ✅ · 181/181 ✅ ·
+  preview 201/201 ✅.
+
+# v1-unification — BRIQUE C : unification de la langue (i18n FR)
+
+- Écrans setup (Joueur 1/2, Choisis ta faction, Confirmer, 2 Joueurs/contre
+  l'IA, LANCER LA BATAILLE), bannière ANYTIME, FIN DE TOUR, Journal de combat,
+  écran de victoire (Rejouer), modales de ciblage (Choisis une cible, Attaque
+  directe, Annuler), labels Face cachée/💤 Endormi/Piège, boutons de phase
+  (MAIN 2 → FIN, FIN DE TOUR), sous-titre « Jeu de Cartes Tactique »,
+  descripteurs de factions au vocabulaire v5.
+- HORS PÉRIMÈTRE (décision Frank Q2) : le log de bataille (ses textes sont
+  sérialisés par le golden) — session ultérieure. Noms de factions conservés
+  (noms propres).
+- Golden BYTE-IDENTIQUE vérifié · batterie complète verte.
+
+# v1-unification — BRIQUE D : socle de la Frise du Destin (structure seule)
+
+- **D1** : `G.cycleTick` (horloge de transitions), `G.omens` datés en ticks,
+  déclenchement des échus via `setCyclePhase` + résolution awaitée aux points
+  sûrs (awaits conditionnels — zéro cession microtask à file vide, golden
+  byte-identique vérifié sur la structure inerte). Frise HUD : 5 prochaines
+  phases projetées + badges 🔮 par joueur sur le divider central.
+- **D2** : mot-clé **Présage** + 5 cartes démo placeholder (1 uncommon 2/3 c2
+  par faction : Onmyōji, Völva, Ouadjet, Pythie, Tonalpouhqui), effet unique
+  « Présage (2 phases) : 1 dégât à une créature adverse aléatoire » (ramené de
+  2 à 1 dégât : à 2, egyptian sortait du gate à −4,3pp). Deck 57 → **59**
+  (44 monstres + 15 dieux). AUCUN autre contenu créatif (consigne).
+- **D3** : `tools/test_omens.js` — 500 parties : **0 crash · 390/442 présages
+  déclenchés, 100 % au tick exact · 10,2 tours ≤ 13** (les non-déclenchés =
+  partie finie avant l'échéance).
+- Validation : factions N=200 gate ±4pp ✅ (yokai +2,1 · norse −1,8 · egyptian
+  −3,0 · greek +3,4 · aztec −0,8) · P1 48,9 % (1000) · 186/186 cartes ·
+  Arena 0 crash · preview 202/202 · test_faith 6,2 % Ascension ✅ ·
+  **golden RÉGÉNÉRÉ** (P1 98/P2 102, 0 crash, round-trip déterministe).
+
 # RAPPORT FINAL — mission fix-audit-v5 (8.4)
 
 ## Avant / Après

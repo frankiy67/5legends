@@ -90,7 +90,7 @@ const __playMonster = playMonster;
 playMonster = function(c, p) { if (globalThis.__STATS) globalThis.__STATS.played[p]++; return __playMonster(c, p); };
 const __playGod = playGod;
 playGod = function(c, p) { if (globalThis.__STATS) globalThis.__STATS.played[p]++; return __playGod(c, p); };
-globalThis.__API = { FACTIONS, initGame, aiTurn, seedRNG, checkVictoryBool, getG: ()=>G, resetAI: ()=>{ aiThinking=false; } };
+globalThis.__API = { FACTIONS, initGame, aiTurn, seedRNG, checkVictoryBool, getVictoryState, getG: ()=>G, resetAI: ()=>{ aiThinking=false; } };
 `;
   vm.createContext(sandbox);
   vm.runInContext(src + boot, sandbox, { filename: 'game.js' });
@@ -121,10 +121,12 @@ async function playOne(sandbox, f1, f2, seed) {
       await API.aiTurn(G.cp);
     }
   } catch (e) { error = String(e && e.message || e); }
+  // ASCENSION (brique A) : gagnant via getVictoryState (PV/Ascension/horloge).
   let winner = null;
+  const vs = API.getVictoryState();
   if (G.players[1].hp <= 0 && G.players[2].hp <= 0) winner = 'both';
-  else if (G.players[1].hp <= 0) winner = 2;
-  else if (G.players[2].hp <= 0) winner = 1;
+  else if (vs && vs.winner === 0) winner = 'both';
+  else if (vs) winner = vs.winner;
   return { winner, error, turns: G.turn, S };
 }
 

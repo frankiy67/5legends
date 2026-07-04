@@ -129,7 +129,7 @@ function buildSandbox() {
 function loadGame() {
   const src = fs.readFileSync(GAME_SRC, 'utf8');
   // Bootstrap : expose l'API interne (ferme sur le scope du script).
-  const boot = `\n;globalThis.__API = { initGame, aiTurn, seedRNG, doEndTurn, checkVictoryBool, getG: function(){ return G; }, resetAI: function(){ aiThinking = false; }, FACTIONS };\n`;
+  const boot = `\n;globalThis.__API = { initGame, aiTurn, seedRNG, doEndTurn, checkVictoryBool, getVictoryState, getG: function(){ return G; }, resetAI: function(){ aiThinking = false; }, FACTIONS };\n`;
   const sandbox = buildSandbox();
   vm.createContext(sandbox);
   vm.runInContext(src + boot, sandbox, { filename: 'game.js' });
@@ -152,6 +152,8 @@ function serPlayer(P) {
   return {
     faction: P.faction,
     hp: P.hp,
+    faith: P.faith || 0,      // ASCENSION (brique A) : jauge de Foi
+    kneeling: P.field.filter((c) => c && c.kneeling).length,
     gems: P.gems,
     maxGems: P.maxGems,
     field: P.field.map(serCard),
@@ -194,11 +196,13 @@ async function playGame(API, seed) {
     error = m.replace(/:\d+:\d+/g, ':L:C');
   }
 
-  let winner = null;
+  // ASCENSION (brique A) : le gagnant vient de getVictoryState (PV, Ascension
+  // ou horloge T18). Double-KO conservé ; match nul horloge → 'both'.
+  let winner = null, winReason = null;
+  const vs = API.getVictoryState();
   if (G.players[1].hp <= 0 && G.players[2].hp <= 0) winner = 'both';
-  else if (G.players[1].hp <= 0) winner = 2;
-  else if (G.players[2].hp <= 0) winner = 1;
-  else winner = null; // timeout / draw
+  else if (vs && vs.winner === 0) { winner = 'both'; winReason = vs.reason; }
+  else if (vs) { winner = vs.winner; winReason = vs.reason; }
 
   // Le log est stocké en unshift (plus récent en tête) → on remet en ordre chrono.
   const actionLog = G.log.map((e) => e.msg).reverse();
@@ -206,6 +210,8 @@ async function playGame(API, seed) {
   return {
     seed, f1, f2,
     winner,
+    winReason,
+    faith: [G.players[1].faith || 0, G.players[2].faith || 0],
     error,
     turn: G.turn,
     cp: G.cp,

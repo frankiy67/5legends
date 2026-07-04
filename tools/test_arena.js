@@ -67,7 +67,7 @@ function loadGame() {
   sandbox.CustomEvent = function(){return ANY;}; sandbox.Event = function(){return ANY;};
   sandbox.console = console; sandbox.globalThis = sandbox;
   const src = fs.readFileSync(GAME_SRC, 'utf8');
-  const boot = `\n;globalThis.__API = { FACTIONS, initGame, aiTurn, seedRNG, checkVictoryBool,
+  const boot = `\n;globalThis.__API = { FACTIONS, initGame, aiTurn, seedRNG, checkVictoryBool, getVictoryState,
     arenaAIDraft, arenaGenMap, arenaNodeDifficulty, ARENA_BOSS_DEFS,
     getG: ()=>G, resetAI: ()=>{ aiThinking=false; } };\n`;
   vm.createContext(sandbox);
@@ -84,9 +84,11 @@ async function playDuel(API, faction, deck, oppFaction, difficulty, boss) {
   try {
     while (!API.checkVictoryBool() && guard < 4000 && G.turn <= 200) { guard++; await API.aiTurn(G.cp); }
   } catch (e) { error = (e && e.stack ? e.stack.split('\n').slice(0,2).join(' | ') : String(e)); }
+  // ASCENSION (brique A) : PV, Ascension ou horloge T18 (nul → défaite joueur,
+  // même politique qu'arenaOnDuelEnd).
   let winner = null;
-  if (G.players[1].hp <= 0) winner = 2;
-  else if (G.players[2].hp <= 0) winner = 1;
+  const vs = API.getVictoryState();
+  if (vs) winner = vs.winner === 1 ? 1 : 2;
   return { winner, turns: G.turn, error };
 }
 
