@@ -1157,6 +1157,14 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
   radial-gradient(ellipse 90% 45% at 50% 55%, rgba(122,16,32,.38) 0%, transparent 65%),
   linear-gradient(180deg,#060208 0%,#12061a 35%,#3a0a18 52%,#1a040c 66%,#030103 100%)}
 
+/* écho du ciel dans le HUD : --phase-col (posée sur #game par renderCycleBanner)
+   teinte le label du chip actif et l'anneau du médaillon — le halo de l'icône
+   du bandeau reste sur --zen (couleur de la faction au zénith, info distincte) */
+.cycle-phase.active .cycle-phase-label{color:var(--phase-col,var(--gold-bright));text-shadow:0 0 8px var(--phase-col,var(--gold-glow))}
+#divider-medallion{border-color:var(--phase-col,var(--gold-deep))}
+#divider-medallion::before{border-color:color-mix(in srgb,var(--phase-col,var(--gold)) 45%,transparent)}
+#divider-medallion-icon{filter:drop-shadow(0 2px 4px rgba(0,0,0,.7)) drop-shadow(0 0 9px var(--phase-col,transparent))}
+
 /* 7.5 : fond du board suivant la phase du Cycle */
 #game[data-cycle-phase="aube"]{background:linear-gradient(180deg,#241a08 0%,#0d0a1a 45%,#1a1029 100%)}
 #game[data-cycle-phase="midi"]{background:linear-gradient(180deg,#26241c 0%,#14111f 45%,#1a1530 100%)}

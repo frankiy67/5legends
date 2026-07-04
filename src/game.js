@@ -5311,6 +5311,9 @@ const FE = {yokai:'🦊',norse:'⚡',egyptian:'🏺',greek:'🏛️',aztec:'🌿
 // Rendu pur (aucun accès à G) : deux couches dans #sky, la couche
 // cachée reçoit la nouvelle palette puis les opacités s'échangent
 // (cross-fade CSS). Inerte sous les stubs DOM du harnais golden.
+// SKY_PHASE_COL : couleur clé de chaque ambiance, exposée en CSS via
+// --phase-col sur #game (écho du ciel dans le bandeau et le médaillon).
+const SKY_PHASE_COL = {aube:'#f4b942',midi:'#8ec2f2',crepuscule:'#ff8a4a',nuit:'#8aa8f0',tenebres:'#e0435a'};
 let _skyPhase = null;
 function renderSky(phaseName) {
   if(phaseName === _skyPhase) return;
@@ -5351,7 +5354,10 @@ function renderCycleBanner() {
 
   // Teinte du champ de bataille selon la phase + CIEL VIVANT
   const game = document.getElementById('game');
-  if(game) game.dataset.cyclePhase = phaseName;
+  if(game) {
+    game.dataset.cyclePhase = phaseName;
+    game.style.setProperty('--phase-col', SKY_PHASE_COL[phaseName]);
+  }
   renderSky(phaseName);
   // Médaillon central (7.5) : phase actuelle + les 2 prochaines + bonus du zénith.
   const medIcon = document.getElementById('divider-medallion-icon');
