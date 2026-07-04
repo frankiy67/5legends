@@ -463,7 +463,7 @@
     if(!el) return;
     el.style.setProperty('--rx','0deg');
     el.style.setProperty('--ry','0deg');
-    el.style.setProperty('--gloss','0');
+    el.style.setProperty('--gx','0');
   }
   function stop(){
     if(raf){ cancelAnimationFrame(raf); raf = 0; }
@@ -478,7 +478,7 @@
     var y = Math.max(-.5, Math.min(.5, (py - r.top )/r.height - .5));
     inner.style.setProperty('--rx', ( x*MAX*2).toFixed(2)+'deg'); // rotateY
     inner.style.setProperty('--ry', (-y*MAX*2).toFixed(2)+'deg'); // rotateX
-    inner.style.setProperty('--gloss', Math.abs(x).toFixed(2));
+    inner.style.setProperty('--gx', x.toFixed(3)); // position du reflet balayant
   }
   document.addEventListener('pointermove', function(e){
     if(e.pointerType !== 'mouse' || disabled()){ if(card) stop(); return; }

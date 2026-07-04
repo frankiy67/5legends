@@ -851,11 +851,21 @@ body.targeting,body.targeting .fcard{cursor:crosshair!important}
   .fc-frame,.hc-frame-inner{transform:none!important}
 }
 body.reduce-motion .fc-frame,body.reduce-motion .hc-frame-inner{transform:none!important}
-/* reflet spéculaire glissant selon le tilt */
-.fc-frame::after,.hc-frame-inner::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:5;
-  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,calc(.10 + var(--gloss,0)*.14)) 50%,transparent 65%);
-  opacity:0;transition:opacity .2s}
-.fcard:hover .fc-frame::after,.hcard:hover .hc-frame-inner::after{opacity:1}
+/* reflet spéculaire qui BALAIE la carte selon la position du curseur :
+   bande lumineuse 2× plus large que la carte, déplacée en translateX
+   (--gx posée par le script rAF) et clippée par le cadre interne
+   (overflow:hidden) — transform + opacité seuls, composité GPU */
+.fc-inner::after,.hc-frame-inner::after{content:'';position:absolute;top:-30%;bottom:-30%;left:-50%;width:200%;
+  pointer-events:none;z-index:5;
+  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,var(--sheen,.12)) 50%,transparent 58%);
+  transform:translateX(calc(var(--gx,0)*50%));
+  opacity:0;transition:transform .12s ease-out,opacity .25s}
+.fcard:hover .fc-inner::after,.hcard:hover .hc-frame-inner::after{opacity:1}
+/* reduced-motion : pas de balayage du tout */
+@media (prefers-reduced-motion:reduce){
+  .fc-inner::after,.hc-frame-inner::after{display:none}
+}
+body.reduce-motion .fc-inner::after,body.reduce-motion .hc-frame-inner::after{display:none}
 
 /* ──────────────────────────────────────────────────────────────────
    15c. MULLIGAN — choix de la main de départ (plein écran)
