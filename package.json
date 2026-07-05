@@ -1,0 +1,28 @@
+{
+  "name": "5legends",
+  "version": "1.0.0",
+  "description": "**Le jeu de cartes où le temps est le plateau : manipulez le Cycle Céleste pour déclencher le zénith de votre panthéon avant l'adversaire.** Cinq factions mythologiques (Yokai, Norse, Egyptian, Greek, Aztec), chacune avec son bonus de zénith, ses combos signature et ses cartes de manipulation du temps.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ui-diag": "node tools/ui_powers.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frankiy67/5legends.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/frankiy67/5legends/issues"
+  },
+  "homepage": "https://github.com/frankiy67/5legends#readme",
+  "devDependencies": {
+    "playwright": "^1.61.1"
+  }
+}

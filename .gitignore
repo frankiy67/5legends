@@ -16,6 +16,9 @@ package-lock.json
 dist/
 *.zip
 
+# Diagnostic UI — page harnais jetable (régénérée puis supprimée à chaque run)
+ui_diag_harness.html
+
 # Original card images (heavy — never push)
 5 legends cartes/
 5legends cartes/
