@@ -195,9 +195,124 @@ RUSH pour les decks à Foi, ou accepter que l'Ascension soit rare en Arena.
 - Trépied coût 2→1 (cycle 2) : ANNULÉ au cycle 3 (surgonflée à +17,1pp) —
   retour au design 2, contribution finale −7,1 ✅.
 
-## VAGUE 2 — Éphémères, Nocturne/Diurne, reste des archétypes
+## VAGUE 2 — Éphémères, Nocturne/Diurne, reste des archétypes : TERMINÉE ✅ (1 désactivée, 2 gelées télégraphe)
 
-_(non commencée)_
+30 cartes implémentées (7 yokai, 5 norse, 7 egyptian, 4 greek, 7 aztec dont
+2 sorts) + 3 mots-clés moteur : **Éphémère (phases)** (`m.eph`, estompage/
+matérialisation au tick exact, chute d'Icare à la fin de Midi), **Nocturne/
+Diurne** (`m.dn`, bascule Jour=Aube+Midi / Nuit=Nuit+Ténèbres, Crépuscule
+conserve la face, dégâts suivis avec plancher 1, buffs tiers perdus à la
+bascule — simplification documentée), **Canalisation** (« Rituel N » du
+design : Verdandi gel-tant-que-canalise consommé par la fin de ronde, Grand
+Prêtre réanimation des morts de la fenêtre, interruption par mort/départ/
+Sommeil). Plus : exil d'Ammit (court-circuite Endurance/Momie/Dernier
+Souffle), Jorogumo sur tout endormissement adverse, Nornes = annulation de la
+1ʳᵉ manipulation temporelle adverse du tour (mutualisée avec le piège du
+Trépied), Kasha (kill nocturne → présage sur l'Aube), Bennu (renaissance
+auto-inscrite sur la Frise, boucle visible et décalable), Hydre (survie →
+présage +2/+2), Maât (rattrapage de Foi à l'Aube), Tlaltecuhtli (dévore au
+Crépuscule). **Gelées (décision télégraphe, conformément au design)** :
+Bouclier de Svalinn, Augure de Delphes — non implémentées.
+
+**test_ephemeral.js créé** : 19 scénarios dirigés (matérialisation/estompage
+au tick exact, fenêtre d'une phase, chute d'Icare, bascules Tanuki avec
+dégâts conservés et plancher, face d'entrée du Nagual, Sommeil ⨯ fenêtre) +
+batterie 300 duels draftés avec invariant vérifié à chaque itération
+(estompé ⟺ hors fenêtre). **22/22 ✅, 517 états inspectés, 0 violation.**
+
+### Gates de fin de vague (pool_metrics N=15000, config figée après 3 cycles)
+
+| Gate | Mesure | État |
+|---|---|---|
+| Factions draft ±4pp (baseline 54,3/47,7/53,5/44,4/50,0) | y −1,5 · n −1,5 · e +2,6 · **g +4,6** · a −4,0 | ⚠️ greek |
+| Factions Libre | identiques (golden byte-identique re-vérifié) | ✅ |
+| Durée ≤ 12 tours | 10,36 | ✅ |
+| 0 crash / 1000 | 0 sur 15 000 (+ 6 nulles d'horloge sans vainqueur, 0,04 %) | ✅ |
+| Ascension [5,40] % | Libre 11,0 % ✅ · draft 3,7 % (progresse : 1,9→3,0→3,7) | ❌ draft |
+| Gates par carte | 27/49 ✅ · le reste analysé ci-dessous | ⚠️ |
+
+**Le flag greek +4,6pp — arbitrage Frank.** Greek était la faction la plus
+FAIBLE du draft (44,4 % baseline) ; le pool de contre-jeu (sa raison d'être,
+POOL_DESIGN §5) la ramène à 49,0 %, pile au centre du gate absolu [45,55].
+J'ai déjà tempéré (Hoplite 3/4→2/4) ; nerfer davantage des cartes saines pour
+maintenir une faction sous sa moyenne me semble contraire à l'intention — je
+ne tranche pas : soit tu acceptes +4,6 comme un rééquilibrage voulu, soit
+indique quelle(s) carte(s) grecque(s) je re-nerfe.
+
+### Limite de mesure actée (importante pour lire le tableau)
+
+Pour une carte à play rate ≥ 85 %, le groupe témoin « en main, non jouée »
+tombe à ~100-150 parties très auto-sélectionnées : l'erreur-type de la
+contribution est ±5-6pp et les valeurs oscillent d'un run à l'autre de ±15pp
+sans changement de la carte (mesuré : Ratatoskr +13,6 → −16,2 ; Kodama +8,9 →
+−26,2 ; Tanuki −1,0 → −16,6). **Les contributions de ces cartes ne sont pas
+interprétables contre un gate de largeur 23pp** — colonnes marquées ≈.
+La bande fiable est play rate 40-85 %.
+
+### Tableau final vague 2 (N=15000 ; historique multi-runs pour les instables)
+
+| Carte | Coût (design→final) | Stats (design→final) | Play rate | Contrib | Statut |
+|---|---|---|---|---|---|
+| Tsukumogami | 2 | 2/2→**3/4** | 91 % | ≈ | ✅ (≥85 %) |
+| Nurikabe | 2 | 0/6 | 89 % | ≈ −25 | ≈ non mesurable, à surveiller |
+| Yume no Seirei | 2 | 3/3 | — | — | ✅ (fenêtre Nuit/Ténèbres) |
+| Jorogumo | 4 | 3/5 | 78 % | −11,1 | ⚠️ borderline bas |
+| Tanuki (P_TANUKI2) | 3 | 2/4·4/2 | 88 % | ≈ | ✅ (historique −1/−3,5/−6,7) |
+| Kasha | 5 | 5/4 | 92 % | −5,1 | ✅ |
+| Nue, Chimère des Cauchemars | 6 | 4/6 | 65 % | −4,7 | ✅ |
+| Völva (P_VOLVA2) | 2 | 1/4 | 94 % | +0,4 | ✅ |
+| Einherjar | 3 | 4/3 | 86 % | −1,8 | ✅ |
+| Verdandi | 4 | 3/5 | 77 % | −0,2 | ✅ |
+| Skadi | 5 | 4/5 | 79 % | +8,1 | ✅ |
+| Les Nornes | 7 | 2/8 | 72 % | +16,4 | ⚠️ biais de classe (bombes) |
+| Serpopard (P_SERPOPARD2) | 3 | 4/2→**4/4** | 81 % | −11,8 | ⚠️ rouge (−20→−12 en 3 cycles) |
+| Khepri | 3 | 2/4→3/5 | 74 % | −12,4 | ❌ DÉSACTIVÉE |
+| Bennu | 4→**3** | 3/3→**4/4** | 79 % | −2,9 | ✅ |
+| Grand Prêtre d'Héliopolis | 5→**4** | 2/6→**3/6** | 74 % | −8,8 | ✅* borderline |
+| Ammit | 6 | 5/5→**6/6** | 71 % | −4,4 | ✅ |
+| Maât | 6 | 4/6 | 64 % | −6,4 | ✅ |
+| Bandelettes Sacrées | 1→**2** | — | 81 % | **+21,7** | ⚠️ win-more |
+| Icare | 1 | 3/1 | 65 % | −4,2 | ✅ (IA : pose à l'Aube) |
+| Cassandre | 2 | 1/5→**2/6** | 90 % | +0,2 | ✅ |
+| Chimère (P_CHIMERE2) | 4 | 4/4 | 77 % | +2,6 | ✅ |
+| Hydre (P_HYDRE2) | 6 | 5/5 | 66 % | −3,8 | ✅ |
+| Ocelotl (P_OCELOTL2) | 2 | 3/2→**4/3** | 92 % | +6,7 | ✅ |
+| Nagual (P_NAGUAL2) | 2 | 2/2·4/1→**2/3·4/2** | 85 % | −19,2 | ⚠️ rouge (−3/−16/−12/−19) |
+| Xolotl (P_XOLOTL2) | 3 | 2/3→**3/4** | 81 % | −7,8 | ✅ |
+| Tzitzimitl | 5→**4** | 6/4 | 92 % | −4,5 | ✅ |
+| Cipactli (P_CIPACTLI2) | 6→**5** | 6/6 | 77 % | −9,6 | ✅* borderline |
+| Tlaltecuhtli, la Terre Affamée | 7 | 7/7 | 69 % | +5,4 | ✅ |
+| Couteau d'Obsidienne | 1 | — | 54 % | −0,9 | ✅ (IA : échange rentable exigé) |
+
+(Vague 1 re-mesurée dans le même run : Talos coût 5→**4** → +8,8 ✅ ·
+Trépied re-nerf coût 3 ANNULÉ (−12,1 à 3, ≈ −1 à 2 : retour design) ·
+Éclipse +17,7 / Offrande +20,4 / Nidhogg +23,3 : flags win-more inchangés ·
+Briser 24 % / Sceau de Râ 36 % / Procession 31 % : flags play rate
+conditionnels inchangés — la densité d'enablers vague 2 n'a PAS suffi.)
+
+### Carte désactivée vague 2
+
+3. **Khepri** — contribution −12,4/−14,3/−19,0 persistante ET effet
+   structurellement INERTE dans ce moteur : « la première Momie à se relever
+   gagne Élan » ne change rien, car une momie relevée n'est pas dans le set
+   `summoned` du tour et peut déjà attaquer normalement. La carte est un
+   corps sous-staté à effet nul. Ajustements de stats épuisés (2/4→3/5→4/6→
+   3/5, l'aller-retour 4/6 sur-gonflait egyptian à 59,5 %).
+   **Proposition de redesign** : « À chaque Aube, votre première Momie à se
+   relever gagne +2/+2 » (valeur réelle dans ce moteur), ou « … peut attaquer
+   CE tour-ci » si tu ajoutes la notion d'attaque immédiate post-lever.
+
+### Décisions supplémentaires en attente (vague 2)
+
+- **Nagual** : tendance négative persistante malgré +1 DEF par face. Levier
+  restant si tu veux : face Nocturne 4/2→5/2 (±2 respecté). Je n'y suis pas
+  allé : la bascule perd les buffs tiers, c'est peut-être la vraie cause
+  (choix moteur documenté, réversible).
+- **Serpopard** : la lecture littérale de ta règle des 3 cycles le
+  désactiverait (−11,8 final) ; je l'ai gardé actif car la trajectoire
+  s'améliore (−20,4→−11,8) et il n'est pas toxique. Confirme ou coupe.
+- **Nornes +16,4** : 1,4pp au-dessus du gate, bombe 7-coût (norme de classe
+  +20/+60). Aucun levier propre restant (le corps 2/8 est l'identité).
 
 ## VAGUE 3 — auras de régents
 

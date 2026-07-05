@@ -585,6 +585,24 @@ yokai: [
    txt:'Ferveur. Tant qu\'elle prie, elle a Esquive.'},
   {id:'P_KODAMA',    n:'Kodama',          atk:1,def:3,cost:1,rarity:'common', cap:'pool_draw_on_hinder',
    txt:'Quand le Cycle est retardé ou figé, piochez 1 (une fois par tour).'},
+  // VAGUE 2
+  {id:'P_TSUKUMOGAMI', n:'Tsukumogami',   atk:3,def:4,cost:2,rarity:'common', cap:'exit_cycle_delay1',
+   txt:'Dernier Souffle : retardez le Cycle d\'un cran.'},
+  {id:'P_NURIKABE',  n:'Nurikabe',        atk:0,def:6,cost:2,rarity:'common', cap:'protect',
+   eph:['crepuscule','nuit','tenebres'],
+   txt:'Rempart. Éphémère (Crépuscule, Nuit, Ténèbres).'},
+  {id:'P_YUME',      n:'Yume no Seirei',  atk:3,def:3,cost:2,rarity:'rare',   cap:'entry_sleep',
+   eph:['nuit','tenebres'],
+   txt:'Éphémère (Nuit, Ténèbres). Éveil : endormez un monstre adverse.'},
+  {id:'P_JOROGUMO',  n:'Jorogumo',        atk:3,def:5,cost:4,rarity:'rare',   cap:'pool_jorogumo',
+   txt:'Quand un monstre adverse s\'endort, Jorogumo gagne +1/+0.'},
+  {id:'P_TANUKI2',   n:'Tanuki',          atk:2,def:4,cost:3,rarity:'rare',   cap:'protect pool_daynight',
+   dn:{day:{atk:2,def:4,cap:'protect'}, night:{atk:4,def:2,cap:'hurry'}},
+   txt:'Diurne 2/4 Rempart · Nocturne 4/2 Élan (le Crépuscule conserve la face courante).'},
+  {id:'P_KASHA',     n:'Kasha',           atk:5,def:4,cost:5,rarity:'epic',   cap:'hurry pool_kasha',
+   txt:'Élan. Quand elle tue un monstre pendant la Nuit ou les Ténèbres, inscrivez un Présage sur [Aube] : 2 dégâts au joueur adverse.'},
+  {id:'P_NUE2',      n:'Nue, Chimère des Cauchemars', atk:4,def:6,cost:6,rarity:'legendary', cap:'pool_nue',
+   txt:'Éveil : chaque monstre adverse endormi subit des dégâts égaux à sa propre ATK.'},
 ],
 norse: [
   {id:'P_RATATOSKR', n:'Ratatoskr',       atk:1,def:2,cost:1,rarity:'common', cap:'pool_draw_on_omen',
@@ -593,22 +611,71 @@ norse: [
    txt:'Ferveur. Quand vous figez le Cycle, +1 Foi.'},
   {id:'P_NIDHOGG',   n:'Nidhogg',         atk:6,def:6,cost:7,rarity:'epic',   cap:'pool_nidhogg',
    txt:'À chaque Ténèbres, dévore le Présage adverse le plus proche et gagne +1/+1.'},
+  // VAGUE 2
+  {id:'P_VOLVA2',    n:'Völva',           atk:1,def:4,cost:2,rarity:'common', cap:'entry_cycle_prophecy',
+   txt:'Éveil : Prophétie — regardez les 3 prochaines phases du Cycle et choisissez la suivante.'},
+  {id:'P_EINHERJAR', n:'Einherjar',       atk:4,def:3,cost:3,rarity:'common', cap:'pool_einherjar',
+   txt:'Frénésie tant que le Cycle est figé.'},
+  {id:'P_VERDANDI',  n:'Verdandi',        atk:3,def:5,cost:4,rarity:'rare',   cap:'pool_chant_freeze',
+   txt:'Rituel 1 : le Cycle est figé tant qu\'elle canalise (interrompu si elle quitte le jeu ou s\'endort).'},
+  {id:'P_SKADI',     n:'Skadi',           atk:4,def:5,cost:5,rarity:'rare',   cap:'pool_skadi',
+   txt:'Éveil : figez le Cycle 1 transition. +2 ATK tant que le Cycle est figé.'},
+  {id:'P_NORNES',    n:'Les Nornes',      atk:2,def:8,cost:7,rarity:'legendary', cap:'entry_cycle_prophecy pool_nornes',
+   txt:'Éveil : Prophétie. La première manipulation temporelle adverse de chaque tour est annulée.'},
 ],
 egyptian: [
   {id:'P_OUADJET',   n:'Ouadjet',         atk:3,def:5,cost:2,rarity:'common', cap:'fervor pool_prayer_aura',
    txt:'Ferveur. Tant qu\'elle prie, vos autres monstres en prière ont +0/+1.'},
+  // VAGUE 2
+  {id:'P_SERPOPARD2',n:'Serpopard',       atk:4,def:4,cost:3,rarity:'common', cap:'pool_serpopard',
+   txt:'Élan pendant l\'Aube.'},
+  {id:'P_KHEPRI',    n:'Khepri',          atk:3,def:5,cost:3,rarity:'rare',   cap:'pool_khepri', disabled:true,
+   txt:'À chaque Aube, votre première Momie à se relever gagne Élan. [DÉSACTIVÉE — cf. POOL_STATUS]'},
+  {id:'P_BENNU',     n:'Bennu',           atk:4,def:4,cost:3,rarity:'rare',   cap:'pool_bennu',
+   txt:'Dernier Souffle : inscrivez un Présage sur [Aube] : Bennu renaît en 4/4.'},
+  {id:'P_GRANDPRETRE', n:'Grand Prêtre d\'Héliopolis', atk:3,def:6,cost:4,rarity:'epic', cap:'pool_chant_revive',
+   txt:'Rituel 2 : à l\'échéance, réanimez tous les alliés morts pendant le Rituel (interrompu s\'il quitte le jeu ou s\'endort).'},
+  {id:'P_AMMIT',     n:'Ammit',           atk:6,def:6,cost:6,rarity:'epic',   cap:'pool_ammit',
+   txt:'Dévoreuse : les monstres qu\'elle tue sont exilés (ni Dernier Souffle, ni Momie, ni réanimation).'},
+  {id:'P_MAAT',      n:'Maât',            atk:4,def:6,cost:6,rarity:'legendary', cap:'pool_maat',
+   txt:'À chaque Aube, si vous avez moins de Foi que l\'adversaire, gagnez 2 Foi.'},
 ],
 greek: [
-  {id:'P_HOPLITE',   n:'Hoplite du Serment', atk:3,def:4,cost:2,rarity:'common', cap:'fervor',
+  {id:'P_HOPLITE',   n:'Hoplite du Serment', atk:2,def:4,cost:2,rarity:'common', cap:'fervor',
    txt:'Ferveur.'},
-  {id:'P_TALOS',     n:'Talos',           atk:3,def:8,cost:5,rarity:'rare',   cap:'protect egide',
+  {id:'P_TALOS',     n:'Talos',           atk:4,def:8,cost:4,rarity:'rare',   cap:'protect egide',
    txt:'Rempart. Égide : vos monstres en prière ne peuvent pas être ciblés tant que Talos est éveillé.'},
   {id:'P_MOIRES',    n:'Les Moires',      atk:4,def:8,cost:6,rarity:'legendary', cap:'pool_moires',
    txt:'Éveil, puis à chaque Midi : coupez un fil — détruisez un Présage. (Volet télégraphe gelé : décision Frank.)'},
+  // VAGUE 2 (Augure de Delphes GELÉ — dépend de la décision télégraphe)
+  {id:'P_ICARE',     n:'Icare',           atk:3,def:1,cost:1,rarity:'common', cap:'pool_icare',
+   eph:['aube','midi'],
+   txt:'Éphémère (Aube, Midi). Quand Midi se termine, Icare chute (détruit).'},
+  {id:'P_CASSANDRE', n:'Cassandre',       atk:2,def:6,cost:2,rarity:'rare',   cap:'pool_cassandre',
+   txt:'Les Présages adverses sont révélés. Quand un Présage adverse se déclenche, piochez 1.'},
+  {id:'P_CHIMERE2',  n:'Chimère',         atk:4,def:4,cost:4,rarity:'epic',   cap:'pool_chimere2',
+   txt:'Éveil : choisissez deux — Élan · 2 dégâts à un monstre · Égide jusqu\'à votre prochain tour.'},
+  {id:'P_HYDRE2',    n:'Hydre',           atk:5,def:5,cost:6,rarity:'epic',   cap:'pool_hydre2',
+   txt:'Quand elle survit à des dégâts de combat, inscrivez un Présage sur [phase +1] : Hydre gagne +2/+2.'},
 ],
 aztec: [
-  {id:'P_PRETRE_SOLEIL', n:'Prêtre du Cinquième Soleil', atk:4,def:4,cost:3,rarity:'rare', cap:'pool_zeal_sacrifice',
+  {id:'P_PRETRE_SOLEIL', n:'Prêtre du Cinquième Soleil', atk:5,def:5,cost:3,rarity:'rare', cap:'pool_zeal_sacrifice',
    txt:'Ferveur 2 quand un allié est sacrifié.'},
+  // VAGUE 2
+  {id:'P_OCELOTL2',  n:'Ocelotl',         atk:4,def:3,cost:2,rarity:'common', cap:'pool_ocelotl2',
+   txt:'Frénésie pendant votre zénith (Crépuscule).'},
+  {id:'P_NAGUAL2',   n:'Nagual',          atk:2,def:3,cost:2,rarity:'common', cap:'pool_daynight',
+   dn:{day:{atk:2,def:3,cap:''}, night:{atk:4,def:2,cap:''}},
+   txt:'Diurne 2/3 · Nocturne 4/2 (le Crépuscule conserve la face courante).'},
+  {id:'P_XOLOTL2',   n:'Xolotl',          atk:3,def:4,cost:3,rarity:'common', cap:'pool_xolotl2',
+   txt:'Quand vous avancez le Cycle, Xolotl gagne +1/+1.'},
+  {id:'P_TZITZIMITL',n:'Tzitzimitl',      atk:6,def:4,cost:4,rarity:'epic',   cap:'hurry',
+   eph:['tenebres'],
+   txt:'Éphémère (Ténèbres). Élan.'},
+  {id:'P_CIPACTLI2', n:'Cipactli',        atk:6,def:6,cost:5,rarity:'rare',   cap:'pool_cipactli2',
+   txt:'Éveil : sacrifiez un autre allié, sinon Cipactli vous inflige 3 dégâts.'},
+  {id:'P_TLALTE2',   n:'Tlaltecuhtli, la Terre Affamée', atk:7,def:7,cost:7,rarity:'legendary', cap:'pool_tlalte2',
+   txt:'À chaque Crépuscule, dévore votre monstre le plus faible et gagne ses stats.'},
 ],
 };
 const POOL_SPELLS = {
@@ -631,6 +698,9 @@ egyptian: [
    txt:'Présage sur [Aube] : vos Momies se relèvent immédiatement avec +1/+1.'},
   {id:'P_RITE_OUCHEBTIS', n:'Rite des Ouchebtis', cost:2,rarity:'common', cap:'pool_omen_ushebtis',
    txt:'Présage sur [phase +2] : invoquez deux Ouchebtis 0/2 Rempart.'},
+  // VAGUE 2
+  {id:'P_BANDELETTES', n:'Bandelettes Sacrées', cost:2,rarity:'common', cap:'pool_bandelettes',
+   txt:'Donnez Momie à un monstre allié.'},
 ],
 greek: [
   {id:'P_VOILE_LETHE',n:'Voile de Léthé', cost:1,rarity:'rare',   cap:'pool_shift_own_omen', disabled:true,
@@ -641,10 +711,13 @@ greek: [
 aztec: [
   {id:'P_ECLIPSE',    n:'Éclipse Totale', cost:5,rarity:'epic',   cap:'pool_omen_eclipse',
    txt:'Présage sur [Ténèbres] : sacrifiez tous vos monstres ; le joueur adverse subit leur ATK totale.'},
-  {id:'P_OFFRANDE',   n:'Offrande au Cinquième Soleil', cost:4,rarity:'common', cap:'pool_omen_offrande',
+  {id:'P_OFFRANDE',   n:'Offrande au Cinquième Soleil', cost:3,rarity:'common', cap:'pool_omen_offrande',
    txt:'Présage sur [Crépuscule] : sacrifiez un allié, gagnez 2 Foi et piochez 1.'},
   {id:'P_BRISER',     n:'Briser le Calendrier', cost:1,rarity:'rare', cap:'pool_destroy_omen',
    txt:'Détruisez un Présage ; son propriétaire subit 2 dégâts.'},
+  // VAGUE 2
+  {id:'P_COUTEAU',    n:'Couteau d\'Obsidienne', cost:1,rarity:'common', cap:'pool_couteau',
+   txt:'Sacrifiez un allié : infligez son ATK à un monstre.'},
 ],
 };
 
@@ -1131,12 +1204,19 @@ function setCyclePhase(newCycle, srcLabel, opts) {
         m.cAtk = m.atk; m.cDef = m.def;
         m._roseTick = G.cycleTick; // POOL V1 (Sceau de Râ) : datation du lever
         addLog(`🌅 ${m.n} se relève de son sarcophage !`,'special');
+        poolKhepriBless(pl, m); // POOL V2 (Khepri) — no-op sans porteur
       }
     }));
   }
   if(srcLabel) addLog(`🌌 ${srcLabel} — le Cycle passe à ${CYCLE_NAMES[CYCLE_PHASES[G.cycle % 5]]} !`,'special');
-  // POOL V1 : déclencheurs d'entrée de phase (Nidhogg/Ténèbres, Moires/Midi)
-  // + Kodama sur les transitions « retard ». No-ops stricts sans porteur.
+  // POOL V1/V2 : synchronisations de phase (Nocturne/Diurne, Éphémères,
+  // mots-clés de phase, ticks de Canalisation) puis déclencheurs d'entrée
+  // (Nidhogg/Ténèbres, Moires/Midi, Maât/Aube, Tlaltecuhtli/Crépuscule) +
+  // Kodama sur les transitions « retard ». No-ops stricts sans porteur.
+  poolDayNightSync();
+  poolEphemeralSync(CYCLE_PHASES[prev]);
+  poolPhaseKeywordSync();
+  poolChantTick();
   poolOnPhaseEnter(CYCLE_PHASES[G.cycle % 5]);
   if(backward) poolNotifyHindered();
 }
@@ -1242,7 +1322,7 @@ function shiftOmen(ref, delta, srcLabel) {
 async function fireOmen(o) {
   const fx = OMEN_EFFECTS[o.effectId];
   if(fx) await fx(o);
-  poolOnOmenFired(); // POOL V1 (Ratatoskr) — no-op strict sans porteur
+  poolOnOmenFired(o); // POOL V1/V2 (Ratatoskr, Cassandre) — no-op sans porteur
 }
 
 // Résout la file des présages échus. Awaitée par doEndTurn (fin de ronde) et
@@ -1594,6 +1674,7 @@ function doEndTurn() {
     } else if((G.cycleFrozen||0) > 0) {
       G.cycleFrozen--;
       addLog(`🧊 Le Cycle Céleste est figé (${G.cycleFrozen+1>1?G.cycleFrozen+' tour(s) restant(s)':'dernier tour'}).`,'special');
+      poolFreezeConsumed(); // POOL V2 (Verdandi, Einherjar/Skadi) — no-op sans porteur
     } else {
       setCyclePhase(G.cycle + 1);
     }
@@ -1625,7 +1706,11 @@ function doEndTurn() {
     m._poolHinderUsed = false; m._poolRataUsed = false;
     if(m._poolTempHit) { m.cap = (m.cap||'').replace(/\s?\bhit\b/,'').trim(); m._poolTempHit = false; }
     if(m._prayShield)  { m.cDef = Math.max(1, m.cDef - 1); m._prayShield = false; }
+    if(m._poolTempEgide) { m.cap = (m.cap||'').replace(/\s?\begide\b/,'').trim(); m._poolTempEgide = false; }
   } });
+  // POOL V2 (Les Nornes) : le compteur « 1ʳᵉ manipulation adverse du tour »
+  // se réarme à chaque début de tour, pour les deux camps.
+  [1,2].forEach(pl => G.players[pl].field.forEach(x => { if(x) x._nornesUsed = false; }));
   G.actions = 1;
   // Auto-draw
   if(NP.deck.length > 0) { NP.hand.push(NP.deck.shift()); Audio5L.sfx.draw(); }
@@ -1877,6 +1962,7 @@ async function playMonster(c, p) {
   P.field.push(m);
   const idx = P.field.length-1;
   P.summoned.add(idx);
+  poolOnSummon(p, m); // POOL V2 (Nocturne/Diurne, Éphémère, mots-clés de phase)
   if(/protect|egide/.test(m.cap||'')) bumpStat(p, 'protectPlayed'); // mesure (B1, no-op logique)
   // Passifs/auras du plateau s'appliquant au monstre entrant (cf. moteur d'effets,
   // Event 'passive'). Conditions = état du plateau/faction ; ordre préservé.
@@ -2058,6 +2144,7 @@ registerEffect('entry', cap => cap.includes('entry_self_sleep'), ctx => {
   // ONI (6.2/6.4 Berceuse) : entre endormi 1 tour — payoff Réveil à son réveil.
   const { m } = ctx;
   m.faceDown = true; m.asleep = true; m.sleepTurns = 1;
+  poolNotifySleep(ctx.p, m); // POOL V2 (Jorogumo adverse) — no-op sans porteur
   addLog(`💤 ${m.n} entre endormi (1 tour)...`,'event');
 });
 registerEffect('entry', cap => cap.includes('entry_oracle'), ctx => {
@@ -2443,6 +2530,18 @@ async function handleDeath(p, m) {
   const idx = P.field.indexOf(m);
   if(idx<0) return;
 
+  // ── POOL V2 (Ammit) : EXIL — court-circuite Sanctuaire exclu, Endurance,
+  // Momie, Dernier Souffle et cimetière. La Profanation (règle d'Ascension
+  // côté tueur) s'applique quand même. No-op strict sans _exiled.
+  if(m._exiled) {
+    desecrateIfKneeling(p, m);
+    poolChantInterrupt(m);
+    P.field.splice(idx,1);
+    reindexSets(P, idx, true);
+    addLog(`⚖️ ${m.n} est EXILÉ — ni Dernier Souffle, ni Momie, ni réanimation.`,'special');
+    return;
+  }
+
   // ── ASCENSION (A3) : SANCTUAIRE — un fidèle agenouillé sanctuarisé ne peut
   // pas être profané (tué) jusqu'au prochain tour de son contrôleur. ──
   if(m._sanctuary && m.kneeling) {
@@ -2467,6 +2566,7 @@ async function handleDeath(p, m) {
   // Balder
   if(P.balderActive && P.field.length<6) {
     desecrateIfKneeling(p, m); // ASCENSION (A2) : remplacé = vraie mort
+    poolChantInterrupt(m);     // POOL V2
     P.field.splice(idx,1);
     P.graveyard.push(m);
     const token = newCard({id:'BALDER_TOKEN',n:'2/2 Token',atk:2,def:2,cost:0,type:'monster',cap:'',txt:'Balder token',faction:P.faction});
@@ -2525,6 +2625,7 @@ async function handleDeath(p, m) {
     G.players[p].deck.push(m2); G.players[p].deck.sort(()=>rng()-0.5);
     addLog(`✨ ${m.n} — Réincarnation! Retourne dans le deck avec +3/+3.`,'event');
     desecrateIfKneeling(p, m); // ASCENSION (A2) : quitte le jeu = vraie mort
+    poolChantInterrupt(m);     // POOL V2 : quitter le jeu interrompt la Canalisation
     // Remove from field before exit, skip graveyard
     P.field.splice(idx,1); reindexSets(P,idx,true); return;
   }
@@ -2547,6 +2648,7 @@ async function handleDeath(p, m) {
   }
 
   desecrateIfKneeling(p, m); // ASCENSION (A2) : mort finale
+  poolChantInterrupt(m);     // POOL V2 : la mort interrompt la Canalisation
   Audio5L.sfx.death();
   // Death animation: find card in DOM and play card-death before removing
   const _dyingEl = document.querySelector(`[data-player="${p}"][data-idx="${idx}"]`);
@@ -3226,6 +3328,8 @@ function poolSleep(byP, m) {
   const dur = (getZenithFaction()==='yokai' && G.players[byP] && G.players[byP].faction==='yokai') ? 3 : 2;
   m.faceDown = true; m.asleep = true; m.sleepTurns = dur;
   addLog(`${m.n} put to sleep (${dur}t)!`,'debuff');
+  const vp = G.players[1].field.includes(m) ? 1 : 2;
+  poolNotifySleep(vp, m); // V2 (Jorogumo, Canalisation)
 }
 
 // KODAMA — « quand le Cycle est retardé ou figé, piochez 1 (1×/tour) ».
@@ -3284,7 +3388,18 @@ function poolTrapCycleCheck(byP) {
   const opp = byP === 1 ? 2 : 1;
   const OP = G.players[opp];
   const ti = OP.field.findIndex(x => x && x.faceDown && x.cap === 'fd_cancel_cycle');
-  if(ti < 0) return false;
+  if(ti < 0) {
+    // LES NORNES (V2) : la 1ʳᵉ manipulation temporelle adverse de chaque tour
+    // est annulée (aucune révélation : elles règnent à découvert).
+    const norn = OP.field.find(x => x && !x.faceDown && !x.asleep && (x.cap||'').includes('pool_nornes') && !x._nornesUsed);
+    if(norn) {
+      norn._nornesUsed = true;
+      addLog(`🧵 ${norn.n} — la manipulation temporelle est ANNULÉE : ce fil était déjà tissé.`,'special');
+      renderAll();
+      return true;
+    }
+    return false;
+  }
   const trap = OP.field[ti];
   trap.faceDown = false;
   OP.field.splice(ti, 1);
@@ -3327,15 +3442,44 @@ function poolOnPhaseEnter(ph) {
       if(m && !m.faceDown && !m.asleep && (m.cap||'').includes('pool_moires')) poolMoiresCut(pl, m);
     }));
   }
+  // VAGUE 2 : Maât (la Balance rattrape à l'Aube), Tlaltecuhtli (dévore au Crépuscule).
+  if(ph === 'aube') {
+    [1,2].forEach(pl => G.players[pl].field.forEach(m => {
+      if(m && !m.faceDown && !m.asleep && (m.cap||'').includes('pool_maat')) {
+        const opp = pl === 1 ? 2 : 1;
+        if((G.players[pl].faith||0) < (G.players[opp].faith||0))
+          poolFaith(pl, 2, `${m.n} — la Balance rattrape`);
+      }
+    }));
+  }
+  if(ph === 'crepuscule') {
+    [1,2].forEach(pl => G.players[pl].field.forEach(m => {
+      if(m && !m.faceDown && !m.asleep && (m.cap||'').includes('pool_tlalte2')) {
+        const P2 = G.players[pl];
+        const others = P2.field.filter(x => x && x !== m && !x.faceDown);
+        if(!others.length) return;
+        const weakest = others.reduce((a,b) => (a.cAtk+a.cDef) <= (b.cAtk+b.cDef) ? a : b);
+        m.cAtk += weakest.cAtk; m.cDef += weakest.cDef;
+        addLog(`🌎 ${m.n} dévore ${weakest.n} — +${weakest.cAtk}/+${weakest.cDef} !`,'special');
+        poolSacrifice(pl, weakest, m.n);
+      }
+    }));
+  }
 }
 
 // RATATOSKR — « quand un Présage se déclenche (les deux camps), pioche 1 (1×/tour) ».
-function poolOnOmenFired() {
+function poolOnOmenFired(o) {
   [1,2].forEach(pl => G.players[pl].field.forEach(m => {
-    if(m && !m.faceDown && !m.asleep && (m.cap||'').includes('pool_draw_on_omen') && !m._poolRataUsed) {
+    if(!m || m.faceDown || m.asleep) return;
+    if((m.cap||'').includes('pool_draw_on_omen') && !m._poolRataUsed) {
       m._poolRataUsed = true;
       drawCard(pl);
       addLog(`🐿 ${m.n} — un présage s'accomplit, pioche 1.`,'buff');
+    }
+    // CASSANDRE (V2) : présage ADVERSE déclenché → pioche 1.
+    if((m.cap||'').includes('pool_cassandre') && o && o.ownerP !== pl) {
+      drawCard(pl);
+      addLog(`👁 ${m.n} l'avait prédit — pioche 1.`,'buff');
     }
   }));
 }
@@ -3412,6 +3556,7 @@ OMEN_EFFECTS.pool_mummyrise = async (o) => {
       m._mummyRest = false; m.faceDown = false;
       m.cAtk = m.atk + 1; m.cDef = m.def + 1; n++;
       addLog(`☀️ ${o.cardName} — ${m.n} se relève avec +1/+1 !`,'special');
+      poolKhepriBless(o.ownerP, m); // V2 (auto-gardé : 1ʳᵉ du tick seulement)
     } else if(m._roseTick === G.cycleTick) {
       // Momie relevée naturellement à CETTE Aube : le Sceau la bénit aussi.
       m.cAtk += 1; m.cDef += 1; n++;
@@ -3506,6 +3651,336 @@ registerEffect('spell', cap => cap === 'pool_destroy_omen', ctx => {
 
 // ── Éveil des Moires : première coupe de fil ──────────────────────────────
 registerEffect('entry', cap => cap.includes('pool_moires'), ctx => { poolMoiresCut(ctx.p, ctx.m); });
+
+// ══════════════════════════════════════════════════════════════════════════
+// POOL VAGUE 2 (POOL_DESIGN §3/§5) — Éphémère (phases), Nocturne/Diurne,
+// Canalisation (« Rituel N » du design — nom technique chant pour ne pas
+// percuter le Rituel-sacrifice aztèque existant), exil d'Ammit, archétypes.
+// Comme la vague 1 : no-ops stricts sans porteur, Partie Libre intacte.
+// ══════════════════════════════════════════════════════════════════════════
+
+// ÉPHÉMÈRE — m.eph = ['nuit',…] : n'existe physiquement que pendant ces
+// phases. Hors fenêtre : estompé (_ephFaded + faceDown → ni attaque, ni
+// ciblage, ne bloque pas). ICARE : la sortie de Midi le DÉTRUIT (chute).
+function poolEphemeralSync(prevPh) {
+  const ph = CYCLE_PHASES[G.cycle % 5];
+  [1,2].forEach(pl => {
+    const P = G.players[pl];
+    for(let i = P.field.length - 1; i >= 0; i--) {
+      const m = P.field[i];
+      if(!m || !m.eph) continue;
+      const inWin = m.eph.includes(ph);
+      if(inWin && m._ephFaded) {
+        m._ephFaded = false;
+        if(!m.asleep) m.faceDown = false;
+        addLog(`✨ ${m.n} se matérialise — ${CYCLE_NAMES[ph]} est sa fenêtre !`,'special');
+      } else if(!inWin && !m._ephFaded) {
+        if((m.cap||'').includes('pool_icare') && prevPh === 'midi') {
+          // La chute d'Icare : mort sèche synchrone (aucun Dernier Souffle à jouer).
+          addLog(`🪽 ${m.n} a volé trop près du soleil — il CHUTE !`,'special');
+          desecrateIfKneeling(pl, m);
+          notifyAllyDeath(pl, m);
+          P.field.splice(i, 1);
+          P.graveyard.push(m);
+          reindexSets(P, i, true);
+          continue;
+        }
+        m._ephFaded = true; m.faceDown = true;
+        addLog(`🌫 ${m.n} s'estompe hors de sa fenêtre.`,'event');
+      }
+    }
+  });
+}
+
+// NOCTURNE/DIURNE — m.dn = {day:{atk,def,cap}, night:{…}}. Jour = Aube+Midi,
+// Nuit = Nuit+Ténèbres, le Crépuscule conserve la face courante. Les dégâts
+// subis suivent la bascule (DEF de la nouvelle face − dégâts, plancher 1) ;
+// les buffs tiers sont perdus à la bascule (simplification documentée).
+function poolDayNightSync() {
+  const ph = CYCLE_PHASES[G.cycle % 5];
+  const face = (ph==='aube'||ph==='midi') ? 'day' : (ph==='nuit'||ph==='tenebres') ? 'night' : null;
+  if(!face) return;
+  [1,2].forEach(pl => G.players[pl].field.forEach(m => {
+    if(!m || !m.dn || m._dnFace === face) return;
+    const f = m.dn[face];
+    const dmg = Math.max(0, (m.def||0) - (m.cDef||0));
+    m._dnFace = face;
+    m.atk = f.atk; m.def = f.def;
+    m.cAtk = f.atk;
+    m.cDef = Math.max(1, f.def - dmg);
+    m.cap = ((f.cap||'') + ' pool_daynight').trim();
+    addLog(`🌗 ${m.n} bascule en face ${face==='day'?'Diurne':'Nocturne'} (${f.atk}/${f.def}) !`,'special');
+  }));
+}
+
+// SERPOPARD (Élan pendant l'Aube) / OCELOTL (Frénésie pendant le Crépuscule).
+function poolPhaseKeywordSync(only) {
+  const ph = CYCLE_PHASES[G.cycle % 5];
+  const apply = (m) => {
+    if(!m) return;
+    if((m.cap||'').includes('pool_serpopard')) {
+      const want = ph === 'aube', has = /\bhurry\b/.test(m.cap||'');
+      if(want && !has) { m.cap = (m.cap + ' hurry').trim(); m._poolPhaseKw = 'hurry'; addLog(`🌅 ${m.n} s'élance avec l'Aube — Élan !`,'buff'); }
+      else if(!want && m._poolPhaseKw === 'hurry') { m.cap = m.cap.replace(/\s?\bhurry\b/,'').trim(); m._poolPhaseKw = null; }
+    }
+    if((m.cap||'').includes('pool_ocelotl2')) {
+      const want = ph === 'crepuscule', has = /\bhit\b/.test(m.cap||'');
+      if(want && !has) { m.cap = (m.cap + ' hit').trim(); m._poolPhaseKw = 'hit'; addLog(`🌆 ${m.n} chasse au Crépuscule — Frénésie !`,'buff'); }
+      else if(!want && m._poolPhaseKw === 'hit') { m.cap = m.cap.replace(/\s?\bhit\b/,'').trim(); m._poolPhaseKw = null; }
+    }
+  };
+  if(only) return apply(only);
+  [1,2].forEach(pl => G.players[pl].field.forEach(apply));
+}
+
+// EINHERJAR (Frénésie tant que figé) / SKADI (+2 ATK tant que figé) —
+// synchronisé à chaque changement de G.cycleFrozen.
+function poolFreezeSync() {
+  const frozen = (G.cycleFrozen||0) > 0;
+  [1,2].forEach(pl => G.players[pl].field.forEach(m => {
+    if(!m) return;
+    if((m.cap||'').includes('pool_einherjar')) {
+      const has = /\bhit\b/.test(m.cap||'');
+      if(frozen && !has) { m.cap = (m.cap + ' hit').trim(); m._poolFrenzyFreeze = true; addLog(`⚔️ ${m.n} — le temps est figé : Frénésie !`,'buff'); }
+      else if(!frozen && m._poolFrenzyFreeze) { m.cap = m.cap.replace(/\s?\bhit\b/,'').trim(); m._poolFrenzyFreeze = false; }
+    }
+    if((m.cap||'').includes('pool_skadi')) {
+      if(frozen && !m._poolSkadiBuff) { m._poolSkadiBuff = true; m.cAtk += 2; addLog(`❄️ ${m.n} — +2 ATK tant que le Cycle est figé.`,'buff'); }
+      else if(!frozen && m._poolSkadiBuff) { m._poolSkadiBuff = false; m.cAtk = Math.max(0, m.cAtk - 2); }
+    }
+  }));
+}
+
+// VERDANDI — le gel de sa canalisation est consommé par la fin de ronde :
+// Rituel accompli. Appelé au point de décrément de G.cycleFrozen (doEndTurn).
+function poolFreezeConsumed() {
+  [1,2].forEach(pl => G.players[pl].field.forEach(m => {
+    if(m && m._chantFreeze) { m._chantFreeze = false; addLog(`🕸 ${m.n} — Rituel accompli : la transition a été dévorée par le gel.`,'special'); }
+  }));
+  poolFreezeSync();
+}
+
+// Interruption de Canalisation (mort, exil, remplacement, Sommeil).
+function poolChantInterrupt(m) {
+  if(!m) return;
+  if(m._chantFreeze) {
+    m._chantFreeze = false;
+    if((G.cycleFrozen||0) > 0) G.cycleFrozen--;
+    addLog(`💔 ${m.n} — Rituel interrompu : le gel du Cycle se dissipe.`,'special');
+    poolFreezeSync();
+  }
+  if(m._chant) { m._chant = null; addLog(`💔 ${m.n} — Rituel interrompu.`,'special'); }
+}
+
+// Tick de Canalisation : chaque transition EFFECTIVE du Cycle avance les
+// rituels. GRAND PRÊTRE (chant_revive) : à l'échéance, réanime les alliés
+// morts pendant la canalisation.
+function poolChantTick() {
+  [1,2].forEach(pl => {
+    const P = G.players[pl];
+    P.field.forEach(m => {
+      if(!m || !m._chant) return;
+      m._chant.left--;
+      if(m._chant.left > 0) { addLog(`🕯 ${m.n} canalise… (${m._chant.left} transition(s) restante(s))`,'event'); return; }
+      const since = P.graveyard.slice(m._chant.grave0).filter(c => c.type === 'monster');
+      m._chant = null;
+      if((m.cap||'').includes('pool_chant_revive')) {
+        let n = 0;
+        for(const dead of since) {
+          if(P.field.length >= 6) break;
+          const gi = P.graveyard.indexOf(dead);
+          if(gi < 0) continue;
+          P.graveyard.splice(gi, 1);
+          dead.cAtk = dead.atk; dead.cDef = dead.def;
+          dead.asleep = false; dead.faceDown = false; dead.kneeling = false;
+          dead.cursed = false; dead._mummyRest = false; dead.endureUsed = false;
+          P.field.push(dead); n++;
+        }
+        addLog(`⚱️ ${m.n} — Rituel accompli : ${n} allié(s) réanimé(s) !`,'special');
+        if(n >= 2) markCombo(P.faction);
+      }
+    });
+  });
+}
+
+// JOROGUMO (+1/+0 quand un monstre adverse s'endort) + interruption de chant.
+function poolNotifySleep(victimP, m) {
+  poolChantInterrupt(m);
+  const opp = victimP === 1 ? 2 : 1;
+  G.players[opp].field.forEach(x => {
+    if(x && !x.faceDown && !x.asleep && (x.cap||'').includes('pool_jorogumo')) {
+      x.cAtk += 1;
+      addLog(`🕷 ${x.n} tisse sur le dormeur — +1/+0 !`,'buff');
+    }
+  });
+}
+
+// XOLOTL (V2) — « quand VOUS avancez le Cycle, +1/+1 » (sites advance1).
+function poolNotifyAdvanced(byP) {
+  if(!byP) return;
+  G.players[byP].field.forEach(m => {
+    if(m && !m.faceDown && !m.asleep && (m.cap||'').includes('pool_xolotl2')) {
+      m.cAtk += 1; m.cDef += 1;
+      addLog(`🐕 ${m.n} court vers la nuit — +1/+1 !`,'buff');
+    }
+  });
+}
+
+// KHEPRI — la PREMIÈRE momie relevée de chaque Aube (par tick) gagne Élan.
+// NB moteur : une momie relevée peut déjà attaquer le tour suivant — l'Élan
+// n'a d'effet que le tour exact du lever. Limitation documentée POOL_STATUS.
+function poolKhepriBless(pl, m) {
+  if(!G.players[pl].field.some(x => x && !x.faceDown && !x.asleep && (x.cap||'').includes('pool_khepri'))) return;
+  G._khepriTick = G._khepriTick || {};
+  if(G._khepriTick[pl] === G.cycleTick) return;
+  G._khepriTick[pl] = G.cycleTick;
+  if(!/\bhurry\b/.test(m.cap||'')) m.cap = ((m.cap||'') + ' hurry').trim();
+  addLog(`🪲 Khepri pousse ${m.n} vers le soleil — Élan !`,'buff');
+}
+
+// Hooks d'invocation (Nocturne/Diurne, Éphémère, mots-clés de phase, gel).
+function poolOnSummon(p, m) {
+  if(!m) return;
+  if(m.dn) {
+    const ph = CYCLE_PHASES[G.cycle % 5];
+    const face = (ph==='nuit'||ph==='tenebres') ? 'night' : 'day';
+    const f = m.dn[face];
+    m._dnFace = face;
+    m.atk = f.atk; m.def = f.def; m.cAtk = f.atk; m.cDef = f.def;
+    m.cap = ((f.cap||'') + ' pool_daynight').trim();
+  }
+  if(m.eph && !m.eph.includes(CYCLE_PHASES[G.cycle % 5]) && !m._ephFaded) {
+    m._ephFaded = true; m.faceDown = true;
+    addLog(`🌫 ${m.n} s'estompe — il attend ${m.eph.map(x=>CYCLE_NAMES[x]).join(' / ')}.`,'event');
+  }
+  poolPhaseKeywordSync(m);
+  if((m.cap||'').includes('pool_einherjar')) poolFreezeSync();
+}
+
+// ── Effets de PRÉSAGE vague 2 ─────────────────────────────────────────────
+OMEN_EFFECTS.pool_kasha_dmg2 = async (o) => {
+  const opp = o.ownerP === 1 ? 2 : 1;
+  G.players[opp].hp -= 2;
+  addLog(`🛞 ${o.cardName} — le chariot livre les âmes à l'Aube : 2 dégâts (❤${G.players[opp].hp}) !`,'dmg');
+};
+OMEN_EFFECTS.pool_bennu_rebirth = async (o) => {
+  const P = G.players[o.ownerP];
+  if(P.field.length >= 6) { addLog(`🔥 ${o.cardName} — pas de place, les cendres retombent.`,'event'); return; }
+  const tmpl = POOL_MONSTERS.egyptian.find(c => c.id === 'P_BENNU');
+  const reborn = newCard({...tmpl, type:'monster', faction:'egyptian', atk:4, def:4});
+  reborn.cAtk = 4; reborn.cDef = 4;
+  P.field.push(reborn);
+  addLog(`🔥 ${o.cardName} renaît de ses cendres en 4/4 !`,'special');
+  markCombo('egyptian');
+};
+OMEN_EFFECTS.pool_hydre_buff = async (o) => {
+  const m = o.mref;
+  if(!m || !( G.players[1].field.includes(m) || G.players[2].field.includes(m) )) {
+    addLog(`🔮 ${o.cardName} — les têtes ne repousseront pas.`,'event'); return;
+  }
+  m.cAtk += 2; m.cDef += 2;
+  addLog(`🐍 ${o.cardName} — les têtes repoussent : +2/+2 !`,'special');
+};
+
+// ── Éveils vague 2 ────────────────────────────────────────────────────────
+registerEffect('entry', cap => cap.includes('pool_nue'), async ctx => {
+  const opp = ctx.p === 1 ? 2 : 1;
+  const sleepers = G.players[opp].field.filter(m => m && m.asleep);
+  if(!sleepers.length) { addLog(`${ctx.m.n} — aucun cauchemar à dévorer.`,'event'); return; }
+  for(const s of [...sleepers]) {
+    const dmg = s.cAtk || 0;
+    s.cDef -= dmg;
+    addLog(`😱 ${ctx.m.n} — ${s.n} est dévoré par ses propres cauchemars (${dmg} dégâts) !`,'dmg');
+    if(s.cDef <= 0) await handleDeath(opp, s);
+  }
+  markCombo(G.players[ctx.p].faction);
+});
+registerEffect('entry', cap => cap.includes('pool_chimere2'), async ctx => {
+  const { p, m } = ctx;
+  const opp = p === 1 ? 2 : 1;
+  const targets = G.players[opp].field.filter(x => x && !x.faceDown);
+  // Politique auto (IA et humain) : 2 dégâts si une cible existe (préférence
+  // au kill), sinon Égide ; toujours Élan. Modal de choix humain : décision Frank.
+  const picks = ['hurry'];
+  if(targets.length) picks.push('dmg'); else picks.push('egide');
+  for(const pick of picks) {
+    if(pick === 'hurry' && !/\bhurry\b/.test(m.cap||'')) {
+      m.cap = ((m.cap||'') + ' hurry').trim();
+      addLog(`🦁 ${m.n} choisit l'Élan !`,'buff');
+    } else if(pick === 'dmg') {
+      const kill = targets.filter(t => t.cDef <= 2).sort((a,b) => (b.cAtk+b.cDef)-(a.cAtk+a.cDef))[0];
+      const tgt = kill || targets.sort((a,b) => (b.cAtk+b.cDef)-(a.cAtk+a.cDef))[0];
+      tgt.cDef -= 2;
+      addLog(`🔥 ${m.n} crache le feu — 2 dégâts à ${tgt.n} !`,'dmg');
+      if(tgt.cDef <= 0) await handleDeath(opp, tgt);
+    } else if(pick === 'egide') {
+      m.cap = ((m.cap||'') + ' egide').trim();
+      m._poolTempEgide = true;
+      addLog(`🛡 ${m.n} choisit l'Égide jusqu'à votre prochain tour !`,'buff');
+    }
+  }
+});
+registerEffect('entry', cap => cap.includes('pool_cipactli2'), ctx => {
+  const { p, m } = ctx;
+  const P = G.players[p];
+  const others = P.field.filter(x => x && x !== m && !x.faceDown);
+  if(others.length) {
+    const weakest = others.reduce((a,b) => (a.cAtk+a.cDef) <= (b.cAtk+b.cDef) ? a : b);
+    poolSacrifice(p, weakest, m.n);
+  } else {
+    P.hp -= 3;
+    addLog(`🐊 ${m.n} n'a rien à dévorer — elle vous mord : 3 dégâts (❤${P.hp}) !`,'dmg');
+    checkVictory();
+  }
+});
+registerEffect('entry', cap => cap.includes('pool_einherjar'), ctx => { poolFreezeSync(); });
+registerEffect('entry', cap => cap.includes('pool_skadi'), ctx => {
+  if(poolTrapCycleCheck(ctx.p)) return;
+  G.cycleFrozen = (G.cycleFrozen||0) + 1;
+  addLog(`❄️ ${ctx.m.n} — le Cycle est figé 1 transition !`,'special');
+  poolNotifyFrozen(ctx.p);
+  poolFreezeSync();
+});
+registerEffect('entry', cap => cap.includes('pool_chant_freeze'), ctx => {
+  if(poolTrapCycleCheck(ctx.p)) return;
+  G.cycleFrozen = (G.cycleFrozen||0) + 1;
+  ctx.m._chantFreeze = true;
+  addLog(`🧵 ${ctx.m.n} canalise — le Cycle est figé tant qu'elle tisse (Rituel 1, interruptible) !`,'special');
+  poolNotifyFrozen(ctx.p);
+  poolFreezeSync();
+});
+registerEffect('entry', cap => cap.includes('pool_chant_revive'), ctx => {
+  ctx.m._chant = { left: 2, grave0: G.players[ctx.p].graveyard.length };
+  addLog(`⚱️ ${ctx.m.n} entame le Rituel funéraire (2 transitions — interruptible) !`,'special');
+});
+
+// ── Dernier Souffle vague 2 ───────────────────────────────────────────────
+registerEffect('exit', cap => cap.includes('pool_bennu'), ctx => {
+  scheduleOmen(ctx.p, 'pool_bennu_rebirth', ticksToPhase('aube'), 'Bennu renaît en 4/4', ctx.m.n);
+});
+
+// ── Sorts vague 2 ─────────────────────────────────────────────────────────
+registerEffect('spell', cap => cap === 'pool_bandelettes', ctx => {
+  const targets = G.players[ctx.p].field.filter(m => m && !m.faceDown && !(m.cap||'').includes('momie'));
+  if(!targets.length) { addLog(`${ctx.c.n} — aucun allié à embaumer.`,'event'); return; }
+  const best = targets.reduce((a,b) => (a.cAtk+a.cDef) >= (b.cAtk+b.cDef) ? a : b);
+  best.cap = ((best.cap||'') + ' momie').trim();
+  addLog(`🩹 ${ctx.c.n} — ${best.n} gagne Momie !`,'special');
+});
+registerEffect('spell', cap => cap === 'pool_couteau', async ctx => {
+  const P = G.players[ctx.p], opp = ctx.p === 1 ? 2 : 1;
+  const allies = P.field.filter(m => m && !m.faceDown);
+  const targets = G.players[opp].field.filter(m => m && !m.faceDown);
+  if(!allies.length || !targets.length) { addLog(`${ctx.c.n} — le couteau reste sec.`,'event'); return; }
+  const victim = allies.reduce((a,b) => (a.cAtk+a.cDef) <= (b.cAtk+b.cDef) ? a : b);
+  const dmg = victim.cAtk || 0;
+  const killable = targets.filter(t => t.cDef <= dmg).sort((a,b) => (b.cAtk+b.cDef)-(a.cAtk+a.cDef))[0];
+  const tgt = killable || targets.sort((a,b) => (b.cAtk+b.cDef)-(a.cAtk+a.cDef))[0];
+  poolSacrifice(ctx.p, victim, ctx.c.n);
+  tgt.cDef -= dmg;
+  addLog(`🗡 ${ctx.c.n} — le sang de ${victim.n} frappe ${tgt.n} (${dmg} dégâts) !`,'dmg');
+  if(tgt.cDef <= 0) await handleDeath(opp, tgt);
+});
 
 async function playGod(c, p) {
   addLog(`Player ${p} plays God: ${c.n}!`,'summon');
@@ -3875,12 +4350,31 @@ async function doAttack(attackerP, attackerIdx, targetP, targetIdx, isSecondStri
         const wallsR = DP.field.filter(x => x && effProtect(x, targetP)).length;
         if(wallsR >= 2) markCombo(DP.faction); // Forteresse : mur qui riposte
       }
+      // POOL V2 (Hydre) : survit à des dégâts de combat → les têtes repoussent
+      // (présage +1 transition, +2/+2 sur elle-même).
+      if(actualDmg > 0 && def.cDef > 0 && (def.cap||'').includes('pool_hydre2')) {
+        const oH = scheduleOmen(targetP, 'pool_hydre_buff', 1, 'Hydre gagne +2/+2', def.n);
+        oH.mref = def;
+      }
+      if(retDmg > 0 && atk.cDef > 0 && (atk.cap||'').includes('pool_hydre2')) {
+        const oH = scheduleOmen(attackerP, 'pool_hydre_buff', 1, 'Hydre gagne +2/+2', atk.n);
+        oH.mref = atk;
+      }
       if(def.cDef <= 0) {
         const defWasKneeling = !!def.kneeling; // mesure (B1) : profanation ?
+        if((atk.cap||'').includes('pool_ammit')) def._exiled = true; // POOL V2 (Ammit)
         await handleDeath(targetP, def);
         if(!DP.field.includes(def)) { // réellement retiré (ni Sanctuaire ni Endure…)
           bumpStat(attackerP, 'enemyKills');
           if(defWasKneeling) { bumpStat(attackerP, 'profanations'); bumpStat(targetP, 'kneelersLost'); }
+          // POOL V2 (Kasha) : tue pendant Nuit/Ténèbres → présage daté sur l'Aube.
+          const phK = CYCLE_PHASES[G.cycle % 5];
+          if((atk.cap||'').includes('pool_kasha') && (phK==='nuit'||phK==='tenebres') && AP.field.includes(atk)) {
+            scheduleOmen(attackerP, 'pool_kasha_dmg2', ticksToPhase('aube'), '2 dégâts au joueur adverse', atk.n);
+            markCombo(AP.faction);
+          }
+        } else {
+          def._exiled = false; // survécu (Sanctuaire…) : l'exil ne colle pas
         }
       }
       if(atk.cDef <= 0) await handleDeath(attackerP, atk);
@@ -4408,10 +4902,10 @@ async function aiMainPhase(p=2) {
     const playable = P.hand
       .map((c, i) => ({ c, i, score: scoreCard(c, p) }))
       .filter(x => x.c.cost <= P.gems)
-      // POOL V1 : un SORT du pool à score négatif est une pose morte (payoff
-      // absent) — l'IA le garde en main. Ne concerne que les ids P_* (jamais
-      // présents en Partie Libre → comportement par défaut inchangé).
-      .filter(x => !(x.c.type === 'spell' && String(x.c.id||'').startsWith('P_') && x.score < 0))
+      // POOL V1/V2 : une carte du pool à score négatif est une pose morte
+      // (payoff absent, fenêtre fermée) — l'IA la garde en main. Ne concerne
+      // que les ids P_* (jamais présents en Partie Libre → défaut inchangé).
+      .filter(x => !(String(x.c.id||'').startsWith('P_') && x.score < 0))
       .sort((a, b) => b.score - a.score);
 
     if (playable.length > 0 && P.gems > 0) {
@@ -4512,6 +5006,12 @@ function scoreCard(c, p) {
     }
     if(cap.includes('momie')) score += 3;
     if(cap.includes('entry_oracle')) score += 2;
+    // POOL V2 : Icare vit d'Aube à Midi — le jouer ailleurs = corps estompé
+    // qui chutera à peine matérialisé.
+    if(cap.includes('pool_icare')) {
+      const phI = CYCLE_PHASES[G.cycle % 5];
+      score += phI === 'aube' ? 3 : -10;
+    }
 
     // Cartes temporelles (3.2) : valeur selon la distance à notre zénith
     if(cap.includes('cycle_')) {
@@ -4725,6 +5225,17 @@ function scoreCard(c, p) {
   }
   if(cap === 'pool_omen_offrande') score += myField.length >= 2 ? 4 : -6;
   if(cap === 'pool_destroy_omen')  score += (G.omens||[]).some(o => o.ownerP === opp) ? 6 : -8;
+  // ── POOL V2 ──
+  if(cap === 'pool_bandelettes') {
+    const embalmable = myField.filter(m => !(m.cap||'').includes('momie'));
+    score += embalmable.length ? 2 + Math.max(...embalmable.map(m => (m.cAtk+m.cDef))) * 0.25 : -8;
+  }
+  if(cap === 'pool_couteau') {
+    const weak = myField.length ? myField.reduce((a,b) => (a.cAtk+a.cDef) <= (b.cAtk+b.cDef) ? a : b) : null;
+    const prey = weak ? oppField.filter(t => t.cDef <= (weak.cAtk||0))
+      .sort((a,b) => (b.cAtk+b.cDef)-(a.cAtk+a.cDef))[0] : null;
+    score += (prey && (prey.cAtk+prey.cDef) > (weak.cAtk+weak.cDef)) ? 6 : -8;
+  }
 
   return (score + profileCardBonus(c, p)) * urgency;
 }
@@ -5736,6 +6247,7 @@ async function applyTargetEffect(type, fromP, idx, card) {
     const dur = (getZenithFaction()==='yokai' && G.players[p] && G.players[p].faction==='yokai') ? 3 : 2; // zénith Nuit (3.1)
     m.faceDown=true; m.asleep=true; m.sleepTurns=dur;
     addLog(`${m.n} put to sleep (${dur}t)!`,'debuff');
+    poolNotifySleep(fromP, m); // POOL V2 (Jorogumo, Canalisation) — no-op sans porteur
   }
   else if(type==='blind') { m.blinded=true; addLog(`${m.n} blinded — next attack random`,'debuff'); }
   else if(type==='curse') { m.cursed=true; addLog(`${m.n} CURSED — 1 dmg = death!`,'debuff'); }
