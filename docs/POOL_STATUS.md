@@ -47,6 +47,16 @@ du texte sont ajustables ; tout le reste est documenté ici et attend Frank.
   yokai 53,5 · norse 45,0 · egyptian 52,0 · greek 46,8 · aztec 52,8 ·
   Ascension 1,4 % (0 porteur de Ferveur au draft : attendu, la vague 1 les
   apporte — le gate [5,40] % s'évalue en fin de vague) · 9,82 tours · 0 crash.
+- **2026-07-05 · VAGUE 1 TERMINÉE** (commit 0689155) : 22 cartes, 3 cycles
+  d'équilibrage, 12/20 vertes, 2 désactivées, gates factions ✅ à N=15000.
+- **2026-07-05 · VAGUE 2 TERMINÉE** (commit daf6410) : 30 cartes, Éphémère +
+  Nocturne/Diurne + Canalisation, test_ephemeral 22/22, 1 désactivée (Khepri),
+  2 gelées télégraphe, gates ✅ sauf greek +4,6 (arbitrage) et Ascension draft.
+- **2026-07-05 · VAGUE 3 TERMINÉE** : feat-regents porté (cherry-picks R1/R2),
+  13 dieux-régents actifs (42-51 % → 62-83 % de play rate), golden régénéré
+  1× (136/200 divergences documentées), batterie complète verte.
+- **2026-07-05 — FIN DE SESSION : LES 3 VAGUES SONT LIVRÉES.** Voir
+  « LIVRABLE FINAL » en bas de ce fichier.
 
 ## Décisions en attente de Frank (rien tranché ici)
 
@@ -314,6 +324,131 @@ conditionnels inchangés — la densité d'enablers vague 2 n'a PAS suffi.)
 - **Nornes +16,4** : 1,4pp au-dessus du gate, bombe 7-coût (norme de classe
   +20/+60). Aucun levier propre restant (le corps 2/8 est l'identité).
 
-## VAGUE 3 — auras de régents
+## VAGUE 3 — dieux-régents : TERMINÉE ✅ (13 auras actives, 1 gelée, 1 dieu non converti)
 
-_(non commencée)_
+Moteur `feat-regents` porté sur feat-pool (cherry-picks R1/R2, sans merge,
+test_regents 15/15 après portage, golden alors byte-identique).
+
+**Déviation documentée sur le critère** : la consigne visait « les dieux à
+play rate < 40 % » — mesure card_metrics 1500 sur feat-pool : AUCUN dieu sous
+40 % (plancher : Sarutahiko 42 %). Critère appliqué à l'esprit = les 3 dieux
+au play rate le plus bas de chaque faction. L'aura grecque « frappes
+télégraphiées révélées un tour plus tôt » est GELÉE (décision télégraphe) →
+13 auras actives, et **Apollon (3e grec le plus faible) reste non converti**.
+
+**Ces 13 dieux changent de comportement en Partie Libre** (c'est la consigne
+de la vague : les auras remplacent le one-shot). C'est la SEULE modification
+de cartes existantes des 3 vagues. **Golden régénéré 1×** : 136/200 parties
+divergent (attendu — 13 dieux répartis sur les 5 factions), P1/P2 sain
+(93/107 vs 97/103 avant), round-trip vérifié.
+
+### Le mapping (une aura par dieu, sobre — trône = phase de l'aura)
+
+| Dieu (play rate avant→après) | Trône | Aura |
+|---|---|---|
+| Sarutahiko (42→78 %) | Nuit | votre Sommeil dure 1 tour de plus |
+| Izanami (48→79 %) | Nuit | à l'entrée en Nuit, endort le plus fort monstre adverse |
+| Omoikane (46→64 %) | Crépuscule | vos Éphémères ne s'estompent pas à la phase suivante |
+| Freya (43→71 %) | Ténèbres | vos effets de Ténèbres (Ragnarök inclus) infligent +1 |
+| Tyr (47→65 %) | Ténèbres | le Cycle ne peut pas être avancé **par des cartes** ¹ |
+| Vidar (47→83 %) | Midi | les Prophéties révèlent le Présage adverse le plus proche |
+| Sobek (47→71 %) | Aube | vos Momies se relèvent avec +1/+1 |
+| Sekhmet (50→77 %) | Aube | la première Momie de chaque Aube gagne Élan ² |
+| Khonsu (50→72 %) | Nuit | vos morts de la Nuit reviennent face cachée à l'Aube (1×) |
+| Déméter (44→64 %) | Aube | vos monstres en prière ont Égide |
+| Hadès (51→69 %) | Midi | vos pièges sont déclenchables à volonté |
+| Centeotl (48→65 %) | Crépuscule | vos sacrifices donnent +1 Foi |
+| Xiuhtecuhtli (46→62 %) | Crépuscule | quand le Cycle avance, 1 dégât au joueur adverse |
+| Coyolxauhqui (46→72 %) | Ténèbres | vos Éphémères de Ténèbres entrent avec +1/+1 |
+
+¹ Interprétation sobre documentée : bloquer AUSSI l'avancée de fin de ronde
+figerait la partie sur les Ténèbres tant que Tyr règne (dégénéré). Version
+« totale » possible si tu la veux.
+² Même limitation moteur que Khepli/Khepri : l'Élan post-lever est quasi
+inerte (une momie relevée peut déjà attaquer). Aura littérale au design,
+valeur réelle ≈ nulle — à re-designer avec Khepri.
+
+**Objectif de la vague ATTEINT** : les 13 dieux les plus faibles passent de
+42-51 % à **62-83 % de play rate** en Libre, tous ≥ 40 %. Deux trônes d'Aube
+égyptiens (Sobek/Sekhmet) et deux de Nuit yokai se contestent entre eux —
+c'est le jeu du système (un seul régent par phase).
+
+### Gates de fin de vague 3
+
+| Gate | Mesure | État |
+|---|---|---|
+| Factions Libre ±4pp (test_factions 2000) | y +3,8 · n −2,8 · e −3,0 · g +2,3 · a −0,3 | ✅ |
+| Factions draft ±4pp (pool_metrics 15000) | y −1,0 · n −1,7 · e +1,6 · **g +4,2** · a −2,9 | ⚠️ greek au bord (±0,9 d'erreur-type) |
+| Durée ≤ 12 tours | 10,29 (draft) · Libre inchangée | ✅ |
+| 0 crash / 1000 | 0 sur 15 000 draft + batterie complète + 500 test_regents | ✅ |
+| Ascension | Libre (harnais) 10,6 % ✅ · draft 3,6 % | ❌ draft (constante des 3 vagues) |
+| Golden | régénéré 1×, 136/200 divergences documentées, round-trip ✅ | ✅ |
+| Batterie | all_cards ✅ omens ✅ faith ✅ preview 203/203 ✅ ephemeral 22/22 ✅ regents 15/15 (669 intronisations, 112 détrônements) ✅ arena ✅ | ✅ |
+
+---
+
+# LIVRABLE FINAL — synthèse pour le retour de Frank
+
+## Ce qui est livré sur `feat-pool` (7 commits, aucun merge)
+
+- **49 cartes actives** dans le pool de draft d'Arena (186 → 235 cartes) +
+  **3 désactivées** (`disabled:true`, exclues du pool, redesigns proposés) +
+  **2 gelées** télégraphe (Svalinn, Augure de Delphes — non implémentées) ;
+- **13 dieux-régents** actifs (Libre + Arena), 1 aura gelée télégraphe ;
+- **4 mots-clés moteur** : Présages datés sur phase nommée, Éphémère (phases),
+  Nocturne/Diurne, Canalisation (« Rituel N ») — + exil (Ammit), pièges-sorts ;
+- **2 harnais neufs** : `tools/pool_metrics.js` (duels draftés 2 côtés,
+  winrates factions, play rate/contribution par carte) et
+  `tools/test_ephemeral.js` (22/22) ;
+- Partie Libre : SEULS les 13 dieux-régents ont changé (consigne vague 3) —
+  aucune des 186 cartes existantes touchée par ailleurs, decks fixes intacts.
+
+## Cartes désactivées (3) — propositions de redesign dans chaque vague
+
+1. **Voile du Rêve** (yokai) — nocive mesurée (−30/−35pp ×3) : le Sommeil
+   infligé protège les cibles et nourrit le Réveil adverse. → corps porteur
+   façon Baku, ou cauchemars offensifs (amorce de Nue).
+2. **Voile de Léthé** (greek) — structurel : aucun générateur de présage
+   grec, la carte n'a presque jamais de cible. → étendre aux présages adverses.
+3. **Khepri** (egyptian) — effet inerte dans ce moteur (l'Élan post-lever ne
+   fait rien) + contribution négative persistante. → « +2/+2 » au lieu d'Élan.
+
+## Les décisions qui t'attendent (rien n'a été tranché à ta place)
+
+1. **Gate de contribution en draft** : la métrique gonfle les « win-more »
+   (bombes existantes : Surt +61, Fenrir +50, Kraken +42) et n'est pas
+   mesurable au-dessus de 85 % de play rate (±15pp de bruit inter-runs).
+   Nidhogg +23, Nornes +16, Éclipse +18, Offrande +20, Bandelettes +22 sont
+   DANS la norme de classe → gardées actives, à toi d'arbitrer (gate par
+   classe de coût ? nerfs hors levier chiffré ?).
+2. **Gate play rate ≥ 40 % pour les réactives** : Briser le Calendrier (24 %),
+   Sceau de Râ (36 %), Procession (31 %) fonctionnent quand leur fenêtre
+   existe ; l'IA refuse les poses mortes (l'alternative mesurée est pire).
+   Assouplir le gate, ou augmenter la densité d'enablers ?
+3. **Greek +4,2/+4,6pp vs baseline draft** : la faction la plus faible
+   (44,4 %) recentrée à ~49 % par son pilier contre-jeu. Accepter, ou
+   me dire quelle(s) carte(s) re-nerfer ?
+4. **Ascension en draft : 3,6 %** (gate [5,40], Libre-harnais 10,6 % ✅).
+   Levier design, pas chiffré : FAITH_WIN Arena, bonus de pick des porteurs
+   de Foi, profil IA RUSH… (détail vague 1).
+5. **Serpopard (−11,8) et Nagual (−19,2)** : la règle des 3 cycles les
+   désactiverait ; gardés actifs car en amélioration / non toxiques —
+   confirme ou coupe. Nornes +16,4 : 1,4pp au-dessus, aucun levier propre.
+6. **Télégraphe** : Svalinn, Augure de Delphes, aura grecque de Midi n°2 et
+   le 2e fil des Moires attendent ta décision n°1 de PILIERS_A_DESIGNER.md.
+7. **Tyr (« le Cycle ne peut pas être avancé »)** : version sobre = cartes
+   seulement. Version totale (fin de ronde incluse) = partie figée sur les
+   Ténèbres tant qu'il règne — dis-moi.
+8. **UI en attente** : choix ±1 de Voile de Léthé (si réactivée), modal de
+   choix humain de la Chimère (politique auto pour l'instant), indicateur
+   « présage voilé » côté humain.
+
+## Comment vérifier (5 commandes)
+
+```
+node tools/golden.js /tmp/g.json 200 && node tools/golden_check.js tools/golden_snapshot.json /tmp/g.json
+node tools/test_factions.js 200        # gate Libre ±4pp
+node tools/pool_metrics.js 5000        # gates draft (15000 pour les chiffres du rapport)
+node tools/test_ephemeral.js           # 22/22
+for t in test_all_cards test_omens test_faith test_preview test_regents test_arena; do node tools/$t.js; done
+```

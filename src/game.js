@@ -1160,6 +1160,13 @@ const FACTION_PHASE_IDX = {egyptian:0, greek:1, aztec:2, yokai:3, norse:4};
 // quelle que soit la direction : seule la datation des présages est signée.
 function setCyclePhase(newCycle, srcLabel, opts) {
   if(G.cycleLocked) { addLog('🌙 Le Cycle est verrouillé sur la Nuit (Amaterasu).','special'); return; }
+  // RÉGENTS V3 (aura_no_advance, Tyr) : pendant les Ténèbres du régent, le
+  // Cycle ne peut pas être AVANCÉ par des cartes (srcLabel présent + forward).
+  // La fin de ronde naturelle (sans srcLabel) et le retard (backward) passent.
+  if(srcLabel && !(opts && opts.backward) && typeof regentNoAdvance === 'function' && regentNoAdvance()) {
+    addLog(`⚖️ Le Régent des Ténèbres tient le temps — le Cycle ne peut pas être avancé (${srcLabel}).`,'special');
+    return;
+  }
   const prev = G.cycle % 5;
   G.cycle = ((newCycle % 5) + 5) % 5;
   if((G.cycle % 5) === prev) return;
@@ -1177,6 +1184,13 @@ function setCyclePhase(newCycle, srcLabel, opts) {
   }
   // DIEUX-RÉGENTS (pilier 4) : sortie/entrée de phase pour les auras.
   // No-op strict tant qu'aucun régent ne siège (défaut hors harnais).
+  // RÉGENTS V3 (aura_advance_dmg, Xiuhtecuhtli) : le Cycle avance en quittant
+  // le Crépuscule du régent → 1 dégât au joueur adverse.
+  if(!backward && G.regents && G.regents[prev] && G.regents[prev].auraId === 'aura_advance_dmg') {
+    const rOwner = G.regents[prev].ownerP, rOpp = rOwner === 1 ? 2 : 1;
+    G.players[rOpp].hp -= 1;
+    addLog(`👑 ${G.regents[prev].card.n} — le Cycle avance : 1 dégât au joueur adverse (❤${G.players[rOpp].hp}).`,'dmg');
+  }
   if(G.regents && (G.regents[prev] || G.regents[G.cycle % 5])) regentsOnTransition(prev, G.cycle % 5);
   scheduleCycleAnim();
   if(G.mode === 'pve') showTuto('cycle'); // TUTO 5 : premier changement de Cycle
@@ -1208,9 +1222,19 @@ function setCyclePhase(newCycle, srcLabel, opts) {
       if(m && m._mummyRest) {
         m._mummyRest = false; m.faceDown = false;
         m.cAtk = m.atk; m.cDef = m.def;
+        // RÉGENTS V3 (aura_mummy_buff, Sobek) : les Momies se relèvent +1/+1.
+        const mb = regentMummyBuff(pl);
+        if(mb) { m.cAtk += mb; m.cDef += mb; addLog(`👑 Régent d'Aube — ${m.n} se relève avec +1/+1 !`,'buff'); }
         m._roseTick = G.cycleTick; // POOL V1 (Sceau de Râ) : datation du lever
         addLog(`🌅 ${m.n} se relève de son sarcophage !`,'special');
         poolKhepriBless(pl, m); // POOL V2 (Khepri) — no-op sans porteur
+        // RÉGENTS V3 (aura_mummy_haste, Sekhmet) : la 1ʳᵉ Momie de l'Aube gagne Élan.
+        if(regentMummyHaste(pl) && !G._regHasteTick) { G._regHasteTick = {}; }
+        if(regentMummyHaste(pl) && G._regHasteTick[pl] !== G.cycleTick) {
+          G._regHasteTick[pl] = G.cycleTick;
+          if(!/\bhurry\b/.test(m.cap||'')) m.cap = ((m.cap||'') + ' hurry').trim();
+          addLog(`👑 Régent d'Aube — ${m.n} gagne Élan !`,'buff');
+        }
       }
     }));
   }
@@ -1401,6 +1425,130 @@ const REGENT_AURAS = {
 
 function getRegent(phaseIdx) { return (G && G.regents && G.regents[phaseIdx]) || null; }
 
+// ══════════════════════════════════════════════════════════════════════════
+// POOL VAGUE 3 — DIEUX-RÉGENTS RÉELS (POOL_DESIGN §5, auras par faction).
+// Consigne Frank : mapper les 15 auras sur les dieux existants à play rate
+// < 40 %. MESURE (card_metrics 1500, feat-pool) : AUCUN dieu sous 40 % —
+// critère appliqué à l'esprit = les 3 dieux au play rate le plus bas de
+// chaque faction. 13 auras actives : l'aura grecque « frappes télégraphiées
+// révélées un tour plus tôt » est GELÉE (décision télégraphe) → Apollon
+// (3e dieu grec le plus faible) reste non converti. CES DIEUX CHANGENT DE
+// COMPORTEMENT EN PARTIE LIBRE (consigne vague 3) : golden régénéré 1× en
+// fin de vague, documenté dans POOL_STATUS.
+// ══════════════════════════════════════════════════════════════════════════
+const REGENT_GODS = {
+  // yokai (Sarutahiko 42 % · Omoikane 46 % · Izanami 48 %)
+  SARUTAHIKO: { phaseIdx: 3, auraId: 'aura_sleep_plus' },
+  OMAIKANE:   { phaseIdx: 2, auraId: 'aura_eph_stay' },
+  IZANAMI:    { phaseIdx: 3, auraId: 'aura_sleep_strongest' },
+  // norse (Freya 43 % · Vidar 47 % · Tyr 47 %)
+  FREYA:      { phaseIdx: 4, auraId: 'aura_tenebres_plus1' },
+  TYR:        { phaseIdx: 4, auraId: 'aura_no_advance' },
+  VIDAR:      { phaseIdx: 1, auraId: 'aura_prophecy_reveal' },
+  // egyptian (Sobek 47 % · Khonsu 50 % · Sekhmet 50 %)
+  SOBEK:      { phaseIdx: 0, auraId: 'aura_mummy_buff' },
+  SEKHMET:    { phaseIdx: 0, auraId: 'aura_mummy_haste' },
+  KHONSU:     { phaseIdx: 3, auraId: 'aura_night_mummy' },
+  // greek (Déméter 44 % · Hadès 51 % — Apollon 54 % non converti, aura gelée)
+  DEMETER:    { phaseIdx: 0, auraId: 'aura_pray_egide' },
+  HADES:      { phaseIdx: 1, auraId: 'aura_traps_anytime' },
+  // aztec (Coyolxauhqui 46 % · Xiuhtecuhtli 46 % · Centeotl 48 %)
+  CENTEOTL:      { phaseIdx: 2, auraId: 'aura_sac_faith' },
+  XIUHTECUHTLI:  { phaseIdx: 2, auraId: 'aura_advance_dmg' },
+  COYOLXAUHQUI:  { phaseIdx: 4, auraId: 'aura_eph_dark_buff' },
+};
+
+// Une aura continue est ACTIVE pendant la phase de son trône (sémantique
+// pilier 4 : appliquée à l'entrée, retirée à la sortie).
+function regentAuraActive(auraId, ownerP) {
+  if(!G || !G.regents) return false;
+  const e = G.regents[G.cycle % 5];
+  return !!(e && e.auraId === auraId && (ownerP == null || e.ownerP === ownerP));
+}
+
+// ── Les 13 auras réelles (sobres — une ligne d'effet chacune) ─────────────
+Object.assign(REGENT_AURAS, {
+  // YOKAI
+  aura_sleep_plus: {
+    label: 'Régent de Nuit — votre Sommeil dure 1 tour de plus',
+    apply() {}, remove() {},
+  },
+  aura_sleep_strongest: {
+    label: 'Régent de Nuit — à l\'entrée en Nuit, endort le monstre adverse le plus fort',
+    enter(entry) {
+      const opp = entry.ownerP === 1 ? 2 : 1;
+      const targets = G.players[opp].field.filter(m => m && !m.faceDown && !m.asleep);
+      if(!targets.length) return;
+      const big = targets.reduce((a,b) => (a.cAtk >= b.cAtk ? a : b));
+      const dur = 2 + regentSleepBonus(entry.ownerP);
+      big.faceDown = true; big.asleep = true; big.sleepTurns = dur;
+      addLog(`👑 ${entry.card.n} — ${big.n} sombre dans le Sommeil (${dur}t) !`,'special');
+      poolNotifySleep(opp, big);
+    },
+  },
+  aura_eph_stay: {
+    label: 'Régent de Crépuscule — vos Éphémères ne s\'estompent pas à la phase suivante',
+    enter(entry) {
+      let n = 0;
+      G.players[entry.ownerP].field.forEach(m => {
+        if(m && m.eph && !m._ephFaded) { m._ephStayTick = (G.cycleTick||0) + 1; n++; }
+      });
+      if(n) addLog(`👑 ${entry.card.n} retient ${n} Éphémère(s) dans le monde une phase de plus.`,'special');
+    },
+  },
+  // NORSE
+  aura_tenebres_plus1: {
+    label: 'Régent de Ténèbres — vos effets de Ténèbres (Ragnarök inclus) infligent +1',
+    apply() {}, remove() {},
+  },
+  aura_no_advance: {
+    label: 'Régent de Ténèbres — le Cycle ne peut pas être avancé par des cartes',
+    apply() {}, remove() {},
+  },
+  aura_prophecy_reveal: {
+    label: 'Régent de Midi — les Prophéties révèlent le Présage adverse le plus proche',
+    enter(entry) {
+      const target = (G.omens||[]).filter(o => o.ownerP !== entry.ownerP)
+        .sort((a,b) => a.dueTick - b.dueTick)[0];
+      if(!target) return;
+      target.hidden = false;
+      addLog(`👑 ${entry.card.n} — le présage adverse le plus proche est révélé : « ${target.label} » (${target.cardName}, dans ${target.dueTick - G.cycleTick} phase(s)).`,'special');
+    },
+  },
+  // EGYPTIAN
+  aura_mummy_buff:  { label: 'Régent d\'Aube — vos Momies se relèvent avec +1/+1', apply() {}, remove() {} },
+  aura_mummy_haste: { label: 'Régent d\'Aube — la première Momie de chaque Aube gagne Élan', apply() {}, remove() {} },
+  aura_night_mummy: { label: 'Régent de Nuit — vos monstres morts pendant la Nuit reviennent face cachée à l\'Aube (1 fois)', apply() {}, remove() {} },
+  // GREEK
+  aura_pray_egide:    { label: 'Régent d\'Aube — vos monstres en prière ont Égide', apply() {}, remove() {} },
+  aura_traps_anytime: { label: 'Régent de Midi — vos pièges sont déclenchables à volonté', apply() {}, remove() {} },
+  // AZTEC
+  aura_sac_faith:   { label: 'Régent de Crépuscule — vos sacrifices donnent +1 Foi', apply() {}, remove() {} },
+  aura_advance_dmg: { label: 'Régent de Crépuscule — quand le Cycle avance, 1 dégât au joueur adverse', apply() {}, remove() {} },
+  aura_eph_dark_buff: { label: 'Régent de Ténèbres — vos Éphémères de Ténèbres entrent avec +1/+1', apply() {}, remove() {} },
+});
+
+// Helpers d'aura interrogés par les points de jeu concernés (no-op sans régent).
+function regentSleepBonus(byP)      { return regentAuraActive('aura_sleep_plus', byP) ? 1 : 0; }
+function regentTenebresBonus(byP)   { return regentAuraActive('aura_tenebres_plus1', byP) ? 1 : 0; }
+function regentNoAdvance()          { return regentAuraActive('aura_no_advance'); }
+function regentMummyBuff(pl)        { return regentAuraActive('aura_mummy_buff', pl) ? 1 : 0; }
+function regentMummyHaste(pl)       { return regentAuraActive('aura_mummy_haste', pl); }
+function regentNightMummy(pl)       { return regentAuraActive('aura_night_mummy', pl); }
+function regentPrayEgide(pl)        { return regentAuraActive('aura_pray_egide', pl); }
+function regentTrapsAnytime(pl)     { return regentAuraActive('aura_traps_anytime', pl); }
+function regentSacFaith(pl)         { return regentAuraActive('aura_sac_faith', pl); }
+function regentEphDarkBuff(pl)      { return regentAuraActive('aura_eph_dark_buff', pl); }
+
+// Texte des dieux convertis : ligne 👑 ajoutée au texte d'origine (cosmétique).
+(function patchRegentTxts() {
+  if(typeof GODS === 'undefined') return;
+  for(const f in GODS) for(const g of GODS[f]) {
+    const r = REGENT_GODS[g.id];
+    if(r) g.txt = (g.txt||'') + ` 👑 RÉGENT : s'intronise sur ${CYCLE_NAMES[CYCLE_PHASES[r.phaseIdx]]} — ${(REGENT_AURAS[r.auraId]||{}).label || r.auraId}.`;
+  }
+})();
+
 // Intronise `card` (dieu du joueur p) sur la phase `phaseIdx`. Trône occupé =
 // contesté : l'occupant est détrôné d'abord. Si la phase est déjà active,
 // l'aura s'applique/se déclenche immédiatement.
@@ -1546,6 +1694,7 @@ function effProtect(m, ownerP) {
 // détruire avant de pouvoir attaquer/profaner ces agenouillés.
 // AUCUN porteur pour l'instant (décision Frank Q1 : moteur seul).
 function hasEgide(P) {
+  if(P && regentPrayEgide(P.id)) return true; // RÉGENTS V3 (Déméter, Régent d'Aube)
   return !!P && P.field.some(x => x && !x.faceDown && !x.asleep && !x.kneeling && (x.cap||'').includes('egide'));
 }
 // Un fidèle agenouillé protégé par une Égide alliée est inciblable en attaque.
@@ -1568,6 +1717,7 @@ function zenithTokenBoost(p, tok) {
 }
 // Zénith grec (Midi) : déclenchement manuel des dieux face cachée.
 function canManualTriggerFD(p) {
+  if(regentTrapsAnytime(p)) return true; // RÉGENTS V3 (Hadès, Régent de Midi)
   return getZenithFaction() === 'greek' && G.players[p] && G.players[p].faction === 'greek';
 }
 async function manualTriggerFaceDown(p, i) {
@@ -1876,10 +2026,12 @@ function doEndTurn() {
     newP.field.forEach(m => {
       if(!m || m.faceDown || !(m.cap||'').includes('ragnarok_growing')) return;
       m._ragN = (m._ragN||0) + 1;
-      addLog(`🌑 RAGNARÖK — ${m.n} déchaîne la fin du monde : ${m._ragN} dégâts à tous les monstres adverses !`,'special');
+      // RÉGENTS V3 (aura_tenebres_plus1, Freya) : effets de Ténèbres +1.
+      const ragDmg = m._ragN + regentTenebresBonus(G.cp);
+      addLog(`🌑 RAGNARÖK — ${m.n} déchaîne la fin du monde : ${ragDmg} dégâts à tous les monstres adverses !`,'special');
       markCombo(newP.faction);
       G.players[oppRag].field.filter(x=>x&&!x.faceDown).forEach(x => {
-        x.cDef = Math.max(0, x.cDef - m._ragN);
+        x.cDef = Math.max(0, x.cDef - ragDmg);
         if(x.cDef<=0) handleDeath(oppRag, x);
       });
     });
@@ -2764,6 +2916,17 @@ async function handleDeath(p, m) {
     return;
   }
 
+  // RÉGENTS V3 (aura_night_mummy, Khonsu) : mort pendant la Nuit du régent →
+  // le monstre revient face cachée et se relèvera à l'Aube (1 fois).
+  if(m.type === 'monster' && !m._auraMummyUsed && regentNightMummy(p)) {
+    m._auraMummyUsed = true;
+    poolChantInterrupt(m);
+    m.faceDown = true; m.asleep = false; m._mummyRest = true;
+    m.cDef = 0; m.cursed = false;
+    addLog(`👑 Régent de Nuit — ${m.n} est embaumé par la lune… il se relèvera à l'Aube.`,'special');
+    return;
+  }
+
   desecrateIfKneeling(p, m); // ASCENSION (A2) : mort finale
   poolChantInterrupt(m);     // POOL V2 : la mort interrompt la Canalisation
   Audio5L.sfx.death();
@@ -3442,7 +3605,8 @@ function poolFaith(p, n, label) {
 // Sommeil infligé par un effet du pool — mêmes règles que applyTargetEffect
 // ('sleep') : 2 tours, 3 au zénith Nuit pour un contrôleur yokai.
 function poolSleep(byP, m) {
-  const dur = (getZenithFaction()==='yokai' && G.players[byP] && G.players[byP].faction==='yokai') ? 3 : 2;
+  const dur = ((getZenithFaction()==='yokai' && G.players[byP] && G.players[byP].faction==='yokai') ? 3 : 2)
+    + regentSleepBonus(byP); // Régent de Nuit (V3)
   m.faceDown = true; m.asleep = true; m.sleepTurns = dur;
   addLog(`${m.n} put to sleep (${dur}t)!`,'debuff');
   const vp = G.players[1].field.includes(m) ? 1 : 2;
@@ -3481,6 +3645,8 @@ function poolNotifySacrifice(p, dead) {
       poolFaith(p, 2, `${m.n} — Ferveur du sacrifice`);
     }
   });
+  // RÉGENTS V3 (aura_sac_faith, Centeotl) : vos sacrifices donnent +1 Foi.
+  if(regentSacFaith(p)) poolFaith(p, 1, 'Régent du Crépuscule — le sang nourrit la Foi');
 }
 
 // Sacrifice « pool » : retire SANS déclencher les effets de Sortie (même
@@ -3791,7 +3957,18 @@ function poolEphemeralSync(prevPh) {
         m._ephFaded = false;
         if(!m.asleep) m.faceDown = false;
         addLog(`✨ ${m.n} se matérialise — ${CYCLE_NAMES[ph]} est sa fenêtre !`,'special');
+        // RÉGENTS V3 (aura_eph_dark_buff, Coyolxauhqui) : Éphémère de Ténèbres
+        // qui entre pendant les Ténèbres du régent → +1/+1.
+        if(ph === 'tenebres' && m.eph.includes('tenebres') && regentEphDarkBuff(pl)) {
+          m.cAtk += 1; m.cDef += 1;
+          addLog(`👑 Régent de Ténèbres — ${m.n} se matérialise avec +1/+1 !`,'buff');
+        }
       } else if(!inWin && !m._ephFaded) {
+        // RÉGENTS V3 (aura_eph_stay, Omoikane) : sursis d'une phase.
+        if(m._ephStayTick === G.cycleTick) {
+          addLog(`👑 ${m.n} est retenu dans le monde une phase de plus.`,'special');
+          continue;
+        }
         if((m.cap||'').includes('pool_icare') && prevPh === 'midi') {
           // La chute d'Icare : mort sèche synchrone (aucun Dernier Souffle à jouer).
           addLog(`🪽 ${m.n} a volé trop près du soleil — il CHUTE !`,'special');
@@ -3969,6 +4146,10 @@ function poolOnSummon(p, m) {
   if(m.eph && !m.eph.includes(CYCLE_PHASES[G.cycle % 5]) && !m._ephFaded) {
     m._ephFaded = true; m.faceDown = true;
     addLog(`🌫 ${m.n} s'estompe — il attend ${m.eph.map(x=>CYCLE_NAMES[x]).join(' / ')}.`,'event');
+  } else if(m.eph && CYCLE_PHASES[G.cycle % 5] === 'tenebres' && m.eph.includes('tenebres') && regentEphDarkBuff(p)) {
+    // RÉGENTS V3 (aura_eph_dark_buff) : invoqué directement dans les Ténèbres.
+    m.cAtk += 1; m.cDef += 1;
+    addLog(`👑 Régent de Ténèbres — ${m.n} entre avec +1/+1 !`,'buff');
   }
   poolPhaseKeywordSync(m);
   if((m.cap||'').includes('pool_einherjar')) poolFreezeSync();
@@ -4139,6 +4320,14 @@ async function playGod(c, p) {
   if(REGENTS_DEMO && REGENT_DEMO_GODS[c.id]) {
     const d = REGENT_DEMO_GODS[c.id];
     enthroneGod(p, c, d.phaseIdx, d.auraId);
+    return;
+  }
+
+  // POOL VAGUE 3 : les 13 dieux-régents réels SIÈGENT au lieu de leur
+  // one-shot (consigne Frank — dieux les plus faibles convertis en régents).
+  if(REGENT_GODS[c.id]) {
+    const r = REGENT_GODS[c.id];
+    enthroneGod(p, c, r.phaseIdx, r.auraId);
     return;
   }
 
@@ -5301,6 +5490,14 @@ function scoreCard(c, p) {
       if(cap.includes('prophecy') || cap.includes('choose')) score += ((dist >= 1 && dist <= 3 ? 8 : 0) * boardOK);
     }
 
+    // RÉGENTS V3 : un dieu-régent s'intronise (valeur durable) — l'IA le joue
+    // volontiers, surtout à l'approche de la phase de son trône.
+    if(typeof REGENT_GODS !== 'undefined' && REGENT_GODS[c.id]) {
+      const rIdx = REGENT_GODS[c.id].phaseIdx, cur5 = G.cycle % 5;
+      const dR = ((rIdx - cur5) % 5 + 5) % 5;
+      score += 4 + (dR <= 1 ? 3 : 0) - (G.regents && G.regents[rIdx] && G.regents[rIdx].ownerP === p ? 8 : 0);
+    }
+
     // General: gods with no valid targets are worthless
     const needsTarget = ['minus','destroy','steal','sleep','buff','blank','blind','force','thor'];
     const hasTarget = oppField.length > 0 || myField.length > 0;
@@ -6370,7 +6567,8 @@ async function applyTargetEffect(type, fromP, idx, card) {
   const opp=fromP;
 
   if(type==='sleep') {
-    const dur = (getZenithFaction()==='yokai' && G.players[p] && G.players[p].faction==='yokai') ? 3 : 2; // zénith Nuit (3.1)
+    const dur = ((getZenithFaction()==='yokai' && G.players[p] && G.players[p].faction==='yokai') ? 3 : 2)
+      + regentSleepBonus(p); // zénith Nuit (3.1) + Régent de Nuit (V3)
     m.faceDown=true; m.asleep=true; m.sleepTurns=dur;
     addLog(`${m.n} put to sleep (${dur}t)!`,'debuff');
     poolNotifySleep(fromP, m); // POOL V2 (Jorogumo, Canalisation) — no-op sans porteur
