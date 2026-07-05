@@ -295,6 +295,7 @@ La bande fiable est play rate 40-85 %.
 | Couteau d'Obsidienne | 1 | — | 54 % | −0,9 | ✅ (IA : échange rentable exigé) |
 
 (Vague 1 re-mesurée dans le même run : Talos coût 5→**4** → +8,8 ✅ ·
+Prêtre du Cinquième Soleil 4/4→**5/5** (poussée aztec cycle 3) → 91 %, +10,3 ✅ ·
 Trépied re-nerf coût 3 ANNULÉ (−12,1 à 3, ≈ −1 à 2 : retour design) ·
 Éclipse +17,7 / Offrande +20,4 / Nidhogg +23,3 : flags win-more inchangés ·
 Briser 24 % / Sceau de Râ 36 % / Procession 31 % : flags play rate
