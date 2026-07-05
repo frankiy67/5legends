@@ -64,9 +64,136 @@ du texte sont ajustables ; tout le reste est documenté ici et attend Frank.
   (préfixe `P_`), noms affichés conservés fidèles au design. À renommer par
   Frank (section 8.5 du design).
 
-## VAGUE 1 — cœur (~22 cartes)
+## VAGUE 1 — cœur (22 cartes) : TERMINÉE ✅ (2 désactivées, 6 flags pour Frank)
 
-_(en cours)_
+**Écart au protocole, assumé et documenté** : les 22 cartes partagent la même
+plomberie (helpers présages datés, hooks gel/retard/sacrifice/prière, piège du
+Cycle) — je les ai câblées en un bloc puis équilibrées par cycles de mesure,
+au lieu de lots par faction. Chaque cycle = pool_metrics N=5000 (le N=1000
+initial s'est révélé illisible : erreur-type ±9pp sur la contribution).
+
+### Chiffres finaux (pool_metrics N=15000, config figée après 3 cycles)
+
+Baseline draft re-mesurée à N=15000 sur l'arbre d'avant-cartes (worktree
+6c2b3cc) : yokai 54,3 · norse 47,7 · egyptian 53,5 · greek 44,4 · aztec 50,0 ·
+Ascension 1,9 % · 9,94 tours. (Le baseline N=1000 initial était trop bruité —
+il avait fait croire à une alerte aztec −5,6pp qui n'existait pas.)
+
+**Gates de fin de vague :**
+
+| Gate | Mesure | État |
+|---|---|---|
+| Winrates factions draft, relatif ±4pp | y −1,1 · n −0,9 · e +2,4 · g +2,5 · a −2,8 | ✅ |
+| Winrates factions Libre | identiques au baseline (pool Arena-only, golden byte-identique) | ✅ |
+| Durée moyenne ≤ 12 tours | 10,12 (draft) · 10,10 (libre) | ✅ |
+| 0 crash sur 1000 parties | 0 crash sur 15 000 duels draftés + batterie complète | ✅ |
+| Ascension ∈ [5,40] % | harnais test_faith : 11,0 % ✅ · **draft : 3,0 %** (baseline 1,9) | ❌ draft, cf. décisions |
+| Play rate ≥ 40 % · contrib ∈ [−8,+15]pp | 12/20 cartes actives ✅ · 8 flags analysés ci-dessous | ⚠️ partiel |
+
+**Golden** : byte-identique au snapshot de la branche (vérifié après chaque
+cycle). Aucune régénération nécessaire pour cette vague : le pool est
+Arena-only, la Partie Libre n'a pas bougé d'un octet.
+
+### Tableau final des cartes (N=15000)
+
+| Carte | Coût (design→final) | Stats | Play rate | Contrib | Statut |
+|---|---|---|---|---|---|
+| Zashiki-Warashi (P_ZASHIKI) | 1 | 1/1→**1/3** | 92 % | −1,6 | ✅ |
+| Kodama (P_KODAMA) | 1 | 1/3 | 93 % | −3,2 | ✅ |
+| Hitodama (P_HITODAMA) | 1 | — | 76 % | −6,7 | ✅ |
+| Procession des Lanternes (P_PROCESSION) | 3→**2** | — | 33 % | −5,3 | ⚠️ play rate |
+| Voile du Rêve (P_VOILE_REVE) | 2→1 | — | 79 % | **−35,4** | ❌ DÉSACTIVÉE |
+| Ratatoskr (P_RATATOSKR) | 1 | 1/2 | 94 % | +5,1 | ✅ |
+| Godi des Runes (P_GODI) | 2 | 1/3→**1/5** | 92 % | +5,3 | ✅ |
+| Fil de Verdandi (P_FIL_VERDANDI) | 2 | — | 91 % | −9,5 | ✅* borderline |
+| Gjallarhorn (P_GJALLARHORN) | 3 (nerf 4 annulé) | — | 51 % | +13,2 | ✅ |
+| Nidhogg (P_NIDHOGG) | 7 | 6/6, croît +2/+2→**+1/+1** | 68 % | **+21,0** | ⚠️ biais de classe |
+| Ouadjet (P_OUADJET) | 2 | 2/3→**3/5** | 89 % | −4,8 | ✅ |
+| Rite des Ouchebtis (P_RITE_OUCHEBTIS) | 1→**2** | jetons 0/2 | 87 % | −14,8 | ✅* borderline |
+| Sceau de Râ (P_SCEAU_RA) | 2→**1** | — | 26 % | +1,4 | ⚠️ play rate |
+| Hoplite du Serment (P_HOPLITE) | 2 | 2/3→**3/4** | 88 % | −4,8 | ✅ |
+| Talos (P_TALOS) | 5 | 3/8 | 77 % | −7,7 | ✅ |
+| Les Moires (P_MOIRES) | 6 | 2/7→**4/8** | 65 % | +1,9 | ✅ |
+| Trépied de la Pythie (P_TREPIED) | 2 | — | 93 % | −7,1 | ✅ |
+| Voile de Léthé (P_VOILE_LETHE) | 2→1 | — | 11-14 % | — | ❌ DÉSACTIVÉE |
+| Prêtre du Cinquième Soleil (P_PRETRE_SOLEIL) | 3 | 3/3→**4/4** | 87 % | −1,0 | ✅ |
+| Couteau… — vague 2 | | | | | |
+| Offrande au Cinquième Soleil (P_OFFRANDE) | 2→**4** | — | 41 % | **+19,4** | ⚠️ biais de classe |
+| Éclipse Totale (P_ECLIPSE) | 4→**5** | — | 54 % | +15,4 | ✅* au bord du gate |
+| Briser le Calendrier (P_BRISER) | 3→**1** | — | 26 % | +3,8 | ⚠️ play rate |
+
+\* borderline = l'écart au gate est inférieur à l'erreur-type de la mesure
+(±4-6pp pour les cartes à play rate > 85 %, dont le groupe témoin « en main
+non jouée » est minuscule). Valeurs multi-runs : Fil de Verdandi −6,3/−2,6/−9,5 ;
+Rite des Ouchebtis −5,2/−9,7/−6,8/−14,8.
+
+### Cartes désactivées (règle des 3 cycles appliquée)
+
+1. **Voile du Rêve** — contribution −29,9 / −32,3 / −35,4 sur trois mesures
+   indépendantes N=5000+ : signal réel, la carte FAIT PERDRE son drafteur.
+   Causes identifiées : (a) endormir des monstres adverses les rend
+   inattaquables hors zénith Nuit → on protège les cibles qu'on voulait tuer ;
+   (b) le réveil adverse nourrit les payoffs Réveil ADVERSES (Mujnina,
+   Inugami : notifyWake déclenche pour les deux camps) ; (c) l'effet arrive
+   daté sur [Nuit], souvent trop tard. Ajustements épuisés (coût 2→1, cibles
+   2→3). **Proposition de redesign pour Frank** : y adjoindre un corps (façon
+   Baku, dont la contribution draft est +4,2) — « monstre 2/3 : Éveil —
+   Présage sur [Nuit] : endormez 2 monstres adverses », OU inverser la cible
+   (endort VOS monstres pour les protéger/réveiller avec Procession), OU
+   déclencher les cauchemars (X dégâts aux dormeurs à l'échéance, amorce de
+   Nue vague 2).
+2. **Voile de Léthé** — play rate 11-14 % sur 3 cycles : STRUCTUREL. La carte
+   cible « un de VOS présages », or les Grecs n'ont AUCUN générateur de
+   présage en faction (leurs 2 sorts-pilier sont le Trépied — un piège — et
+   Léthé lui-même) ; en draft mono-orienté greek il n'y a presque jamais de
+   présage allié à voiler. Aucun levier chiffré n'existe. **Proposition** :
+   autoriser aussi le ciblage d'un présage ADVERSE (voler le fil au lieu de
+   cacher le sien — reste dans le verbe grec « CACHER »), ou donner aux Grecs
+   un générateur commun (la Pythie existante omen_dmg1 est trop rare : 1
+   exemplaire dans le pool).
+
+### Flags « hors gate » CONSERVÉS ACTIFS — décision Frank requise
+
+Principe appliqué (documenté, pas tranché à ta place) : je ne désactive que
+les cartes qui NUISENT mesurablement à leur drafteur (Voile du Rêve). Quand le
+gate échoue pour une raison de MÉTRIQUE ou d'ARCHÉTYPE, je garde la carte et
+je te l'apporte :
+
+- **Biais « win-more » de la contribution en draft** : les bombes tardives et
+  payoffs de sacrifice se jouent quand on est déjà en position de force → la
+  métrique les gonfle mécaniquement. Contrôle sur les cartes EXISTANTES en
+  draft : Surt **+61,3** · Fenrir **+49,7** · Kraken **+41,8** · Ryuu +33,8 ·
+  Typhon +22,8 · Namazu +20,5 · Huay Chivo +21,3 (et Golem **−14,0** de
+  l'autre côté). Nidhogg (+21,0), Offrande (+19,4) et Éclipse (+15,4) sont
+  DANS ou SOUS la norme de leur classe. Les désactiver reviendrait à
+  recaler la moitié du pool existant. → à trancher : gate contribution
+  recalibré par classe de coût, ou nerfs supplémentaires hors levier chiffré.
+- **Cartes conditionnelles vs gate play rate ≥ 40 %** : Briser le Calendrier
+  (26 %, contrib +3,8), Sceau de Râ (26 %, +1,4), Procession (33 %, −5,3)
+  fonctionnent quand leur fenêtre existe — l'IA refuse les poses mortes
+  (l'alternative mesurée : Procession jouée à vide = −28pp). Leur play rate
+  est plafonné par la densité de présages/momies/dormeurs du pool, pas par
+  leurs chiffres. → à trancher : gate play rate assoupli pour les réactives,
+  ou densité d'enablers augmentée (vague 2 en apporte : Bennu, Khepri,
+  Jorogumo, Kasha…). NB : la vague 2 devrait mécaniquement relever ces play
+  rates ; je re-mesure en fin de vague 2 avant toute conclusion.
+
+### Ascension en draft : 3,0 % < gate [5,40] — levier design, pas chiffré
+
+En Libre (harnais test_faith) : 11,0 % ✅. En draft : 1,9 % → 3,0 % (+1,1pp
+grâce aux porteurs vague 1), loin des 5 %. Cause : un deck drafté de 40 cartes
+ne contient en moyenne que ~2-3 porteurs de Ferveur (vs 4/59 dans le harnais),
+et l'IA CONTROL ne prie qu'en surplus. Leviers possibles (tous à toi) :
+FAITH_WIN < 16 en Arena, plus de porteurs par draft (bonus de pick), profil IA
+RUSH pour les decks à Foi, ou accepter que l'Ascension soit rare en Arena.
+
+### Ajustements refusés / annulés (traçabilité)
+
+- Gjallarhorn coût 3→4 (cycle 1, réponse à « norse +6,0pp ») : ANNULÉ au
+  cycle 3 — l'alerte norse était du bruit N=1000 ; à N=15000 norse est à
+  −0,9pp du baseline. Carte revenue au design pur.
+- Trépied coût 2→1 (cycle 2) : ANNULÉ au cycle 3 (surgonflée à +17,1pp) —
+  retour au design 2, contribution finale −7,1 ✅.
 
 ## VAGUE 2 — Éphémères, Nocturne/Diurne, reste des archétypes
 
