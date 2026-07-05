@@ -566,6 +566,21 @@ aztec:[
 
 const SPELLS = {};  // Sorts retirés — deck 54 cartes (40 monstres + 14 dieux)
 
+// ══════════════════════════════════════════════════════════════════════════
+// NOUVEAU POOL (feat-pool, design docs/POOL_DESIGN.md §4-5) — les cartes de
+// ce registre entrent UNIQUEMENT dans le pool de draft de l'Arena
+// (buildCardPool). Elles n'entrent JAMAIS dans buildDeck : les decks de
+// Partie Libre restent à 54 cartes, le golden par défaut est préservé.
+// IDs préfixés P_ (le design réutilise des noms existants — collisions
+// documentées dans docs/POOL_STATUS.md, renommage = décision Frank).
+// Raretés fidèles au design : common / rare / epic / legendary (métadonnée
+// sans effet moteur : le draft d'Arena tire uniformément).
+// disabled:true = carte désactivée après 3 cycles d'ajustement hors gates
+// (ou gelée en attente d'une décision Frank) — exclue du pool, documentée.
+// ══════════════════════════════════════════════════════════════════════════
+const POOL_MONSTERS = { yokai: [], norse: [], egyptian: [], greek: [], aztec: [] };
+const POOL_SPELLS   = { yokai: [], norse: [], egyptian: [], greek: [], aztec: [] };
+
 // =====================================================
 // GAME STATE
 // =====================================================
@@ -768,7 +783,12 @@ function initGame(f1, f2, mode, opts) {
   };
   for(let p=1;p<=2;p++){
     const f = p===1?f1:f2;
-    const deck = (p===1 && customDeck) ? buildCustomDeck(customDeck) : buildDeck(f);
+    // POOL (harnais) : customDeck2 = deck drafté côté J2 (pool_metrics joue
+    // des duels draftés des DEUX côtés). Défaut undefined → comportement intact.
+    const customDeck2 = opts && opts.customDeck2;
+    const deck = (p===1 && customDeck) ? buildCustomDeck(customDeck)
+               : (p===2 && customDeck2) ? buildCustomDeck(customDeck2)
+               : buildDeck(f);
     // Taille de main de l'IA selon la difficulté d'Arena (1 = équilibre standard).
     const oppHand = difficulty <= 0 ? 4 : (difficulty >= 2 ? 6 : 5);
     G.players[p] = {
@@ -1669,6 +1689,8 @@ const ANYTIME_CAPS_SET = (() => {
   const pools = [];
   if (typeof GODS !== 'undefined')     for (const f in GODS)     pools.push(GODS[f]);
   if (typeof MONSTERS !== 'undefined') for (const f in MONSTERS) pools.push(MONSTERS[f]);
+  if (typeof POOL_MONSTERS !== 'undefined') for (const f in POOL_MONSTERS) pools.push(POOL_MONSTERS[f]);
+  if (typeof POOL_SPELLS !== 'undefined')   for (const f in POOL_SPELLS)   pools.push(POOL_SPELLS[f]);
   for (const pool of pools) for (const card of pool) {
     const cap = card.cap || '';
     if ((card.txt || '').includes("N'importe quand")) s.add(cap);
@@ -3125,6 +3147,16 @@ const __h = GOD_EFFECTS[cap];
 async function playSpell(c, p) {
   addLog(`Player ${p} plays: ${c.n}!`,'summon');
   const opp=p===1?2:1;
+
+  // POOL : sorts-pièges (fd_) — posés face cachée comme les dieux grecs
+  // (Trépied de la Pythie). Aucun sort existant n'a de cap fd_ → additif.
+  if((c.cap||'').startsWith('fd_')) {
+    const m = newCard({...c, faceDown:true});
+    G.players[p].field.push(m);
+    G.players[p].summoned.add(G.players[p].field.length-1);
+    addLog(`${c.n} est posé face cachée.`,'event');
+    return;
+  }
 
   // Bug #2 fix: timing stack for spell counter window
   if(p===2 && G.mode==='pve') {
@@ -6439,6 +6471,9 @@ function buildCardPool() {
   for(const f of FACTIONS) {
     for(const m of (MONSTERS[f]||[])) pool.push({...m, type:'monster', faction:f});
     for(const g of (GODS[f]||[]))     pool.push({...g, type:g.type||'god', faction:f});
+    // NOUVEAU POOL (feat-pool) : cartes Arena-only du registre POOL_*.
+    for(const m of (POOL_MONSTERS[f]||[])) if(!m.disabled) pool.push({...m, type:'monster', faction:f});
+    for(const s of (POOL_SPELLS[f]||[]))   if(!s.disabled) pool.push({...s, type:'spell',   faction:f});
   }
   CARD_POOL = pool;
   return pool;
